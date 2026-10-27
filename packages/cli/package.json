@@ -1,0 +1,22 @@
+{
+  "name": "@sknib/cli",
+  "version": "0.1.0",
+  "description": "Nib CLI — login, inspect usage, and launch the Nib coding agent.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "nib": "dist/index.js" },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts",
+    "test": "tsc -p tsconfig.test.json && node --test dist-test/**/*.test.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": { "node": ">=20" }
+}

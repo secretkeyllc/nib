@@ -1,0 +1,14 @@
+{
+  "name": "nib-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Nib — an agentic coding tool. A SecretKey product.",
+  "license": "MIT",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build": "npm run build -w @sknib/cli",
+    "test": "npm run test -w @sknib/cli",
+    "dev:mock": "npm run dev -w @sknib/mock-server"
+  },
+  "engines": { "node": ">=20" }
+}
