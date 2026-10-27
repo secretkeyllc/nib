@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist-test",
+    "rootDir": "."
+  },
+  "include": [
+    "tests/**/*.ts",
+    "auth/**/*.ts",
+    "entitlement/**/*.ts",
+    "engine/**/*.ts",
+    "update/**/*.ts"
+  ]
+}

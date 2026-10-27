@@ -8,7 +8,10 @@
   "scripts": {
     "build": "npm run build -w @sknib/cli",
     "test": "npm run test -w @sknib/cli",
-    "dev:mock": "npm run dev -w @sknib/mock-server"
+    "dev:mock": "npm run dev -w @sknib/mock-server",
+    "dev:desktop": "npm run dev -w @sknib/nib-desktop",
+    "build:desktop": "npm run build -w @sknib/nib-desktop",
+    "test:desktop": "npm run test -w @sknib/nib-desktop"
   },
   "engines": { "node": ">=20" }
 }

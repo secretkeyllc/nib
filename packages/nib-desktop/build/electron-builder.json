@@ -1,0 +1,34 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "appId": "com.secretkeyllc.nib",
+  "productName": "Nib",
+  "executableName": "nib",
+  "directories": {
+    "output": "release"
+  },
+  "files": ["out/**", "package.json"],
+  "asarUnpack": ["**/node_modules/@lydell/node-pty/**"],
+  "extraResources": [
+    { "from": "resources/bin", "to": "bin" },
+    { "from": "resources/cli", "to": "cli" }
+  ],
+  "win": {
+    "target": [{ "target": "nsis", "arch": ["x64"] }],
+    "icon": "branding/nib.ico",
+    "artifactName": "Nib-Setup-${version}.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": "always",
+    "shortcutName": "Nib",
+    "license": "../../LICENSE",
+    "include": "build/installer.nsh"
+  },
+  "publish": {
+    "provider": "github",
+    "owner": "secretkeyllc",
+    "repo": "nib"
+  }
+}

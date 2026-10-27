@@ -1,0 +1,612 @@
+/*
+ * Nib desktop renderer theme.
+ * Palette tokens come from assets/README.md; system sans for UI, system
+ * mono for code and paths. Status-bar state colours follow docs/IPC.md:
+ * paper for ok, ember for warn and exhausted, muted for signed-out.
+ */
+
+:root {
+  --ink: #08090b;
+  --ink2: #0f1115;
+  --line: #22262e;
+  --paper: #f4f1ea;
+  --muted: #8b909a;
+  --ember: #ff5c35;
+  --ember-bright: #ff714f;
+  --mint: #6fe3c4;
+  --font-ui: system-ui, "Segoe UI", Arial, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
+  font: 13px/1.5 var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+::selection {
+  background: var(--line);
+  color: var(--paper);
+}
+
+.view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.view[hidden] {
+  display: none;
+}
+
+/* ---------- controls ---------- */
+
+.btn {
+  appearance: none;
+  font: 600 13px/1 var(--font-ui);
+  color: var(--paper);
+  background: var(--ink2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: var(--muted);
+}
+
+.btn:focus-visible,
+.code-link:focus-visible,
+.statusbar:focus-visible,
+.popover-close:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 1px;
+}
+
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-primary {
+  background: var(--ember);
+  border-color: var(--ember);
+  color: var(--ink);
+}
+
+.btn-primary:hover {
+  background: var(--ember-bright);
+  border-color: var(--ember-bright);
+}
+
+.btn-link {
+  display: inline-block;
+  background: transparent;
+  border-color: var(--line);
+  color: var(--paper);
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  border-color: var(--muted);
+}
+
+/* ---------- brand mark (pure CSS stand-in for the SecretKey glyph:
+   one large node connected to three smaller nodes) ---------- */
+
+.mark {
+  position: relative;
+  width: var(--mark-size, 64px);
+  height: var(--mark-size, 64px);
+  flex: none;
+}
+
+.mark-line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 39%;
+  height: 1.5px;
+  margin-top: -0.75px;
+  background: var(--line);
+  transform-origin: 0 50%;
+}
+
+.mark-line-1 {
+  transform: rotate(-90deg);
+}
+
+.mark-line-2 {
+  transform: rotate(150deg);
+}
+
+.mark-line-3 {
+  transform: rotate(30deg);
+}
+
+.mark-node {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.mark-hub {
+  left: 50%;
+  top: 50%;
+  width: 38%;
+  height: 38%;
+  border: max(1.5px, calc(var(--mark-size, 64px) * 0.04)) solid var(--ember);
+  background: var(--ink);
+}
+
+.mark-dot {
+  width: 17%;
+  height: 17%;
+  background: var(--paper);
+}
+
+.mark-dot-1 {
+  left: 50%;
+  top: 11%;
+}
+
+.mark-dot-2 {
+  left: 16%;
+  top: 70%;
+}
+
+.mark-dot-3 {
+  left: 84%;
+  top: 70%;
+}
+
+/* ---------- sign-in view ---------- */
+
+.view-login {
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: min(440px, 92vw);
+}
+
+.mark-login {
+  --mark-size: 72px;
+  margin-bottom: 22px;
+}
+
+.login-title {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.login-sub {
+  margin: 0 0 22px;
+  color: var(--muted);
+}
+
+.login-status {
+  margin: 14px 0 0;
+  min-height: 1.5em;
+  color: var(--muted);
+  user-select: text;
+}
+
+.login-status.is-error {
+  color: var(--ember);
+}
+
+.login-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.login-code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.login-code[hidden] {
+  display: none;
+}
+
+.code-label {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+
+.code-value {
+  margin: 0 0 12px;
+  padding: 14px 12px;
+  font: 600 30px/1 var(--font-mono);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  color: var(--paper);
+  background: var(--ink2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  user-select: all;
+}
+
+.code-hint {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.code-link {
+  color: var(--ember);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.code-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- app view ---------- */
+
+.view-app {
+  flex-direction: column;
+}
+
+.app-header {
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  flex: none;
+  padding: 0 14px;
+  background: var(--ink2);
+  border-bottom: 1px solid var(--line);
+}
+
+.mark-header {
+  --mark-size: 24px;
+}
+
+.app-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.engine-pill {
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.engine-pill[data-status="running"] {
+  color: var(--mint);
+  border-color: color-mix(in srgb, var(--mint) 35%, transparent);
+}
+
+.engine-pill[data-status="error"],
+.engine-pill[data-status="exited"] {
+  color: var(--ember);
+  border-color: color-mix(in srgb, var(--ember) 35%, transparent);
+}
+
+.header-note {
+  margin-left: auto;
+  max-width: 34%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.header-project {
+  flex: none;
+  max-width: 34%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl; /* keep the tail of a long path visible */
+  text-align: left;
+  color: var(--muted);
+  font: 12px var(--font-mono);
+}
+
+/* ---------- terminal ---------- */
+
+.terminal-region {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px 10px 6px;
+}
+
+.terminal-host {
+  width: 100%;
+  height: 100%;
+}
+
+.terminal-host .xterm-viewport::-webkit-scrollbar {
+  width: 10px;
+}
+
+.terminal-host .xterm-viewport::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 5px;
+}
+
+.terminal-note {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(480px, 88%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  background: var(--ink2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55);
+}
+
+.terminal-note[hidden] {
+  display: none;
+}
+
+.terminal-note-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ember);
+}
+
+.terminal-note-body {
+  margin: 0;
+  color: var(--muted);
+  user-select: text;
+}
+
+.terminal-note .btn {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+/* ---------- status bar ---------- */
+
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  flex: none;
+  padding: 0 14px;
+  background: var(--ink2);
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.statusbar-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.statusbar-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.statusbar-chev {
+  margin-left: auto;
+  flex: none;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* State colours: docs/IPC.md — paper ok, ember warn/exhausted, muted signed-out. */
+
+.level-ok .statusbar-dot {
+  background: var(--mint);
+}
+
+.level-ok .statusbar-line {
+  color: var(--paper);
+}
+
+.level-warn .statusbar-dot {
+  background: var(--ember);
+}
+
+.level-warn .statusbar-line {
+  color: var(--ember);
+}
+
+.level-exhausted .statusbar-dot {
+  background: var(--ember);
+}
+
+.level-exhausted .statusbar-line {
+  color: var(--ember);
+  font-weight: 600;
+}
+
+.level-signed-out .statusbar-dot {
+  background: var(--muted);
+}
+
+.level-signed-out .statusbar-line {
+  color: var(--muted);
+}
+
+/* ---------- credits popover ---------- */
+
+.popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+}
+
+.popover-backdrop[hidden] {
+  display: none;
+}
+
+.popover {
+  position: absolute;
+  right: 10px;
+  bottom: 42px;
+  width: min(360px, calc(100vw - 20px));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 18px;
+  background: var(--ink2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 18px 56px rgba(0, 0, 0, 0.6);
+  user-select: text;
+}
+
+.popover-head {
+  display: flex;
+  align-items: center;
+}
+
+.popover-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.popover-close {
+  margin-left: auto;
+  padding: 4px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.popover-close:hover {
+  color: var(--paper);
+}
+
+.popover-error {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--ember) 40%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--ember) 8%, transparent);
+  color: var(--ember);
+  font-size: 12px;
+}
+
+.popover-error[hidden] {
+  display: none;
+}
+
+.row-plan {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.plan-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.plan-remaining {
+  color: var(--mint);
+  font: 12px var(--font-mono);
+}
+
+.progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  background: var(--mint);
+  transition: width 0.25s ease;
+}
+
+.progress-fill.fill-warn,
+.progress-fill.fill-exhausted {
+  background: var(--ember);
+}
+
+.progress-caption {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  margin: 0;
+}
+
+.fact dt {
+  margin: 0 0 2px;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.fact dd {
+  margin: 0;
+  font: 13px var(--font-mono);
+}
+
+.popover-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.popover-actions .btn-link {
+  margin-left: auto;
+}

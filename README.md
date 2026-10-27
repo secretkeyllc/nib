@@ -44,6 +44,10 @@ export OPENAI_BASE_URL=https://api.sknib.com/v1
 
 Anthropic-compatible clients use `https://api.sknib.com` as the base URL and `nib` as the provider prefix. See [docs/API.md](docs/API.md).
 
+## Desktop app
+
+Nib also ships as a Windows x64 installer (built from this repo, see [packages/nib-desktop](packages/nib-desktop/README.md)). The desktop client wraps the same engine in an Electron shell with device-code sign-in, a plan/credit status bar and the Nib CLI bundled — so `nib --version` works with no Node.js installed. One install, one login, every model, no terminal required.
+
 ## Development
 
 ```bash

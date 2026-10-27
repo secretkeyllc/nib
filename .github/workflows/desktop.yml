@@ -1,0 +1,103 @@
+name: desktop
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write # needed for publishing the GitHub release on tag pushes
+
+jobs:
+  build-windows:
+    # First release matrix: Windows x64 only (desktop plan §3.7).
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # electron-builder publishes to a draft release tagged v<version> from
+      # packages/nib-desktop/package.json, and the beta-marking step below
+      # edits the pushed tag. Fail fast when the two disagree.
+      - name: Check tag matches package version
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        shell: bash
+        run: |
+          version="v$(node -p "require('./packages/nib-desktop/package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "${version}" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME} does not match desktop package version ${version}; electron-builder would publish to ${version} instead."
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      # Icons must exist before electron-builder runs: build/electron-builder.json
+      # points win.icon at branding/nib.ico, produced from /assets by sharp + png-to-ico.
+      - name: Generate branding icons
+        run: npm --prefix . run icons -w @sknib/nib-desktop
+
+      - name: Typecheck
+        run: npm --prefix . run typecheck -w @sknib/nib-desktop
+
+      - name: Build
+        run: npm --prefix . run build -w @sknib/nib-desktop
+
+      - name: Test
+        run: npm --prefix . run test -w @sknib/nib-desktop
+
+      # prepare-pack.mjs (the predist:win hook inside dist:win) aborts unless
+      # packages/cli/dist/index.js exists: the installer bundles the built CLI.
+      - name: Build CLI (bundled into the installer)
+        run: npm --prefix . run build -w @sknib/cli
+
+      # Best effort: the script explains and exits 0 when the download fails,
+      # in which case the installer ships without a bundled engine.
+      - name: Fetch OpenCode engine
+        run: npm --prefix . run fetch-engine -w @sknib/nib-desktop
+
+      # TODO(EV signing): once the EV code-signing certificate is provisioned,
+      # sign the installer here — configure electron-builder's Windows signing
+      # (win.signtoolOptions / CSC_* or Azure Trusted Signing) so the binary is
+      # signed during this step, BEFORE latest.yml hashes it, then enable the
+      # updater for signed public builds (update/policy.ts) and re-verify the
+      # update chain on a clean Windows machine (desktop plan §3.6 / §6).
+      - name: Build installer (unsigned beta)
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        run: npm --prefix . run dist:win -w @sknib/nib-desktop -- --publish never
+
+      # Tag builds are published even though they are still unsigned: they go
+      # out explicitly marked as beta (draft -> prerelease in the step below).
+      - name: Build installer (tag, publish to GitHub Releases)
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        run: npm --prefix . run dist:win -w @sknib/nib-desktop -- --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nib-windows-x64
+          path: |
+            packages/nib-desktop/release/*.exe
+            packages/nib-desktop/release/latest*.yml
+            packages/nib-desktop/release/*.blockmap
+          if-no-files-found: error
+
+      # electron-builder creates a draft release on tag pushes; flip it to a
+      # prerelease so it is clearly a beta while builds are unsigned.
+      - name: Mark release as beta (unsigned)
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "${GITHUB_REF_NAME}" \
+            --draft=false \
+            --prerelease \
+            --title "Nib ${GITHUB_REF_NAME} (beta, unsigned)" \
+            --notes "Internal beta of the Nib desktop client for Windows x64. This build is NOT code-signed yet: treat it as a beta, and note that automatic updates stay disabled until the EV certificate is in place. Install via Nib-Setup-*.exe."

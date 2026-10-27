@@ -1,0 +1,35 @@
+{
+  "name": "@sknib/nib-desktop",
+  "version": "0.1.0",
+  "description": "Nib desktop — a Windows-first Electron shell around the OpenCode engine, with Nib sign-in, credits and updates.",
+  "license": "MIT",
+  "private": true,
+  "main": "out/main/index.js",
+  "scripts": {
+    "build": "node script/build.mjs",
+    "dev": "node script/dev.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --test \"dist-test/**/*.test.js\"",
+    "icons": "node branding/build-icons.mjs",
+    "fetch-engine": "node script/fetch-engine.mjs",
+    "predist:win": "node script/prepare-pack.mjs",
+    "dist:win": "npm run build && electron-builder --win nsis --x64 --config build/electron-builder.json",
+    "pack:dir": "npm run build && electron-builder --dir --config build/electron-builder.json"
+  },
+  "dependencies": {
+    "@lydell/node-pty": "1.2.0-beta.12",
+    "electron-updater": "6.6.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "electron": "44.9.1",
+    "electron-builder": "^26.0.0",
+    "esbuild": "^0.25.0",
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.34.0",
+    "typescript": "^5.7.2"
+  },
+  "engines": { "node": ">=20" }
+}

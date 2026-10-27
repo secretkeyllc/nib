@@ -6,3 +6,13 @@ dist-test/
 .env
 .env.local
 coverage/
+
+# Nib desktop packaging (packages/nib-desktop)
+# build output and release artefacts
+packages/nib-desktop/out/
+packages/nib-desktop/release/
+# staged by script/prepare-pack.mjs from packages/cli/dist
+packages/nib-desktop/resources/cli/
+# fetched by script/fetch-engine.mjs (opencode.exe binary, not committed)
+packages/nib-desktop/resources/bin/*
+!packages/nib-desktop/resources/bin/.gitkeep

@@ -59,6 +59,26 @@ Requirements:
 - A device code is single-use and expires after `expires_in` seconds.
 - Rate limit: 10 authorizations per IP per minute, 5 per minute per email once approved.
 
+### `POST /api/v1/cli/device/approve`
+
+Browser-side confirmation, called by `https://sknib.com/device` while the user
+is signed in. Requires a session; the desktop and CLI never call it.
+
+Request:
+
+```json
+{ "user_code": "MKGX-36FF" }
+```
+
+Response `200`:
+
+```json
+{ "ok": true, "user_code": "MKGX-36FF" }
+```
+
+Errors: `404` for an unknown or expired code. The next poll of the token
+endpoint then returns the access token.
+
 ### `POST /api/v1/cli/device/token`
 
 No authentication. Polled by the CLI at `interval` seconds.
@@ -104,35 +124,36 @@ Response `200`:
 ```json
 {
   "plan": {
-    "id": "starter-promo",
-    "name": "Starter",
-    "price_usd": 15,
+    "id": "plus",
+    "name": "Plus",
+    "price_usd": 10,
     "effective_price_usd": 10,
     "currency": "USD",
-    "promotional": true,
-    "promotional_until": "2027-01-31T00:00:00Z",
-    "monthly_credits": 30,
-    "weekly_credit_cap": 12,
-    "daily_credit_cap": null,
+    "promotional": false,
+    "monthly_credits": 300,
+    "daily_credit_cap": 75,
+    "weekly_credit_cap": 180,
     "concurrency": 3,
     "requests_per_minute": 120
   },
   "usage": {
-    "credits_used": 11.4,
-    "credits_used_this_week": 4.2,
-    "credits_used_today": 1.6,
+    "credits_used": 114.5,
+    "credits_used_this_week": 92.4,
+    "credits_used_today": 28.6,
     "topup_credits_remaining": 0,
     "resets_at": "2026-11-14T08:00:00Z"
   },
   "models": {
-    "available": 42,
-    "excluded": ["nib-frontier"]
+    "available": 42
   }
 }
 ```
 
 Rules:
 
+- Plans are Plus ($10 / 300 credits / 3 concurrent), Pro ($30 / 1,000 / 10) and Max ($90 / 3,500 / 30). No Team tier.
+- Every paid tier routes every model: `excluded` stays empty and clients render the server-routed list without tier gates.
+- `daily_credit_cap` is 25% and `weekly_credit_cap` is 60% of `monthly_credits`. Both fields are always present on paid plans — clients need them to explain "why can't I continue right now".
 - `monthly_credits` is the plan allowance **after** any promotional multiplier. It is the number the UI shows.
 - `credits_used` counts plan credits only. Top-up consumption is reported separately in `topup_credits_remaining`.
 - `resets_at` is an absolute instant; the CLI formats the relative time.

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="color-scheme" content="dark" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'none'; script-src 'self'; style-src 'self'"
+  />
+  <title>Nib</title>
+  <link rel="stylesheet" href="./main.css" />
+</head>
+<body>
+  <!-- Sign-in view: brand mark, device code, browser hand-off. -->
+  <section class="view view-login" id="view-login" hidden>
+    <div class="login-card">
+      <div class="mark mark-login" aria-hidden="true">
+        <span class="mark-line mark-line-1"></span>
+        <span class="mark-line mark-line-2"></span>
+        <span class="mark-line mark-line-3"></span>
+        <span class="mark-node mark-hub"></span>
+        <span class="mark-node mark-dot mark-dot-1"></span>
+        <span class="mark-node mark-dot mark-dot-2"></span>
+        <span class="mark-node mark-dot mark-dot-3"></span>
+      </div>
+      <h1 class="login-title">Sign in to Nib</h1>
+      <p class="login-sub">Your Nib plan pays for the credits this app uses.</p>
+      <div class="login-code" id="login-code-box" hidden>
+        <p class="code-label">Type this code in your browser</p>
+        <p class="code-value" id="login-code"></p>
+        <p class="code-hint" id="login-code-hint"></p>
+        <a class="code-link" id="login-verify" href="#">Open the verification page</a>
+      </div>
+      <p class="login-status" id="login-status" hidden></p>
+      <div class="login-actions">
+        <button class="btn btn-primary" id="login-start" type="button">Sign in with browser</button>
+        <button class="btn" id="login-cancel" type="button" hidden>Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- App view: drag header, terminal, status bar. -->
+  <section class="view view-app" id="view-app" hidden>
+    <header class="app-header" id="app-header">
+      <div class="mark mark-header" aria-hidden="true">
+        <span class="mark-line mark-line-1"></span>
+        <span class="mark-line mark-line-2"></span>
+        <span class="mark-line mark-line-3"></span>
+        <span class="mark-node mark-hub"></span>
+        <span class="mark-node mark-dot mark-dot-1"></span>
+        <span class="mark-node mark-dot mark-dot-2"></span>
+        <span class="mark-node mark-dot mark-dot-3"></span>
+      </div>
+      <span class="app-name">Nib</span>
+      <span class="engine-pill" id="engine-pill">Engine starting</span>
+      <span class="header-note" id="header-note" hidden></span>
+      <span class="header-project" id="header-project"></span>
+    </header>
+
+    <div class="terminal-region">
+      <div class="terminal-host" id="terminal-host"></div>
+      <div class="terminal-note" id="terminal-note" hidden>
+        <p class="terminal-note-title" id="terminal-note-title"></p>
+        <p class="terminal-note-body" id="terminal-note-body"></p>
+        <button class="btn" id="terminal-check" type="button">Check status</button>
+      </div>
+    </div>
+
+    <footer
+      class="statusbar level-signed-out"
+      id="statusbar"
+      role="button"
+      tabindex="0"
+      aria-expanded="false"
+      aria-haspopup="dialog"
+      title="Credits details"
+    >
+      <span class="statusbar-dot" aria-hidden="true"></span>
+      <span class="statusbar-line" id="statusbar-line"></span>
+      <span class="statusbar-chev" aria-hidden="true">Details</span>
+    </footer>
+  </section>
+
+  <!-- Credits detail popover, opened from the status bar. -->
+  <div class="popover-backdrop" id="credits-popover" hidden>
+    <div class="popover" role="dialog" aria-labelledby="credits-title">
+      <div class="popover-head">
+        <span class="popover-title" id="credits-title">Credits</span>
+        <button class="popover-close" id="credits-close" type="button" aria-label="Close">&#10005;</button>
+      </div>
+      <p class="popover-error" id="credits-error" hidden></p>
+      <div class="row-plan">
+        <span class="plan-name" id="credits-plan">&mdash;</span>
+        <span class="plan-remaining" id="credits-remaining"></span>
+      </div>
+      <div>
+        <div
+          class="progress"
+          role="progressbar"
+          aria-labelledby="credits-progress-caption"
+        >
+          <div class="progress-fill" id="credits-progress"></div>
+        </div>
+        <p class="progress-caption" id="credits-progress-caption"></p>
+      </div>
+      <dl class="facts">
+        <div class="fact"><dt>Daily cap</dt><dd id="credits-daily">&mdash;</dd></div>
+        <div class="fact"><dt>Weekly cap</dt><dd id="credits-weekly">&mdash;</dd></div>
+        <div class="fact"><dt>Top-up left</dt><dd id="credits-topup">&mdash;</dd></div>
+        <div class="fact"><dt>Concurrency</dt><dd id="credits-concurrency">&mdash;</dd></div>
+        <div class="fact"><dt>Resets</dt><dd id="credits-resets">&mdash;</dd></div>
+        <div class="fact"><dt>Refreshed</dt><dd id="credits-refreshed">&mdash;</dd></div>
+      </dl>
+      <div class="popover-actions">
+        <button class="btn" id="credits-refresh" type="button">Refresh</button>
+        <a class="btn btn-link" id="credits-manage" href="https://sknib.com/pricing">Manage plan</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="./main.js"></script>
+</body>
+</html>

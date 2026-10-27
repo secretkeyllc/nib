@@ -2,12 +2,13 @@ import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 
 /**
- * Local mock of the Nib gateway, for developing the CLI and the site without
- * touching production. Not published, not shipped.
+ * Local mock of the Nib gateway, for developing the CLI, the desktop shell
+ * and the site without touching production. Not published, not shipped.
  *
  * Endpoints:
  *   POST /api/v1/cli/device/authorize
  *   POST /api/v1/cli/device/token
+ *   POST /api/v1/cli/device/approve   (browser side; mock has no login wall)
  *   GET  /api/v1/product/entitlement
  *   GET  /v1/models
  */
@@ -30,24 +31,28 @@ const MODELS = [
   { id: "nib-frontier", object: "model", owned_by: "nib", tier: "frontier" },
 ];
 
+// Plan shape per the overall plan v2.3: Plus / Pro / Max, all paid tiers
+// route every model, daily cap = 25% and weekly cap = 60% of the allowance.
+// The entitlement response must carry daily, weekly and concurrency caps so
+// clients can explain "why not now".
 const ENTITLEMENT = {
   plan: {
-    id: "starter-promo",
-    name: "Starter",
-    price_usd: 15,
+    id: "plus",
+    name: "Plus",
+    price_usd: 10,
     effective_price_usd: 10,
     currency: "USD",
-    promotional: true,
-    promotional_until: "2027-01-31T00:00:00Z",
-    monthly_credits: 30,
-    weekly_credit_cap: 12,
+    promotional: false,
+    monthly_credits: 300,
+    daily_credit_cap: 75,
+    weekly_credit_cap: 180,
     concurrency: 3,
     requests_per_minute: 120,
   },
   usage: {
-    credits_used: 11.4,
-    credits_used_this_week: 4.2,
-    credits_used_today: 1.6,
+    credits_used: 114.5,
+    credits_used_this_week: 92.4,
+    credits_used_today: 28.6,
     topup_credits_remaining: 0,
     resets_at: new Date(Date.now() + 18 * 86_400_000 + 4 * 3_600_000).toISOString(),
   },
@@ -111,6 +116,23 @@ const server = createServer(async (req, res) => {
       expires_in: 600,
       interval: 1,
     });
+    return;
+  }
+
+  if (route === "POST /api/v1/cli/device/approve") {
+    // The browser-side confirmation. Production requires a login session
+    // here; the mock approves whatever code is posted.
+    const raw = await readBody(req);
+    const body = raw ? (JSON.parse(raw) as { user_code?: string; device_code?: string }) : {};
+    const grant = [...grants.values()].find(
+      (g) => (body.user_code && g.userCode === body.user_code) || (body.device_code && g.deviceCode === body.device_code),
+    );
+    if (!grant) {
+      json(res, 404, { error: "not_found" });
+      return;
+    }
+    grant.approved = true;
+    json(res, 200, { ok: true, user_code: grant.userCode });
     return;
   }
 
