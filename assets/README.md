@@ -2,16 +2,16 @@
 
 | File | Use |
 |---|---|
-| `logo-mark.svg` | App icon, favicon, terminal banner, social avatar |
-| `logo-wordmark.svg` | Wordmark when the mark is already present |
-| `logo-lockup.svg` | Horizontal lockup for site headers and README |
+| `logo-mark.svg` | App icon, favicon, terminal banner, social avatar (270x270 canvas, native aspect) |
+
 
 ## Rules
 
-- The mark is a fountain-pen nib: hexagonal body, centre slit, vent hole.
+- The mark is the SecretKey network glyph: one large node with three connected smaller nodes.
+- Source of truth: `secretkey.llc/wp-content/uploads/2026/10/logo_icon_{black,white,gray}.png` (270x270, transparent). The SVG is traced from the black variant at 4x supersampling; do not redraw it by hand.
 - It inherits `currentColor`. On dark surfaces use `#F4F1EA`; on light surfaces use `#08090B`.
 - Accent colour (`#FF5C35`) is for interactive states and a single highlight, never for the whole mark.
-- Minimum size: 16px for the mark, 64px for the lockup.
+- Minimum size: 24px. Below that the connector strokes blur, so favicons are pre-rendered PNGs at 16/32/48.
 - Clear space: at least half the mark's height on every side.
 - Do not stretch, rotate, outline, add gradients, or place the mark on a busy photo.
 - Always write the name as `Nib` in prose and `nib` in commands. Never `NIB`, `Nib CLI`, or `SkNib`.
