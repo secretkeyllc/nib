@@ -2,16 +2,18 @@
 
 | File | Use |
 |---|---|
-| `logo-mark.svg` | App icon, favicon, terminal banner, social avatar (270x270 canvas, native aspect) |
+| `logo-black.png` | Dark glyph for light surfaces |
+| `logo-white.png` | White glyph for dark surfaces |
+| `logo-gray.png` | Neutral glyph for favicons and anywhere both themes apply |
 
 
 ## Rules
 
 - The mark is the SecretKey network glyph: one large node with three connected smaller nodes.
-- Source of truth: `secretkey.llc/wp-content/uploads/2026/10/logo_icon_{black,white,gray}.png` (270x270, transparent). The SVG is traced from the black variant at 4x supersampling; do not redraw it by hand.
-- It inherits `currentColor`. On dark surfaces use `#F4F1EA`; on light surfaces use `#08090B`.
+- Source of truth: `secretkey.llc/wp-content/uploads/2026/10/logo_icon_{black,white,gray}.png` (270x270, transparent). Copy these files as-is. Do not retrace, redraw, rotate, or re-crop them; scale proportionally only.
+- Pick the variant that matches the surface: white on dark, black on light, gray when both are possible.
 - Accent colour (`#FF5C35`) is for interactive states and a single highlight, never for the whole mark.
-- Minimum size: 24px. Below that the connector strokes blur, so favicons are pre-rendered PNGs at 16/32/48.
+- Minimum size: 24px for layouts. For favicons reference the same PNG and let the browser scale it, which is what sk2b does.
 - Clear space: at least half the mark's height on every side.
 - Do not stretch, rotate, outline, add gradients, or place the mark on a busy photo.
 - Always write the name as `Nib` in prose and `nib` in commands. Never `NIB`, `Nib CLI`, or `SkNib`.
