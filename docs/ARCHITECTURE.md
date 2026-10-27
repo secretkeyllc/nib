@@ -4,7 +4,7 @@ Two repositories, one product.
 
 ```
 ┌─────────────────────────────┐        ┌──────────────────────────────┐
-│  nib (public, MIT)          │        │  sknib-site (private)        │
+│  nib (public, MIT)          │        │  sknib (private)             │
 │                             │        │                              │
 │  packages/cli               │        │  index / pricing / models    │
 │    login  (device code)     │        │  docs/                       │
