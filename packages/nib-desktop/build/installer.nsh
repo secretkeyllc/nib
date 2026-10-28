@@ -36,6 +36,14 @@
 ; entry is already present. Matching is case-insensitive and accepts both the
 ; expanded form and a literal "%LOCALAPPDATA%\Nib\bin" entry, so a reinstall
 ; or a hand-edited Path never grows duplicates.
+;
+; electron-builder compiles this file into BOTH passes (installer and the
+; intermediate uninstaller) but only the installer compiles installSection.nsh,
+; where customInstall (and therefore the Call below) lives. On the uninstaller
+; pass an unreferenced install function raises NSIS warning 6010, and
+; electron-builder promotes warnings to errors. The BUILD_UNINSTALLER guard
+; below keeps each pass seeing exactly the functions it references.
+!ifndef BUILD_UNINSTALLER
 Function NibAddToPath
   ClearErrors
   ReadRegStr $R0 HKCU "Environment" "Path"
@@ -65,6 +73,7 @@ nibAddFresh:
 nibAddDone:
   Return
 FunctionEnd
+!endif
 
 ; Rebuild the user Path without the Nib entry, delete the value entirely when
 ; nothing is left, and broadcast the change. Tokens are compared
