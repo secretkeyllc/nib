@@ -2,8 +2,12 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { mkdir, readFile, rm, writeFile, chmod } from "node:fs/promises";
 
-/** Default gateway. Overridable with NIB_API_URL for staging and tests. */
-export const DEFAULT_API_URL = "https://api.sknib.com";
+/**
+ * Default API base. One host serves both surfaces: /api/v1/* is the control
+ * plane (accounts, keys, device login, entitlement) and /v1/* is inference.
+ * Overridable with NIB_API_URL for staging and tests.
+ */
+export const DEFAULT_API_URL = "https://sknib.com";
 
 /** Public site, used in messages the user may want to copy. */
 export const SITE_URL = "https://sknib.com";

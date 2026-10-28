@@ -1,6 +1,6 @@
 /** Gateway base URL handling shared by the desktop shell. */
 
-export const DEFAULT_API_URL = "https://api.sknib.com";
+export const DEFAULT_API_URL = "https://sknib.com";
 
 /** Resolve the gateway URL for this run: NIB_API_URL, else production. */
 export function resolveApiUrl(env: NodeJS.ProcessEnv = process.env): string {
