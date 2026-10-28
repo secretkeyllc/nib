@@ -801,8 +801,8 @@ export const zhCN = {
   },
   onboarding: {
     title: "开始使用",
-    addProvider: "添加 AI 模型服务",
-    saveKey: "保存 API 密钥",
+    addProvider: "登录 Nib",
+    saveKey: "在浏览器中完成 Nib 登录",
     openProject: "打开项目文件夹",
     firstPrompt: "发送第一条消息",
     loadPlugin: "加载开发插件（可选）",

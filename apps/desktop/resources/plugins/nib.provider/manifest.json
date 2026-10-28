@@ -26,7 +26,7 @@
         "description": "Every major model family on one subscription.",
         "vendorKey": "custom",
         "baseUrl": "https://sknib.com/v1",
-        "apiStyle": "openai-completions",
+        "apiStyle": "chat_completions",
         "authKind": "oauth",
         "oauth": {
           "loginLabel": "Sign in with Nib",
@@ -75,5 +75,6 @@
   ],
   "engines": {
     "piDesktop": ">=0.8.0"
-  }
+  },
+  "enabledByDefault": true
 }

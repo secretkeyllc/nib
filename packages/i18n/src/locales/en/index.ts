@@ -808,8 +808,8 @@ export const en = {
   },
   onboarding: {
     title: "Get started",
-    addProvider: "Add an AI provider",
-    saveKey: "Save your API key",
+    addProvider: "Sign in to Nib",
+    saveKey: "Finish the Nib sign-in in your browser",
     openProject: "Open a project folder",
     firstPrompt: "Send your first message",
     loadPlugin: "Load a development plugin (optional)",
