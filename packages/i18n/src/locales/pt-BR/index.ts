@@ -81,7 +81,7 @@ export const ptBR = {
     },
   },
   app: {
-    shellName: "PI-Desktop",
+    shellName: "Nib",
     tagline: "Parceiro local de programação com IA",
     starting: "Iniciando o PI-Desktop…",
     loadingView: "Carregando visualização…",

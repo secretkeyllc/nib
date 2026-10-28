@@ -80,16 +80,15 @@
     "zustand": "^5.0.15"
   },
   "build": {
-    "appId": "net.aiuo.pi-desktop",
-    "productName": "PI-Desktop",
+    "appId": "com.secretkeyllc.nib",
+    "productName": "Nib",
     "directories": {
       "output": "release"
     },
     "publish": [
       {
-        "provider": "github",
-        "owner": "vastsa",
-        "repo": "PI-Desktop"
+        "provider": "generic",
+        "url": "https://sknib.com/downloads/updates"
       }
     ],
     "extraMetadata": {
@@ -181,7 +180,7 @@
       ]
     },
     "dmg": {
-      "artifactName": "PI-Desktop-${version}-${arch}.${ext}",
+      "artifactName": "Nib-${version}-${arch}.${ext}",
       "background": "build/dmg-background.png",
       "icon": "build/icon.icns",
       "window": {
@@ -204,8 +203,8 @@
       ]
     },
     "win": {
-      "executableName": "PI-Desktop",
-      "artifactName": "PI-Desktop-Portable-${version}.${ext}",
+      "executableName": "Nib",
+      "artifactName": "Nib-Setup-${version}.${ext}",
       "target": [
         {
           "target": "nsis",
@@ -245,11 +244,11 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "shortcutName": "PI-Desktop",
-      "artifactName": "PI-Desktop-Setup-${version}.${ext}"
+      "shortcutName": "Nib",
+      "artifactName": "Nib-Setup-${version}.${ext}"
     },
     "portable": {
-      "artifactName": "PI-Desktop-Portable-${version}.${ext}"
+      "artifactName": "Nib-Portable-${version}.${ext}"
     },
     "deb": {
       "packageName": "pi-desktop",
@@ -264,9 +263,9 @@
       ]
     },
     "linux": {
-      "executableName": "pi-desktop",
+      "executableName": "nib",
       "syncDesktopName": true,
-      "artifactName": "PI-Desktop-${version}-linux-${arch}.${ext}",
+      "artifactName": "Nib-${version}-linux-${arch}.${ext}",
       "target": [
         {
           "target": "AppImage"

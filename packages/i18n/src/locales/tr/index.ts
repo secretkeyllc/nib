@@ -81,7 +81,7 @@ export const tr = {
     },
   },
   app: {
-    shellName: "PI-Desktop",
+    shellName: "Nib",
     tagline: "Yerel AI kodlama ortağı",
     starting: "PI-Desktop başlatılıyor…",
     loadingView: "Görünüm yükleniyor…",

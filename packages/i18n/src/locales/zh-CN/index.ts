@@ -81,7 +81,7 @@ export const zhCN = {
     },
   },
   app: {
-    shellName: "PI-Desktop",
+    shellName: "Nib",
     tagline: "本地 AI 编程助手",
     starting: "正在启动 PI-Desktop…",
     loadingView: "正在加载页面…",

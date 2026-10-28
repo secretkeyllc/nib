@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="pi-plugin-chrome" content="v2" />
+<title>Nib usage</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #08090b;
+    --surface: #0f1115;
+    --surface-2: #14171d;
+    --line: #22262e;
+    --fg: #f4f1ea;
+    --muted: #8b909a;
+    --faint: #7b8290;
+    --accent: #ff5c35;
+    --mint: #6fe3c4;
+    font: 13px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  :root[data-base="light"] {
+    color-scheme: light;
+    --bg: #f4f1ea;
+    --surface: #faf8f3;
+    --surface-2: #ede9e0;
+    --line: #d9d3c6;
+    --fg: #08090b;
+    --muted: #5f6470;
+    --faint: #666b75;
+    --accent: #c23a17;
+    --mint: #17795f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 18px;
+    background: var(--bg); color: var(--fg);
+    font: inherit;
+  }
+  h1 { margin: 0 0 4px; font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+  .sub { margin: 0 0 16px; color: var(--muted); font-size: 0.86rem; }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px; margin-bottom: 12px;
+  }
+  .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }
+  .plan { font-size: 1.25rem; font-weight: 600; margin: 4px 0 2px; }
+  .meter { display: flex; gap: 2px; margin: 10px 0 8px; }
+  .meter i { flex: 1; height: 12px; border-radius: 2px; background: var(--line); }
+  .meter i.on { background: var(--accent); }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; font-size: 0.88rem; }
+  .row .k { color: var(--muted); }
+  .row .v { font-variant-numeric: tabular-nums; }
+  .empty { color: var(--muted); font-size: 0.9rem; }
+  .err { color: #ff8b70; font-size: 0.86rem; }
+  button {
+    font: inherit; font-size: 0.86rem; padding: 7px 12px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--surface-2); color: var(--fg);
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--muted); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+  <h1>Nib usage</h1>
+  <p class="sub">Your plan and credits from the Nib gateway.</p>
+
+  <div id="content"></div>
+
+<script>
+(function () {
+  "use strict";
+  const content = document.getElementById("content");
+
+  function el(tag, cls, text) {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function num(v) {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function fmt(v) {
+    const n = num(v);
+    return n === null ? "—" : n.toLocaleString("en-US");
+  }
+
+  function render(payload) {
+    content.replaceChildren();
+
+    if (!payload || payload.signedIn === false) {
+      const card = el("div", "card");
+      card.append(el("p", "empty", "Sign in to Nib to see your plan and credits."));
+      const hint = el("p", "empty");
+      hint.style.marginTop = "8px";
+      hint.append(document.createTextNode("Open "));
+      const link = el("a", "", "Settings → Add service → Nib");
+      link.href = "#";
+      hint.append(link, document.createTextNode("."));
+      card.append(hint);
+      content.append(card);
+      return;
+    }
+
+    const plan = payload.plan || {};
+    const usage = payload.usage || {};
+
+    const planCard = el("div", "card");
+    planCard.append(el("div", "label", "Plan"));
+    planCard.append(el("div", "plan", plan.name || "Trial"));
+    if (num(plan.concurrency) !== null) {
+      planCard.append(el("div", "sub", plan.concurrency + " concurrent sessions"));
+    }
+    content.append(planCard);
+
+    const used = num(usage.credits_used) ?? 0;
+    const total = num(usage.credits_total) ?? 0;
+    const creditCard = el("div", "card");
+    creditCard.append(el("div", "label", "Credits this month"));
+    const meter = el("div", "meter");
+    const filled = total > 0 ? Math.round((used / total) * 24) : 0;
+    for (let i = 0; i < 24; i += 1) {
+      const cell = el("i", i < filled ? "on" : "");
+      meter.append(cell);
+    }
+    creditCard.append(meter);
+    creditCard.append(el("div", "row", fmt(used) + " of " + fmt(total) + " credits used"));
+    const topup = num(usage.topup_credits_remaining);
+    if (topup !== null) {
+      const row = el("div", "row");
+      row.append(el("span", "k", "Top-up remaining"), el("span", "v", fmt(topup)));
+      creditCard.append(row);
+    }
+    content.append(creditCard);
+
+    const limits = el("div", "card");
+    limits.append(el("div", "label", "Limits"));
+    const rows = [
+      ["This week", fmt(usage.weekly_used), fmt(usage.weekly_limit)],
+      ["Today", fmt(usage.daily_used), fmt(usage.daily_limit)],
+    ];
+    for (const [k, u, l] of rows) {
+      const row = el("div", "row");
+      row.append(el("span", "k", k), el("span", "v", u + " / " + l));
+      limits.append(row);
+    }
+    content.append(limits);
+  }
+
+  async function load() {
+    content.replaceChildren(el("p", "empty", "Loading…"));
+    try {
+      const payload = await window.pluginBridge.invoke("nib.entitlement", {});
+      render(payload);
+    } catch (err) {
+      content.replaceChildren();
+      const card = el("div", "card");
+      card.append(el("p", "err", "Usage is temporarily unavailable."));
+      const retry = el("button", "", "Try again");
+      retry.style.marginTop = "10px";
+      retry.addEventListener("click", load);
+      card.append(retry);
+      content.append(card);
+    }
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>

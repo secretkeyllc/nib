@@ -81,7 +81,7 @@ export const ko = {
     },
   },
   app: {
-    shellName: "PI-Desktop",
+    shellName: "Nib",
     tagline: "로컬 AI 코딩 파트너",
     starting: "PI-Desktop 시작 중…",
     loadingView: "화면 불러오는 중…",

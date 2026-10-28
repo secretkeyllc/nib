@@ -81,7 +81,7 @@ export const zhTW = {
     },
   },
   app: {
-    shellName: "PI-Desktop",
+    shellName: "Nib",
     tagline: "本地 AI 程式設計助手",
     starting: "正在啟動 PI-Desktop…",
     loadingView: "正在載入頁面…",

@@ -79,7 +79,7 @@ export const en = {
     },
   },
   app: {
-    shellName: "PI-Desktop",
+    shellName: "Nib",
     tagline: "Local AI coding partner",
     starting: "Starting PI-Desktop…",
     loadingView: "Loading view…",
