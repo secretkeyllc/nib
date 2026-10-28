@@ -98,7 +98,7 @@ unNibProbe:
 
 unNibAdvance:
   IntOp $R7 $R7 + 1
-  Goto unNibScanCharChar
+  Goto unNibScanChar
 
 unNibTail:
   StrCpy $R3 $R0                ; last token runs to the end
