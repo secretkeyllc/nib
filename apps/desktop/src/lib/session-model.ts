@@ -12,6 +12,7 @@ export type SessionModelProvider = {
   models?: Array<{ id: string }>;
   enabled?: boolean;
   hasSecret?: boolean;
+  hasOauth?: boolean;
   authKind?: string;
 };
 
@@ -35,9 +36,17 @@ export function availableRecentModels(
   return recentModels.filter(entry => {
     const provider = providers.find(item => item.id === entry.providerId);
     const ids = provider?.models?.length ? provider.models.map(model => model.id) : [provider?.defaultModelId];
-    return provider && provider.enabled !== false &&
-      (provider.authKind === undefined || provider.authKind === "none" || provider.hasSecret) &&
-      ids.some(id => id?.toLowerCase() === entry.modelId.toLowerCase()) &&
+    // A vendor account authenticates through OAuth and carries no secret; a
+    // gateway also serves models beyond the manifest, so a recent id may not
+    // appear in `provider.models` at all.
+    const usable = provider && provider.enabled !== false &&
+      (provider.authKind === undefined ||
+        provider.authKind === "none" ||
+        provider.authKind === "oauth" ||
+        provider.hasSecret ||
+        provider.hasOauth);
+    const known = !ids.length || ids.some(id => id?.toLowerCase() === entry.modelId.toLowerCase());
+    return Boolean(usable) && (known || provider?.authKind === "oauth") &&
       !images.some(image => image.providerId === entry.providerId && image.modelId?.toLowerCase() === entry.modelId.toLowerCase());
   });
 }

@@ -66,6 +66,7 @@ export const ChatSurface = memo(function ChatSurface({
     null,
   );
   const providers = useAppStore((state) => state.providers);
+  const providerModels = useAppStore((state) => state.providerModels);
   const activeSession = useAppStore((state) =>
     state.activeSessionId
       ? state.sessions.find((session) => session.id === state.activeSessionId)
@@ -135,6 +136,7 @@ export const ChatSurface = memo(function ChatSurface({
   const vendorModelMissing = !isRemoteSession(activeSession) && vendorAccountOmitsSessionModel(
     activeSession,
     providers,
+    providerModels,
   );
   const vendorModelKey = vendorModelMissing
     ? `${activeSession?.providerId ?? ""}:${activeSession?.modelId ?? ""}`
