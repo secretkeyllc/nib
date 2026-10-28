@@ -793,6 +793,9 @@ export const ptBR = {
     openArtifact: "Abrir objetivo",
     openArtifactLabel: "Abrir artefato do objetivo {{path}}"
   },
+  "nib": {
+    "creditsLeft": "{{left}} de {{total}} créditos",
+  },
   onboarding: {
     title: "Primeiros passos",
     addProvider: "Adicionar um provedor de IA",

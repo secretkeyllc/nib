@@ -794,6 +794,9 @@ export const de = {
     "openArtifact": "Ziel öffnen",
     "openArtifactLabel": "Zielartefakt öffnen {{path}}",
   },
+  "nib": {
+    "creditsLeft": "{{left}} von {{total}} Credits",
+  },
   "onboarding": {
     "title": "Erste Schritte",
     "addProvider": "Fügen Sie einen KI-Anbieter hinzu",

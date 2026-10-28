@@ -803,6 +803,9 @@ export const ko = {
     openArtifact: "목표 열기",
     openArtifactLabel: "목표 아티팩트 {{path}} 열기",
   },
+  "nib": {
+    "creditsLeft": "{{total}} 중 {{left}} 크레딧",
+  },
   onboarding: {
     title: "시작하기",
     addProvider: "AI 프로바이더 추가",

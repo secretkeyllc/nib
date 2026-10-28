@@ -799,6 +799,9 @@ export const zhTW = {
     openArtifact: "開啟目標",
     openArtifactLabel: "開啟目標檔案 {{path}}",
   },
+  "nib": {
+    "creditsLeft": "剩餘 {{left}} / {{total}}",
+  },
   onboarding: {
     title: "開始使用",
     addProvider: "新增 AI 模型服務",

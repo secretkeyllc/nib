@@ -23,7 +23,7 @@
         "id": "nib",
         "name": "Nib",
         "category": "Nib",
-        "description": "Every major model family on one subscription.",
+        "description": "Every major model family on one subscription. Models are read from the gateway at sign-in.",
         "vendorKey": "custom",
         "baseUrl": "https://sknib.com/v1",
         "apiStyle": "chat_completions",
@@ -46,64 +46,10 @@
             "maxTokens": 16384
           },
           {
-            "id": "claude-opus-5-5",
-            "name": "Claude Opus 5.5",
-            "contextWindow": 200000,
-            "maxTokens": 32768
-          },
-          {
-            "id": "gpt-5.6-sol",
-            "name": "GPT-5.6 Sol",
-            "contextWindow": 400000,
-            "maxTokens": 16384
-          },
-          {
             "id": "gpt-6-astra",
             "name": "GPT-6 Astra",
             "contextWindow": 400000,
             "maxTokens": 32768
-          },
-          {
-            "id": "gemini-3.8-flash",
-            "name": "Gemini 3.8 Flash",
-            "contextWindow": 1000000,
-            "maxTokens": 16384
-          },
-          {
-            "id": "gemini-4-argon",
-            "name": "Gemini 4 Argon",
-            "contextWindow": 1000000,
-            "maxTokens": 32768
-          },
-          {
-            "id": "grok-4.7",
-            "name": "Grok 4.7",
-            "contextWindow": 256000,
-            "maxTokens": 16384
-          },
-          {
-            "id": "deepseek-v4.1-flash",
-            "name": "DeepSeek V4.1 Flash",
-            "contextWindow": 128000,
-            "maxTokens": 8192
-          },
-          {
-            "id": "glm-5.3",
-            "name": "GLM-5.3",
-            "contextWindow": 200000,
-            "maxTokens": 16384
-          },
-          {
-            "id": "kimi-k3.1-pro",
-            "name": "Kimi K3.1 Pro",
-            "contextWindow": 256000,
-            "maxTokens": 16384
-          },
-          {
-            "id": "qwen3.8-max",
-            "name": "Qwen3.8 Max",
-            "contextWindow": 256000,
-            "maxTokens": 16384
           }
         ]
       }

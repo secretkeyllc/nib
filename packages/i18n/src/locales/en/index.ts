@@ -806,6 +806,9 @@ export const en = {
     openArtifact: "Open goal",
     openArtifactLabel: "Open goal artifact {{path}}",
   },
+  nib: {
+    creditsLeft: "{{left}} of {{total}} credits",
+  },
   onboarding: {
     title: "Get started",
     addProvider: "Sign in to Nib",

@@ -12,6 +12,7 @@ import type { AppState } from "../../../stores/app-store";
 import { ComposerModePicker } from "./ComposerModePicker";
 import { ComposerPermissionPicker } from "./ComposerPermissionPicker";
 import { ContextUsageInspector } from "../../../components/ContextUsageInspector";
+import { NibCreditsChip } from "./NibCreditsChip";
 import { ComposerControlSlots } from "./ComposerControlSlots";
 import { TooltipButton } from "../../../components/ui";
 import {
@@ -186,6 +187,7 @@ export function ComposerToolbar({
 
       <div className="composer-right">
         {localToolsAllowed ? <ComposerControlSlots side="right" /> : null}
+        <NibCreditsChip />
         {contextUsage ? <ContextUsageInspector {...contextUsage} /> : null}
         <ComposerModelPicker
           t={t}

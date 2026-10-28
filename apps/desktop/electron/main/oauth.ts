@@ -744,14 +744,61 @@ export class VendorOAuth {
    * including a vendor `filterModels`) is used only when that request cannot
    * be read. Radius keeps its gateway refresh and does not get a second probe.
    */
+  /**
+   * Models the gateway reports for one plugin provider's key.
+   *
+   * The credential is an `sk-nib-…` API key, so `/v1/models` answers with the
+   * models that key may call. Anything non-200 is treated as "no answer" and
+   * the caller falls back to the manifest; a network hiccup must not empty the
+   * model picker.
+   */
+  private async discoverPluginModels(
+    row: OAuthProviderRow,
+    baseUrl: string,
+    apiStyle: string,
+  ): Promise<OAuthModelOption[]> {
+    const token = await this.pluginAccessToken(row.id);
+    if (!token) return [];
+
+    const url = `${baseUrl.replace(/\/+$/, "")}/models`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8_000);
+    try {
+      const response = await fetch(url, {
+        headers: { accept: "application/json", authorization: `Bearer ${token}` },
+        signal: controller.signal,
+      });
+      if (!response.ok) return [];
+      const body = (await response.json()) as { data?: Array<{ id?: unknown }> };
+      const ids = Array.isArray(body?.data)
+        ? body.data
+            .map((entry) => (typeof entry?.id === "string" ? entry.id.trim() : ""))
+            .filter((id): id is string => id.length > 0)
+        : [];
+      return ids.map((modelId) => ({ modelId, apiStyle, baseUrl }));
+    } catch {
+      return [];
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   async listModels(providerId: string): Promise<OAuthModelOption[]> {
     const row = (await this.rows()).find((candidate) => candidate.id === providerId);
     if (row?.ownerPluginId && row.authKind === OAUTH_AUTH_KIND) {
       if (!row.baseUrl) return [];
       const baseUrl = row.baseUrl;
+      const apiStyle = row.apiStyle ?? "chat_completions";
+
+      // Ask the gateway what this key can actually reach. The manifest's model
+      // list is a fallback, not the source of truth: a hardcoded catalogue
+      // drifts the moment upstream adds, renames or retires a model.
+      const discovered = await this.discoverPluginModels(row, baseUrl, apiStyle);
+      if (discovered.length > 0) return discovered;
+
       return (row.models ?? []).map((model) => ({
         modelId: model.id,
-        apiStyle: row.apiStyle ?? "chat_completions",
+        apiStyle,
         baseUrl,
       }));
     }

@@ -803,6 +803,9 @@ export const tr = {
     openArtifact: "Hedefi aç",
     openArtifactLabel: "Hedef dosyasını aç {{path}}",
   },
+  "nib": {
+    "creditsLeft": "{{left}} / {{total}} kredi",
+  },
   onboarding: {
     title: "Başlayın",
     addProvider: "AI servisi ekleyin",

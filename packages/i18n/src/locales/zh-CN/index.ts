@@ -799,6 +799,9 @@ export const zhCN = {
     openArtifact: "打开目标",
     openArtifactLabel: "打开目标文件 {{path}}",
   },
+  nib: {
+    creditsLeft: "剩余 {{left}} / {{total}}",
+  },
   onboarding: {
     title: "开始使用",
     addProvider: "登录 Nib",

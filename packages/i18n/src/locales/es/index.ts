@@ -794,6 +794,9 @@ export const es = {
     "openArtifact": "Objetivo abierto",
     "openArtifactLabel": "Artefacto de objetivo abierto {{path}}",
   },
+  "nib": {
+    "creditsLeft": "{{left}} de {{total}} créditos",
+  },
   "onboarding": {
     "title": "Comenzar",
     "addProvider": "Agregar un proveedor de IA",
