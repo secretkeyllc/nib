@@ -38,7 +38,17 @@ export function composerModelsForProvider(
   discovered: readonly ModelInfo[] | undefined,
   imageGeneration?: ImageGenerationBindings | null,
 ): ModelInfo[] {
-  return configuredModelIds(provider).filter((modelId) =>
+  // Upstream only offers ids the user explicitly enabled in provider settings,
+  // because for most vendors discovery returning hundreds of catalogue rows
+  // would flood the picker. A gateway the user signed in to is the exception:
+  // its catalogue IS the entitlement ("every model on every plan"), so the
+  // discovered list is what the picker should show. Configured ids stay first.
+  const discoveredIds = (discovered ?? []).map((model) => model.modelId);
+  const ids = discoveredIds.length > 0
+    ? [...new Set([...configuredModelIds(provider), ...discoveredIds])]
+    : configuredModelIds(provider);
+
+  return ids.filter((modelId) =>
     !isImageGenerationModel(imageGeneration, provider.id, modelId)
       && !(discovered ?? []).some((model) =>
         sameComposerModelId(model.modelId, modelId) && model.discoveryState === "unlisted"),
