@@ -848,13 +848,33 @@ export class VendorOAuth {
   ): Promise<VendorModelBinding | undefined> {
     const row = (await this.rows()).find((candidate) => candidate.id === providerId);
     if (row?.ownerPluginId && row.authKind === OAUTH_AUTH_KIND) {
+      if (!row.baseUrl) return undefined;
       const declared = row.models?.find((model) => model.id === modelId);
-      if (!declared || !row.baseUrl) return undefined;
       const option: OAuthModelOption = {
-        modelId: declared.id,
+        modelId,
         apiStyle: row.apiStyle ?? "chat_completions",
         baseUrl: row.baseUrl,
       };
+      // A gateway exposes its catalogue at runtime, so a model the user picked
+      // from the discovered list has no manifest entry. The row's endpoint and
+      // wire style are what the request needs; only the per-model metadata
+      // comes from the catalogue lookup below.
+      if (!declared) {
+        const published = await this.deps.modelConfigFor?.({
+          providerId: row.id,
+          vendorKey: row.vendorKey ?? "custom",
+          option,
+        }).catch(() => undefined);
+        const modelConfig = withMappedThinkingLevels(
+          published ?? genericModelConfig(modelId, row.baseUrl),
+        );
+        return {
+          apiStyle: option.apiStyle,
+          baseUrl: option.baseUrl,
+          modelConfig,
+          ...capabilitiesFromModelConfig(modelConfig),
+        };
+      }
       const published = await this.deps.modelConfigFor?.({
         providerId: row.id,
         vendorKey: row.vendorKey ?? "custom",
