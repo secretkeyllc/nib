@@ -290,6 +290,15 @@ export const IPC = {
     jevTest: "pi-desktop/jev/test",
     providersListModels: "pi-desktop/providers/listModels",
     /**
+     * Nib plan and credit balance for the signed-in account.
+     *
+     * Read through the plugin's stored OAuth credential, because the renderer
+     * never receives provider secrets. A signed-out or unreachable account
+     * answers `{ signedIn: false }` rather than throwing, so the status chip
+     * can stay quiet instead of showing an error for a normal state.
+     */
+    nibEntitlement: "pi-desktop/nib/entitlement",
+    /**
      * Look one model id up in the local models.dev snapshot.
      *
      * `providersListModels` cannot answer this: it describes a saved or

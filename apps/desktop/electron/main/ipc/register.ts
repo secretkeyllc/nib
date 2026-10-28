@@ -19,6 +19,7 @@ import { registerPluginIpc } from "./plugin-ipc";
 import { registerPluginUiIpc } from "./plugin-ui-ipc";
 import { registerJevIpc } from "./jev-ipc";
 import { registerProviderIpc } from "./provider-ipc";
+import { registerNibIpc } from "./nib-ipc";
 import { registerScheduledIpc } from "./scheduled-ipc";
 import { registerSessionIpc } from "./session-ipc";
 import { registerSettingsIpc } from "./settings-ipc";
@@ -330,6 +331,12 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
     enrichProviderList,
     bindingForModel,
     onProviderInvalidated: (providerId) => liveCallService?.invalidateProvider(providerId),
+  });
+  registerNibIpc({
+    registrar,
+    vendorOAuth,
+    logger,
+    channel: IPC.invoke.nibEntitlement,
   });
   registerJevIpc({ registrar, logger });
   registerWorktreeIpc({

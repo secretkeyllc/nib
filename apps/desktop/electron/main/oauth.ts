@@ -1165,6 +1165,22 @@ export class VendorOAuth {
     };
   }
 
+  /**
+   * Access token of a signed-in plugin provider, for host-side reads that the
+   * renderer triggers but must not perform itself (the Nib credit chip).
+   *
+   * Returns undefined when the row is missing or has no credential; callers
+   * treat that as "not signed in" rather than an error.
+   */
+  async pluginAccessToken(providerId: string): Promise<string | undefined> {
+    try {
+      const credential = await this.readPluginCredential(providerId);
+      return credential?.accessToken;
+    } catch {
+      return undefined;
+    }
+  }
+
   private async readPluginCredential(
     providerId: string,
   ): Promise<PluginProviderOAuthCredential | undefined> {

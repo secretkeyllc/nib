@@ -14,6 +14,8 @@ import {
   type ShortcutPlatform,
 } from "@pi-desktop/shared";
 import { useTranslation } from "react-i18next";
+import { api } from "../lib/api";
+import type { NibEntitlement } from "@pi-desktop/shared";
 import { useAppStore } from "../stores/app-store";
 import {
   scheduledReturnFor,
@@ -58,6 +60,38 @@ export function ConversationTopbar({
   const activeSessionId = useAppStore((s) => s.activeSessionId);
   const sessions = useAppStore((s) => s.sessions);
   const workspace = useAppStore((s) => s.workspace);
+
+  /**
+   * Nib balance chip. Refreshed on mount and every five minutes: a manual
+   * refresh action would be one more thing to learn, and the number only
+   * matters as a rough "how much is left".
+   */
+  const [nib, setNib] = useState<NibEntitlement | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const load = () => {
+      void api
+        .nibEntitlement()
+        .then((next) => {
+          if (!cancelled) setNib(next);
+        })
+        .catch(() => {
+          if (!cancelled) setNib(null);
+        });
+    };
+    load();
+    const timer = setInterval(load, 5 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, []);
+
+  /** "186 / 300 credits" — omitted entirely while signed out. */
+  const nibCredits =
+    nib?.signedIn && nib.creditsTotal
+      ? `${Math.round(nib.creditsUsed ?? 0)} / ${Math.round(nib.creditsTotal)}`
+      : null;
   const projectMeta = useAppStore((s) => s.projectMeta);
   const renameSession = useAppStore((s) => s.renameSession);
   const showToast = useAppStore((s) => s.showToast);
@@ -321,6 +355,19 @@ export function ConversationTopbar({
       </div>
 
       <div className="ct-right">
+        {nibCredits ? (
+          <span
+            className="ct-nib-credits"
+            title={
+              nib?.planName
+                ? `${nib.planName} · ${nibCredits} credits`
+                : `${nibCredits} credits`
+            }
+          >
+            <span className="ct-nib-plan">{nib?.planName ?? "Nib"}</span>
+            <span className="ct-nib-count">{nibCredits}</span>
+          </span>
+        ) : null}
         <div className="ct-actions">
           <TooltipButton
             type="button"

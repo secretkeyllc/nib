@@ -61,7 +61,7 @@
           "en": "Nib usage",
           "zh-CN": "Nib 用量"
         },
-        "icon": "chart",
+        "icon": "target",
         "entry": "views/usage.html",
         "order": 5
       }

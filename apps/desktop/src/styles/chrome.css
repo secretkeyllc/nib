@@ -1387,3 +1387,32 @@
   flex: 1 1 auto;
   align-self: stretch;
 }
+
+/* Nib plan + credits chip, right of the top-bar actions.
+ * Two lines of information in one pill: the plan name (muted, small) and the
+ * remaining allowance (tabular figures so it does not jitter as it changes).
+ * Hidden entirely while signed out — an empty balance is not an error. */
+.conversation-topbar .ct-nib-credits {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-right: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ds-border-subtle);
+  background: var(--ds-tile);
+  font-size: 0.74rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: var(--ds-text-muted);
+}
+
+.conversation-topbar .ct-nib-plan {
+  color: var(--ds-text-muted);
+}
+
+.conversation-topbar .ct-nib-count {
+  color: var(--ds-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}

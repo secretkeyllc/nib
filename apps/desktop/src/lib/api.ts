@@ -2,6 +2,7 @@ import { projectPlanHistory } from "./plan-history";
 import { guardRemoteInvocation } from "./remote-ipc-safety";
 import { isRemoteSession, safeSessionSummary } from "./remote-session-safety";
 import type {
+  NibEntitlement,
   ConfigSyncTestInput,
   ConfigSyncTestResult,
   ScheduledTaskRun,
@@ -1484,6 +1485,8 @@ export const api = {
    * entry existence, with titles resolved for the active locale (ADR 0104).
    */
   listPluginViews: () => invoke<PluginViewMeta[]>(IPC.invoke.pluginViews),
+  /** Nib plan and credits for the signed-in account; never throws. */
+  nibEntitlement: () => invoke<NibEntitlement>(IPC.invoke.nibEntitlement),
   /** Create or reuse the view's web contents. Does not show it. */
   pluginViewOpen: (
     pluginId: string,
