@@ -51,7 +51,7 @@ export class AppContext {
     this.window = options.window;
     this.store = options.store;
     this.engine = new EngineHost({
-      resolve: () => resolveEngine({ resourcesDir: resourcesDir() }),
+      resolve: () => resolveEngine({ resourcesDir: engineResourcesDir() }),
       env: async () => this.engineEnvironment(),
       onData: (data) => this.send("engine:data", data),
       onEvent: (event) => {
@@ -72,7 +72,7 @@ export class AppContext {
   }
 
   state(): ShellState {
-    const resolved = resolveEngine({ resourcesDir: resourcesDir() });
+    const resolved = resolveEngine({ resourcesDir: engineResourcesDir() });
     return {
       signedIn: this.signedIn,
       email: null,
@@ -270,7 +270,23 @@ export function stopTimer(context: AppContext): void {
   context.refreshTimer = null;
 }
 
-/** Branding assets live beside the package in dev and under resources/ when packaged. */
+/** Branding assets live beside the package in dev and under resources/branding when packaged. */
 export function resourcesDir(): string | undefined {
   return app.isPackaged ? join(process.resourcesPath, "branding") : join(app.getAppPath(), "branding");
+}
+
+/**
+ * Root that engine binaries sit under, i.e. the directory CONTAINING `bin/`.
+ *
+ * electron-builder maps `resources/bin` to `<resources>/bin` (extraResources),
+ * while branding lands at `<resources>/branding`. Passing resourcesDir() here
+ * searched `<resources>/branding/bin/opencode.exe`, which never exists, so a
+ * packaged app reported "The engine was not found" even with the binary
+ * bundled.
+ */
+export function engineResourcesDir(): string | undefined {
+  // Packaged: electron-builder puts extraResources at <resources>/bin, so the
+  // root that contains bin/ is process.resourcesPath itself.
+  // Dev: the binary lives at <package>/resources/bin, so point at resources/.
+  return app.isPackaged ? process.resourcesPath : join(app.getAppPath(), "resources");
 }
