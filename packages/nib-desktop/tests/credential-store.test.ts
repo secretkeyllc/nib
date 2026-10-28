@@ -30,6 +30,9 @@ test("FileCredentialStore stores, overwrites, reads and deletes secrets", async 
 });
 
 test("FileCredentialStore writes the secret file with 0600 permissions", async () => {
+  // Windows reports 0o666 for every regular file: the POSIX mode bits the
+  // store enforces only exist on the platforms the file store serves.
+  if (process.platform === "win32") return;
   const dir = await mkdtemp(join(tmpdir(), "nib-cred-test-"));
   try {
     const store = new FileCredentialStore(dir);
