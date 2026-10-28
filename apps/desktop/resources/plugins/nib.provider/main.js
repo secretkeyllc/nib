@@ -8,8 +8,12 @@
  *   2. pi.provider.oauth.notify(loginId, { kind: "deviceCode", ... })
  *      The host renders the code, a copy button and the verification link.
  *   3. Poll POST /api/v1/cli/device/token until the browser approves.
- *   4. Return { accessToken } — the host encrypts it and stores it in the
- *      OS keychain; this plugin never writes credentials to disk.
+ *   4. Return the credential — the host encrypts it and stores it in the OS
+ *      keychain; this plugin never writes credentials to disk.
+ *
+ * Two credentials come back and they are not interchangeable:
+ *   api_key       `sk-nib-…`; the ONLY thing the inference gateway accepts
+ *   access_token  a JWT for the control plane (entitlement, keys, billing)
  *
  * The control plane returns these fields at the top level (a `data` mirror is
  * also present for browser clients), and failures use RFC 8628 codes:
@@ -128,8 +132,15 @@ async function deviceLogin(loginId, context) {
       context?.signal,
     );
 
-    const token = field(polled.payload, "access_token");
-    if (polled.ok && token) return token;
+    const accessToken = field(polled.payload, "access_token");
+    if (polled.ok && accessToken) {
+      return {
+        accessToken,
+        // The gateway only accepts `sk-nib-…` API keys; the JWT above is for
+        // the control plane. Both arrive from the same token poll.
+        apiKey: field(polled.payload, "api_key"),
+      };
+    }
 
     const code = field(polled.payload, "error");
     if (code === "authorization_pending") continue;
@@ -210,17 +221,23 @@ module.exports = {
       throw new Error("Nib sessions are renewed by signing in again.");
     }
 
-    const token = await deviceLogin(request.loginId, context);
+    const credentials = await deviceLogin(request.loginId, context);
 
-    // The host stores the credential in the OS keychain and never hands it
-    // back to plugins. The usage panel needs to call the read-only
-    // entitlement endpoint, so keep our own copy in the plugin's settings.
+    // The provider row's credential is the API key: every inference request
+    // the agent sends carries it, and the gateway rejects a JWT.
+    if (!credentials.apiKey) {
+      throw new Error("Nib sign-in did not return an API key. Try signing in again.");
+    }
+
+    // The host stores that credential in the OS keychain and never hands it
+    // back. The usage panel talks to the control plane, which wants the JWT,
+    // so keep our own copy of that one.
     try {
-      await pi.plugin.setSettings({ nibAccessToken: token });
+      await pi.plugin.setSettings({ nibAccessToken: credentials.accessToken });
     } catch {
       // A settings write failure must not fail the sign-in.
     }
 
-    return { accessToken: token, accountLabel: "Nib account" };
+    return { accessToken: credentials.apiKey, accountLabel: "Nib account" };
   },
 };

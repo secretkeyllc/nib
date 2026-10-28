@@ -334,7 +334,8 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
   });
   registerNibIpc({
     registrar,
-    vendorOAuth,
+    invokePanel: (pluginId, channel, payload) =>
+      plugins.invokePanelBridge(pluginId, channel, payload),
     logger,
     channel: IPC.invoke.nibEntitlement,
   });
