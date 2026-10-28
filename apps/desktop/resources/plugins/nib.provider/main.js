@@ -234,7 +234,13 @@ module.exports = {
     // the host-side credit chip need to read it, so keep it next to the
     // plugin's own data where main can find it too.
     try {
-      await pi.plugin.setSettings({ nibAccessToken: credentials.accessToken });
+      await pi.plugin.setSettings({
+        nibAccessToken: credentials.accessToken,
+        // The provider row holds this same key, but the host's copy is behind
+        // an encrypted secret that a model-list read cannot always reach; the
+        // plugin's own copy is what the picker falls back to.
+        nibApiKey: credentials.apiKey,
+      });
     } catch {
       // A settings write failure must not fail the sign-in.
     }

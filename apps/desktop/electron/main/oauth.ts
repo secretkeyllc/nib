@@ -757,8 +757,16 @@ export class VendorOAuth {
     baseUrl: string,
     apiStyle: string,
   ): Promise<OAuthModelOption[]> {
-    const token = await this.pluginAccessToken(row.id);
-    if (!token) return [];
+    // The provider row's credential is the normal source. When the host's
+    // encrypted secret cannot be read (a row created before the credential
+    // existed, a fresh install), the plugin's own settings file carries the
+    // same key, so the picker still shows the real catalogue.
+    let token = await this.pluginAccessToken(row.id);
+    if (!token) token = await this.pluginSettingApiKey(row.id);
+    if (!token) {
+      this.log("warn", "nib model discovery: no credential anywhere", { providerId: row.id });
+      return [];
+    }
 
     const url = `${baseUrl.replace(/\/+$/, "")}/models`;
     const controller = new AbortController();
@@ -768,15 +776,20 @@ export class VendorOAuth {
         headers: { accept: "application/json", authorization: `Bearer ${token}` },
         signal: controller.signal,
       });
-      if (!response.ok) return [];
+      if (!response.ok) {
+        this.log("warn", "nib model discovery: non-200", { providerId: row.id, status: response.status, url });
+        return [];
+      }
       const body = (await response.json()) as { data?: Array<{ id?: unknown }> };
       const ids = Array.isArray(body?.data)
         ? body.data
             .map((entry) => (typeof entry?.id === "string" ? entry.id.trim() : ""))
             .filter((id): id is string => id.length > 0)
         : [];
+      this.log("info", "nib model discovery ok", { providerId: row.id, count: ids.length });
       return ids.map((modelId) => ({ modelId, apiStyle, baseUrl }));
-    } catch {
+    } catch (error) {
+      this.log("warn", "nib model discovery threw", { providerId: row.id, error: error instanceof Error ? error.message : String(error) });
       return [];
     } finally {
       clearTimeout(timer);
@@ -1223,6 +1236,36 @@ export class VendorOAuth {
     try {
       const credential = await this.readPluginCredential(providerId);
       return credential?.accessToken;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
+   * API key kept in the plugin's own settings file, used only when the row's
+   * encrypted credential is unreadable.
+   */
+  private async pluginSettingApiKey(rowId: string): Promise<string | undefined> {
+    const pluginId = rowId.startsWith("plugin:")
+      ? rowId.split(":")[1]
+      : undefined;
+    if (!pluginId) return undefined;
+    try {
+      const { readFile } = await import("node:fs/promises");
+      const { join } = await import("node:path");
+      const { desktopDataDir } = await import("./data-paths.ts");
+      const file = join(
+        desktopDataDir(),
+        "plugins",
+        "data",
+        pluginId.replace(/[^a-zA-Z0-9._-]/g, "_"),
+        "settings.json",
+      );
+      const raw = await readFile(file, "utf8");
+      const parsed = JSON.parse(raw) as { nibApiKey?: unknown };
+      return typeof parsed.nibApiKey === "string" && parsed.nibApiKey
+        ? parsed.nibApiKey
+        : undefined;
     } catch {
       return undefined;
     }
