@@ -229,15 +229,15 @@ module.exports = {
       throw new Error("Nib sign-in did not return an API key. Try signing in again.");
     }
 
-    // The host stores that credential in the OS keychain and never hands it
-    // back. The usage panel talks to the control plane, which wants the JWT,
-    // so keep our own copy of that one.
+    // The host stores the API key in the OS keychain and never hands it back.
+    // The control plane wants the JWT instead, and both the usage panel and
+    // the host-side credit chip need to read it, so keep it next to the
+    // plugin's own data where main can find it too.
     try {
       await pi.plugin.setSettings({ nibAccessToken: credentials.accessToken });
     } catch {
       // A settings write failure must not fail the sign-in.
     }
-
     return { accessToken: credentials.apiKey, accountLabel: "Nib account" };
   },
 };

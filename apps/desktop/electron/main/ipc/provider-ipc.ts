@@ -588,6 +588,38 @@ export function registerProviderIpc({
       }
 
       if (req.source === "cache" && provider) {
+        // The picker asks for "cache" on open. For a signed-in vendor account
+        // that list would be the manifest's frozen catalogue, so ask the
+        // gateway first and fall through to the cache only if it cannot answer.
+        if (provider.authKind === OAUTH_AUTH_KIND) {
+          try {
+            const live = await vendorOAuth.listModels(provider.id);
+            if (live.length > 0) {
+              return {
+                models: withConfiguredBindings(
+                  live.map((option) =>
+                    decorate(
+                      {
+                        modelId: option.modelId,
+                        displayName: option.modelId,
+                        discoveryState: "published",
+                      },
+                      option.apiStyle,
+                    ),
+                  ),
+                ),
+                source: "remote" as const,
+              };
+            }
+          } catch (e) {
+            logger.app("provider", "warn", "model discovery failed, using cache", {
+              data: {
+                providerId: provider.id,
+                error: e instanceof Error ? e.message : String(e),
+              },
+            });
+          }
+        }
         // Keep every configured binding visible when the endpoint cache is
         // partial or empty. Decorating these ids through models.dev or generic
         // defaults preserves the per-model state for offline editing too.
