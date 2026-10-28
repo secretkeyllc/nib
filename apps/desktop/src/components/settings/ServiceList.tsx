@@ -27,6 +27,8 @@ export type ServiceListProps = {
   onCopy: (provider: ProviderPublic) => void;
   onToggleEnabled: (provider: ProviderPublic) => void;
   onRemove: (provider: ProviderPublic) => void;
+  /** Re-run OAuth sign-in for an existing account row. */
+  onSignIn?: (provider: ProviderPublic) => void;
   /** Resolves true once the key is stored, so its entry can close. */
   onSaveKey: (provider: ProviderPublic, value: string) => Promise<boolean>;
 };
@@ -43,6 +45,7 @@ export function ServiceList({
   onToggleEnabled,
   onRemove,
   onSaveKey,
+  onSignIn,
 }: ServiceListProps) {
   const { t } = useTranslation();
   const reorder = useProviderReorder(providers, busy);
@@ -84,6 +87,20 @@ export function ServiceList({
         onSelect: () => {
           closeMenu(false);
           onEdit(provider);
+        },
+      });
+    }
+    // An account row that has lost its credential has no other way back:
+    // "add service" only offers vendors that are not listed yet, so re-signing
+    // in has to be reachable from the row itself.
+    if (pluginOAuth && onSignIn) {
+      items.push({
+        key: "signin",
+        label: t("settings.vendorReauthorize"),
+        icon: <IconPlug size={14} />,
+        onSelect: () => {
+          closeMenu(false);
+          onSignIn(provider);
         },
       });
     }

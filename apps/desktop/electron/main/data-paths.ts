@@ -1,3 +1,4 @@
+import { cpSync, existsSync, renameSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { APP_NAME } from "@pi-desktop/shared";
@@ -17,19 +18,23 @@ import { APP_NAME } from "@pi-desktop/shared";
  * prevent. Neither is workable while someone debugs against the app they use.
  *
  * Only the development side moves, and only these two names differ. A shipped
- * installation keeps `PI-Desktop` and `~/.pi-desktop`, so no upgrade relocates
- * a user's database, secrets, plugins, or renderer-local state, and
- * `PI_DESKTOP_DATA_DIR` still overrides either profile outright.
+ * Nib installation keeps `~/.nib`, so no upgrade relocates a user's database,
+ * secrets, plugins, or renderer-local state, and `PI_DESKTOP_DATA_DIR` still
+ * overrides either profile outright.
+ *
+ * Nib note: the names were `.pi-desktop`/`.pi-desktop-dev` upstream. They were
+ * renamed so a Nib install never shares state with a PI Desktop install of the
+ * same user; `migrateLegacyDataDir` moves an existing directory on first run.
  */
 
 /** `userData` directory of a development installation, beside the shipped one. */
 export const DEVELOPMENT_INSTALLATION_NAME = `${APP_NAME} Dev`;
 
 /** Data directory of a shipped installation, below the user's home. */
-export const INSTALLATION_DATA_DIR_NAME = ".pi-desktop";
+export const INSTALLATION_DATA_DIR_NAME = ".nib";
 
 /** Data directory of a development installation, below the user's home. */
-export const DEVELOPMENT_DATA_DIR_NAME = ".pi-desktop-dev";
+export const DEVELOPMENT_DATA_DIR_NAME = ".nib-dev";
 
 export type DataDirInput = {
   /** `PI_DESKTOP_DATA_DIR`; an explicit directory wins over either profile. */
@@ -81,11 +86,57 @@ export function resolveDataDir({
 export function desktopDataDir(
   development: boolean = process.env.PI_DESKTOP_DEV === "1",
 ): string {
-  return resolveDataDir({
+  const dir = resolveDataDir({
     override: process.env.PI_DESKTOP_DATA_DIR,
     development,
     home: homedir(),
   });
+  // Adopt a pre-rename directory once, before host-core opens the database.
+  // An explicit override is the user's own choice of root: never migrate then.
+  if (!process.env.PI_DESKTOP_DATA_DIR) {
+    migrateLegacyDataDir(dir, homedir());
+  }
+  return dir;
+}
+
+/**
+ * Legacy data-directory names, newest first, that a Nib install adopts on first
+ * run. The brand rename moved the directory; without this an upgrading user
+ * would silently start empty and lose their projects, keys and plugin state.
+ */
+const LEGACY_DATA_DIR_NAMES = [".pi-desktop"];
+
+/**
+ * Move a pre-rename data directory into place, once.
+ *
+ * Only runs when the new directory does not exist yet, so a user who already
+ * has a `.nib` tree is never overwritten. A rename failure is reported and
+ * treated as "no legacy data": starting empty is recoverable, deleting a
+ * half-moved database is not.
+ */
+export function migrateLegacyDataDir(target: string, home: string): string | null {
+  const fs = { existsSync, renameSync, cpSync, rmSync };
+  if (fs.existsSync(target)) return null;
+  for (const legacyName of LEGACY_DATA_DIR_NAMES) {
+    const legacy = join(home, legacyName);
+    if (!fs.existsSync(legacy)) continue;
+    try {
+      fs.renameSync(legacy, target);
+      return legacy;
+    } catch {
+      // Different filesystems make rename fail; fall back to copy + remove.
+      try {
+        if (fs.cpSync) {
+          fs.cpSync(legacy, target, { recursive: true });
+          if (fs.rmSync) fs.rmSync(legacy, { recursive: true, force: true });
+          return legacy;
+        }
+      } catch {
+        return null;
+      }
+    }
+  }
+  return null;
 }
 
 /** The Electron `app` surface this helper needs; kept structural so tests need no Electron. */

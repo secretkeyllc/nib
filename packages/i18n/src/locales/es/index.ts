@@ -1688,6 +1688,7 @@ sklm: {
     "vendorRemoveAccount": "Eliminar cuenta",
     "vendorAccountRemoved": "{{vendor}} cuenta eliminada",
     "vendorSignOut": "Cerrar sesión",
+    "vendorReauthorize": "Iniciar sesión de nuevo",
     "vendorSignedOut": "Sesión cerrada en {{vendor}}",
     "pluginOauthFailed": "El complemento no pudo completar el inicio de sesión del proveedor.",
     "vendorLoginStarting": "Iniciando inicio de sesión...",

@@ -1688,6 +1688,7 @@ sklm: {
     "vendorRemoveAccount": "Konto entfernen",
     "vendorAccountRemoved": "{{vendor}}-Konto entfernt",
     "vendorSignOut": "Abmelden",
+    "vendorReauthorize": "Erneut anmelden",
     "vendorSignedOut": "Von {{vendor}} abgemeldet",
     "pluginOauthFailed": "Das Plugin konnte die Anbieteranmeldung nicht abschließen.",
     "vendorLoginStarting": "Anmeldung wird gestartet…",

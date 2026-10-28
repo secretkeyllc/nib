@@ -1688,6 +1688,7 @@ sklm: {
     "vendorRemoveAccount": "Supprimer le compte",
     "vendorAccountRemoved": "{{vendor}} compte supprimé",
     "vendorSignOut": "Se déconnecter",
+    "vendorReauthorize": "Se reconnecter",
     "vendorSignedOut": "Déconnexion de {{vendor}}",
     "pluginOauthFailed": "Le plugin n’a pas pu terminer la connexion au fournisseur.",
     "vendorLoginStarting": "Début de la connexion…",

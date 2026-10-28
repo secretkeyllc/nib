@@ -1683,6 +1683,7 @@ sklm: {
     vendorRemoveAccount: "移除账户",
     vendorAccountRemoved: "{{vendor}} 账户已移除",
     vendorSignOut: "退出登录",
+    vendorReauthorize: "重新登录",
     vendorSignedOut: "已退出 {{vendor}}",
     pluginOauthFailed: "插件未能完成厂商登录。",
     vendorLoginStarting: "正在开始登录…",

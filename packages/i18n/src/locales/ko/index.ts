@@ -1702,6 +1702,7 @@ sklm: {
     vendorRemoveAccount: "계정 제거",
     vendorAccountRemoved: "{{vendor}} 계정 제거됨",
     vendorSignOut: "로그아웃",
+    vendorReauthorize: "다시 로그인",
     vendorSignedOut: "{{vendor}}에서 로그아웃됨",
     pluginOauthFailed: "플러그인이 공급자 로그인을 완료하지 못했습니다.",
     vendorLoginStarting: "로그인 시작 중…",

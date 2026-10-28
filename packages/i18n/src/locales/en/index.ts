@@ -1706,6 +1706,7 @@ sklm: {
     vendorRemoveAccount: "Remove account",
     vendorAccountRemoved: "{{vendor}} account removed",
     vendorSignOut: "Sign out",
+    vendorReauthorize: "Sign in again",
     vendorSignedOut: "Signed out of {{vendor}}",
     pluginOauthFailed: "The plugin could not complete provider sign-in.",
     vendorLoginStarting: "Starting sign-in…",

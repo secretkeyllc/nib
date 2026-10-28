@@ -1696,6 +1696,7 @@ sklm: {
     vendorRemoveAccount: "Hesabı kaldır",
     vendorAccountRemoved: "{{vendor}} hesabı kaldırıldı",
     vendorSignOut: "Oturumu kapat",
+    vendorReauthorize: "Tekrar giriş yap",
     vendorSignedOut: "{{vendor}} oturumu kapatıldı",
     pluginOauthFailed: "Eklenti sağlayıcı oturum açma işlemini tamamlayamadı.",
     vendorLoginStarting: "Oturum açılıyor…",

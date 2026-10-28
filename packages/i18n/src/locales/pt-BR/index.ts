@@ -1660,6 +1660,7 @@ export const ptBR = {
     vendorRemoveAccount: "Excluir conta",
     vendorAccountRemoved: "Conta do {{vendor}} removida",
     vendorSignOut: "Sair",
+    vendorReauthorize: "Entrar novamente",
     vendorSignedOut: "Você saiu de {{vendor}}",
     pluginOauthFailed: "O plugin não conseguiu concluir o login no provedor.",
     vendorLoginStarting: "Iniciando login…",

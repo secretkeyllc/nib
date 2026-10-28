@@ -485,6 +485,16 @@ export function ModelConfigPage() {
                   : setSetupFor(provider.id)
               }
               onTest={(provider) => void testProvider(provider)}
+              onSignIn={(provider) => {
+                // A plugin OAuth vendor row and its provider row are the same
+                // database row, so the ids match exactly.
+                const vendor = (vendors ?? []).find((v) => v.vendorId === provider.id);
+                if (!vendor) return;
+                setSetupFor(null);
+                setCopyDraft(null);
+                setPluginCatalogSetup(null);
+                startLogin(vendor);
+              }}
               onCopy={(provider) => {
                 setCopyDraft(
                   copyProviderConfiguration(
