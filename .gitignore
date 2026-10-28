@@ -61,3 +61,7 @@ electron.vite.config.*.mjs
 
 .playwright-cli
 worktrees
+# build output
+apps/desktop/release/
+apps/desktop/out/
+target/

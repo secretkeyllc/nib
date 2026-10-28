@@ -1,13 +1,13 @@
 {
-  "name": "@pi-desktop/desktop",
+  "name": "nib-desktop",
   "version": "0.21.0",
-  "desktopName": "pi-desktop.desktop",
+  "desktopName": "nib.desktop",
   "private": true,
-  "description": "PI-Desktop Electron application",
+  "description": "Nib — AI coding agent for your desktop",
   "homepage": "https://github.com/vastsa/PI-Desktop",
   "author": {
-    "name": "vastsa",
-    "email": "hhxk666@gmail.com"
+    "name": "Secret Key LLC",
+    "email": "support@sknib.com"
   },
   "main": "./out/main/index.js",
   "type": "module",
@@ -251,8 +251,8 @@
       "artifactName": "Nib-Portable-${version}.${ext}"
     },
     "deb": {
-      "packageName": "pi-desktop",
-      "artifactName": "pi-desktop_${version}_${arch}.${ext}"
+      "packageName": "nib",
+      "artifactName": "Nib-${version}-${arch}.${ext}"
     },
     "rpm": {
       "packageName": "pi-desktop",
@@ -272,9 +272,6 @@
         },
         {
           "target": "deb"
-        },
-        {
-          "target": "rpm"
         }
       ],
       "category": "Development",
@@ -294,6 +291,7 @@
     ],
     "asar": {
       "smartUnpack": false
-    }
+    },
+    "copyright": "Copyright © 2026 Secret Key LLC"
   }
 }
