@@ -78,6 +78,13 @@ FunctionEnd
 ; Rebuild the user Path without the Nib entry, delete the value entirely when
 ; nothing is left, and broadcast the change. Tokens are compared
 ; case-insensitively against both the expanded and the %LOCALAPPDATA% form.
+;
+; Defined only on the uninstaller pass, symmetric to NibAddToPath above: the
+; installer pass never calls WriteUninstaller (electron-builder builds the
+; uninstaller separately and embeds it), so uninstaller script code present on
+; the installer pass raises NSIS warning 6020, promoted to an error by
+; electron-builder.
+!ifdef BUILD_UNINSTALLER
 Function un.NibRemoveFromPath
   ClearErrors
   ReadRegStr $R0 HKCU "Environment" "Path"
@@ -142,6 +149,7 @@ unNibDone:
   SendMessage ${NIB_HWND_BROADCAST} ${NIB_WM_SETTINGCHANGE} 0 "STR:Environment" /TIMEOUT=5000
   Return
 FunctionEnd
+!endif
 
 !macro customInstall
   ; 1) nib.cmd -> %LOCALAPPDATA%\Nib\bin
