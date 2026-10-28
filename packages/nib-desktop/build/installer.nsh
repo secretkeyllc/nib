@@ -84,10 +84,8 @@ unNibNextToken:
   StrCpy $R7 0          ; scan offset within the current remainder
   StrCmp $R0 "" unNibWrite
 
-unNibScan:
-  StrLen $R1 $R0
-
 unNibScanChar:
+  StrLen $R1 $R0
   IntCmp $R7 $R1 unNibTail unNibProbe unNibTail
 
 unNibProbe:
@@ -100,7 +98,7 @@ unNibProbe:
 
 unNibAdvance:
   IntOp $R7 $R7 + 1
-  Goto unNibScanChar
+  Goto unNibScanCharChar
 
 unNibTail:
   StrCpy $R3 $R0                ; last token runs to the end
