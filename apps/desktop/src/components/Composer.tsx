@@ -411,7 +411,10 @@ export function Composer({
       provider.enabled &&
       !!modelId &&
       !isImageGenerationModel(imageGenerationCandidates, provider.id, modelId) &&
-      (provider.hasSecret || provider.authKind === "none");
+      (provider.hasSecret ||
+        provider.hasOauth ||
+        provider.authKind === "none" ||
+        provider.authKind === "oauth");
   const enterToSend = settings?.enterToSend ?? true;
   const hasDraftContent = Boolean(value.trim() || activeFileReferences.length);
 

@@ -122,7 +122,10 @@ export function useComposerModelMenu({
         .filter(
           (candidate) =>
             candidate.enabled &&
-            (candidate.hasSecret || candidate.authKind === "none"),
+            (candidate.hasSecret ||
+              candidate.hasOauth ||
+              candidate.authKind === "none" ||
+              candidate.authKind === "oauth"),
         )
         .map((candidate) => {
           const models = composerModelsForProvider(
@@ -205,9 +208,15 @@ export function useComposerModelMenu({
   useEffect(() => {
     if (!open) return;
     for (const candidate of providers) {
-      if (candidate.enabled && (candidate.hasSecret || candidate.authKind === "none")) {
-        void loadProviderModels(candidate.id);
-      }
+      // Vendor accounts authenticate through OAuth and carry no API secret on
+      // the row, so requiring `hasSecret` skipped them entirely: their model
+      // list stayed whatever the startup cache said and never refreshed.
+      const canList =
+        candidate.enabled &&
+        (candidate.hasSecret ||
+          candidate.authKind === "none" ||
+          candidate.authKind === "oauth");
+      if (canList) void loadProviderModels(candidate.id);
     }
   }, [loadProviderModels, open, providers]);
 
