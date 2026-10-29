@@ -1,5 +1,5 @@
 /**
- * Release coordinates for the `pi-host` bundle the desktop installs on a
+ * Release coordinates for the `nib-host` bundle the desktop installs on a
  * remote machine (spec `02-architecture/05-remote-agent-control.md` §5.2 step 2,
  * D375).
  *

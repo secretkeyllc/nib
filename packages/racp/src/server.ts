@@ -149,7 +149,7 @@ export class RacpConnection {
  * dispatch with role checks from the operation catalog, event fan-out from
  * the Agent Host hub, and connection teardown that releases every
  * subscription and terminal the connection held. Transport framing is
- * injected so the same core runs over `ws` in `pi-host` and over an
+ * injected so the same core runs over `ws` in `nib-host` and over an
  * in-memory pair in tests.
  */
 export class RacpServer {

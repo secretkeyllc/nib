@@ -1,5 +1,5 @@
 /**
- * Settings destination for paired remote `pi-host` machines (R2b pairing UX,
+ * Settings destination for paired remote `nib-host` machines (R2b pairing UX,
  * ADR 0286 §Registry).
  *
  * Inventory of `<dataDir>/remote-hosts.json` plus two Add actions that reveal

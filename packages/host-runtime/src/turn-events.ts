@@ -58,7 +58,7 @@ export type TurnEventPipelineOptions = {
  * streaming reply (D299), close the turn on its terminal event, and persist
  * every completed row through host-core. The desktop runs the same pass in
  * Electron Main against its file-backed outbox; here the outbox is process
- * memory with a bounded retry, because a `pi-host` ends only with its
+ * memory with a bounded retry, because a `nib-host` ends only with its
  * supervisor.
  */
 export class TurnEventPipeline {

@@ -2006,14 +2006,14 @@ export const api = {
   },
 
   // --- Remote hosts (R2b pairing UX) -----------------------------------------
-  /** Paired remote `pi-host` list, redacted so no device token reaches here. */
+  /** Paired remote `nib-host` list, redacted so no device token reaches here. */
   listRemoteHosts: () =>
     invoke<{ hosts: RemoteHostSummary[] }>(IPC.invoke.remoteHostList),
   /** Exchange `ppt1.` pairing token for a durable device token and connect. */
   pairRemoteHost: (request: RemoteHostPairRequest) =>
     invoke<RemoteHostPairResult>(IPC.invoke.remoteHostPair, request),
   /**
-   * Install and pair a `pi-host` over SSH on a machine the user already
+   * Install and pair a `nib-host` over SSH on a machine the user already
    * reaches, then bring it online (spec §5.2). Credentials come from the
    * user's own SSH configuration and agent.
    */

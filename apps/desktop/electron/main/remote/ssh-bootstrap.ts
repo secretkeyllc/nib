@@ -1,5 +1,5 @@
 /**
- * SSH bootstrap: install and pair a `pi-host` on a machine the user already
+ * SSH bootstrap: install and pair a `nib-host` on a machine the user already
  * reaches over SSH (spec `02-architecture/05-remote-agent-control.md` §5.2,
  * security `05-security/02-remote-control-security.md` §3.4).
  *
@@ -128,15 +128,15 @@ function fail(message: string, errorCode: string, data?: Record<string, unknown>
 }
 
 const REMOTE_STEP_MESSAGES: Record<string, string> = {
-  "missing-node": "the remote machine has no Node.js; pi-host needs Node.js 22 or newer",
-  "node-too-old": "the remote Node.js is too old; pi-host needs Node.js 22 or newer",
-  "download-failed": "the remote machine could not download the pi-host bundle from GitHub",
-  "checksum-mismatch": "the downloaded pi-host bundle did not match the published SHA-256",
+  "missing-node": "the remote machine has no Node.js; nib-host needs Node.js 22 or newer",
+  "node-too-old": "the remote Node.js is too old; nib-host needs Node.js 22 or newer",
+  "download-failed": "the remote machine could not download the nib-host bundle from GitHub",
+  "checksum-mismatch": "the downloaded nib-host bundle did not match the published SHA-256",
   "missing-tar": "the remote machine has no tar",
-  "install-failed": "the remote pi-host install.sh failed",
-  "ready-timeout": "the remote pi-host started but did not become ready in time",
-  "host-exited": "the remote pi-host process exited before it became ready",
-  "host-start-failed": "the remote pi-host process failed to start",
+  "install-failed": "the remote nib-host install.sh failed",
+  "ready-timeout": "the remote nib-host started but did not become ready in time",
+  "host-exited": "the remote nib-host process exited before it became ready",
+  "host-start-failed": "the remote nib-host process failed to start",
 };
 
 function remoteStepMessage(step: string): string {
@@ -217,7 +217,7 @@ function validateTarget(request: RemoteHostBootstrapRequest): SshTarget {
 }
 
 /**
- * The port `pi-host` binds on the remote machine. Absent or `0` means "pick a
+ * The port `nib-host` binds on the remote machine. Absent or `0` means "pick a
  * free one and report it", which is what the bootstrap normally wants; a
  * pinned port is range-checked here so it cannot reach the script as an
  * argument like `--port -5`.
@@ -285,7 +285,7 @@ export function createSshBootstrap(deps: SshBootstrapDeps): SshBootstrap {
         }
         if (!isPublishedTarget(remoteTarget)) {
           throw fail(
-            `no pi-host bundle is published for ${targetKey(remoteTarget)}`,
+            `no nib-host bundle is published for ${targetKey(remoteTarget)}`,
             ErrorCodes.HOST_BOOTSTRAP_FAILED,
             { target: targetKey(remoteTarget) },
           );

@@ -56,7 +56,7 @@ export async function exchangePairingToken(options: PairingExchangeOptions): Pro
       deviceLabel: options.label,
     })) as { deviceToken?: unknown };
     if (typeof result?.deviceToken !== "string" || result.deviceToken.length === 0) {
-      throw Object.assign(new Error("pi-host did not return a device token"), {
+      throw Object.assign(new Error("nib-host did not return a device token"), {
         errorCode: ErrorCodes.PAIRING_FAILED,
       });
     }
@@ -154,7 +154,7 @@ export function createRacpRemoteHostClient(
     const supported = capability ? capabilities?.[capability] === true
       : capabilities?.workspaceTools === true && capabilities?.workspaceFiles === true;
     if (!supported) {
-      throw Object.assign(new Error("Upgrade pi-host to a matching Desktop release with workspace tools and files support"), {
+      throw Object.assign(new Error("Upgrade nib-host to a matching Desktop release with workspace tools and files support"), {
         errorCode: ErrorCodes.HOST_VERSION_MISMATCH,
         retriable: false,
       });
@@ -210,7 +210,7 @@ export function createRacpRemoteHostClient(
       if (racp.state === "connected") {
         if (method === "workspace/pluginFiles") {
           if (!racp.initialized?.capabilities.workspacePluginFiles) {
-            throw Object.assign(new Error("Upgrade pi-host to a matching Desktop release with plugin file browsing support"), {
+            throw Object.assign(new Error("Upgrade nib-host to a matching Desktop release with plugin file browsing support"), {
               errorCode: ErrorCodes.HOST_VERSION_MISMATCH, retriable: false,
             });
           }

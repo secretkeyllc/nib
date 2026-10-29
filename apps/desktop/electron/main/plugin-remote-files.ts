@@ -41,7 +41,7 @@ export async function readRemotePluginFiles(context: {
     const parts = ref.replaceAll("\\", "/").split("/").filter(part => part && part !== ".");
     if (parts.includes("..")) throw failure("INVALID_ARGUMENT", "Remote plugin paths must stay inside the workspace");
     const normalizedRef = parts.join("/");
-    if (!context.read) throw failure("UNSUPPORTED", "Remote plugin file access is unavailable; upgrade Desktop and pi-host");
+    if (!context.read) throw failure("UNSUPPORTED", "Remote plugin file access is unavailable; upgrade Desktop and nib-host");
     const result = await context.read({ workspacePath: root, operation, ref: normalizedRef, scope: [...context.scope] });
     if (!context.isActive()) throw failure("PLUGIN_UNLOADED", "The plugin was unloaded during the file request");
     if (context.currentWorkspacePath() !== root) throw failure("WORKSPACE_CHANGED", "The file view's workspace has changed");

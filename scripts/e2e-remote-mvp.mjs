@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Packaged Host + actual Desktop main routing, with only the model/network fixture mocked.
  * This is not SSH/sshd or Electron renderer acceptance. All mutable state is temporary.
- * NIB_HOST_E2E_BUNDLE points to the directory produced by pi-host/scripts/bundle.mjs. */
+ * NIB_HOST_E2E_BUNDLE points to the directory produced by nib-host/scripts/bundle.mjs. */
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { createServer } from "node:http";

@@ -242,19 +242,19 @@ export const IPC = {
     pendingInteractive: "pi-desktop/agent/pendingInteractive",
     plansResolve: "pi-desktop/plans/resolve",
     /**
-     * List every paired remote `pi-host` this desktop knows, redacted so no
+     * List every paired remote `nib-host` this desktop knows, redacted so no
      * device token reaches the renderer. See ADR 0286 (R2b pairing UX).
      */
     remoteHostList: "pi-desktop/remoteHost/list",
     /**
-     * Pair with a `pi-host` at `url` using a single-use `pairingToken`, mint
+     * Pair with a `nib-host` at `url` using a single-use `pairingToken`, mint
      * a device token, persist it encrypted, and open the live connection.
      */
     remoteHostPair: "pi-desktop/remoteHost/pair",
     /** Close the live connection for `hostKey` and drop its persisted record. */
     remoteHostRemove: "pi-desktop/remoteHost/remove",
     /**
-     * Install and pair a `pi-host` on a machine the user reaches over SSH:
+     * Install and pair a `nib-host` on a machine the user reaches over SSH:
      * upload the bootstrap script, download and verify the published bundle
      * there, start the host, forward its loopback port, and exchange the
      * pairing token (spec §5.2). Uses the user's own SSH keys; no credential

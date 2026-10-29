@@ -11,7 +11,7 @@ import type {
 /**
  * Everything the RACP server delegates to the Host besides the Agent Host
  * module: session catalog mutations, projects, workspace reads, terminals.
- * `pi-host` implements these on host-core and its filesystem; a test hands
+ * `nib-host` implements these on host-core and its filesystem; a test hands
  * the server fakes. The server itself never touches host-core RPC, a
  * filesystem, or a pty, so the boundary of security §7 holds by construction.
  */

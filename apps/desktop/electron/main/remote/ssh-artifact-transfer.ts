@@ -18,7 +18,7 @@ export type SshArtifactTransferInput = {
   fetchArtifact?: typeof fetch;
 };
 function failure(): Error {
-  return Object.assign(new Error("The pi-host artifact could not be transferred or verified"), {
+  return Object.assign(new Error("The nib-host artifact could not be transferred or verified"), {
     errorCode: ErrorCodes.HOST_BOOTSTRAP_FAILED,
   });
 }

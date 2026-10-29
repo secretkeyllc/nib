@@ -54,7 +54,7 @@ function wsTransport(socket: WebSocket): ServerConnectionTransport {
 export async function bindRacpWebSocket(options: WsBindingOptions): Promise<WsBinding> {
   const host = options.host ?? "127.0.0.1";
   if (!isLoopbackAddress(host)) {
-    throw Object.assign(new Error("pi-host binds loopback only; a non-loopback bind requires TLS"), {
+    throw Object.assign(new Error("nib-host binds loopback only; a non-loopback bind requires TLS"), {
       errorCode: "INVALID_ARGUMENT",
     });
   }

@@ -22,7 +22,7 @@ const { PluginRuntime } = await import("../apps/desktop/electron/main/plugin-run
 const { createPluginWorkspaceReader } = await import("../apps/desktop/electron/main/remote/plugin-workspace-files.ts");
 const { createRacpRemoteHostClient } = await import("../apps/desktop/electron/main/remote/racp-remote-host-client.ts");
 const { pluginWorkspaceInfo, rememberProjectGroups } = await import("../apps/desktop/electron/main/workspace-roots.ts");
-const { createWorkspacePluginFiles } = await import("../apps/pi-host/src/plugin-workspace-files.ts");
+const { createWorkspacePluginFiles } = await import("../apps/nib-host/src/plugin-workspace-files.ts");
 const { harness, OWNER_TOKEN } = await import("../packages/racp/dist/test-harness.js");
 const { bindRacpWebSocket, wsClientTransport } = await import("../packages/racp/dist/index.js");
 

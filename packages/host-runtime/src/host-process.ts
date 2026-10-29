@@ -63,7 +63,7 @@ function isHostOverloaded(error: unknown): boolean {
  * The Rust host-core child over stdio NDJSON JSON-RPC. This class knows how to
  * spawn, call, observe, and dispose the process; it does not know where the
  * binary lives or which host embeds it, so Electron Main and the headless
- * `pi-host` drive the same transport.
+ * `nib-host` drive the same transport.
  */
 export class HostProcess {
   private child: ChildProcessWithoutNullStreams;

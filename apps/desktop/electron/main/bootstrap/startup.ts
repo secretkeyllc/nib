@@ -233,7 +233,7 @@ export function registerApplicationStartup(deps: StartupDependencies): void {
       log: (level, message, data) =>
         logger.app("runtime", level, message, { data: formatRemoteLogData(data) }),
     });
-    // Every paired remote `pi-host` opens against the router this boot just
+    // Every paired remote `nib-host` opens against the router this boot just
     // created. An empty registry (default install with no user pairing) makes
     // this a full no-op — nothing connects, no backend registers, every
     // renderer call keeps hitting the local handler byte-for-byte.

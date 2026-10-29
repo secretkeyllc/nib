@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Headless remote Host E2E (E2E-231 host half): boots a real `pi-host` with
+ * Headless remote Host E2E (E2E-231 host half): boots a real `nib-host` with
  * the debug host-core and the bundled sidecar on a throwaway data dir, pairs
  * a device over the loopback RACP-WS socket, registers a project, creates a
  * session, reads the workspace, drops the connection, and reconnects by
@@ -21,9 +21,9 @@ import { assert, errorCodeOf, shortJson } from "./e2e/assert.mjs";
 import { resolveHostBinary } from "./e2e/host.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const cli = join(root, "apps/pi-host/dist/cli.js");
+const cli = join(root, "apps/nib-host/dist/cli.js");
 const sidecar = join(root, "packages/agent-runtime/dist-bundle/sidecar.js");
-for (const [label, path] of [["pi-host cli", cli], ["sidecar bundle", sidecar]]) {
+for (const [label, path] of [["nib-host cli", cli], ["sidecar bundle", sidecar]]) {
   if (!existsSync(path)) {
     console.error(`${label} missing: ${path}`);
     process.exit(1);
@@ -55,7 +55,7 @@ function startHost(extraArgs = []) {
   return new Promise((resolveReady, reject) => {
     let out = "";
     const ready = {};
-    const timer = setTimeout(() => reject(new Error("pi-host did not become ready\n" + stderr.slice(-2000))), 60_000);
+    const timer = setTimeout(() => reject(new Error("nib-host did not become ready\n" + stderr.slice(-2000))), 60_000);
     child.stdout.on("data", (chunk) => {
       out += String(chunk);
       for (const line of out.split("\n")) {
@@ -63,7 +63,7 @@ function startHost(extraArgs = []) {
         if (line.startsWith("NIB_HOST_PAIRING_TOKEN ")) ready.pairing = JSON.parse(line.slice("NIB_HOST_PAIRING_TOKEN ".length));
         if (line.startsWith("NIB_HOST_FAILED ")) {
           clearTimeout(timer);
-          reject(new Error("pi-host failed: " + line + "\n" + stderr.slice(-2000)));
+          reject(new Error("nib-host failed: " + line + "\n" + stderr.slice(-2000)));
         }
       }
       if (ready.info && (!extraArgs.includes("--pair") || ready.pairing)) {
@@ -73,7 +73,7 @@ function startHost(extraArgs = []) {
     });
     child.once("exit", (code) => {
       clearTimeout(timer);
-      reject(new Error(`pi-host exited early code=${code}\n${stderr.slice(-2000)}`));
+      reject(new Error(`nib-host exited early code=${code}\n${stderr.slice(-2000)}`));
     });
   });
 }

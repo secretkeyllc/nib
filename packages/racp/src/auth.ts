@@ -28,7 +28,7 @@ export type PairingRecord = {
   consumedAt?: string;
 };
 
-/** Durable credential storage; `pi-host` keeps it under its data directory. */
+/** Durable credential storage; `nib-host` keeps it under its data directory. */
 export interface DeviceCredentialStore {
   findDeviceByTokenHash(tokenHash: string): Promise<DeviceRecord | null>;
   saveDevice(record: DeviceRecord): Promise<void>;

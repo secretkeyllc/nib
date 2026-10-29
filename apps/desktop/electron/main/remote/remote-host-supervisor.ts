@@ -47,7 +47,7 @@ for file in "$log" "$err" "$pidfile"; do
   [ ! -L "$file" ] || die unsafe-state-file
   [ ! -e "$file" ] || [ -f "$file" ] || die unsafe-state-file
 done
-# Match the installed entry point, not a generic node or pi-host process.
+# Match the installed entry point, not a generic node or nib-host process.
 physical_entry="$(cd "$base/current" && pwd -P)/nib-host.js"
 is_host() {
   kill -0 "$host_pid" 2>/dev/null || return 1
