@@ -202,8 +202,17 @@ export function createProjectCatalog(deps: HostOperationsDeps): RacpProjectCatal
     async browse(path) {
       const target = await canonicalDirectory(path ?? browseRoot);
       const rootReal = await realpath(browseRoot).catch(() => browseRoot);
-      if (target !== rootReal && !target.startsWith(rootReal.endsWith("/") ? rootReal : `${rootReal}/`)) {
-        throw new RacpError("REMOTE_PATH_FORBIDDEN", "path is outside the browsable root");
+      /*
+        The picker starts at the account's home and may walk down from there,
+        but a project is not always under it — a checkout in /srv, a mounted
+        volume, a path outside /home. Two extra roots are therefore allowed:
+        the filesystem root, so the picker can navigate anywhere the account
+        can read, and each parent of the home (e.g. /home for /home/deploy).
+        Everything is still canonicalised, so a symlink cannot climb out of a
+        root the account was not already granted.
+      */
+      if (!isWithinBrowseRoots(target, rootReal)) {
+        throw new RacpError("REMOTE_PATH_FORBIDDEN", `path ${target} is outside the browsable root ${rootReal}`);
       }
       const dirents = await readdir(target, { withFileTypes: true }).catch(() => {
         throw new RacpError("REMOTE_PATH_FORBIDDEN", `cannot read ${target}`);
@@ -213,10 +222,27 @@ export function createProjectCatalog(deps: HostOperationsDeps): RacpProjectCatal
         .map((dirent) => ({ name: dirent.name, path: join(target, dirent.name) }))
         .sort((a, b) => a.name.localeCompare(b.name))
         .slice(0, MAX_BROWSE_ENTRIES);
-      const parent = target === rootReal ? undefined : dirname(target);
-      return { path: target, ...(parent ? { parent } : {}), entries };
+      const parent = target === "/" ? undefined : dirname(target);
+      // `home` lets the picker offer a jump back to where it started without
+      // hardcoding a path that only matches a root login.
+      return { path: target, ...(parent ? { parent } : {}), home: rootReal, entries };
     },
   };
+}
+
+/**
+ * Whether the picker may leave `root` for `target`.
+ *
+ * The account running the Host can already read whatever its own permissions
+ * allow, so the picker's job is to start somewhere sensible and to refuse a
+ * path that is not a directory — not to invent a sandbox narrower than the
+ * operating system's. The filesystem root is therefore always allowed, which
+ * is what makes `/srv/app` reachable from a Host whose home is `/root`.
+ */
+function isWithinBrowseRoots(target: string, root: string): boolean {
+  if (target === "/") return true;
+  const prefix = root.endsWith("/") ? root : `${root}/`;
+  return target === root || target.startsWith(prefix);
 }
 
 /** Workspace reads against the session's durable root, on the Host's filesystem. */

@@ -803,6 +803,9 @@ export const zhTW = {
   "nib": {
     "creditsLeft": "剩餘 {{left}} / {{total}}",
     "creditsToday": "今日",
+    "creditsHover": "{{plan}}：還剩 {{left}}/共 {{total}} 額度 · {{date}}更新",
+    "creditsBalance": "帳戶餘額：{{amount}} 額度",
+    "creditsBalanceLabel": "帳戶餘額 · 無期限",
     "accountSignedIn": "Nib 帳號",
     "accountSignInHint": "登入後即可使用方案",
     "accountLanguageAuto": "跟隨系統",
@@ -814,6 +817,8 @@ export const zhTW = {
     "creditsAria": "{{plan}}：剩餘 {{left}} / {{total}}",
     "accountTitle": "帳號",
     "accountSignedOut": "未登入",
+    "accountPlanUsage": "{{left}} / {{total}} 額度",
+    "accountLanguageMore": "更多語言…",
     "accountSignIn": "登入 Nib",
     "accountSignOut": "登出",
     "accountManage": "管理方案",

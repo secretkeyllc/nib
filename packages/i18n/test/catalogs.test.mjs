@@ -227,14 +227,16 @@ test("locale resolution maps variants onto shipped catalogs and falls back to En
   assert.equal(resolveLocale(), "en");
 });
 
-test("the locale registry lists English first, then other locales by English name", () => {
+test("the locale registry lists English first, then other locales by English name, Chinese last", () => {
   assert.deepEqual(
     supportedLocales.map((locale) => locale.id),
     ["en", "zh-CN", "zh-TW", "de", "es", "tr", "fr", "ko", "pt-BR"],
   );
+  // Picker order groups the two Chinese locales at the end so a reader
+  // scanning for them finds them adjacent instead of alphabetised apart.
   assert.deepEqual(
     listedLocales().map((locale) => locale.id),
-    ["en", "zh-CN", "zh-TW", "fr", "de", "ko", "pt-BR", "es", "tr"],
+    ["en", "fr", "de", "ko", "pt-BR", "es", "tr", "zh-CN", "zh-TW"],
   );
   assert.equal(localeInfoNative("de"), "Deutsch");
   assert.equal(localeInfoNative("es"), "Español");

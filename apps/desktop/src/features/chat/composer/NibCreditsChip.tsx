@@ -188,6 +188,17 @@ export function NibCreditsChip() {
       })
     : (ent.planName ?? "Nib");
 
+  // One line on hover, the full meters on click — the same two-step the
+  // context readout uses, so the two controls in this row behave alike.
+  const hoverSummary = hasBalance
+    ? t("nib.creditsHover", {
+        plan: ent.planName ?? "Nib",
+        left: left.toLocaleString(),
+        total: total.toLocaleString(),
+        date: resetLabel ?? "",
+      })
+    : ariaLabel;
+
   const popover = open ? (
     <div
       ref={popoverRef}
@@ -248,10 +259,21 @@ export function NibCreditsChip() {
         </div>
       ) : null}
       {ent.topupRemaining && ent.topupRemaining > 0 ? (
-        <div className="nib-credits-popover-extra">
-          {t("nib.creditsTopup", {
-            amount: Math.round(ent.topupRemaining).toLocaleString(),
-          })}
+        /*
+          The account balance is a second, independent allowance: it does not
+          expire, it is not part of the plan, and it is spent alongside it. It
+          therefore gets its own rule above it and an emphasized number, so it
+          reads as a separate pool rather than as a fourth meter.
+        */
+        <div className="nib-credits-balance">
+          <span className="nib-credits-balance-label">
+            {t("nib.creditsBalanceLabel")}
+          </span>
+          <strong className="nib-credits-balance-value">
+            {t("nib.creditsBalance", {
+              amount: Math.round(ent.topupRemaining).toLocaleString(),
+            })}
+          </strong>
         </div>
       ) : null}
     </div>
@@ -267,6 +289,7 @@ export function NibCreditsChip() {
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
+        title={hoverSummary}
         onClick={() => setOpen((previous) => !previous)}
       >
         {hasBalance ? (

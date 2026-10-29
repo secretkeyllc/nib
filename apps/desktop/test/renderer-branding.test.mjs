@@ -32,11 +32,11 @@ const [
     read("../src/lib/renderer-language.ts"),
   ]);
 
-test("renderer surfaces the PI-Desktop brand instead of the Codex shell brand", () => {
-  assert.match(english, /shellName:\s*"PI-Desktop"/);
-  assert.match(chinese, /shellName:\s*"PI-Desktop"/);
-  assert.match(english, /placeholder:\s*"Ask PI-Desktop to help with anything"/);
-  assert.match(chinese, /placeholder:\s*"让 PI-Desktop 帮你做任何事"/);
+test("renderer surfaces the Nib brand instead of the Codex shell brand", () => {
+  assert.match(english, /shellName:\s*"Nib"/);
+  assert.match(chinese, /shellName:\s*"Nib"/);
+  assert.match(english, /placeholder:\s*"Ask Nib to help with anything"/);
+  assert.match(chinese, /placeholder:\s*"让 Nib 帮你做任何事"/);
   assert.doesNotMatch(english, /shellName:\s*"Codex"/);
   assert.doesNotMatch(chinese, /shellName:\s*"Codex"/);
   // Codex remains a supported external import source, not the app identity.
@@ -76,6 +76,9 @@ test("app chrome uses the shared brand asset without branding the composer input
     mascotLogo,
     /home-mascot-groups\.png|home-mascot-orbit|Math\.random\(\)|setTimeout|backgroundPosition|onMouseEnter|onMouseLeave|useState|useEffect|matchMedia/,
   );
+  // The composer input itself carries no brand mark; the account menu and the
+  // sidebar do, so this is asserted against those files rather than the whole
+  // renderer tree.
   assert.doesNotMatch(chatSurface, /<BrandLogo/);
   assert.match(styles, /\.empty-hero-icon\s*\{[\s\S]*?height:\s*100px;[\s\S]*?width:\s*100px;/);
   assert.match(

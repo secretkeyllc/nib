@@ -1,6 +1,6 @@
 import { mkdir, mkdtemp, realpath, rm, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { RacpError } from "@pi-desktop/agent-host";
@@ -71,7 +71,7 @@ describe("pi-host operations over host-core", () => {
     expect((await operations.sessions.configure("s1", { permissionMode: "accept-edits" })).permissionMode).toBe("accept-edits");
   });
 
-  it("registers only existing directories and browses inside the root only", async () => {
+  it("registers only existing directories and browses from the root outwards", async () => {
     const root = await realpath(await mkdtemp(join(tmpdir(), "pi-host-ops-")));
     dirs.push(root);
     const { mkdir } = await import("node:fs/promises");
@@ -84,11 +84,15 @@ describe("pi-host operations over host-core", () => {
     await expect(operations.projects.register("relative/path")).rejects.toMatchObject({ code: "INVALID_ARGUMENT" });
     const top = await operations.projects.browse();
     expect(top.entries.map((entry) => entry.name)).toEqual(["work"]);
-    expect(top.parent).toBeUndefined();
+    // The picker now offers a way up: projects are not always under the home
+    // the Host starts in, and a listing that cannot go up strands the user.
+    expect(top.parent).toBe(dirname(root));
+    expect(top.home).toBe(root);
     const nested = await operations.projects.browse(join(root, "work"));
     expect(nested.entries.map((entry) => entry.name)).toEqual(["app"]);
-    expect(nested.parent).toBeDefined();
-    await expect(operations.projects.browse("/")).rejects.toMatchObject({ code: "REMOTE_PATH_FORBIDDEN" });
+    expect(nested.parent).toBe(root);
+    // The filesystem root is reachable so a checkout in /srv is selectable.
+    await expect(operations.projects.browse("/")).resolves.toMatchObject({ path: "/" });
   });
 
   it("canonicalizes a symlink browse root without allowing symlink escapes", async () => {
@@ -107,13 +111,18 @@ describe("pi-host operations over host-core", () => {
       browseRoot: linkedRoot,
     });
     const top = await operations.projects.browse();
-    expect(top).toEqual({ path: root, entries: [{ name: "work", path: join(root, "work") }] });
+    expect(top).toEqual({
+      path: root,
+      parent: dirname(root),
+      home: root,
+      entries: [{ name: "work", path: join(root, "work") }],
+    });
     const nested = await operations.projects.browse(top.entries[0]!.path);
-    expect(nested).toEqual({ path: join(root, "work"), parent: root, entries: [] });
+    expect(nested).toEqual({ path: join(root, "work"), parent: root, home: root, entries: [] });
     expect(await operations.projects.browse(linkedRoot)).toEqual(top);
+    // A symlink that leaves every allowed root is still refused: widening the
+    // picker to "/" does not make a canonicalised escape readable.
     await expect(operations.projects.browse(join(linkedRoot, "escape")))
-      .rejects.toMatchObject({ code: "REMOTE_PATH_FORBIDDEN" });
-    await expect(operations.projects.browse(outside))
       .rejects.toMatchObject({ code: "REMOTE_PATH_FORBIDDEN" });
   });
 

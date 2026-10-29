@@ -9,10 +9,10 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { OAuthVendor } from "@pi-desktop/shared";
-import { api } from "../../../lib/api";
-import { beginOAuthLogin, type OAuthLoginSession } from "../../../lib/oauth-login-session";
-import { OAuthLoginDialog } from "../../../components/settings/OAuthLoginDialog";
-import { useAppStore } from "../../../stores/app-store";
+import { api } from "../../lib/api";
+import { beginOAuthLogin, type OAuthLoginSession } from "../../lib/oauth-login-session";
+import { OAuthLoginDialog } from "../../components/settings/OAuthLoginDialog";
+import { useAppStore } from "../../stores/app-store";
 
 const NIB_VENDOR_ID = "nib";
 

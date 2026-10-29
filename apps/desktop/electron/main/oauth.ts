@@ -1382,10 +1382,22 @@ export class VendorOAuth {
         () => undefined,
       );
       const levels = binding?.supportedThinkingLevels ?? ["off"];
+      // The limits written here are the fallback a later edit starts from, so
+      // they must say where they came from. A published record (models.dev)
+      // keeps ownership of its own numbers; without that marker the stored
+      // 128k seed outranks the catalog on every read and a 1M-token model
+      // shows 128k forever. The same applies to the output cap.
+      const publishedContext = binding?.modelConfig.contextWindow;
+      const publishedMaxTokens = binding?.modelConfig.maxTokens;
+      const contextSource = binding?.modelConfig.source === "models.dev"
+        ? ("catalog" as const)
+        : undefined;
       modelBindings.push({
         id: option.modelId,
-        contextWindow: binding?.modelConfig.contextWindow ?? 128_000,
-        maxTokens: binding?.modelConfig.maxTokens ?? 8_192,
+        contextWindow: publishedContext ?? 128_000,
+        ...(contextSource ? { contextWindowSource: contextSource } : {}),
+        maxTokens: publishedMaxTokens ?? 8_192,
+        ...(contextSource ? { maxTokensSource: contextSource } : {}),
         thinkingLevels: [...levels],
         defaultThinkingLevel: levels.includes("medium") ? "medium" : levels[0] ?? null,
       });

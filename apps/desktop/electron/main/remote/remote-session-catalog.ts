@@ -120,5 +120,10 @@ function validateProjectBrowse(value: unknown): RemoteHostBrowseProjectsResult {
     if (entry.path !== `${prefix}${entry.name}`) return invalid();
     return { name: entry.name, path: entry.path };
   });
-  return { path: result.path, ...(typeof result.parent === "string" ? { parent: result.parent } : {}), entries };
+  return {
+    path: result.path,
+    ...(typeof result.parent === "string" ? { parent: result.parent } : {}),
+    ...(absolutePath(result.home) ? { home: result.home } : {}),
+    entries,
+  };
 }

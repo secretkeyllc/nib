@@ -10,6 +10,10 @@
 export type NibEntitlement = {
   signedIn: boolean;
   planName?: string;
+  /** Address of the signed-in account, for the account menu heading. */
+  accountEmail?: string;
+  /** Display name the account set, when it has one. */
+  accountName?: string;
   /** Credits, not dollars: the gateway converts at 10 credits = $1. */
   creditsUsed?: number;
   creditsTotal?: number;

@@ -598,18 +598,25 @@ test("OAuth model configuration comes from the supplied models.dev snapshot", as
   const prompt = await waitFor(events, "prompt");
   assert.equal(oauth.respond({ loginId, promptId: prompt.request.promptId, value: "abc" }), true);
   const done = await waitFor(events, "done");
+  // The written limits carry their provenance: without it the stored seed
+  // outranks the catalog on every later read and a 1M-token model displays
+  // whatever number the row happened to be created with.
   assert.deepEqual(host.providers.get(done.providerId).models, [
     {
       id: "claude-opus-5",
       contextWindow: 250_000,
+      contextWindowSource: "catalog",
       maxTokens: 20_000,
+      maxTokensSource: "catalog",
       thinkingLevels: ["low", "medium", "high"],
       defaultThinkingLevel: "medium",
     },
     {
       id: "claude-haiku-5",
       contextWindow: 150_000,
+      contextWindowSource: "catalog",
       maxTokens: 8_192,
+      maxTokensSource: "catalog",
       thinkingLevels: ["off"],
       defaultThinkingLevel: "off",
     },

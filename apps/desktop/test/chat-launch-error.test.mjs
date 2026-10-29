@@ -30,21 +30,35 @@ test("a launch error with no assistant text still counts as a transcript", () =>
 });
 
 test("an empty vendor chat names a model the account did not return", () => {
+  // Every assertion here passes the discovered catalogue as the authority:
+  // the manifest is a fallback list, not the set of models the account has.
   const session = { providerId: "chatgpt", modelId: "gpt-6-luna" };
   assert.equal(
-    vendorAccountOmitsSessionModel(session, oauth([{ id: "gpt-5.6-luna" }])),
+    vendorAccountOmitsSessionModel(
+      session,
+      oauth([{ id: "gpt-5.6-luna" }]),
+      { chatgpt: [{ modelId: "gpt-5.6-luna" }] },
+    ),
     true,
   );
   assert.equal(
-    vendorAccountOmitsSessionModel(session, oauth([{ id: "openai/gpt-6-luna" }])),
+    vendorAccountOmitsSessionModel(
+      session,
+      oauth([{ id: "openai/gpt-6-luna" }]),
+      { chatgpt: [{ modelId: "openai/gpt-6-luna" }] },
+    ),
     true,
   );
   assert.equal(vendorAccountOmitsSessionModel(session, oauth([])), false);
   assert.equal(vendorAccountOmitsSessionModel(
-    { providerId: "chatgpt", modelId: "model" }, oauth([{ id: "generic/model" }]),
+    { providerId: "chatgpt", modelId: "model" },
+    oauth([{ id: "generic/model" }]),
+    { chatgpt: [{ modelId: "generic/model" }] },
   ), true);
   assert.equal(vendorAccountOmitsSessionModel(
-    { providerId: "chatgpt", modelId: "GENERIC/MODEL" }, oauth([{ id: "generic/model" }]),
+    { providerId: "chatgpt", modelId: "GENERIC/MODEL" },
+    oauth([{ id: "generic/model" }]),
+    { chatgpt: [{ modelId: "generic/model" }] },
   ), false);
   assert.equal(
     vendorAccountOmitsSessionModel(session, [

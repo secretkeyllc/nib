@@ -803,6 +803,9 @@ export const zhCN = {
   nib: {
     creditsLeft: "剩余 {{left}} / {{total}}",
     creditsToday: "今日",
+    creditsHover: "{{plan}}：还剩 {{left}}/共 {{total}} 额度 · {{date}}更新",
+    creditsBalance: "账户余额：{{amount}} 额度",
+    creditsBalanceLabel: "账户余额 · 无限期",
     accountSignedIn: "Nib 账号",
     accountSignInHint: "登录后即可使用套餐",
     accountLanguageAuto: "跟随系统",
@@ -814,6 +817,8 @@ export const zhCN = {
     creditsAria: "{{plan}}：剩余 {{left}} / {{total}}",
     accountTitle: "账号",
     accountSignedOut: "未登录",
+    accountPlanUsage: "{{left}} / {{total}} 额度",
+    accountLanguageMore: "更多语言…",
     accountSignIn: "登录 Nib",
     accountSignOut: "退出登录",
     accountManage: "管理套餐",

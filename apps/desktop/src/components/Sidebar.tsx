@@ -105,7 +105,7 @@ import { useUpdateState } from "../hooks/use-update-state";
 import { ProjectDeleteDialog } from "./ProjectDeleteDialog";
 import { ProjectEditDialog } from "./ProjectEditDialog";
 import { SessionRenameDialog } from "./SessionRenameDialog";
-import { NibAccountButton } from "../features/chat/composer/NibAccountButton";
+import { NibAccountButton } from "../features/account/NibAccountButton";
 import {
   IconArchive,
   IconArchiveRestore,

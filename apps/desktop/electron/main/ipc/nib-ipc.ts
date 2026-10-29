@@ -125,9 +125,18 @@ export function registerNibIpc({
       const body = record(await response.json());
       const plan = record(body.plan ?? record(body.data).plan);
       const usage = record(body.usage ?? record(body.data).usage);
+      const account = record(body.account ?? record(body.data).account);
       return {
         signedIn: true,
         planName: typeof plan.name === "string" ? plan.name : undefined,
+        accountEmail:
+          typeof account.email === "string" && account.email.trim()
+            ? account.email.trim()
+            : undefined,
+        accountName:
+          typeof account.display_name === "string" && account.display_name.trim()
+            ? account.display_name.trim()
+            : undefined,
         creditsUsed: num(usage.credits_used),
         creditsTotal: num(usage.credits_total),
         dailyUsed: num(usage.daily_used),

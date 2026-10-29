@@ -36,14 +36,27 @@ export function localeInfo(id: AppLocale) {
   return supportedLocales.find((locale) => locale.id === id)!;
 }
 
-/** English first, then the other shipped locales by English name. */
+/**
+ * Locales whose script Chinese readers recognise at a glance, kept together at
+ * the end of the picker.
+ *
+ * The list is sorted by English name, which scatters the two Chinese locales
+ * into the middle. A reader looking for them expects them adjacent and last,
+ * after the alphabetised Western languages, so they are grouped here rather
+ * than sorted into the sequence.
+ */
+const CJK_LOCALE_IDS = new Set<string>(["zh-CN", "zh-TW"]);
+
+/** English first, then other shipped locales by English name, Chinese last. */
 export function listedLocales(): (typeof supportedLocales)[number][] {
   const english = supportedLocales.find((locale) => locale.id === "en")!;
-  const rest = supportedLocales
+  const alphabetical = supportedLocales
     .filter((locale) => locale.id !== "en")
     .slice()
     .sort((a, b) => a.englishName.localeCompare(b.englishName, "en"));
-  return [english, ...rest];
+  const others = alphabetical.filter((locale) => !CJK_LOCALE_IDS.has(locale.id));
+  const cjk = alphabetical.filter((locale) => CJK_LOCALE_IDS.has(locale.id));
+  return [english, ...others, ...cjk];
 }
 
 export function resolveLocale(input?: string | null): AppLocale {

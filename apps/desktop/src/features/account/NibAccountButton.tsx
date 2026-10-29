@@ -18,13 +18,13 @@ import type {
   NibEntitlement,
   ThemePreference,
 } from "@pi-desktop/shared";
-import { api } from "../../../lib/api";
+import { api } from "../../lib/api";
 import {
   placeContextInspector,
   type ContextInspectorPlacement,
-} from "../../../lib/context-inspector-position";
-import { portalToBody } from "../../../lib/portal-visibility";
-import { useAppStore } from "../../../stores/app-store";
+} from "../../lib/context-inspector-position";
+import { portalToBody } from "../../lib/portal-visibility";
+import { useAppStore } from "../../stores/app-store";
 import {
   IconChevronRight,
   IconGlobe,
@@ -33,11 +33,22 @@ import {
   IconMoon,
   IconSun,
   IconUser,
-} from "../../../components/icons";
+} from "../../components/icons";
 import { NibAccountDialog } from "./NibAccountDialog";
-import { TooltipButton } from "../../../components/ui";
+import { BrandLogo } from "../../components/BrandLogo";
+import { listedLocales } from "@pi-desktop/i18n/locale-info";
+import { TooltipButton } from "../../components/ui";
 
 const REFRESH_MS = 5 * 60 * 1000;
+
+/**
+ * Locales offered by the picker, in the project's own order.
+ *
+ * English and the automatic choice have their own chips, so the list starts
+ * after them. `listedLocales` already puts the Chinese locales last, which is
+ * the order a reader scanning for them expects.
+ */
+const OTHER_LOCALES = listedLocales().filter((locale) => locale.id !== "en");
 
 const THEME_OPTIONS: Array<{
   id: ThemePreference;
@@ -144,15 +155,25 @@ export function NibAccountButton() {
     };
   }, [open]);
 
+  const currentLanguage = (settings?.language ?? "auto") as string;
+  const selectLanguage = (id: string) => {
+    patchSettings({ language: id as AppSettings["language"] });
+    if (id !== "auto") void i18n.changeLanguage(id);
+  };
   const signedIn = ent?.signedIn === true;
   const planName = ent?.planName?.trim() || null;
   const total = Math.round(ent?.creditsTotal ?? 0);
   const used = Math.round(ent?.creditsUsed ?? 0);
   const left = Math.max(0, total - used);
 
+  // The heading names the account, not the plan: "who am I signed in as" is
+  // the question this menu answers, and the plan is its own line below.
   const accountLabel = signedIn
-    ? (planName ? `${planName}` : t("nib.accountSignedIn"))
+    ? (ent?.accountName?.trim() ||
+       ent?.accountEmail?.trim() ||
+       t("nib.accountSignedIn"))
     : t("nib.accountSignedOut");
+  const accountSecondary = signedIn ? ent?.accountEmail?.trim() || null : null;
 
   const patchSettings = (patch: Partial<AppSettings>) => {
     if (!settings) return;
@@ -195,22 +216,55 @@ export function NibAccountButton() {
       }
     >
       <div className="nib-account-head">
+        {/* The product's own mark, not a generic person glyph: this menu is
+            the Nib account, and the same logo leads the sidebar and the
+            installer. */}
         <span className="nib-account-avatar" aria-hidden>
-          <IconUser size={15} />
+          <BrandLogo size={20} />
         </span>
         <div className="nib-account-identity">
           <strong className="nib-account-name">{accountLabel}</strong>
+          {accountSecondary && accountSecondary !== accountLabel ? (
+            <span className="nib-account-email">{accountSecondary}</span>
+          ) : null}
+          {/*
+            The plan is the emphasized value here — it is what the user pays
+            for — with the remaining allowance as a plain sentence beside it.
+            The colon after the name read as a label/value pair; a space reads
+            as prose, which is what this line is.
+          */}
           <span className="nib-account-plan">
-            {signedIn
-              ? total > 0
-                ? t("nib.creditsAria", {
-                    plan: planName ?? "Nib",
-                    left: left.toLocaleString(),
-                    total: total.toLocaleString(),
-                  })
-                : (planName ?? "Nib")
-              : t("nib.accountSignInHint")}
+            {signedIn ? (
+              <>
+                <strong className="nib-account-plan-name">
+                  {planName ?? "Nib"}
+                </strong>
+                {total > 0 ? (
+                  <span className="nib-account-plan-usage">
+                    {t("nib.accountPlanUsage", {
+                      left: left.toLocaleString(),
+                      total: total.toLocaleString(),
+                    })}
+                  </span>
+                ) : null}
+              </>
+            ) : (
+              t("nib.accountSignInHint")
+            )}
           </span>
+          {/*
+            The balance sits under the plan, not inside it: it is a separate
+            pool that does not expire and is spent alongside the plan, so
+            folding it into the plan line would misstate what renews.
+          */}
+          {signedIn && ent?.topupRemaining && ent.topupRemaining > 0 ? (
+            <span className="nib-account-balance">
+              {t("nib.creditsBalanceLabel")}{" "}
+              <strong>
+                {Math.round(ent.topupRemaining).toLocaleString()}
+              </strong>
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -264,26 +318,46 @@ export function NibAccountButton() {
           <IconGlobe size={13} aria-hidden />
           <span>{t("nib.accountLanguage")}</span>
         </div>
+        {/*
+          Two chips and a picker: the automatic choice and English are the two
+          a user flips most, and everything else belongs in a list rather than
+          in a row of chips that would wrap to four lines. The shipped locales
+          are the product's, so they are listed in their own names and every
+          one of them is reachable.
+        */}
         <div className="nib-account-chips" role="group" aria-label={t("nib.accountLanguage")}>
-          {["auto", "en", "zh-CN"].map((id) => {
-            const active = (settings?.language ?? "auto") === id;
-            return (
-              <button
-                key={id}
-                type="button"
-                className={`nib-account-chip${active ? " is-active" : ""}`}
-                aria-pressed={active}
-                onClick={() => {
-                  patchSettings({
-                    language: id as AppSettings["language"],
-                  });
-                  if (id !== "auto") void i18n.changeLanguage(id);
-                }}
-              >
-                {id === "auto" ? t("nib.accountLanguageAuto") : id === "en" ? "English" : "简体中文"}
-              </button>
-            );
-          })}
+          <button
+            type="button"
+            className={`nib-account-chip${currentLanguage === "auto" ? " is-active" : ""}`}
+            aria-pressed={currentLanguage === "auto"}
+            onClick={() => selectLanguage("auto")}
+          >
+            {t("nib.accountLanguageAuto")}
+          </button>
+          <button
+            type="button"
+            className={`nib-account-chip${currentLanguage === "en" ? " is-active" : ""}`}
+            aria-pressed={currentLanguage === "en"}
+            onClick={() => selectLanguage("en")}
+          >
+            English
+          </button>
+          <select
+            className="nib-account-language-select"
+            aria-label={t("nib.accountLanguageMore")}
+            value={OTHER_LOCALES.some((locale) => locale.id === currentLanguage) ? currentLanguage : ""}
+            onChange={(event) => {
+              const value = event.target.value;
+              if (value) selectLanguage(value);
+            }}
+          >
+            <option value="">{t("nib.accountLanguageMore")}</option>
+            {OTHER_LOCALES.map((locale) => (
+              <option key={locale.id} value={locale.id}>
+                {locale.nativeName}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

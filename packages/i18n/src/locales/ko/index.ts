@@ -807,6 +807,9 @@ export const ko = {
   "nib": {
     "creditsLeft": "{{total}} 중 {{left}} 크레딧",
     "creditsToday": "Today",
+    "creditsHover": "{{plan}}: {{left}} of {{total}} credits left · renews {{date}}",
+    "creditsBalance": "Account balance: {{amount}} credits",
+    "creditsBalanceLabel": "Account balance · never expires",
     "accountSignedIn": "Nib account",
     "accountSignInHint": "Sign in to use your plan",
     "accountLanguageAuto": "Auto",
@@ -818,6 +821,8 @@ export const ko = {
     "creditsAria": "{{plan}}: {{left}} of {{total}} credits left",
     "accountTitle": "Account",
     "accountSignedOut": "Not signed in",
+    "accountPlanUsage": "{{left}} of {{total}} credits left",
+    "accountLanguageMore": "More languages…",
     "accountSignIn": "Sign in to Nib",
     "accountSignOut": "Sign out",
     "accountManage": "Manage plan",

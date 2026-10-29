@@ -1566,9 +1566,26 @@
   transition: width var(--motion-duration-normal) var(--motion-ease-out);
 }
 
-.nib-credits-popover-extra {
+/* The account balance is a separate pool, not a fourth meter: a rule marks it
+ * apart from the plan's windows and the number is emphasized, because it is
+ * the one figure here that never resets. */
+.nib-credits-balance {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
   margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ds-border-subtle);
+}
+
+.nib-credits-balance-label {
   color: var(--ds-text-muted);
+}
+
+.nib-credits-balance-value {
+  color: var(--ds-text-primary);
+  font-weight: var(--font-weight-strong);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------------------------------------------------------------------------
@@ -1634,8 +1651,9 @@
   height: 30px;
   flex: 0 0 auto;
   border-radius: var(--radius-full);
-  background: var(--ds-tile);
-  color: var(--ds-text-muted);
+  /* The brand mark carries its own tile, so the wrapper stays bare and the
+   * logo is not framed by a second circle. */
+  background: transparent;
 }
 
 .nib-account-identity {
@@ -1738,4 +1756,65 @@
   border-color: var(--ds-accent, var(--ds-border-default));
   color: var(--ds-text-primary);
   background: var(--ds-tile);
+}
+
+/* The account email is the disambiguator under the name, and it gives way
+ * first: two lines of identity plus the plan is enough, a truncated address
+ * is not worth a third. */
+.nib-account-email {
+  color: var(--ds-text-muted);
+  font-size: var(--text-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The plan is the emphasized value; the allowance beside it is prose. */
+.nib-account-plan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--ds-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.nib-account-plan-name {
+  color: var(--ds-text-primary);
+  font-weight: var(--font-weight-strong);
+}
+
+.nib-account-plan-usage {
+  color: var(--ds-text-muted);
+}
+
+/* A native select keeps the shipped locales reachable without a second
+ * popover layered on this one. */
+.nib-account-language-select {
+  height: 24px;
+  max-width: 150px;
+  padding: 0 6px;
+  border: 1px solid var(--ds-border-subtle);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--ds-text-muted);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.nib-account-language-select:hover {
+  color: var(--ds-text-primary);
+  border-color: var(--ds-border-default);
+}
+
+/* The expired-never balance, on its own line beneath the plan. */
+.nib-account-balance {
+  color: var(--ds-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.nib-account-balance strong {
+  color: var(--ds-text-primary);
+  font-weight: var(--font-weight-strong);
 }

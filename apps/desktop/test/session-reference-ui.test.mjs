@@ -88,6 +88,10 @@ const shared = load(new URL("../src/features/chat/transcript/shared.tsx", import
     // The real segmentation, so a session link in the body reaches its chip.
     useVerifiedChatText: (text) => splitChatText(String(text ?? ""), undefined),
   },
+  // The model chip renders a readable label; identity is not under test here.
+  "../../../lib/composer-models": {
+    friendlyModelName: (id) => String(id ?? ""),
+  },
   "../../../components/ContextMenu": { ContextMenu: () => null },
   "../../../components/ImageHoverCard": { ImageHoverCard: () => null },
   "../../../components/Markdown": {

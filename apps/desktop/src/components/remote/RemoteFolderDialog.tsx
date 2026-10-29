@@ -60,6 +60,20 @@ export function RemoteFolderDialog({ hostKey, hostLabel, initialPath, onChoose, 
     pathRef.current?.focus();
   }, [browsing]);
 
+  /**
+   * The parent to offer, computed from the path entry rather than from the
+   * last successful listing. A failed `browse` leaves `directory` null, and
+   * the old code then had nothing to navigate with.
+   */
+  const currentParent = (() => {
+    const base = (directory?.path ?? path).replace(/\/+$/, "");
+    if (!base || base === "/") return undefined;
+    const cut = base.lastIndexOf("/");
+    return cut <= 0 ? "/" : base.slice(0, cut);
+  })();
+  // The Host reports its own home; never assume a login name.
+  const homePath = directory?.home ?? "";
+
   const choose = () => {
     if (!directory || browsing || error || path !== directory.path) return;
     onChoose(directory.path);
@@ -96,8 +110,22 @@ export function RemoteFolderDialog({ hostKey, hostLabel, initialPath, onChoose, 
           </div>
         </Field>
         {path && !path.startsWith("/") ? <p className="remote-project-error" role="alert">{t("remote:REMOTE_ABSOLUTE_PATH_REQUIRED")}</p> : null}
-        <Button type="button" variant="ghost" disabled={browsing || !directory?.parent}
-          onClick={() => void browse(directory?.parent)}>{t("remote:parent")}</Button>
+        {/*
+          The shortcuts a file browser is expected to have. They are plain
+          paths, so they work even when the current listing failed: "parent"
+          used to be disabled whenever the directory itself could not be read,
+          which left the dialog with no way out of a bad path.
+        */}
+        <div className="remote-folder-dialog-shortcuts">
+          <Button type="button" variant="ghost"
+            disabled={browsing || !currentParent}
+            onClick={() => void browse(currentParent)}>{t("remote:parent")}</Button>
+          <Button type="button" variant="ghost" disabled={browsing || path === "/"}
+            onClick={() => void browse("/")}>{t("remote:filesystemRoot")}</Button>
+          <Button type="button" variant="ghost"
+            disabled={browsing || !homePath || path === homePath}
+            onClick={() => void browse(homePath)}>{t("remote:homeDirectory")}</Button>
+        </div>
       </form>
       <div className="remote-folder-dialog-directory" aria-busy={browsing}>
         {browsing ? <p role="status">{t("remote:loading")}</p> : null}

@@ -155,6 +155,8 @@ export type RemoteHostBrowseProjectsRequest = { hostKey: string; path?: string }
 export type RemoteHostBrowseProjectsResult = {
   path: string;
   parent?: string;
+  /** The account's home on the Host, the picker's starting point and a shortcut. */
+  home?: string;
   entries: { name: string; path: string }[];
 };
 export type RemoteHostRegisterProjectRequest = { hostKey: string; path: string };

@@ -56,7 +56,10 @@ export function vendorAccountOmitsSessionModel(
     return !discovered.some((model) => sameComposerModelId(model.modelId, modelId));
   }
 
-  const models = provider.models ?? [];
-  if (models.length === 0) return false;
-  return !models.some((model) => sameComposerModelId(model.id, modelId));
+  // With nothing discovered yet the manifest cannot answer the question: it
+  // names three ids the gateway is known to serve, not the set it is limited
+  // to, so absence from it is not evidence that a model is missing. A
+  // transient empty catalogue — a reload mid-render, a language switch
+  // rebuilding the tree — used to raise this banner over a working selection.
+  return false;
 }

@@ -66,6 +66,7 @@ import {
 import { TooltipButton } from "../../../components/ui";
 import { TextShimmer } from "./TextShimmer";
 import { TurnUsageCapsule } from "./TurnUsageCapsule";
+import { friendlyModelName } from "../../../lib/composer-models";
 
 /**
  * Legacy message navigation reveals the row it names, at message precision.
@@ -188,7 +189,9 @@ export function MessageMeta({
     <div className="message-meta">
       {modelId ? (
         <span className="message-meta-chip model" title={modelId}>
-          {modelId}
+          {/* The readable label; the wire id stays the hover title so the
+              chip still answers "which model exactly" when asked. */}
+          {friendlyModelName(modelId)}
         </span>
       ) : null}
       {usage && showTurnUsage ? (
