@@ -25,6 +25,11 @@ const ANNOUNCEMENTS_URL = "https://sknib.com/api/v1/announcements";
 const CONSOLE_URL = "https://sknib.com/app";
 const TIMEOUT_MS = 12_000;
 
+/** Reading an announcement goes through the same control-plane route. */
+function announcementReadUrl(id: string): string {
+  return `${ANNOUNCEMENTS_URL}/${encodeURIComponent(id)}/read`;
+}
+
 /**
  * The provider row the `nib.provider` plugin declares. Host-core composes it as
  * `plugin:<plugin id>:<declared provider id>`, so it is a fixed string rather
@@ -45,6 +50,8 @@ type Deps = {
   signOutChannel: string;
   /** Admin-written announcements, shown in the notification center. */
   announcementsChannel: string;
+  /** Marks one announcement read for this account. */
+  announcementReadChannel: string;
   /**
    * Removes the provider row's credential. Signing out has to clear the key
    * the gateway accepted, not just the display data, or the account keeps
@@ -101,6 +108,7 @@ export function registerNibIpc({
   consoleChannel,
   signOutChannel,
   announcementsChannel,
+  announcementReadChannel,
   forgetProviderCredential,
   providerId,
 }: Deps): void {
@@ -244,6 +252,41 @@ export function registerNibIpc({
         data: { error: error instanceof Error ? error.message : String(error) },
       });
       return [];
+    } finally {
+      clearTimeout(timer);
+    }
+  });
+
+  registrar.handle(announcementReadChannel, async (_event, id: unknown) => {
+    // Marking read matters for the badge: the announcement list already
+    // carries `read_at`, so without this call every app start would show the
+    // same items as unread. Best-effort by design — a failure must not block
+    // the user from reading the notice.
+    const announcementId = typeof id === "string" ? id.trim() : "";
+    if (!announcementId || !/^\d{1,19}$/.test(announcementId)) return { ok: false };
+    const token = await readSessionToken(dataDir());
+    if (!token) return { ok: false };
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    try {
+      const response = await fetch(announcementReadUrl(announcementId), {
+        method: "POST",
+        headers: { accept: "application/json", authorization: `Bearer ${token}` },
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        logger.app("provider", "warn", "nib announcement read failed", {
+          data: { status: response.status },
+        });
+        return { ok: false };
+      }
+      return { ok: true };
+    } catch (error) {
+      logger.app("provider", "warn", "nib announcement read threw", {
+        data: { error: error instanceof Error ? error.message : String(error) },
+      });
+      return { ok: false };
     } finally {
       clearTimeout(timer);
     }

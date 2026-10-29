@@ -142,7 +142,17 @@ export function NotificationCenter({
     setAnnouncementsBusy(true);
     void api
       .nibAnnouncements()
-      .then(setAnnouncements)
+      .then((rows) => {
+        setAnnouncements(rows);
+        // Opening the inbox is what "reading" a notice means here: it is
+        // rendered in full in this popover, there is no detail view to open.
+        // Reporting it back is what keeps the badge from resetting on the next
+        // launch, so the call is best-effort and never blocks the render.
+        for (const row of rows) {
+          if (row.readAt) continue;
+          void api.nibAnnouncementRead(row.id).catch(() => undefined);
+        }
+      })
       .catch(() => setAnnouncements([]))
       .finally(() => setAnnouncementsBusy(false));
   }, [open]);
@@ -242,6 +252,17 @@ export function NotificationCenter({
       : t("notifications.open");
   const emptyUnread = filter === "unread";
 
+  // Announcements are fetched only when the popover opens, so their unread
+  // state cannot drive the trigger badge from a cold start without polling.
+  // The badge therefore counts task outcomes only; the announcement section
+  // carries its own dot per row.
+  const visibleAnnouncements = useMemo(
+    () =>
+      filter === "unread"
+        ? announcements.filter((row) => !row.readAt)
+        : announcements,
+    [announcements, filter],
+  );
   return (
     <div className="notification-center" ref={rootRef}>
       <TooltipButton
@@ -327,13 +348,13 @@ export function NotificationCenter({
             ))}
           </div>
 
-          {announcements.length > 0 ? (
+          {visibleAnnouncements.length > 0 ? (
             <section className="notification-announcements" aria-label={t("notifications.announcements")}>
               <div className="notification-section-label">
                 {t("notifications.announcements")}
               </div>
               <ul className="notification-list">
-                {announcements.map((announcement) => (
+                {visibleAnnouncements.map((announcement) => (
                   <li key={`announcement-${announcement.id}`}>
                     <div
                       className={`notification-item is-announcement${announcement.readAt ? "" : " unread"}`}
@@ -427,7 +448,7 @@ export function NotificationCenter({
                 );
               })}
             </ul>
-          ) : announcements.length === 0 ? (
+          ) : visibleNotifications.length === 0 && visibleAnnouncements.length === 0 ? (
             <div className="notification-empty" role="status">
               <IconBell size={22} aria-hidden />
               <strong>

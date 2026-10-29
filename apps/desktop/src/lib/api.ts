@@ -1494,6 +1494,9 @@ export const api = {
   nibSignOut: () => invoke<{ ok: boolean }>(IPC.invoke.nibSignOut),
   /** Announcements the admin console published for this account. */
   nibAnnouncements: () => invoke<NibAnnouncement[]>(IPC.invoke.nibAnnouncements),
+  /** Mark one announcement read so the unread badge clears on the server. */
+  nibAnnouncementRead: (id: string) =>
+    invoke<{ ok: boolean }>(IPC.invoke.nibAnnouncementRead, id),
   /** Create or reuse the view's web contents. Does not show it. */
   pluginViewOpen: (
     pluginId: string,

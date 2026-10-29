@@ -82,6 +82,14 @@
   "build": {
     "appId": "com.secretkeyllc.nib",
     "productName": "Nib",
+    "protocols": [
+      {
+        "name": "Nib",
+        "schemes": [
+          "nib"
+        ]
+      }
+    ],
     "directories": {
       "output": "release"
     },

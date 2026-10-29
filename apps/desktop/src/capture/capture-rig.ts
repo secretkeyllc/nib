@@ -18,6 +18,7 @@ import type {
   UserSkillRecord,
   UserSubagentRecord,
 } from "@pi-desktop/shared";
+import i18n from "i18next";
 import { useAppStore } from "../stores/app-store";
 import { api } from "../lib/api";
 import { browserPluginTab, toolWorkPanelTab } from "../lib/work-panel-tabs";
@@ -113,7 +114,11 @@ export function installCaptureRig(): CaptureRig {
         return;
       }
       const base = Date.parse("2026-07-20T09:00:00Z");
-      const samples: [role: "user" | "assistant", content: string][] = [
+      // The English pass exists because the marketing site ships English
+      // screenshots; Chinese fixtures under an English shell look like a
+      // translation bug. Both languages are written out rather than fetched so
+      // the rig has no runtime dependency on the i18n catalogs.
+      const samplesZh: [role: "user" | "assistant", content: string][] = [
         ["user", "帮我配置一下这个项目并启动"],
         [
           "assistant",
@@ -145,6 +150,42 @@ export function installCaptureRig(): CaptureRig {
           "`pnpm typecheck` 与样式令牌检查均通过，无回归。",
         ],
       ];
+      const samplesEn: [role: "user" | "assistant", content: string][] = [
+        ["user", "Set up this project and start it for me"],
+        [
+          "assistant",
+          "Sure. Install the dependencies and generate the local config first:\n\n1. `pnpm install`\n2. copy `.env.example` to `.env`\n3. `pnpm dev` to start the dev server\n\nIt listens on port 5173 by default.",
+        ],
+        ["user", "It failed on start — says the host binary is missing"],
+        [
+          "assistant",
+          "The Rust side has not been compiled yet. Run `cargo build -p nib-host-core`; the binary lands in `target/debug/` and the Electron main process picks it up automatically.",
+        ],
+        ["user", "It compiles now, and the window opens"],
+        [
+          "assistant",
+          "Good. Add a model provider in Settings, save its API key, then open a project folder and the chat is ready.",
+        ],
+        ["user", "Group the recent sessions in the sidebar by project too"],
+        [
+          "assistant",
+          "Grouped by project path: each group shows the project name and its last activity, and sessions with no project land in “Scratch”. The grouping lives in `sidebar-session-groups.ts`.",
+        ],
+        ["user", "Make the group headings a little smaller"],
+        [
+          "assistant",
+          "Dropped the group heading from `--text-sm` to `--text-2xs` and tightened the vertical padding, so it now matches Nib's density.",
+        ],
+        ["user", "Run the checks one last time"],
+        [
+          "assistant",
+          "`pnpm typecheck` and the style-token check both pass with no regressions.",
+        ],
+      ];
+      const samples =
+        i18n.language && i18n.language.toLowerCase().startsWith("zh")
+          ? samplesZh
+          : samplesEn;
       const messages = Array.from(
         { length: Math.min(count, samples.length) },
         (_, i) => ({
@@ -1032,17 +1073,26 @@ export function installCaptureRig(): CaptureRig {
         return;
       }
       const now = Date.now();
-      const titles = [
-        "重新设计设置页面插件板块手机端 UI 布局并验证所有断点",
-        "修复 host-core 启动失败并补充错误恢复测试",
-        "同步代码",
-      ];
+      const chineseTitles = (i18n.language || "").toLowerCase().startsWith("zh");
+      const titles = chineseTitles
+        ? [
+            "重新设计设置页面插件板块手机端 UI 布局并验证所有断点",
+            "修复 host-core 启动失败并补充错误恢复测试",
+            "同步代码",
+          ]
+        : [
+            "Redesign the plugins panel on mobile and check every breakpoint",
+            "Fix host-core startup and add recovery tests",
+            "Sync the branch",
+          ];
+      const fallbackTitle = (index: number) =>
+        chineseTitles ? `后台任务 ${index + 1}` : `Background task ${index + 1}`;
       // The inbox lists failures only, so every fixture row is a failure.
       const notifications = Array.from({ length: count }, (_, index) => ({
         id: `capture-notification-${index}`,
         kind: "task.failed" as const,
         sessionId: `capture-session-${index}`,
-        sessionTitle: titles[index] ?? `后台任务 ${index + 1}`,
+        sessionTitle: titles[index] ?? fallbackTitle(index),
         turnId: `capture-turn-${index}`,
         ...(index % 2 === 1 ? { errorCode: "MODEL_REQUEST_TIMEOUT" } : {}),
         createdAt: new Date(now - (index + 1) * 60_000).toISOString(),
@@ -1096,7 +1146,11 @@ export function installCaptureRig(): CaptureRig {
       // Seed representative session titles for capture residuals (data band).
       try {
         await useAppStore.getState().refreshSessions();
-        const englishNoise = new Set([
+        // The rig used to delete only English leftovers, so a database that a
+        // Chinese pass had already seeded kept those titles and the English
+        // screenshots showed Chinese rows under an English shell. Leftovers in
+        // either language are noise now.
+        const noise = new Set([
           "Tighten composer elevation",
           "Dark theme night plate",
           "Sidebar recents density",
@@ -1104,21 +1158,6 @@ export function installCaptureRig(): CaptureRig {
           "Plugins empty state",
           "Fix TypeScript build errors",
           "Exploring repository structure",
-        ]);
-        for (const s of useAppStore.getState().sessions || []) {
-          if (englishNoise.has((s.title || "").trim())) {
-            try {
-              await api.deleteSession(s.id);
-            } catch {
-              // ignore
-            }
-          }
-        }
-        await useAppStore.getState().refreshSessions();
-        const existing = new Set(
-          (useAppStore.getState().sessions || []).map((s) => (s.title || "").trim()),
-        );
-        const titles = [
           "同步代码",
           "你好",
           "终止进程里面有一个注册机的",
@@ -1127,7 +1166,50 @@ export function installCaptureRig(): CaptureRig {
           "帮我配置一下这个项目并启动",
           "重新设计设置页面插件板块手机端ui布局",
           "制作台的布局重新设计，需要现代化简",
-        ];
+          "Sync the branch",
+          "The terminator has a keygen in it",
+          "Add this one",
+          "Uninstall BitBrowser completely",
+          "Set up this project and start it",
+          "Redesign the plugins panel on mobile",
+          "Modernise the workbench layout",
+        ]);
+        for (const s of useAppStore.getState().sessions || []) {
+          if (noise.has((s.title || "").trim())) {
+            try {
+              await api.deleteSession(s.id);
+            } catch {
+              // ignore
+            }
+          }
+        }
+        await useAppStore.getState().refreshSessions();
+        const chinese = (i18n.language || "").toLowerCase().startsWith("zh");
+        const titles = chinese
+          ? [
+              "同步代码",
+              "你好",
+              "终止进程里面有一个注册机的",
+              "加一下",
+              "帮我彻底卸载比特浏览器",
+              "帮我配置一下这个项目并启动",
+              "重新设计设置页面插件板块手机端ui布局",
+              "制作台的布局重新设计，需要现代化简",
+            ]
+          : [
+              "Sync the branch",
+              "Hello",
+              "The terminator has a keygen in it",
+              "Add this one",
+              "Uninstall BitBrowser completely",
+              "Set up this project and start it",
+              "Redesign the plugins panel on mobile",
+              "Modernise the workbench layout",
+            ];
+        const preferredTitle = chinese ? "同步代码" : "Sync the branch";
+        const existing = new Set(
+          (useAppStore.getState().sessions || []).map((s) => (s.title || "").trim()),
+        );
         for (const title of titles) {
           if (existing.has(title)) continue;
           if ((useAppStore.getState().sessions?.length ?? 0) >= 14) break;
@@ -1137,7 +1219,7 @@ export function installCaptureRig(): CaptureRig {
         await useAppStore.getState().refreshSessions();
         const preferred = useAppStore
           .getState()
-          .sessions.find((s) => (s.title || "").trim() === "同步代码");
+          .sessions.find((s) => (s.title || "").trim() === preferredTitle);
         if (preferred) {
           try {
             const raw = localStorage.getItem("pi.desktop.pinnedSessions");

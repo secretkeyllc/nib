@@ -340,6 +340,7 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
     consoleChannel: IPC.invoke.nibOpenConsole,
     signOutChannel: IPC.invoke.nibSignOut,
     announcementsChannel: IPC.invoke.nibAnnouncements,
+    announcementReadChannel: IPC.invoke.nibAnnouncementRead,
     providerId: NIB_PROVIDER_ROW_ID,
     // The row's key lives in the host secret store; only VendorOAuth can delete
     // it atomically together with the row's secret reference.

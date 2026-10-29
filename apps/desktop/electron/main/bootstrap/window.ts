@@ -1314,7 +1314,7 @@ export async function createWindow({
                 (() => {
                   const items = [...document.querySelectorAll('.thread-item .thread-item-main, .thread-item-main, .thread-item')];
                   const prefer =
-                    items.find((el) => /同步代码/.test(el.textContent || '')) ||
+                    items.find((el) => /同步代码|Sync the branch/.test(el.textContent || '')) ||
                     items.find((el) => !/新\s*建\s*任\s*务|New task|未命名/i.test(el.textContent || ''));
                   if (prefer) prefer.dispatchEvent(new MouseEvent('click', { bubbles: true }));
                 })()

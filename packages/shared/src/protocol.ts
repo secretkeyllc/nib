@@ -324,6 +324,13 @@ export const IPC = {
      */
     nibAnnouncements: "pi-desktop/nib/announcements",
     /**
+     * Mark one announcement read for the signed-in account.
+     *
+     * Without this the list comes back with the same `read_at: null` on every
+     * launch, so the unread badge never clears.
+     */
+    nibAnnouncementRead: "pi-desktop/nib/announcement-read",
+    /**
      * Look one model id up in the local models.dev snapshot.
      *
      * `providersListModels` cannot answer this: it describes a saved or
