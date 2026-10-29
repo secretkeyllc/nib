@@ -1,6 +1,16 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
+
+  {
+    version: "0.22.1",
+    date: "2026-10-29",
+    highlights: [
+      "Uzak ana makineler yerinde yükseltilir: yeniden bağlanmak, Host'u yeniden kurmadan bu sürüme taşır.",
+      "Kontrol düzlemine ulaşılamadığında kredi simgesi bilinen son bakiyeyi korur.",
+      "Hesap menüsündeki Planı değiştir artık konsolun faturalandırma sayfasını açar.",
+    ],
+  },
   {
     version: "0.22.0",
     date: "2026-10-29",

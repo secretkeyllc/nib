@@ -57,9 +57,9 @@ Download the installer for your platform from [nib.am/download](https://nib.am/d
 
 | Platform | Package | Status |
 |---|---|---|
-| Windows x64 | `Nib-Setup-<version>.exe` | Available |
+| Windows x64 | `Nib-Setup-<version>.exe` | Available (0.22.x) |
 | macOS | `.dmg` (Apple silicon) | In progress |
-| Linux x64 | `.AppImage` / `.deb` | Available |
+| Linux x64 | `.AppImage` / `.deb` | Available (0.22.x) |
 
 ## Sign in
 
@@ -85,8 +85,8 @@ Anthropic-compatible clients use `https://api.nib.am` as the base URL. The full 
 ```bash
 pnpm install
 pnpm --filter "./packages/**" build
-pnpm --filter @pi-desktop/desktop build
-pnpm --filter @pi-desktop/desktop exec electron-builder --win nsis --x64
+pnpm --filter nib-desktop build
+pnpm --filter nib-desktop exec electron-builder --win nsis --x64
 ```
 
 Linux and macOS builds use the same pipeline with a different `electron-builder` target. The Rust host (`crates/nib-host-core`) must be built for the target platform first; `pnpm build` does it as part of the Electron step.

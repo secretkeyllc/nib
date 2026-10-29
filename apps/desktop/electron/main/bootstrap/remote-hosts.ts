@@ -276,16 +276,22 @@ export function createRemoteHostsBoot(options: BootRemoteHostsOptions): RemoteHo
   /**
    * Re-provision a paired Host onto this desktop's release and re-pair it in
    * place. `force` is the user's explicit reconnect, which must not be silently
-   * throttled. Returns the refreshed record, or `null` when the attempt was not
-   * allowed or did not succeed.
+   * throttled. The outcome distinguishes a skipped attempt (no descriptor, no
+   * credentials, throttle) from an attempted one that failed, so the caller can
+   * show the real failure instead of the mismatch the upgrade tried to fix.
    */
-  async function realignHost(record: RemoteHostRecord, force: boolean): Promise<RemoteHostRecord | null> {
+  type RealignOutcome =
+    | { kind: "ok"; record: RemoteHostRecord }
+    | { kind: "skipped"; decision: string }
+    | { kind: "failed"; error: unknown };
+
+  async function realignHost(record: RemoteHostRecord, force: boolean): Promise<RealignOutcome> {
     const decision = realigner.decide(record, { force });
     if (decision !== "attempt") {
       log("info", "remote host realignment not attempted", {
         hostKey: record.hostKey, decision, version: options.clientInfo.version,
       });
-      return null;
+      return { kind: "skipped", decision };
     }
     log("info", "remote host realignment started", {
       hostKey: record.hostKey, version: options.clientInfo.version,
@@ -294,13 +300,21 @@ export function createRemoteHostsBoot(options: BootRemoteHostsOptions): RemoteHo
     await closeLive(record.hostKey);
     await tunnels.close(record.hostKey);
     assertOpen();
+    // The realigner reports `null` for a failed attempt and logs internally;
+    // this callback captures the error so it can reach the user.
+    let failure: unknown;
     const controller = new AbortController();
-    const task = realigner.realign(record, { force, signal: controller.signal });
+    const task = realigner.realign(record, {
+      force, signal: controller.signal,
+      onError: (error) => { failure = error; },
+    });
     bootstraps.set(controller, task);
     let result: RemoteHostRealignResult | null;
     try { result = await task; }
     finally { bootstraps.delete(controller); }
-    if (!result) return null;
+    if (!result) {
+      return { kind: "failed", error: failure ?? new Error("remote host realignment failed") };
+    }
     try {
       assertOpen();
       await tunnels.adopt(record.hostKey, result.outcome.ssh, result.outcome.forward);
@@ -309,22 +323,26 @@ export function createRemoteHostsBoot(options: BootRemoteHostsOptions): RemoteHo
       await result.outcome.forward.close().catch(() => undefined);
       throw error;
     }
-    return result.record;
+    return { kind: "ok", record: result.record };
   }
 
   /**
    * Open one host, and when it is refused for its version, bring it up to this
-   * release and open it again. A second failure is surfaced unchanged: a
-   * realignment that cannot help must never hide the reason the user sees.
+   * release and open it again. A skipped realignment (no SSH descriptor, no
+   * stored credentials, or the per-release throttle) surfaces the original
+   * mismatch; an *attempted* realignment that failed surfaces the concrete
+   * failure instead — rethrowing the mismatch would tell the user to upgrade
+   * the Host by hand at the exact moment the automatic upgrade just failed.
    */
   async function openHost(record: RemoteHostRecord, forceRealign = false): Promise<OpenHost> {
     try {
       return await openHostOnce(record);
     } catch (error) {
       if (closed || !isHostVersionMismatch(error)) throw error;
-      const realigned = await realignHost(record, forceRealign);
-      if (!realigned) throw error;
-      return await openHostOnce(realigned);
+      const outcome = await realignHost(record, forceRealign);
+      if (outcome.kind === "ok") return await openHostOnce(outcome.record);
+      if (outcome.kind === "failed") throw outcome.error;
+      throw error;
     }
   }
   function summaryOf(record: RemoteHostRecord): RemoteHostSummary {

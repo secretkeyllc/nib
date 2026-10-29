@@ -61,6 +61,17 @@ export type RemoteHostRealignerOptions = {
   log?: (level: "info" | "warn", message: string, data?: unknown) => void;
 };
 
+export type RemoteHostRealignCall = {
+  force?: boolean;
+  signal?: AbortSignal;
+  /**
+   * A failed attempt is reported as `null` (the contract callers rely on);
+   * this callback carries the concrete error alongside it so the user can be
+   * told *why* the upgrade failed rather than being asked to upgrade again.
+   */
+  onError?: (error: unknown) => void;
+};
+
 export type RemoteHostRealignResult = {
   /** The refreshed record: new loopback URL, device token, and SSH descriptor. */
   record: RemoteHostRecord;
@@ -72,10 +83,11 @@ export type RemoteHostRealigner = {
   /** Pure decision; `force` is the user asking for an explicit reconnect. */
   decide(record: RemoteHostRecord, options?: { force?: boolean }): RealignDecision;
   /** `null` means nothing was attempted or the attempt failed; callers then
-   * surface the original readiness failure unchanged. */
+   * surface the original readiness failure unchanged — or, with `onError`,
+   * the concrete failure the attempt hit. */
   realign(
     record: RemoteHostRecord,
-    options?: { force?: boolean; signal?: AbortSignal },
+    options?: RemoteHostRealignCall,
   ): Promise<RemoteHostRealignResult | null>;
 };
 
@@ -148,7 +160,7 @@ export function createRemoteHostRealigner(
 
   return {
     decide,
-    async realign(record, { force = false, signal } = {}) {
+    async realign(record, { force = false, signal, onError } = {}) {
       if (decide(record, { force }) !== "attempt") return null;
       const ssh = sshMetadataOf(record);
       if (!ssh) return null;
@@ -184,6 +196,7 @@ export function createRemoteHostRealigner(
         });
         return { record: next, outcome };
       } catch (error) {
+        onError?.(error);
         const failed: RealignAttempt = { version: options.version, at: now(), succeeded: false };
         if (!signal?.aborted) attempts.set(record.hostKey, failed);
         // The re-paired record never reached the caller, so this call still

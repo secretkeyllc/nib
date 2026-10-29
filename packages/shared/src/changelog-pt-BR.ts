@@ -1,6 +1,16 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
+
+  {
+    version: "0.22.1",
+    date: "2026-10-29",
+    highlights: [
+      "Hosts remotos atualizam no próprio lugar: reconectar traz o Host para esta versão sem precisar recriá-lo.",
+      "O selo de créditos mantém o último saldo conhecido quando o plano de controle está inacessível.",
+      "Mudar de plano no menu da conta agora abre a página de faturamento do console.",
+    ],
+  },
   {
     version: "0.22.0",
     date: "2026-10-29",

@@ -71,7 +71,7 @@ jobs:
         run: pnpm build:js
 
       - name: Typecheck Desktop
-        run: pnpm --filter @pi-desktop/desktop typecheck
+        run: pnpm --filter nib-desktop typecheck
 
       - name: Lint
         run: pnpm lint
@@ -202,7 +202,7 @@ jobs:
           trap 'kill "$host_build_pid" 2>/dev/null || true' EXIT
 
           pnpm install --frozen-lockfile
-          pnpm --filter '@pi-desktop/desktop^...' --fail-if-no-match build
+          pnpm --filter 'nib-desktop^...' --fail-if-no-match build
 
           wait "$host_build_pid"
           trap - EXIT
@@ -213,7 +213,7 @@ jobs:
         # must not self-publish on tag builds (no token; softprops owns it).
         # The explicit architecture keeps the package and native Rust sidecar
         # aligned with the runner selected by this matrix entry.
-        run: pnpm --filter @pi-desktop/desktop run ${{ matrix.dist }} -- --${{ matrix.arch }}
+        run: pnpm --filter nib-desktop run ${{ matrix.dist }} -- --${{ matrix.arch }}
 
       - name: Package unsigned macOS installer
         if: matrix.platform == 'macos' && env.MACOS_SIGN_RELEASE != 'true'
@@ -224,7 +224,7 @@ jobs:
           set -euo pipefail
           # Artifact names are defined in apps/desktop/package.json: the mac
           # pattern labels ZIPs, and the dmg target pattern labels DMGs.
-          pnpm --filter @pi-desktop/desktop run dist:mac -- --${{ matrix.arch }}
+          pnpm --filter nib-desktop run dist:mac -- --${{ matrix.arch }}
 
       - name: Diagnose macOS signing environment
         # Records the runner baseline (system, codesign, identities, keychain,
@@ -302,7 +302,7 @@ jobs:
           # PI_SIGNING_TIMEOUT_SECONDS instead of waiting for the job timeout.
           node scripts/macos-signing-watchdog.mjs \
             --label "dist:mac-${{ matrix.arch }}" \
-            -- pnpm --filter @pi-desktop/desktop run dist:mac -- --${{ matrix.arch }} \
+            -- pnpm --filter nib-desktop run dist:mac -- --${{ matrix.arch }} \
               -c.mac.forceCodeSigning=true \
               -c.mac.notarize=true
 

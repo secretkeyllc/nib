@@ -1,6 +1,16 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
+
+  {
+    version: "0.22.1",
+    date: "2026-10-29",
+    highlights: [
+      "Los hosts remotos se actualizan en su sitio: reconectar lleva el Host a esta versión sin necesidad de recrearlo.",
+      "El indicador de créditos conserva el último saldo conocido cuando la plataforma no está accesible.",
+      "Cambiar plan en el menú de cuenta abre ahora la página de facturación de la consola.",
+    ],
+  },
   {
     version: "0.22.0",
     date: "2026-10-29",

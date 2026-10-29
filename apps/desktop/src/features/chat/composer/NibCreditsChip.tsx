@@ -6,7 +6,10 @@
  * Reads through main (`pi-desktop/nib/entitlement`), which delegates to the
  * Nib plugin: the renderer never touches a provider credential. Signed out or
  * unreachable resolves to `signedIn: false` and the chip renders nothing —
- * an empty balance is a normal state, not an error.
+ * an empty balance is a normal state, not an error. A *failed* read (network
+ * blip, control-plane hiccup) keeps the last good numbers on display instead
+ * of collapsing the chip to the bare product name, and retries on a short
+ * cadence until the read succeeds again.
  *
  * The popover mirrors the context inspector: same trigger geometry, same
  * placement helper, same click-to-open contract, so the two readouts in the
@@ -25,6 +28,8 @@ import { portalToBody } from "../../../lib/portal-visibility";
 import { TooltipButton } from "../../../components/ui";
 
 const REFRESH_MS = 5 * 60 * 1000;
+/** A failed read retries at this cadence instead of the settled one. */
+const RETRY_MS = 30 * 1000;
 
 type Meter = { label: string; used: number; limit: number };
 
@@ -46,21 +51,40 @@ export function NibCreditsChip() {
 
   useEffect(() => {
     let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    /*
+     * The entitlement read is a display refresh, not a state change: a failed
+     * or thin read must never clobber the last good numbers, or the chip
+     * collapses to the bare product name ("Nib") for up to one poll interval.
+     * A failed read retries sooner (30s) than the settled 5-minute cadence so
+     * recovery after a network blip is quick.
+     */
     const load = () => {
       void api
         .nibEntitlement()
         .then((next) => {
-          if (!cancelled) setEnt(next);
+          if (cancelled) return;
+          const thin =
+            next.signedIn &&
+            next.creditsTotal === undefined &&
+            next.creditsUsed === undefined &&
+            !next.planName;
+          setEnt((previous) =>
+            thin && previous?.signedIn ? previous : next,
+          );
+          timer = setTimeout(load, thin ? RETRY_MS : REFRESH_MS);
         })
         .catch(() => {
-          if (!cancelled) setEnt(null);
+          if (cancelled) return;
+          // Same contract on a thrown read: what we had still stands.
+          setEnt((previous) => previous);
+          timer = setTimeout(load, RETRY_MS);
         });
     };
     load();
-    const timer = setInterval(load, REFRESH_MS);
     return () => {
       cancelled = true;
-      clearInterval(timer);
+      if (timer) clearTimeout(timer);
     };
   }, []);
 

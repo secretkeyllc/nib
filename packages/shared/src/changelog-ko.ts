@@ -1,6 +1,16 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
+
+  {
+    version: "0.22.1",
+    date: "2026-10-29",
+    highlights: [
+      "원격 호스트를 그 자리에서 업그레이드합니다. 다시 연결하면 Host를 삭제 후 재등록하지 않고도 이 버전으로 올릴 수 있습니다.",
+      "컨트롤 플레인에 일시적으로 연결할 수 없어도 크레딧 표시에는 마지막으로 확인한 잔액이 유지됩니다.",
+      "계정 메뉴의 플랜 변경이 이제 콘솔의 결제 페이지를 엽니다.",
+    ],
+  },
   {
     version: "0.22.0",
     date: "2026-10-29",

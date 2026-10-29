@@ -344,7 +344,7 @@ test("Settings disables a bundled skill and imports an external MCP server into 
     const rendererHtml = await readFile(join(renderer, "index.html"), "utf8");
     const css = [...rendererHtml.matchAll(/href="([^" ]+\.css)"/g)]
       .map((match) => match[1]);
-    assert(css.length, "Run pnpm --filter @pi-desktop/desktop build before this test");
+    assert(css.length, "Run pnpm --filter nib-desktop build before this test");
     await cp(join(renderer, "assets"), join(temp, "assets"), { recursive: true });
     await writeFile(
       join(temp, "index.html"),

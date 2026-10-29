@@ -5,7 +5,7 @@
  * E2E-SESSION-list-refresh-keeps-desktop-responsive against 800 synthetic
  * sessions (BOOT_PROBE emitted by electron/main/bootstrap/startup.ts).
  *
- * Prereqs: `pnpm --filter @pi-desktop/desktop build` and a host-core binary
+ * Prereqs: `pnpm --filter nib-desktop build` and a host-core binary
  * (target/debug or target/release, or PI_DESKTOP_HOST_BIN).
  */
 import { spawn } from "node:child_process";
@@ -21,7 +21,7 @@ const root = repositoryRoot();
 const { appDir, electronBinary: electronBin } = resolveElectronBinary(root);
 
 if (!existsSync(join(appDir, "out/main/index.js"))) {
-  console.error("desktop app not built. Run: pnpm --filter @pi-desktop/desktop build");
+  console.error("desktop app not built. Run: pnpm --filter nib-desktop build");
   process.exit(1);
 }
 if (!existsSync(electronBin)) {

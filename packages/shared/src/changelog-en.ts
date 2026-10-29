@@ -1,6 +1,16 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
+
+  {
+    version: "0.22.1",
+    date: "2026-10-29",
+    highlights: [
+      "Remote hosts upgrade in place: reconnecting brings the Host to this release instead of asking you to rebuild it.",
+      "The credits chip keeps your last known balance when the control plane cannot be reached.",
+      "Change plan in the account menu now opens the console billing page.",
+    ],
+  },
   {
     version: "0.22.0",
     date: "2026-10-29",

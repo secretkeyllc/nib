@@ -61,7 +61,7 @@ APPLE_TEAM_ID="${APPLE_TEAM_ID:-DUV63RKYTW}"
 
 if [[ -z "${APPLE_ID:-}" || -z "${APPLE_APP_SPECIFIC_PASSWORD:-}" ]]; then
   echo "error: notarization credentials are required (APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD)." >&2
-  echo "For an unsigned local build use: pnpm --filter @pi-desktop/desktop dist" >&2
+  echo "For an unsigned local build use: pnpm --filter nib-desktop dist" >&2
   exit 1
 fi
 
@@ -74,13 +74,13 @@ echo "==> Building host-core (release)"
 cargo build -p host-core --release
 
 echo "==> Building workspace packages"
-pnpm -r --filter '!@pi-desktop/desktop' build
+pnpm -r --filter '!nib-desktop' build
 
 echo "==> Bundling the agent-runtime sidecar"
 pnpm --filter @pi-desktop/agent-runtime bundle
 
 echo "==> Building the desktop bundles"
-pnpm --filter @pi-desktop/desktop exec electron-vite build
+pnpm --filter nib-desktop exec electron-vite build
 
 echo "==> Packaging the desktop (Developer ID signed + notarized, $MAC_ARCH)"
 # `--publish never` keeps a local checkout from publishing to GitHub; the
@@ -94,7 +94,7 @@ PI_STAPLER_MAX_ATTEMPTS="${PI_STAPLER_MAX_ATTEMPTS:-6}" \
 PI_STAPLER_RETRY_DELAY_SECONDS="${PI_STAPLER_RETRY_DELAY_SECONDS:-10}" \
 DEBUG="${DEBUG:-electron-osx-sign*,electron-notarize*}" \
   node scripts/macos-signing-watchdog.mjs --label "release-macos-${MAC_ARCH}" -- \
-  pnpm --filter @pi-desktop/desktop exec electron-builder --mac "--${MAC_ARCH}" \
+  pnpm --filter nib-desktop exec electron-builder --mac "--${MAC_ARCH}" \
     --publish never \
     -c.mac.identity="${MAC_SIGNING_IDENTITY}" \
     -c.mac.forceCodeSigning=true \

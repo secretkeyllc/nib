@@ -39,13 +39,13 @@ jobs:
           trap 'kill "$host_build_pid" 2>/dev/null || true' EXIT
 
           pnpm install --frozen-lockfile
-          pnpm --filter '@pi-desktop/desktop^...' --fail-if-no-match build
+          pnpm --filter 'nib-desktop^...' --fail-if-no-match build
 
           wait "$host_build_pid"
           trap - EXIT
 
       - name: Build Linux packages
-        run: pnpm --filter @pi-desktop/desktop run dist:linux -- --x64
+        run: pnpm --filter nib-desktop run dist:linux -- --x64
 
       - name: Verify Linux host glibc floor
         run: node scripts/check-linux-host-glibc.mjs target/release/nib-host-core

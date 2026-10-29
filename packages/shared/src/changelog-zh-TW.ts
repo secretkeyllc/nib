@@ -1,6 +1,16 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
+
+  {
+    version: "0.22.1",
+    date: "2026-10-29",
+    highlights: [
+      "遠端主機原地升級：重新連線即可把 Host 升到目前版本，無需刪除重建。",
+      "控制平面暫時無法連線時，額度徽章保留上次已知的餘額。",
+      "帳戶選單中的「變更方案」現在開啟主控台的帳單頁。",
+    ],
+  },
   {
     version: "0.22.0",
     date: "2026-10-29",

@@ -75,8 +75,8 @@ credentials back to plugins.
 ```bash
 pnpm install
 pnpm --filter "./packages/**" build
-pnpm --filter @pi-desktop/desktop build
-pnpm --filter @pi-desktop/desktop exec electron-builder --win nsis --x64
+pnpm --filter nib-desktop build
+pnpm --filter nib-desktop exec electron-builder --win nsis --x64
 ```
 
 ## Upstream

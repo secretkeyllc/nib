@@ -1,6 +1,16 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
+
+  {
+    version: "0.22.1",
+    date: "2026-10-29",
+    highlights: [
+      "Les hôtes distants se mettent à niveau sur place : une reconnexion ramène l'hôte à cette version sans le recréer.",
+      "La pastille de crédits conserve le dernier solde connu quand le plan de contrôle est injoignable.",
+      "« Changer d'offre » dans le menu du compte ouvre désormais la page de facturation de la console.",
+    ],
+  },
   {
     version: "0.22.0",
     date: "2026-10-29",

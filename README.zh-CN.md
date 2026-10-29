@@ -57,9 +57,9 @@ Nib 是运行在你本机的 AI 编程助手。它会读你的仓库、改文件
 
 | 平台 | 包 | 状态 |
 |---|---|---|
-| Windows x64 | `Nib-Setup-<version>.exe` | 已发布 |
+| Windows x64 | `Nib-Setup-<version>.exe` | 已发布（0.22.x） |
 | macOS | `.dmg`（Apple silicon） | 进行中 |
-| Linux x64 | `.AppImage` / `.deb` | 已发布 |
+| Linux x64 | `.AppImage` / `.deb` | 已发布（0.22.x） |
 
 ## 登录
 
@@ -85,8 +85,8 @@ Anthropic 兼容客户端把 base URL 设为 `https://api.nib.am`。完整协议
 ```bash
 pnpm install
 pnpm --filter "./packages/**" build
-pnpm --filter @pi-desktop/desktop build
-pnpm --filter @pi-desktop/desktop exec electron-builder --win nsis --x64
+pnpm --filter nib-desktop build
+pnpm --filter nib-desktop exec electron-builder --win nsis --x64
 ```
 
 Linux 和 macOS 走同一条流水线，只是 `electron-builder` 的目标不同。Rust host（`crates/nib-host-core`）需要先按目标平台构建，`pnpm build` 会在 Electron 那一步带上它。

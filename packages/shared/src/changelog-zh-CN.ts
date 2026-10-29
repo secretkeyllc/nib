@@ -1,6 +1,16 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
+
+  {
+    version: "0.22.1",
+    date: "2026-10-29",
+    highlights: [
+      "远程主机原地升级：重新连接即可把 Host 升到当前版本，无需删除重建。",
+      "控制平面暂时不可达时，额度徽标保留上次已知的余额。",
+      "账户菜单中的“更改套餐”现在打开控制台的账单页。",
+    ],
+  },
   {
     version: "0.22.0",
     date: "2026-10-29",
