@@ -186,11 +186,11 @@ test("the release matrix ships native Linux x64 and arm64 lanes", () => {
   );
   assert.match(releaseWorkflowSource, /feed: latest-linux\.yml/);
   assert.match(releaseWorkflowSource, /feed: latest-linux-arm64\.yml/);
-  // The pi-host bundles the SSH bootstrap installs track the desktop's Linux
+  // The nib-host bundles the SSH bootstrap installs track the desktop's Linux
   // lanes one for one.
   assert.match(
     releaseWorkflowSource,
-    /pi-host-bundle:[\s\S]*?- arch: x64[\s\S]*?os: ubuntu-22\.04[\s\S]*?- arch: arm64[\s\S]*?os: ubuntu-22\.04-arm/,
+    /nib-host-bundle:[\s\S]*?- arch: x64[\s\S]*?os: ubuntu-22\.04[\s\S]*?- arch: arm64[\s\S]*?os: ubuntu-22\.04-arm/,
   );
 });
 

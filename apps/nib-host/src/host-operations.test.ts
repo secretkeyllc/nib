@@ -48,9 +48,9 @@ function fakeHost(calls: Array<{ method: string; params: unknown }>, projectPath
   };
 }
 
-describe("pi-host operations over host-core", () => {
+describe("nib-host operations over host-core", () => {
   it("maps sessions, creates under a project id, and refuses configuration while busy", async () => {
-    const root = await realpath(await mkdtemp(join(tmpdir(), "pi-host-ops-")));
+    const root = await realpath(await mkdtemp(join(tmpdir(), "nib-host-ops-")));
     dirs.push(root);
     const calls: Array<{ method: string; params: unknown }> = [];
     let busy = false;
@@ -72,7 +72,7 @@ describe("pi-host operations over host-core", () => {
   });
 
   it("registers only existing directories and browses from the root outwards", async () => {
-    const root = await realpath(await mkdtemp(join(tmpdir(), "pi-host-ops-")));
+    const root = await realpath(await mkdtemp(join(tmpdir(), "nib-host-ops-")));
     dirs.push(root);
     const { mkdir } = await import("node:fs/promises");
     await mkdir(join(root, "work", "app"), { recursive: true });
@@ -96,7 +96,7 @@ describe("pi-host operations over host-core", () => {
   });
 
   it("canonicalizes a symlink browse root without allowing symlink escapes", async () => {
-    const scratch = await realpath(await mkdtemp(join(tmpdir(), "pi-host-browse-root-")));
+    const scratch = await realpath(await mkdtemp(join(tmpdir(), "nib-host-browse-root-")));
     dirs.push(scratch);
     const root = join(scratch, "root");
     const linkedRoot = join(scratch, "linked-root");
@@ -132,7 +132,7 @@ describe("pi-host operations over host-core", () => {
   });
 
   it("serves workspace reads against the session root and refuses escapes", async () => {
-    const root = await realpath(await mkdtemp(join(tmpdir(), "pi-host-ops-")));
+    const root = await realpath(await mkdtemp(join(tmpdir(), "nib-host-ops-")));
     dirs.push(root);
     const { writeFile } = await import("node:fs/promises");
     await writeFile(join(root, "README.md"), "hello", "utf8");

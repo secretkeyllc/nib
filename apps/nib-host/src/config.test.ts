@@ -12,7 +12,7 @@ afterEach(async () => {
 });
 
 async function tempDir(): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), "pi-host-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "nib-host-test-"));
   dirs.push(dir);
   return dir;
 }
@@ -34,7 +34,7 @@ describe("identity and credentials", () => {
     const first = await loadOrCreateHostId(dir);
     expect(first.startsWith("host_")).toBe(true);
     expect(await loadOrCreateHostId(dir)).toBe(first);
-    const info = await stat(join(dir, "pi-host", "identity.json"));
+    const info = await stat(join(dir, "nib-host", "identity.json"));
     expect(info.mode & 0o077).toBe(0);
   });
 
@@ -44,11 +44,11 @@ describe("identity and credentials", () => {
     await store.saveDevice({ deviceId: "dev_1", label: "laptop", roles: ["owner"], tokenHash: "ab".repeat(32), createdAt: "2026-09-18T00:00:00.000Z" });
     await store.savePairing({ tokenHash: "cd".repeat(32), expiresAt: new Date(Date.now() + 60_000).toISOString() });
     await store.savePairing({ tokenHash: "ef".repeat(32), expiresAt: "2000-01-01T00:00:00.000Z" });
-    const raw = await readFile(join(dir, "pi-host", "credentials.json"), "utf8");
+    const raw = await readFile(join(dir, "nib-host", "credentials.json"), "utf8");
     expect(raw).not.toContain("pdt1.");
     expect(raw).toContain("ab".repeat(32));
     expect(raw).not.toContain("ef".repeat(32));
-    const info = await stat(join(dir, "pi-host", "credentials.json"));
+    const info = await stat(join(dir, "nib-host", "credentials.json"));
     expect(info.mode & 0o077).toBe(0);
 
     const reloaded = new FileCredentialStore(dir);

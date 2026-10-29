@@ -170,8 +170,8 @@
       },
       "extraResources": [
         {
-          "from": "../../target/release/pi-desktop-host-core",
-          "to": "bin/pi-desktop-host-core"
+          "from": "../../target/release/nib-host-core",
+          "to": "bin/nib-host-core"
         },
         {
           "from": "build/tray-icon-mac.png",
@@ -228,8 +228,8 @@
       "icon": "build/icon.ico",
       "extraResources": [
         {
-          "from": "../../target/x86_64-pc-windows-gnu/release/pi-desktop-host-core.exe",
-          "to": "bin/pi-desktop-host-core.exe"
+          "from": "../../target/x86_64-pc-windows-gnu/release/nib-host-core.exe",
+          "to": "bin/nib-host-core.exe"
         },
         {
           "from": "build/icon.ico",
@@ -274,8 +274,8 @@
       "icon": "build/icon.png",
       "extraResources": [
         {
-          "from": "../../target/release/pi-desktop-host-core",
-          "to": "bin/pi-desktop-host-core"
+          "from": "../../target/release/nib-host-core",
+          "to": "bin/nib-host-core"
         }
       ]
     },

@@ -51,6 +51,6 @@ For manual inspection, the lower-level steps remain available:
 
 ```bash
 E2E_ROOT=/tmp/pi-ext-e2e STUB_PORT=47123 \
-  HOST_BIN="$PWD/target/debug/pi-desktop-host-core" \
+  HOST_BIN="$PWD/target/debug/nib-host-core" \
   node apps/desktop/test/e2e/trusted-extensions/seed.mjs
 ```

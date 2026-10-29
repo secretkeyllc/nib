@@ -7,8 +7,8 @@ import { join } from "node:path";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { ErrorCodes } from "@pi-desktop/shared";
-import { shellQuote } from "./pi-host-bootstrap-script.js";
-import { checksumMatches, normalizeChecksum } from "./pi-host-release.js";
+import { shellQuote } from "./nib-host-bootstrap-script.js";
+import { checksumMatches, normalizeChecksum } from "./nib-host-release.js";
 import type { SshTransport } from "./ssh-transport.js";
 
 const MAX_ARTIFACT_BYTES = 512 * 1024 * 1024;
@@ -25,7 +25,7 @@ function failure(): Error {
 /** The path must identify only a directory minted by our remote mktemp command. */
 function uploadDirectory(value: string): string {
   const path = value.trim();
-  if (!/^\/[^\r\n\0]*\/\.pi-desktop\/pi-host\/\.upload\.[a-zA-Z0-9]{6,}$/.test(path)) throw failure();
+  if (!/^\/[^\r\n\0]*\/\.nib\/nib-host\/\.upload\.[a-zA-Z0-9]{6,}$/.test(path)) throw failure();
   return path;
 }
 export async function uploadSshArtifact(
@@ -35,13 +35,13 @@ export async function uploadSshArtifact(
   const url = new URL(input.url);
   if (url.protocol !== "https:" || url.username || url.password) throw failure();
   input.signal?.throwIfAborted();
-  const localDir = await mkdtemp(join(tmpdir(), "pi-host-artifact-"));
+  const localDir = await mkdtemp(join(tmpdir(), "nib-host-artifact-"));
   let remoteDir: string | undefined;
   const cleanup = async () => {
     if (!remoteDir) return;
     // Never trust remote output to choose a deletion target outside this prefix.
     const directory = shellQuote(remoteDir);
-    await transport.exec(`path=${directory}; case "$path" in "$HOME"/.pi-desktop/pi-host/.upload.*) rm -rf -- "$path" ;; *) exit 1 ;; esac`, { timeoutMs: 30_000 });
+    await transport.exec(`path=${directory}; case "$path" in "$HOME"/.nib/nib-host/.upload.*) rm -rf -- "$path" ;; *) exit 1 ;; esac`, { timeoutMs: 30_000 });
     remoteDir = undefined;
   };
   try {
@@ -76,7 +76,7 @@ export async function uploadSshArtifact(
       createWriteStream(localPath, { flags: "wx", mode: 0o600 }), { signal });
     if (!checksumMatches(hash.digest("hex"), input.expectedSha256)) throw failure();
     input.signal?.throwIfAborted();
-    const created = await transport.exec('umask 077; mkdir -p "$HOME/.pi-desktop/pi-host" && mktemp -d "$HOME/.pi-desktop/pi-host/.upload.XXXXXX"');
+    const created = await transport.exec('umask 077; mkdir -p "$HOME/.nib/nib-host" && mktemp -d "$HOME/.nib/nib-host/.upload.XXXXXX"');
     remoteDir = uploadDirectory(created.stdout);
     input.signal?.throwIfAborted();
     const path = `${remoteDir}/artifact.tar.gz`;

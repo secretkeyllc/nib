@@ -17,7 +17,7 @@ pub fn run_cli() -> Result<bool> {
         return Ok(false);
     }
     if args.len() != 3 {
-        bail!("usage: pi-desktop-host-core --relocate-data <old-root> <copied-root>");
+        bail!("usage: nib-host-core --relocate-data <old-root> <copied-root>");
     }
     relocate(Path::new(&args[1]), Path::new(&args[2]))?;
     Ok(true)

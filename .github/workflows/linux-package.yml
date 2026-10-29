@@ -48,7 +48,7 @@ jobs:
         run: pnpm --filter @pi-desktop/desktop run dist:linux -- --x64
 
       - name: Verify Linux host glibc floor
-        run: node scripts/check-linux-host-glibc.mjs target/release/pi-desktop-host-core
+        run: node scripts/check-linux-host-glibc.mjs target/release/nib-host-core
 
       - name: Install RPM inspection tools
         run: |
@@ -69,7 +69,7 @@ jobs:
             exit 1
           fi
           grep -Fx '/opt/PI-Desktop/resources/app.asar' "$rpm_file_list" >/dev/null
-          grep -Fx '/opt/PI-Desktop/resources/bin/pi-desktop-host-core' "$rpm_file_list" >/dev/null
+          grep -Fx '/opt/PI-Desktop/resources/bin/nib-host-core' "$rpm_file_list" >/dev/null
           grep -Fx '/usr/share/applications/pi-desktop.desktop' "$rpm_file_list" >/dev/null
           grep -Fx '/usr/share/icons/hicolor/512x512/apps/pi-desktop.png' "$rpm_file_list" >/dev/null
 

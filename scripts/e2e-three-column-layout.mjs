@@ -47,10 +47,10 @@ const WORK_PANEL_MIN_WIDTH = 244;
 function resolveHostBinary() {
   const candidates = [
     process.env.PI_DESKTOP_HOST_BIN?.trim(),
-    join(root, "target", "debug", "pi-desktop-host-core"),
-    join(root, "target", "debug", "pi-desktop-host-core.exe"),
-    join(root, "target", "release", "pi-desktop-host-core"),
-    join(root, "target", "release", "pi-desktop-host-core.exe"),
+    join(root, "target", "debug", "nib-host-core"),
+    join(root, "target", "debug", "nib-host-core.exe"),
+    join(root, "target", "release", "nib-host-core"),
+    join(root, "target", "release", "nib-host-core.exe"),
   ].filter(Boolean);
   const found = candidates.find((candidate) => existsSync(candidate));
   if (!found) {

@@ -359,7 +359,7 @@ export class RacpServer {
     connection.initialized = true;
     return {
       protocolVersion: RACP_PROTOCOL_VERSION,
-      server: { name: this.options.serverName ?? "pi-host", version: this.options.serverVersion, hostId: this.options.hostId },
+      server: { name: this.options.serverName ?? "nib-host", version: this.options.serverVersion, hostId: this.options.hostId },
       connectionId: connection.id,
       principal: { subject: connection.principal.subject, roles: [...connection.principal.roles] },
       capabilities: this.capabilities,

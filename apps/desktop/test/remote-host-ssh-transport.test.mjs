@@ -51,7 +51,7 @@ exit 3
 `,
   /** Leaks a pairing token on stdout, then fails. */
   tokenLeak: `#!/bin/sh
-echo 'PI_HOST_PAIRING_TOKEN {"token":"ppt1.secret","expiresAt":1}'
+echo 'NIB_HOST_PAIRING_TOKEN {"token":"ppt1.secret","expiresAt":1}'
 echo "bootstrap step 3 failed on the remote host"
 exit 7
 `,
@@ -226,7 +226,7 @@ test("execWithInput runs the script through `sh -s` with the body on stdin", { t
     "#!/bin/sh",
     "set -eu",
     "# SCRIPT-BODY-MARKER must never travel as an ssh argument",
-    'echo "$PI_HOST_PAIRING_TOKEN"',
+    'echo "$NIB_HOST_PAIRING_TOKEN"',
   ].join("\n");
 
   const result = await transport.execWithInput("sh -s", script);
@@ -247,7 +247,7 @@ test("execWithInput runs the script through `sh -s` with the body on stdin", { t
     stdinSection.includes("SCRIPT-BODY-MARKER"),
     `the script must reach stdin: ${result.stdout}`,
   );
-  assert.ok(stdinSection.includes('echo "$PI_HOST_PAIRING_TOKEN"'));
+  assert.ok(stdinSection.includes('echo "$NIB_HOST_PAIRING_TOKEN"'));
 
   transport.dispose();
 });
@@ -256,7 +256,7 @@ test("execWithInput honors a non-shell command and keeps JSON out of argv", { ti
   const binary = await writeFixture(t, FIXTURES.argvAndStdin, "ssh-import-stdin");
   const transport = createSystemSshTransport({ host: "remote.example" }, { binary });
   t.after(() => transport.dispose());
-  const command = 'node "$HOME/.pi-desktop/pi-host/current/pi-host.js" provider-import';
+  const command = 'node "$HOME/.nib/nib-host/current/nib-host.js" provider-import';
   const input = JSON.stringify({ secretValue: "fixture-api-key" });
   const result = await transport.execWithInput(command, input);
   const [argv, stdin] = result.stdout.split("ARGV-END\n");
@@ -310,7 +310,7 @@ test("the stdout of that error is redacted of a live pairing token", { timeout: 
       assert.equal(error.errorCode, "HOST_BOOTSTRAP_FAILED");
       assert.equal(error.code, 7);
       assert.ok(
-        error.stdout.includes("PI_HOST_PAIRING_TOKEN <redacted>"),
+        error.stdout.includes("NIB_HOST_PAIRING_TOKEN <redacted>"),
         `the token line must be redacted: ${error.stdout}`,
       );
       assert.ok(!error.stdout.includes("ppt1.secret"), "the token itself must be gone");

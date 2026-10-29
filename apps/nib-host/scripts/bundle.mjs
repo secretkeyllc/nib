@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Assemble the self-contained `pi-host` bundle for one native POSIX target:
+ * Assemble the self-contained `nib-host` bundle for one native POSIX target:
  *
- *   dist-bundle/pi-host-<version>-<platform>-<arch>/
- *     pi-host.js                 the CLI, esbuild-bundled with every workspace package
+ *   dist-bundle/nib-host-<version>-<platform>-<arch>/
+ *     nib-host.js                 the CLI, esbuild-bundled with every workspace package
  *     agent-runtime/            the complete sidecar bundle (entry, chunks, manifest)
- *     bin/pi-desktop-host-core   the platform host-core binary
- *     bin/node, bin/pi-host      matching Node runtime and launcher
+ *     bin/nib-host-core  the platform host-core binary
+ *     bin/node, bin/nib-host      matching Node runtime and launcher
  *     node_modules/node-pty      optional; terminals are disabled without it
  *     package.json               { type: module, version }
  *     install.sh, SHA256SUMS     verified content-addressed installation
@@ -34,9 +34,9 @@ const args = Object.fromEntries(
 const platform = String(args.platform ?? process.platform);
 const arch = String(args.arch ?? process.arch);
 const exe = platform === "win32" ? ".exe" : "";
-const hostCore = resolve(String(args["host-core"] ?? join(root, `target/release/pi-desktop-host-core${exe}`)));
+const hostCore = resolve(String(args["host-core"] ?? join(root, `target/release/nib-host-core${exe}`)));
 const runtimeBundle = join(root, "packages/agent-runtime/dist-bundle");
-const out = resolve(String(args.out ?? join(app, "dist-bundle", `pi-host-${version}-${platform}-${arch}`)));
+const out = resolve(String(args.out ?? join(app, "dist-bundle", `nib-host-${version}-${platform}-${arch}`)));
 
 // Probe the actual selected executable before removing or writing output. Native
 // addons and host-core are built on this runner, so cross-target labels are unsafe.
@@ -72,13 +72,13 @@ execFileSync(
     "--external:node-pty",
     "--external:bufferutil",
     "--external:utf-8-validate",
-    `--outfile=${join(out, "pi-host.js")}`,
+    `--outfile=${join(out, "nib-host.js")}`,
     "--banner:js=import { createRequire as __piCreateRequire } from 'node:module'; const require = __piCreateRequire(import.meta.url);",
   ],
   { stdio: "inherit", cwd: app },
 );
-cpSync(hostCore, join(out, `bin/pi-desktop-host-core${exe}`));
-chmodSync(join(out, `bin/pi-desktop-host-core${exe}`), 0o755);
+cpSync(hostCore, join(out, `bin/nib-host-core${exe}`));
+chmodSync(join(out, `bin/nib-host-core${exe}`), 0o755);
 let ptyPackageDir;
 try {
   ptyPackageDir = dirname(require.resolve("node-pty/package.json"));
@@ -94,13 +94,13 @@ if (ptyPackageDir) {
 }
 cpSync(nodeRuntime, join(out, "bin/node"));
 chmodSync(join(out, "bin/node"), 0o755);
-writeFileSync(join(out, "bin/pi-host"), `#!/bin/sh
+writeFileSync(join(out, "bin/nib-host"), `#!/bin/sh
 set -eu
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
-exec "$here/node" "$here/../pi-host.js" "$@"
+exec "$here/node" "$here/../nib-host.js" "$@"
 `);
-chmodSync(join(out, "bin/pi-host"), 0o755);
-writeFileSync(join(out, "package.json"), `${JSON.stringify({ name: "pi-host", version, type: "module", bin: { "pi-host": "./bin/pi-host" } }, null, 2)}\n`);
+chmodSync(join(out, "bin/nib-host"), 0o755);
+writeFileSync(join(out, "package.json"), `${JSON.stringify({ name: "nib-host", version, type: "module", bin: { "nib-host": "./bin/nib-host" } }, null, 2)}\n`);
 cpSync(join(here, "install.sh"), join(out, "install.sh"));
 chmodSync(join(out, "install.sh"), 0o755);
 writePackageManifest(out);

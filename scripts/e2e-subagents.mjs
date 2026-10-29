@@ -24,7 +24,7 @@ import { PROTOCOL_VERSION } from "../packages/shared/dist/protocol.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
-const hostBinaryName = `pi-desktop-host-core${process.platform === "win32" ? ".exe" : ""}`;
+const hostBinaryName = `nib-host-core${process.platform === "win32" ? ".exe" : ""}`;
 const hostBinCandidates = [];
 const configuredHostBin = process.env.PI_DESKTOP_HOST_BIN?.trim();
 if (configuredHostBin) {

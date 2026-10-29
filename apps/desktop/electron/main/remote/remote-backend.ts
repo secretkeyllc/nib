@@ -6,7 +6,7 @@
  * the same instance is registered under each of the host's session ids.
  *
  * Ownership stays inside the frozen architecture: this runs in Electron Main and
- * speaks RACP-WS to the remote `pi-host`; the renderer is unaware of the
+ * speaks RACP-WS to the remote `nib-host`; the renderer is unaware of the
  * transport (spec §3.4). Unsupported remote channels fail closed in the router.
  */
 import { ErrorCodes, IPC } from "@pi-desktop/shared";

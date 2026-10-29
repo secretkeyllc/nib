@@ -30,7 +30,7 @@ for (const [label, path] of [["pi-host cli", cli], ["sidecar bundle", sidecar]])
   }
 }
 const hostBin = resolveHostBinary();
-const dataDir = mkdtempSync(join(tmpdir(), "pi-host-e2e-"));
+const dataDir = mkdtempSync(join(tmpdir(), "nib-host-e2e-"));
 const project = join(dataDir, "project");
 mkdirSync(project, { recursive: true });
 writeFileSync(join(project, "README.md"), "# remote project\n");
@@ -59,9 +59,9 @@ function startHost(extraArgs = []) {
     child.stdout.on("data", (chunk) => {
       out += String(chunk);
       for (const line of out.split("\n")) {
-        if (line.startsWith("PI_HOST_READY ")) ready.info = JSON.parse(line.slice("PI_HOST_READY ".length));
-        if (line.startsWith("PI_HOST_PAIRING_TOKEN ")) ready.pairing = JSON.parse(line.slice("PI_HOST_PAIRING_TOKEN ".length));
-        if (line.startsWith("PI_HOST_FAILED ")) {
+        if (line.startsWith("NIB_HOST_READY ")) ready.info = JSON.parse(line.slice("NIB_HOST_READY ".length));
+        if (line.startsWith("NIB_HOST_PAIRING_TOKEN ")) ready.pairing = JSON.parse(line.slice("NIB_HOST_PAIRING_TOKEN ".length));
+        if (line.startsWith("NIB_HOST_FAILED ")) {
           clearTimeout(timer);
           reject(new Error("pi-host failed: " + line + "\n" + stderr.slice(-2000)));
         }
@@ -92,7 +92,7 @@ function client(url, token, options = {}) {
   const events = [];
   const instance = new RacpClient({
     transport: wsClientTransport({ url, token }),
-    client: { name: "pi-host-e2e", version: "0.15.0" },
+    client: { name: "nib-host-e2e", version: "0.15.0" },
     onEvent: (envelope) => events.push(envelope),
     requestTimeoutMs: 30_000,
     ...options,

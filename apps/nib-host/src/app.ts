@@ -150,7 +150,7 @@ export async function startPiHost(config: PiHostConfig, options: { log?: HostLog
   };
   const startSidecar = async () => {
     const sidecar = new AgentSidecar({
-      launch: { command: config.nodeBinary, args: [config.sidecarEntry], env: { ...process.env, PI_DESKTOP_DATA_DIR: config.dataDir } },
+      launch: { command: config.nodeBinary, args: [config.sidecarEntry], env: { ...process.env, NIB_DESKTOP_DATA_DIR: config.dataDir } },
       onStderr: log.child("agent"),
     });
     sidecar.onExit(({ intentional, code, signal, stderrTail }) => {
@@ -273,7 +273,7 @@ export async function startPiHost(config: PiHostConfig, options: { log?: HostLog
     await state.host?.dispose();
     throw error;
   }
-  log("info", "pi-host ready", { hostId, host: binding.address.host, port: binding.address.port, version: APP_VERSION, terminal: Boolean(terminal) });
+  log("info", "nib-host ready", { hostId, host: binding.address.host, port: binding.address.port, version: APP_VERSION, terminal: Boolean(terminal) });
 
   return {
     hostId,
@@ -287,7 +287,7 @@ export async function startPiHost(config: PiHostConfig, options: { log?: HostLog
     async stop() {
       if (state.stopping) return;
       state.stopping = true;
-      log("info", "pi-host stopping");
+      log("info", "nib-host stopping");
       await admin?.close();
       server.close();
       await binding.close();

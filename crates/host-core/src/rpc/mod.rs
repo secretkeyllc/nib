@@ -2017,7 +2017,7 @@ async fn handle_request(
             Ok(json!({ "enabled": enabled }))
         }
         "app.getVersion" => Ok(json!({
-            "name": "pi-desktop-host-core",
+            "name": "nib-host-core",
             "version": HOST_VERSION,
             "protocolVersion": PROTOCOL_VERSION
         })),

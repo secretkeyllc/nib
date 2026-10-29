@@ -69,7 +69,7 @@ function sshRecord({ version = OLD_VERSION, sshSecret = "login-secret", auth = "
 }
 
 function readyLine(version, port, hostId = "host-id") {
-  return `PI_HOST_READY ${JSON.stringify({ hostId, host: "127.0.0.1", port, version })}`;
+  return `NIB_HOST_READY ${JSON.stringify({ hostId, host: "127.0.0.1", port, version })}`;
 }
 
 function fakeAdapter({ capabilities, failConnect } = {}) {
@@ -244,7 +244,7 @@ function sshFixture() {
       return {
         code: 0,
         stderr: "",
-        stdout: `${readyLine(DESKTOP_VERSION, state.ports)}\nPI_HOST_PAIRING_TOKEN ${JSON.stringify({ token: "ppt1.fixture", expiresAt: 1893456000000 })}`,
+        stdout: `${readyLine(DESKTOP_VERSION, state.ports)}\nNIB_HOST_PAIRING_TOKEN ${JSON.stringify({ token: "ppt1.fixture", expiresAt: 1893456000000 })}`,
       };
     },
     forward: async ({ localPort }) => ({ localPort, close: async () => undefined }),
@@ -268,7 +268,7 @@ function bootFor(dir, fixture, { capabilities, router } = {}) {
     }),
     sshBootstrap: {
       buildTransport: () => fixture.bootstrap(),
-      fetchChecksum: async () => `${"a".repeat(64)}  pi-host-${DESKTOP_VERSION}-linux-x64.tar.gz`,
+      fetchChecksum: async () => `${"a".repeat(64)}  nib-host-${DESKTOP_VERSION}-linux-x64.tar.gz`,
       reservePort: async () => (port += 1),
       exchangePairing: async () => "realigned-device-token",
     },

@@ -122,7 +122,7 @@ export function installCaptureRig(): CaptureRig {
         ["user", "启动报错了，说找不到 host 二进制"],
         [
           "assistant",
-          "这是因为 Rust 侧还没编译。运行 `cargo build -p pi-desktop-host-core`，产物会出现在 `target/debug/` 下，Electron 主进程会自动拾取。",
+          "这是因为 Rust 侧还没编译。运行 `cargo build -p nib-host-core`，产物会出现在 `target/debug/` 下，Electron 主进程会自动拾取。",
         ],
         ["user", "编译通过了，界面也起来了"],
         [

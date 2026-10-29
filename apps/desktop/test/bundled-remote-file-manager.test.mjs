@@ -20,7 +20,7 @@ test("the actual bundled File Manager lists and reads remote files through the H
   const previousData = process.env.PI_DESKTOP_DATA_DIR;
   process.env.PI_DESKTOP_DATA_DIR = data;
   const { PluginRuntime } = await import("../electron/main/plugin-runtime.ts");
-  const { createWorkspacePluginFiles } = await import("../../pi-host/src/plugin-workspace-files.ts");
+  const { createWorkspacePluginFiles } = await import("../../nib-host/src/plugin-workspace-files.ts");
   const identity = "remote-project:bundled-regression";
   const service = createWorkspacePluginFiles({ browseRoot: directory, protectedPaths: [data] });
   const requests = [];

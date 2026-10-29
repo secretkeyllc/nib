@@ -24,20 +24,20 @@ import {
   type RemoteHostSshMetadata,
 } from "@pi-desktop/shared";
 import {
-  type PiHostBootstrapScriptInput,
+  type NibHostBootstrapScriptInput,
   parseBootstrapOutput,
   redactBootstrapOutput,
-} from "./pi-host-bootstrap-script.js";
+} from "./nib-host-bootstrap-script.js";
 import {
   isPublishedTarget,
   parseChecksumFile,
-  piHostArtifactName,
-  piHostArtifactUrls,
-  piHostBundleDir,
+  nibHostArtifactName,
+  nibHostArtifactUrls,
+  nibHostBundleDir,
   resolveTarget,
   targetKey,
   versionsMatch,
-} from "./pi-host-release.js";
+} from "./nib-host-release.js";
 import {
   assertSshArgument,
   createSystemSshTransport,
@@ -49,7 +49,7 @@ import {
 } from "./ssh-transport.js";
 import { assertSshPassword } from "./ssh-askpass.js";
 import { racpUrlForLocalPort } from "./ssh-tunnel.js";
-import { installPiHost } from "./pi-host-installer.js";
+import { installPiHost } from "./nib-host-installer.js";
 import type { uploadSshArtifact } from "./ssh-artifact-transfer.js";
 
 /** Progress the Settings surface can render while a bootstrap runs. */
@@ -293,8 +293,8 @@ export function createSshBootstrap(deps: SshBootstrapDeps): SshBootstrap {
 
         // 2. Resolve the artifact and the digest the release published for it.
         mark("resolve-release");
-        const urls = piHostArtifactUrls(deps.version, remoteTarget);
-        const artifactName = piHostArtifactName(deps.version, remoteTarget);
+        const urls = nibHostArtifactUrls(deps.version, remoteTarget);
+        const artifactName = nibHostArtifactName(deps.version, remoteTarget);
         mark("download-checksum");
         const expectedSha256 = parseChecksumFile(await fetchChecksum(urls.checksum, signal), artifactName);
         signal?.throwIfAborted();
@@ -308,11 +308,11 @@ export function createSshBootstrap(deps: SshBootstrapDeps): SshBootstrap {
 
         // 3. Prefer remote download; use a verified upload only if that download fails.
         mark("install");
-        const scriptInput: PiHostBootstrapScriptInput = {
+        const scriptInput: NibHostBootstrapScriptInput = {
           version: deps.version,
           artifactUrl: urls.tarball,
           artifactName,
-          bundleDir: piHostBundleDir(deps.version, remoteTarget),
+          bundleDir: nibHostBundleDir(deps.version, remoteTarget),
           expectedSha256,
           port: resolveRemotePort(request),
           pairingLifetimeMs: 600_000,

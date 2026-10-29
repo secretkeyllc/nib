@@ -22,7 +22,7 @@ const { createRemoteWorkspaceToolRelay } = await import("../apps/desktop/electro
 const { loadRemoteWorkspaceInstructions } = await import("../apps/desktop/electron/main/remote/remote-workspace-instructions.ts");
 const { createBackendRouter } = await import("../apps/desktop/electron/main/remote/backend-router.ts");
 
-assert.ok(process.env.PI_HOST_CORE_BINARY, "PI_HOST_CORE_BINARY must name the current candidate Rust binary");
+assert.ok(process.env.NIB_HOST_CORE_BINARY, "NIB_HOST_CORE_BINARY must name the current candidate Rust binary");
 const root = await mkdtemp(join(process.env.PI_SCRATCH_DIR ?? tmpdir(), "local-agent-remote-tools-"));
 const remoteRoot = join(root, "remote-workspace");
 await mkdir(remoteRoot); await mkdir(join(root, "desktop"));
@@ -71,7 +71,7 @@ const model = createServer(async (req, res) => {
 model.listen(0, "127.0.0.1"); await once(model, "listening");
 const deadline = setTimeout(() => { console.error("local-Agent remote-tool acceptance exceeded 60s"); process.exit(1); }, 60_000);
 try {
-  host = new HostProcess({ binaryPath: resolve(process.env.PI_HOST_CORE_BINARY), dataDir: join(root, "host"), onStderr: () => {} });
+  host = new HostProcess({ binaryPath: resolve(process.env.NIB_HOST_CORE_BINARY), dataDir: join(root, "host"), onStderr: () => {} });
   await host.handshake();
   const tools = createWorkspaceTools(() => host);
   let remotePrompts = 0;
@@ -92,7 +92,7 @@ try {
   const shell = await boot.workspaceCommandShell("fixture");
   const projectInstructions = await loadRemoteWorkspaceInstructions(boot.workspaceFiles,
     { hostKey: "fixture", path: remoteRoot }, { entries: [{ source: "local-global", content: "LOCAL_GLOBAL_INSTRUCTIONS_FIXTURE" }] });
-  localHost = new HostProcess({ binaryPath: resolve(process.env.PI_HOST_CORE_BINARY), dataDir: join(root, "local-host"), onStderr: () => {} });
+  localHost = new HostProcess({ binaryPath: resolve(process.env.NIB_HOST_CORE_BINARY), dataDir: join(root, "local-host"), onStderr: () => {} });
   await localHost.handshake();
   const created = await localHost.call("project.group.createRemote", { name: "Locally named remote project", remote: { hostKey: "fixture", path: remoteRoot } });
   const localSession = await localHost.call("session.create", { projectPath: created.group.primaryPath, mode: "agent" });

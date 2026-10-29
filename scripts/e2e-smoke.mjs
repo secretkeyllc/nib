@@ -34,7 +34,7 @@ if (configuredHostBin) {
     hostBinCandidates.push(`${configured}.exe`);
   }
 }
-const hostBinaryName = `pi-desktop-host-core${process.platform === "win32" ? ".exe" : ""}`;
+const hostBinaryName = `nib-host-core${process.platform === "win32" ? ".exe" : ""}`;
 hostBinCandidates.push(join(root, "target", "debug", hostBinaryName));
 hostBinCandidates.push(join(root, "..", "..", "..", "target", "debug", hostBinaryName));
 const hostBin = hostBinCandidates.find((candidate) => existsSync(candidate));

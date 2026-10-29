@@ -199,7 +199,7 @@ async function tempRoot(t, prefix) {
  *   Contents/Frameworks/Foo.framework/Versions/A/Foo     mach-o in a framework
  *   Contents/Frameworks/Foo.framework/Versions/Current   symlink to A
  *   Contents/Frameworks/Helper.app/Contents/MacOS/Helper text, nested bundle
- *   Contents/Resources/bin/pi-desktop-host-core          mach-o, executable
+ *   Contents/Resources/bin/nib-host-core          mach-o, executable
  *   Contents/Resources/bin/run.sh                        script, executable
  *   Contents/Resources/native.dylib                      text
  *   Contents/Resources/native.node                       text
@@ -216,7 +216,7 @@ async function writeBundleFixture(release) {
     516,
   );
   await writeMachO(
-    join(app, "Contents", "Resources", "bin", "pi-desktop-host-core"),
+    join(app, "Contents", "Resources", "bin", "nib-host-core"),
     2052,
   );
   await writeFileWithParents(
@@ -367,7 +367,7 @@ test("inventory counts the signing payload of a release directory", async (t) =>
   assert.match(result.stdout, /^top-level-cost: Contents\/MacOS=\d+, Contents\/Resources=\d+$/m);
   assert.match(
     result.stdout,
-    /^slowest-likely: Contents\/MacOS\/PI-Desktop \(4100 bytes\), Contents\/Resources\/bin\/pi-desktop-host-core \(2052 bytes\)$/m,
+    /^slowest-likely: Contents\/MacOS\/PI-Desktop \(4100 bytes\), Contents\/Resources\/bin\/nib-host-core \(2052 bytes\)$/m,
   );
   assert.match(result.stdout, /^warning: non-Mach-O regular file in Contents\/Resources\/bin: Contents\/Resources\/bin\/run\.sh$/m);
 
@@ -444,7 +444,7 @@ test("inventory does not double count native-extension files as binary resources
   // A `.dylib` and a `.node` that happen to look binary are already reported by
   // their own counters, so only the `.dat` may raise `binary-resources`.
   await writeMachO(
-    join(app, "Contents", "Resources", "bin", "pi-desktop-host-core"),
+    join(app, "Contents", "Resources", "bin", "nib-host-core"),
     256,
   );
   await writeBinaryResource(

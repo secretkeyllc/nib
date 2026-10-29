@@ -13,16 +13,16 @@ const here = dirname(fileURLToPath(import.meta.url));
 register(pathToFileURL(join(here, "helpers/ts-import-hooks.mjs")));
 
 const { buildBootstrapScript, parseBootstrapOutput, shellQuote } = await import(
-  "../electron/main/remote/pi-host-bootstrap-script.ts"
+  "../electron/main/remote/nib-host-bootstrap-script.ts"
 );
 
 const VERSION = "0.15.1-beta.5";
-const BUNDLE_DIR = `pi-host-${VERSION}-linux-x64`;
+const BUNDLE_DIR = `nib-host-${VERSION}-linux-x64`;
 const ARTIFACT_NAME = `${BUNDLE_DIR}.tar.gz`;
 const ARTIFACT_URL = `https://github.com/vastsa/PI-Desktop/releases/download/v${VERSION}/${ARTIFACT_NAME}`;
 const DIGEST = "0123456789abcdef".repeat(4);
 /** The sandbox the script's `HOME`/`PATH` point at, outside the real user's. */
-const WORK_SUBDIR = ".pi-desktop/pi-host/.bootstrap";
+const WORK_SUBDIR = ".nib/nib-host/.bootstrap";
 
 /** Inputs every scenario starts from; callers override the digest or version. */
 function scriptInput(overrides = {}) {
@@ -101,19 +101,19 @@ async function prepareSandbox(root, { readyVersion = VERSION } = {}) {
       "  esac",
       "done",
       '[ -n "$out" ] || { printf \'fake curl: missing -o\\n\' >&2; exit 2; }',
-      'cp "$PI_HOST_TEST_TARBALL" "$out"',
+      'cp "$NIB_HOST_TEST_TARBALL" "$out"',
       "",
     ].join("\n"),
     { mode: 0o755 },
   );
 
-  const readyLine = `PI_HOST_READY ${JSON.stringify({
+  const readyLine = `NIB_HOST_READY ${JSON.stringify({
     hostId: "host_x",
     host: "127.0.0.1",
     port: 41234,
     version: readyVersion,
   })}`;
-  const pairingLine = `PI_HOST_PAIRING_TOKEN ${JSON.stringify({
+  const pairingLine = `NIB_HOST_PAIRING_TOKEN ${JSON.stringify({
     token: "ppt1.stub",
     expiresAt: 1_893_456_000_000,
   })}`;
@@ -142,7 +142,7 @@ async function prepareSandbox(root, { readyVersion = VERSION } = {}) {
       ...process.env,
       HOME: home,
       PATH: `${bin}:${process.env.PATH ?? ""}`,
-      PI_HOST_TEST_TARBALL: tarball,
+      NIB_HOST_TEST_TARBALL: tarball,
     },
   };
 }
@@ -197,7 +197,7 @@ test("buildBootstrapScript interpolates every input as a quoted literal", () => 
 });
 
 test("the generated script is valid POSIX shell, even with hostile inputs", async () => {
-  const { dir, cleanup } = await tempDir("pi-host-script-syntax-");
+  const { dir, cleanup } = await tempDir("nib-host-script-syntax-");
   try {
     const plain = join(dir, "plain.sh");
     await writeFile(plain, buildBootstrapScript(scriptInput()));
@@ -224,7 +224,7 @@ test("the generated script is valid POSIX shell, even with hostile inputs", asyn
 });
 
 test("a hostile version stays one literal value when the assignments run", async () => {
-  const { dir, cleanup } = await tempDir("pi-host-script-quote-");
+  const { dir, cleanup } = await tempDir("nib-host-script-quote-");
   try {
     const hostileVersion = "1.0.0'; touch \"$HOME/pwned\"; echo '";
     const script = buildBootstrapScript(scriptInput({ version: hostileVersion }));
@@ -246,7 +246,7 @@ test("a hostile version stays one literal value when the assignments run", async
 });
 
 test("the generated script installs, starts, and prints the ready/pairing lines", async () => {
-  const { dir, cleanup } = await tempDir("pi-host-script-run-");
+  const { dir, cleanup } = await tempDir("nib-host-script-run-");
   try {
     const sandbox = await prepareSandbox(dir);
     const scriptPath = join(dir, "bootstrap.sh");
@@ -265,7 +265,7 @@ test("the generated script installs, starts, and prints the ready/pairing lines"
     assert.deepEqual(parsed.steps, ["download", "verify", "install", "start", "await-ready", "ok"]);
 
     // The host was started under the sandbox HOME and left running there.
-    const pid = (await readFile(join(sandbox.home, WORK_SUBDIR, "pi-host.pid"), "utf8")).trim();
+    const pid = (await readFile(join(sandbox.home, WORK_SUBDIR, "nib-host.pid"), "utf8")).trim();
     assert.match(pid, /^\d+$/);
   } finally {
     await cleanup();
@@ -273,7 +273,7 @@ test("the generated script installs, starts, and prints the ready/pairing lines"
 });
 
 test("a checksum mismatch fails the script before anything is installed", async () => {
-  const { dir, cleanup } = await tempDir("pi-host-script-digest-");
+  const { dir, cleanup } = await tempDir("nib-host-script-digest-");
   try {
     const sandbox = await prepareSandbox(dir);
     const scriptPath = join(dir, "bootstrap.sh");
@@ -289,10 +289,10 @@ test("a checksum mismatch fails the script before anything is installed", async 
     }
     assert.ok(failure, "the script must exit non-zero");
     assert.notEqual(failure.status, 0);
-    assert.match(String(failure.stderr), /PI_HOST_BOOTSTRAP_FAILED checksum-mismatch/);
+    assert.match(String(failure.stderr), /NIB_HOST_BOOTSTRAP_FAILED checksum-mismatch/);
     // The typed line is on stdout too, which is how the desktop reports the step.
-    assert.match(String(failure.stdout), /PI_HOST_FAILED \{.*"step":"checksum-mismatch"/);
-    assert.ok(!String(failure.stdout).includes("PI_HOST_READY"), "the host must not have been started");
+    assert.match(String(failure.stdout), /NIB_HOST_FAILED \{.*"step":"checksum-mismatch"/);
+    assert.ok(!String(failure.stdout).includes("NIB_HOST_READY"), "the host must not have been started");
   } finally {
     await cleanup();
   }
@@ -301,10 +301,10 @@ test("a checksum mismatch fails the script before anything is installed", async 
 test("parseBootstrapOutput reads the ready and pairing lines", () => {
   const output = parseBootstrapOutput(
     [
-      "PI_HOST_BOOTSTRAP download",
-      'PI_HOST_READY {"hostId":"host_x","host":"127.0.0.1","port":41234,"version":"0.15.1-beta.5"}',
-      'PI_HOST_PAIRING_TOKEN {"token":"ppt1.abc","expiresAt":123}',
-      "PI_HOST_BOOTSTRAP ok",
+      "NIB_HOST_BOOTSTRAP download",
+      'NIB_HOST_READY {"hostId":"host_x","host":"127.0.0.1","port":41234,"version":"0.15.1-beta.5"}',
+      'NIB_HOST_PAIRING_TOKEN {"token":"ppt1.abc","expiresAt":123}',
+      "NIB_HOST_BOOTSTRAP ok",
     ].join("\n"),
   );
   assert.deepEqual(output.ready, {
@@ -322,11 +322,11 @@ test("parseBootstrapOutput collects step lines and ignores interleaved noise", (
   const output = parseBootstrapOutput(
     [
       "Warning: Permanently added 'host' (ED25519) to the list of known hosts.",
-      "PI_HOST_BOOTSTRAP download",
+      "NIB_HOST_BOOTSTRAP download",
       "",
-      "PI_HOST_BOOTSTRAP   verify  ",
+      "NIB_HOST_BOOTSTRAP   verify  ",
       "some other chatter",
-      "PI_HOST_BOOTSTRAP install",
+      "NIB_HOST_BOOTSTRAP install",
     ].join("\n"),
   );
   assert.deepEqual(output.steps, ["download", "verify", "install"]);
@@ -336,7 +336,7 @@ test("parseBootstrapOutput collects step lines and ignores interleaved noise", (
 
 test("parseBootstrapOutput reports the failing step and ignores unrelated failures", () => {
   const timedOut = parseBootstrapOutput(
-    ['PI_HOST_BOOTSTRAP await-ready', 'PI_HOST_FAILED {"code":"HOST_BOOTSTRAP_FAILED","step":"ready-timeout"}'].join(
+    ['NIB_HOST_BOOTSTRAP await-ready', 'NIB_HOST_FAILED {"code":"HOST_BOOTSTRAP_FAILED","step":"ready-timeout"}'].join(
       "\n",
     ),
   );
@@ -344,18 +344,18 @@ test("parseBootstrapOutput reports the failing step and ignores unrelated failur
 
   // The script also writes its own bare failed-line; the first one wins.
   const mismatch = parseBootstrapOutput(
-    ["PI_HOST_BOOTSTRAP_FAILED checksum-mismatch", "PI_HOST_BOOTSTRAP_FAILED download-failed"].join("\n"),
+    ["NIB_HOST_BOOTSTRAP_FAILED checksum-mismatch", "NIB_HOST_BOOTSTRAP_FAILED download-failed"].join("\n"),
   );
   assert.equal(mismatch.failure, "checksum-mismatch");
 
   // A failure line for a different code, or malformed JSON, must not be read as
   // a bootstrap failure for this host.
-  assert.equal(parseBootstrapOutput('PI_HOST_FAILED {"code":"OTHER","step":"x"}').failure, null);
-  assert.equal(parseBootstrapOutput("PI_HOST_FAILED {not json").failure, null);
+  assert.equal(parseBootstrapOutput('NIB_HOST_FAILED {"code":"OTHER","step":"x"}').failure, null);
+  assert.equal(parseBootstrapOutput("NIB_HOST_FAILED {not json").failure, null);
 });
 
 test("parseBootstrapOutput refuses a ready line with an unusable port", () => {
-  const ready = (payload) => parseBootstrapOutput(`PI_HOST_READY ${JSON.stringify(payload)}`);
+  const ready = (payload) => parseBootstrapOutput(`NIB_HOST_READY ${JSON.stringify(payload)}`);
   const valid = { hostId: "host_x", host: "127.0.0.1", port: 41234, version: "0.15.1" };
   assert.equal(ready({ ...valid, port: 0 }).ready, null, "port 0 means the host never bound");
   assert.equal(ready({ ...valid, port: 41234.5 }).ready, null, "a fractional port is not a port");
@@ -364,23 +364,23 @@ test("parseBootstrapOutput refuses a ready line with an unusable port", () => {
   assert.equal(ready({ ...valid, port: 65536 }).ready, null);
   assert.equal(ready({ ...valid, host: "0.0.0.0" }).ready, null);
   assert.equal(ready({ ...valid, host: "example.com" }).ready, null);
-  assert.equal(parseBootstrapOutput("PI_HOST_READY {not json").ready, null);
+  assert.equal(parseBootstrapOutput("NIB_HOST_READY {not json").ready, null);
 
   // The pairing line tolerates a missing expiry rather than dropping the token.
-  const pairing = parseBootstrapOutput('PI_HOST_PAIRING_TOKEN {"token":"ppt1.abc"}');
+  const pairing = parseBootstrapOutput('NIB_HOST_PAIRING_TOKEN {"token":"ppt1.abc"}');
   assert.deepEqual(pairing.pairing, { token: "ppt1.abc", expiresAt: 0 });
-  assert.equal(parseBootstrapOutput('PI_HOST_PAIRING_TOKEN {"expiresAt":1}').pairing, null);
+  assert.equal(parseBootstrapOutput('NIB_HOST_PAIRING_TOKEN {"expiresAt":1}').pairing, null);
 });
 
 async function seedVerifiedInstall(root, sandbox) {
-  const base = join(sandbox.home, ".pi-desktop/pi-host");
+  const base = join(sandbox.home, ".nib/nib-host");
   const current = join(base, "current");
   await mkdir(join(current, "bin"), { recursive: true });
   await copyFile(join(root, "bin/node"), join(current, "bin/node"));
-  await copyFile(fileURLToPath(new URL("../../pi-host/scripts/install.sh", import.meta.url)), join(current, "install.sh"));
+  await copyFile(fileURLToPath(new URL("../../nib-host/scripts/install.sh", import.meta.url)), join(current, "install.sh"));
   await chmod(join(current, "install.sh"), 0o755);
-  const files = ["bin/node", "bin/pi-host", "bin/pi-desktop-host-core", "pi-host.js", "install.sh"];
-  for (const file of ["bin/pi-host", "bin/pi-desktop-host-core", "pi-host.js"]) {
+  const files = ["bin/node", "bin/nib-host", "bin/nib-host-core", "nib-host.js", "install.sh"];
+  for (const file of ["bin/nib-host", "bin/nib-host-core", "nib-host.js"]) {
     await writeFile(join(current, file), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
   }
   const manifest = (await Promise.all(files.map(async (file) => `${createHash("sha256").update(await readFile(join(current, file))).digest("hex")}  ${file}\n`))).join("");
@@ -392,7 +392,7 @@ async function seedVerifiedInstall(root, sandbox) {
 }
 
 test("a fully verified release is reused without a download", async () => {
-  const { dir, cleanup } = await tempDir("pi-host-reuse-");
+  const { dir, cleanup } = await tempDir("nib-host-reuse-");
   try {
     const sandbox = await prepareSandbox(dir);
     const { current } = await seedVerifiedInstall(dir, sandbox);
@@ -410,21 +410,21 @@ test("a fully verified release is reused without a download", async () => {
 
 for (const kind of ["damaged", "different-release", "changed-manifest"]) {
   test(`refuses ${kind} reuse and preserves installed contents on download failure`, async () => {
-    const { dir, cleanup } = await tempDir("pi-host-reuse-refused-");
+    const { dir, cleanup } = await tempDir("nib-host-reuse-refused-");
     try {
       const sandbox = await prepareSandbox(dir);
       const { current } = await seedVerifiedInstall(dir, sandbox);
-      if (kind === "damaged") await writeFile(join(current, "pi-host.js"), "damaged");
+      if (kind === "damaged") await writeFile(join(current, "nib-host.js"), "damaged");
       if (kind === "changed-manifest") await writeFile(join(current, "SHA256SUMS"), "tampered manifest");
-      const before = await readFile(join(current, "pi-host.js"));
+      const before = await readFile(join(current, "nib-host.js"));
       const script = join(dir, "bootstrap.sh");
       await writeFile(script, buildBootstrapScript(scriptInput({ expectedSha256: kind === "different-release" ? DIGEST : sandbox.digest })));
       assert.throws(() => runScript(script, sandbox.env), (error) => {
-        assert.match(String(error.stderr), /PI_HOST_BOOTSTRAP_FAILED download-failed/);
-        assert.ok(!String(error.stdout).includes("PI_HOST_BOOTSTRAP reuse"));
+        assert.match(String(error.stderr), /NIB_HOST_BOOTSTRAP_FAILED download-failed/);
+        assert.ok(!String(error.stdout).includes("NIB_HOST_BOOTSTRAP reuse"));
         return true;
       });
-      assert.deepEqual(await readFile(join(current, "pi-host.js")), before);
+      assert.deepEqual(await readFile(join(current, "nib-host.js")), before);
     } finally { await cleanup(); }
   });
 }

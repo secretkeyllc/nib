@@ -13,8 +13,8 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
 export function hostBinaryCandidates() {
   const names =
     process.platform === "win32"
-      ? ["pi-desktop-host-core.exe", "pi-desktop-host-core"]
-      : ["pi-desktop-host-core"];
+      ? ["nib-host-core.exe", "nib-host-core"]
+      : ["nib-host-core"];
   const candidates = [];
   const configured = process.env.PI_DESKTOP_HOST_BIN;
   if (configured) {

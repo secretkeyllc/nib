@@ -31,7 +31,7 @@ async function writeJsonAtomic(path: string, value: unknown): Promise<void> {
  * so two machines with the same project path are still two Hosts.
  */
 export async function loadOrCreateHostId(dataDir: string): Promise<string> {
-  const path = join(dataDir, "pi-host", "identity.json");
+  const path = join(dataDir, "nib-host", "identity.json");
   const existing = await readJson<IdentityFile>(path);
   if (existing?.hostId) return existing.hostId;
   const created: IdentityFile = { hostId: `host_${randomBytes(12).toString("base64url")}`, createdAt: new Date().toISOString() };
@@ -40,7 +40,7 @@ export async function loadOrCreateHostId(dataDir: string): Promise<string> {
 }
 
 /**
- * Device and pairing records under `<dataDir>/pi-host/credentials.json`,
+ * Device and pairing records under `<dataDir>/nib-host/credentials.json`,
  * owner-readable only. Tokens are stored as SHA-256 hashes (security §3.4);
  * the file never holds a usable credential.
  */
@@ -50,7 +50,7 @@ export class FileCredentialStore implements DeviceCredentialStore {
   private chain = Promise.resolve();
 
   constructor(dataDir: string) {
-    this.path = join(dataDir, "pi-host", "credentials.json");
+    this.path = join(dataDir, "nib-host", "credentials.json");
   }
 
   private async load(): Promise<CredentialFile> {

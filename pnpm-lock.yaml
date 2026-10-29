@@ -359,7 +359,7 @@ importers:
         specifier: ^5.0.15
         version: 5.0.15(@types/react@19.2.18)(react@19.2.8)
 
-  apps/pi-host:
+  apps/nib-host:
     dependencies:
       '@pi-desktop/agent-host':
         specifier: workspace:*

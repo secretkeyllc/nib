@@ -155,7 +155,7 @@ Settings is a full-page destination with a searchable tab rail.
 
 ## Regenerating these frames
 
-Build the renderer, make sure `target/debug/pi-desktop-host-core` exists, create
+Build the renderer, make sure `target/debug/nib-host-core` exists, create
 `/tmp/codex-screens`, then run the app once per locale and publish each pass:
 
 ```bash

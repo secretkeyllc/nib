@@ -239,7 +239,7 @@ apps/desktop/          Electron app
   electron/main|preload|shared/
   src/                 React renderer (components, stores, lib, pages, hooks)
   test/                node --test suites
-crates/host-core/      Rust privileged host (binary pi-desktop-host-core)
+crates/host-core/      Rust privileged host (binary nib-host-core)
 packages/
   shared/              IPC/protocol contracts, error codes
   i18n/                UI catalogs

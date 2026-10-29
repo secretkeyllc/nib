@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 export type PiHostConfig = {
   dataDir: string;
-  /** Loopback bind address; `pi-host` refuses anything else. */
+  /** Loopback bind address; `nib-host` refuses anything else. */
   host: string;
   /** `0` picks a free port and prints it. */
   port: number;
@@ -32,18 +32,18 @@ function here(): string {
 export function hostCoreCandidates(root = here()): string[] {
   const exe = process.platform === "win32" ? ".exe" : "";
   return [
-    process.env.PI_HOST_CORE_BIN ?? "",
+    process.env.NIB_HOST_CORE_BIN ?? "",
     process.env.PI_DESKTOP_HOST_BIN ?? "",
-    join(root, `bin/pi-desktop-host-core${exe}`),
-    join(root, `../bin/pi-desktop-host-core${exe}`),
-    join(root, `../../../target/release/pi-desktop-host-core${exe}`),
-    join(root, `../../../target/debug/pi-desktop-host-core${exe}`),
+    join(root, `bin/nib-host-core${exe}`),
+    join(root, `../bin/nib-host-core${exe}`),
+    join(root, `../../../target/release/nib-host-core${exe}`),
+    join(root, `../../../target/debug/nib-host-core${exe}`),
   ].filter(Boolean);
 }
 
 export function sidecarCandidates(root = here()): string[] {
   return [
-    process.env.PI_HOST_SIDECAR ?? "",
+    process.env.NIB_HOST_SIDECAR ?? "",
     join(root, "agent-runtime/sidecar.js"),
     join(root, "../agent-runtime/sidecar.js"),
     join(root, "../../../packages/agent-runtime/dist-bundle/sidecar.js"),
@@ -82,22 +82,22 @@ export function parseArgs(argv: string[]): CliArgs {
 }
 
 export function resolveConfig(args: CliArgs, env: NodeJS.ProcessEnv = process.env): PiHostConfig {
-  const dataDir = resolve(String(args["data-dir"] ?? env.PI_DESKTOP_DATA_DIR ?? join(homedir(), ".pi-desktop")));
-  const port = Number(args.port ?? env.PI_HOST_PORT ?? DEFAULT_PORT);
+  const dataDir = resolve(String(args["data-dir"] ?? env.NIB_DESKTOP_DATA_DIR ?? join(homedir(), ".nib")));
+  const port = Number(args.port ?? env.NIB_HOST_PORT ?? DEFAULT_PORT);
   if (!Number.isInteger(port) || port < 0 || port > 65_535) {
-    throw Object.assign(new Error(`invalid port ${String(args.port ?? env.PI_HOST_PORT)}`), { errorCode: "INVALID_ARGUMENT" });
+    throw Object.assign(new Error(`invalid port ${String(args.port ?? env.NIB_HOST_PORT)}`), { errorCode: "INVALID_ARGUMENT" });
   }
-  const level = String(args["log-level"] ?? env.PI_HOST_LOG_LEVEL ?? "info");
+  const level = String(args["log-level"] ?? env.NIB_HOST_LOG_LEVEL ?? "info");
   return {
     dataDir,
-    host: String(args.host ?? env.PI_HOST_BIND ?? "127.0.0.1"),
+    host: String(args.host ?? env.NIB_HOST_BIND ?? "127.0.0.1"),
     port,
     hostCoreBinary: args["host-core"] ? resolve(String(args["host-core"])) : firstExisting(hostCoreCandidates(), "host-core binary"),
     sidecarEntry: args.sidecar ? resolve(String(args.sidecar)) : firstExisting(sidecarCandidates(), "agent sidecar entry"),
-    nodeBinary: String(args.node ?? env.PI_HOST_NODE ?? process.execPath),
+    nodeBinary: String(args.node ?? env.NIB_HOST_NODE ?? process.execPath),
     pair: args.pair === true || args.pair === "true",
     pairingLifetimeMs: Number(args["pairing-lifetime-ms"] ?? DEFAULT_PAIRING_LIFETIME_MS),
-    browseRoot: resolve(String(args["browse-root"] ?? env.PI_HOST_BROWSE_ROOT ?? homedir())),
+    browseRoot: resolve(String(args["browse-root"] ?? env.NIB_HOST_BROWSE_ROOT ?? homedir())),
     logLevel: level === "warn" || level === "error" ? level : "info",
   };
 }

@@ -27,7 +27,7 @@ export type StderrHandler = (text: string) => void;
 export type DiagnosedHostFailure = Error & { errorCode: string };
 
 export type HostProcessOptions = {
-  /** Absolute path of the `pi-desktop-host-core` binary to spawn. */
+  /** Absolute path of the `nib-host-core` binary to spawn. */
   binaryPath: string;
   /** Data directory handed to host-core as `PI_DESKTOP_DATA_DIR`. */
   dataDir: string;

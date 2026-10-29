@@ -28,7 +28,7 @@ export type HostLogger = {
 const LEVEL_RANK: Record<LogLevel, number> = { info: 0, warn: 1, error: 2 };
 
 /**
- * Structured NDJSON on stderr, mirrored to `<dataDir>/logs/pi-host.log`.
+ * Structured NDJSON on stderr, mirrored to `<dataDir>/logs/nib-host.log`.
  * stdout is reserved for the bootstrap handshake (the bound port and the
  * pairing token), so a supervisor can parse it without filtering log lines.
  */
@@ -39,11 +39,11 @@ export function createLogger(options: { dataDir: string; minLevel: LogLevel; std
   const write = (record: Record<string, unknown>) => {
     const line = `${JSON.stringify(record)}\n`;
     stderr.write(line);
-    void ready.then(() => appendFile(join(logDir, "pi-host.log"), line).catch(() => undefined));
+    void ready.then(() => appendFile(join(logDir, "nib-host.log"), line).catch(() => undefined));
   };
   const log = ((level, message, data) => {
     if (LEVEL_RANK[level] < LEVEL_RANK[options.minLevel]) return;
-    write({ ts: new Date().toISOString(), level, channel: "pi-host", message, ...(data ? { data: redactLogData(data) } : {}) });
+    write({ ts: new Date().toISOString(), level, channel: "nib-host", message, ...(data ? { data: redactLogData(data) } : {}) });
   }) as HostLogger;
   log.child = (channel) => (text) => {
     const output = text.trimEnd();

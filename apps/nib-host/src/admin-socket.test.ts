@@ -89,7 +89,7 @@ describe("provider import over the real owner-only admin socket", () => {
     host.rows.set(existing, { id: existing, name: "unrelated" } as ProviderPublic);
     const first = await cli(dataDir, JSON.stringify(payload()));
     expect(first.code).toBe(0);
-    const summary = JSON.parse(first.stdout.slice("PI_HOST_PROVIDERS ".length));
+    const summary = JSON.parse(first.stdout.slice("NIB_HOST_PROVIDERS ".length));
     const id = summary.imported[0].providerId as string;
     expect(summary.defaultSet).toBe(true);
     expect(host.rows.get(id)?.models).toEqual(payload().providers[0]!.input.models);
@@ -104,7 +104,7 @@ describe("provider import over the real owner-only admin socket", () => {
     expect(host.rows.size).toBe(2);
     expect(host.rows.get(existing)?.name).toBe("unrelated");
     expect(host.methods).not.toContain("providers.update");
-    const journal = await readFile(join(dataDir, "pi-host/provider-sync.json"), "utf8");
+    const journal = await readFile(join(dataDir, "nib-host/provider-sync.json"), "utf8");
     expect(journal).not.toContain("fixture-private-key");
     expect(JSON.stringify(logs) + first.stdout).not.toContain("fixture-private-key");
   });
@@ -171,7 +171,7 @@ describe("provider import over the real owner-only admin socket", () => {
     await chmod(unsafe, 0o755);
     await expect(startAdminSocket({ dataDir: unsafe, getHost: () => null })).rejects.toMatchObject({ code: "ADMIN_UNAVAILABLE" });
     const linked = await directory();
-    await symlink(join(dataDir, "pi-host"), join(linked, "pi-host"));
+    await symlink(join(dataDir, "nib-host"), join(linked, "nib-host"));
     await expect(startAdminSocket({ dataDir: linked, getHost: () => null })).rejects.toMatchObject({ code: "ADMIN_UNAVAILABLE" });
     await expect(sendAdminRequest(linked, payload())).rejects.toMatchObject({ code: "ADMIN_UNAVAILABLE" });
   });
@@ -195,7 +195,7 @@ describe("provider import over the real owner-only admin socket", () => {
     const child = spawn(process.execPath, ["-e", "const net=require('node:net');const fs=require('node:fs');net.createServer().listen(process.argv[1],()=>{fs.chmodSync(process.argv[1],0o600);process.stdout.write('ready');});", path], { stdio: ["ignore", "pipe", "pipe"] });
     try {
       await once(child.stdout, "data");
-      await writeFile(join(dataDir, "pi-host/admin.lock"), String(child.pid), { mode: 0o600 });
+      await writeFile(join(dataDir, "nib-host/admin.lock"), String(child.pid), { mode: 0o600 });
       const exited = once(child, "exit");
       child.kill("SIGKILL");
       await exited;
@@ -224,7 +224,7 @@ describe("provider import over the real owner-only admin socket", () => {
     await request;
     expect(host.rows.size).toBe(1);
     expect(host.methods).not.toContain("settings.set");
-    await expect(lstat(join(dataDir, "pi-host/admin.lock"))).rejects.toMatchObject({ code: "ENOENT" });
+    await expect(lstat(join(dataDir, "nib-host/admin.lock"))).rejects.toMatchObject({ code: "ENOENT" });
   });
 
   it("rejects an unsafe socket and malformed responses without returning their content", async () => {
@@ -248,7 +248,7 @@ describe("provider import over the real owner-only admin socket", () => {
     expect(idle.listenerCount("data")).toBe(0);
     idle.destroy();
     const { dataDir, host } = await fixture();
-    expect(await cli(dataDir, '{"fixture-private-key":')).toEqual({ code: 1, stdout: 'PI_HOST_FAILED {"code":"INVALID_REQUEST"}\n' });
+    expect(await cli(dataDir, '{"fixture-private-key":')).toEqual({ code: 1, stdout: 'NIB_HOST_FAILED {"code":"INVALID_REQUEST"}\n' });
     expect(host.methods).toEqual([]);
   });
 });

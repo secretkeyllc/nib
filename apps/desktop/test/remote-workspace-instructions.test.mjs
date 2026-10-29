@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 register(new URL("./helpers/ts-import-hooks.mjs", import.meta.url));
 const { loadRemoteWorkspaceInstructions } = await import("../electron/main/remote/remote-workspace-instructions.ts");
-const { createWorkspaceFiles } = await import("../../pi-host/src/workspace-files.ts");
+const { createWorkspaceFiles } = await import("../../nib-host/src/workspace-files.ts");
 
 test("local Agent configuration loads remote repository instructions after local defaults", async () => {
   const root = await mkdtemp(join(process.env.PI_SCRATCH_DIR ?? tmpdir(), "remote-instructions-"));

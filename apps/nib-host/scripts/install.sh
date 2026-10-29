@@ -28,16 +28,16 @@ verify() (
   [ -z "$(find . ! -type f ! -type d -print)" ]
   [ "$(find . -type f | wc -l | tr -d ' ')" = "$(($(wc -l < SHA256SUMS) + 1))" ]
   check
-  for executable in bin/node bin/pi-host bin/pi-desktop-host-core install.sh; do
+  for executable in bin/node bin/nib-host bin/nib-host-core install.sh; do
     [ -x "$executable" ]
   done
-  [ -f pi-host.js ]
+  [ -f nib-host.js ]
 )
 if [ "${1:-}" = "--verify" ]; then
   verify "$source_dir"
   exit 0
 fi
-root=${PI_HOST_INSTALL_DIR:-$HOME/.pi-desktop/pi-host}
+root=${NIB_HOST_INSTALL_DIR:-$HOME/.nib/nib-host}
 mkdir -p "$root"
 root=$(CDPATH= cd -- "$root" && pwd -P)
 # Linux locks are kernel-owned and release on crashes; no stale PID takeover.
@@ -76,4 +76,4 @@ fi
 [ ! -e "$root/current" ] || [ -L "$root/current" ]
 ln -s "$version" "$lock/current"
 NODE_OPTIONS= NODE_PATH= "$version/bin/node" --input-type=module -e 'import { renameSync } from "node:fs"; renameSync(process.argv[1], process.argv[2]);' "$lock/current" "$root/current"
-echo "PI_HOST_INSTALLED $version"
+echo "NIB_HOST_INSTALLED $version"

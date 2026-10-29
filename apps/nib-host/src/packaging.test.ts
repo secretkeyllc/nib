@@ -20,16 +20,16 @@ function write(path: string, content: string) {
 }
 
 function fixture() {
-  const root = mkdtempSync(join(process.env.PI_SCRATCH_DIR ?? tmpdir(), "pi-host-packaging-"));
+  const root = mkdtempSync(join(process.env.PI_SCRATCH_DIR ?? tmpdir(), "nib-host-packaging-"));
   temporaryDirectories.push(root);
-  const app = join(root, "apps/pi-host");
+  const app = join(root, "apps/nib-host");
   const runtime = join(root, "packages/agent-runtime/dist-bundle");
   const out = join(root, "release");
   const pty = join(app, "node_modules/node-pty");
   cpSync(scripts, join(app, "scripts"), { recursive: true });
   write(join(app, "package.json"), JSON.stringify({ version: "0.0.0-test", type: "module" }));
   write(join(app, "src/cli.ts"), 'console.log("fixture CLI");\n');
-  write(join(root, "target/release/pi-desktop-host-core"), "fixture host-core\n");
+  write(join(root, "target/release/nib-host-core"), "fixture host-core\n");
   write(join(runtime, "package.json"), JSON.stringify(runtimeManifest));
   write(join(runtime, "sidecar.js"), `
 import { marker } from "./chunks/shared.js";
@@ -68,7 +68,7 @@ afterEach(() => {
   for (const dir of temporaryDirectories.splice(0)) rmSync(dir, { recursive: true, force: true });
 });
 
-describe("pi-host packaging", () => {
+describe("nib-host packaging", () => {
   it("loads the copied entry and static/dynamic transitive chunks outside the workspace", () => {
     const f = fixture();
     const packaged = bundle(f);
@@ -152,7 +152,7 @@ describe("pi-host packaging", () => {
     const result = node(f.root, [join(f.app, "scripts/bundle.mjs"), "--node", selected, "--out", f.out]);
     expect(result.status, result.stderr).toBe(0);
     expect(readFileSync(join(f.out, "bin/node")).equals(readFileSync(selected))).toBe(true);
-    const launched = spawnSync(join(f.out, "bin/pi-host"), ["hello world"], { env: { ...process.env, PATH: "/usr/bin:/bin", NODE_OPTIONS: "" }, encoding: "utf8" });
+    const launched = spawnSync(join(f.out, "bin/nib-host"), ["hello world"], { env: { ...process.env, PATH: "/usr/bin:/bin", NODE_OPTIONS: "" }, encoding: "utf8" });
     expect(launched.status, launched.stderr).toBe(0);
     expect(JSON.parse(launched.stdout)).toEqual({ exec: join(f.out, "bin/node"), args: ["hello world"] });
   });
@@ -183,30 +183,30 @@ describe("pi-host packaging", () => {
     const f = fixture();
     expect(bundle(f).status).toBe(0);
     const root = join(f.root, "installed with spaces");
-    const install = () => spawnSync("/bin/sh", [join(f.out, "install.sh")], { env: { ...process.env, PI_HOST_INSTALL_DIR: root }, encoding: "utf8" });
+    const install = () => spawnSync("/bin/sh", [join(f.out, "install.sh")], { env: { ...process.env, NIB_HOST_INSTALL_DIR: root }, encoding: "utf8" });
     const first = install();
     expect(first.status, first.stderr).toBe(0);
     const original = readlinkSync(join(root, "current"));
     expect(original).toMatch(/sha256-[a-f0-9]{64}$/);
     expect(statSync(original).mode & 0o777).toBe(0o700);
-    for (const file of ["bin/node", "bin/pi-host", "bin/pi-desktop-host-core", "pi-host.js", "agent-runtime/assets/fixture.txt", "SHA256SUMS"]) {
+    for (const file of ["bin/node", "bin/nib-host", "bin/nib-host-core", "nib-host.js", "agent-runtime/assets/fixture.txt", "SHA256SUMS"]) {
       expect(readFileSync(join(original, file)).equals(readFileSync(join(f.out, file)))).toBe(true);
     }
     const before = statSync(join(original, "bin/node"));
     expect(install().status).toBe(0);
     expect(readlinkSync(join(root, "current"))).toBe(original);
     expect(statSync(join(original, "bin/node")).ino).toBe(before.ino);
-    write(join(f.out, "pi-host.js"), 'console.log("updated CLI");');
+    write(join(f.out, "nib-host.js"), 'console.log("updated CLI");');
     const failed = install();
     expect(failed.status).not.toBe(0);
     expect(readlinkSync(join(root, "current"))).toBe(original);
-    expect(readFileSync(join(original, "pi-host.js"), "utf8")).toContain("fixture CLI");
+    expect(readFileSync(join(original, "nib-host.js"), "utf8")).toContain("fixture CLI");
     writePackageManifest(f.out);
     expect(install().status).toBe(0);
     const updated = readlinkSync(join(root, "current"));
     expect(updated).not.toBe(original);
-    expect(readFileSync(join(original, "pi-host.js"), "utf8")).toContain("fixture CLI");
-    const launched = spawnSync(join(root, "current/bin/node"), [join(root, "current/pi-host.js")], { encoding: "utf8" });
+    expect(readFileSync(join(original, "nib-host.js"), "utf8")).toContain("fixture CLI");
+    const launched = spawnSync(join(root, "current/bin/node"), [join(root, "current/nib-host.js")], { encoding: "utf8" });
     expect(launched.status, launched.stderr).toBe(0);
     expect(launched.stdout.trim()).toBe("updated CLI");
     expect(readdirSync(root).filter((name) => name.startsWith(".stage") || name === ".install-lock")).toEqual([]);
@@ -217,13 +217,13 @@ describe("pi-host packaging", () => {
     const f = fixture();
     expect(bundle(f).status).toBe(0);
     const root = join(f.root, "must-not-exist");
-    const verify = () => spawnSync("/bin/sh", [join(f.out, "install.sh"), "--verify"], { env: { ...process.env, PI_HOST_INSTALL_DIR: root }, encoding: "utf8" });
+    const verify = () => spawnSync("/bin/sh", [join(f.out, "install.sh"), "--verify"], { env: { ...process.env, NIB_HOST_INSTALL_DIR: root }, encoding: "utf8" });
     const before = statSync(join(f.out, "bin/node"));
     const result = verify();
     expect(result.status, result.stderr).toBe(0);
     expect(existsSync(root)).toBe(false);
     expect(statSync(join(f.out, "bin/node")).ino).toBe(before.ino);
-    write(join(f.out, "pi-host.js"), "tampered");
+    write(join(f.out, "nib-host.js"), "tampered");
     expect(verify().status).not.toBe(0);
     expect(existsSync(root)).toBe(false);
   });
@@ -239,15 +239,15 @@ describe("pi-host packaging", () => {
       symlinkSync(found.stdout.trim(), join(path, tool));
     }
     const root = join(f.root, "installed");
-    const install = () => spawnSync("/bin/sh", [join(f.out, "install.sh")], { env: { ...process.env, PATH: path, PI_HOST_INSTALL_DIR: root }, encoding: "utf8" });
+    const install = () => spawnSync("/bin/sh", [join(f.out, "install.sh")], { env: { ...process.env, PATH: path, NIB_HOST_INSTALL_DIR: root }, encoding: "utf8" });
     const result = install();
     expect(result.status, result.stderr).toBe(0);
     const original = readlinkSync(join(root, "current"));
     // An already published damaged version must never be silently repaired in place.
-    write(join(original, "pi-host.js"), "damaged installed file");
+    write(join(original, "nib-host.js"), "damaged installed file");
     expect(install().status).not.toBe(0);
     expect(readlinkSync(join(root, "current"))).toBe(original);
-    expect(readFileSync(join(original, "pi-host.js"), "utf8")).toBe("damaged installed file");
+    expect(readFileSync(join(original, "nib-host.js"), "utf8")).toBe("damaged installed file");
   });
 
   it("preserves a non-symlink current directory on publication failure", () => {
@@ -255,7 +255,7 @@ describe("pi-host packaging", () => {
     expect(bundle(f).status).toBe(0);
     const root = join(f.root, "installed");
     write(join(root, "current/keep"), "old current");
-    const result = spawnSync("/bin/sh", [join(f.out, "install.sh")], { env: { ...process.env, PI_HOST_INSTALL_DIR: root }, encoding: "utf8" });
+    const result = spawnSync("/bin/sh", [join(f.out, "install.sh")], { env: { ...process.env, NIB_HOST_INSTALL_DIR: root }, encoding: "utf8" });
     expect(result.status).not.toBe(0);
     expect(statSync(join(root, "current")).isDirectory()).toBe(true);
     expect(readFileSync(join(root, "current/keep"), "utf8")).toBe("old current");
@@ -272,10 +272,10 @@ describe("pi-host packaging", () => {
     if (kind === "traversal") write(manifest, `${"0".repeat(64)}  ../outside\n`);
     if (kind === "duplicate") write(manifest, readFileSync(manifest, "utf8") + readFileSync(manifest, "utf8").split("\n")[0] + "\n");
     if (kind === "extra") write(join(f.out, "extra"), "unexpected");
-    if (kind === "missing") rmSync(join(f.out, "pi-host.js"));
+    if (kind === "missing") rmSync(join(f.out, "nib-host.js"));
     if (kind === "corrupt-node") write(join(f.out, "bin/node"), "corrupt runtime");
-    if (kind === "symlink") { rmSync(join(f.out, "pi-host.js")); symlinkSync(join(old, "keep"), join(f.out, "pi-host.js")); }
-    const result = spawnSync("/bin/sh", [join(f.out, "install.sh")], { env: { ...process.env, PI_HOST_INSTALL_DIR: root }, encoding: "utf8" });
+    if (kind === "symlink") { rmSync(join(f.out, "nib-host.js")); symlinkSync(join(old, "keep"), join(f.out, "nib-host.js")); }
+    const result = spawnSync("/bin/sh", [join(f.out, "install.sh")], { env: { ...process.env, NIB_HOST_INSTALL_DIR: root }, encoding: "utf8" });
     expect(result.status).not.toBe(0);
     expect(readlinkSync(join(root, "current"))).toBe(old);
     expect(readFileSync(join(old, "keep"), "utf8")).toBe("unchanged");

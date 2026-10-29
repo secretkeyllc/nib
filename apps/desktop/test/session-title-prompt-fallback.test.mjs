@@ -56,7 +56,7 @@ test("the fallback only fires for a still-untitled session the owning host can t
   assert.match(queueSlice, /isDefaultSessionTitle\(current\?\.title\)/);
   assert.match(queueSlice, /current\?\.source !== "pi-native"/);
   // A remote session derives on its own host through this same call — the
-  // backend router forwards it to the owning `pi-host` — so the gate must not
+  // backend router forwards it to the owning `nib-host` — so the gate must not
   // exclude remote ids: doing so left every remote task unnamed.
   assert.doesNotMatch(queueSlice, /!isRemoteSession\(/);
   assert.doesNotMatch(

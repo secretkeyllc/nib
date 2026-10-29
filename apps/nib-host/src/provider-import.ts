@@ -65,17 +65,17 @@ export async function runProviderImport(
 ): Promise<number> {
   try {
     if (argv.length !== 0 && !(argv.length === 2 && argv[0] === "--data-dir" && argv[1])) throw new ImportFailure("INVALID_REQUEST");
-    const dataDir = resolve(argv[1] ?? process.env.PI_DESKTOP_DATA_DIR ?? join(homedir(), ".pi-desktop"));
+    const dataDir = resolve(argv[1] ?? process.env.NIB_DESKTOP_DATA_DIR ?? join(homedir(), ".nib"));
     const raw = await readCapped(io.stdin);
     let payload: ProviderImportPayload;
     try { payload = parseProviderImportPayload(JSON.parse(raw)); } catch { throw new ImportFailure("INVALID_REQUEST"); }
     const { sendAdminRequest } = await import("./admin-socket.js");
     const response = await sendAdminRequest(dataDir, payload);
     if (!response.ok) throw new ImportFailure(response.code);
-    io.stdout.write(`PI_HOST_PROVIDERS ${JSON.stringify(response.summary)}\n`);
+    io.stdout.write(`NIB_HOST_PROVIDERS ${JSON.stringify(response.summary)}\n`);
     return 0;
   } catch (error) {
-    io.stdout.write(`PI_HOST_FAILED ${JSON.stringify({ code: importFailureCode(error) })}\n`);
+    io.stdout.write(`NIB_HOST_FAILED ${JSON.stringify({ code: importFailureCode(error) })}\n`);
     return 1;
   }
 }
@@ -141,7 +141,7 @@ async function saveJournal(path: string, journal: Journal): Promise<void> {
 /** Called only under the admin socket's single-import admission fence. */
 export async function importProviders(host: HostCaller, dataDir: string, input: ProviderImportPayload, signal: AbortSignal): Promise<ProviderImportSummary> {
   const payload = parseProviderImportPayload(input);
-  const path = join(dataDir, "pi-host", "provider-sync.json");
+  const path = join(dataDir, "nib-host", "provider-sync.json");
   const journal = await loadJournal(path);
   const summary: ProviderImportSummary = { imported: [], skipped: [], defaultSet: false };
   const check = () => { if (signal.aborted) throw new ImportFailure("TIMEOUT"); };

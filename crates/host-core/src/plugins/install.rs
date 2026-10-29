@@ -752,7 +752,7 @@ pub(crate) fn download_url_observed(
         "--max-filesize".into(),
         max_filesize,
         "--user-agent".into(),
-        "pi-desktop-host-core".into(),
+        "nib-host-core".into(),
     ];
     args.extend(crate::network_proxy::curl_proxy_args());
     args.extend(crate::network_proxy::curl_tls_args());
@@ -848,7 +848,7 @@ pub(crate) fn download_url_observed(
         stream.set_read_timeout(Some(Duration::from_secs(15)))?;
         stream.set_write_timeout(Some(Duration::from_secs(15)))?;
         let req = format!(
-        "GET {path} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\nUser-Agent: pi-desktop-host-core\r\nAccept: */*\r\n\r\n"
+        "GET {path} HTTP/1.1\r\nHost: {host}\r\nConnection: close\r\nUser-Agent: nib-host-core\r\nAccept: */*\r\n\r\n"
     );
         stream.write_all(req.as_bytes())?;
         let mut buf = Vec::new();

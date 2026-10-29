@@ -108,7 +108,7 @@ if (process.env.STORAGE_E2E_MODE === 'seed') {
       builder.onLoad({ filter: /.*/, namespace: "host-binary" }, () => ({ contents: "export function resolveHostBinary() { return process.env.PI_DESKTOP_HOST_BIN; }" }));
     } }],
   });
-  const hostBinary = process.env.PI_DESKTOP_HOST_BIN ?? join(root, "target/debug/pi-desktop-host-core");
+  const hostBinary = process.env.PI_DESKTOP_HOST_BIN ?? join(root, "target/debug/nib-host-core");
   async function launch(mode, extraEnv = {}) {
     const resultPath = join(scratch, "result.json");
     await rm(resultPath, { force: true });

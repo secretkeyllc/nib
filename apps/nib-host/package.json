@@ -1,11 +1,11 @@
 {
-  "name": "@pi-desktop/pi-host",
+  "name": "@nib/desktop-host",
   "version": "0.21.0",
   "private": true,
   "type": "module",
-  "description": "Headless PI Agent Host: RACP-WS server over the Agent Host module, the pi sidecar, and host-core",
+  "description": "Headless Nib Agent Host: RACP-WS server over the Agent Host module, the agent sidecar, and host-core",
   "bin": {
-    "pi-host": "./dist/cli.js"
+    "nib-host": "./dist/cli.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

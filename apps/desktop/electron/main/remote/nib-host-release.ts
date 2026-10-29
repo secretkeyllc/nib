@@ -11,33 +11,33 @@
  */
 
 /** Platforms the bootstrap can classify from `uname -s`. */
-export type PiHostPlatform = "linux" | "darwin";
+export type NibHostPlatform = "linux" | "darwin";
 /** Architectures the bootstrap can classify from `uname -m`. */
-export type PiHostArch = "x64" | "arm64";
+export type NibHostArch = "x64" | "arm64";
 
-export type PiHostTarget = {
-  platform: PiHostPlatform;
-  arch: PiHostArch;
+export type NibHostTarget = {
+  platform: NibHostPlatform;
+  arch: NibHostArch;
 };
 
 /**
- * Release-matrix parity. `release.yml`'s `pi-host-bundle` job publishes the
+ * Release-matrix parity. `release.yml`'s `nib-host-bundle` job publishes the
  * Linux architectures the desktop build matrix ships (x64 and arm64). A target
  * outside this list is refused with a typed failure instead of a 404 halfway
  * through a download.
  */
 const PUBLISHED_TARGETS: readonly string[] = ["linux-x64", "linux-arm64"];
 
-export function targetKey(target: PiHostTarget): string {
+export function targetKey(target: NibHostTarget): string {
   return `${target.platform}-${target.arch}`;
 }
 
-export function isPublishedTarget(target: PiHostTarget): boolean {
+export function isPublishedTarget(target: NibHostTarget): boolean {
   return PUBLISHED_TARGETS.includes(targetKey(target));
 }
 
 /** `uname -s` → a platform the release matrix can serve, or `null`. */
-export function platformFromUname(systemName: string): PiHostPlatform | null {
+export function platformFromUname(systemName: string): NibHostPlatform | null {
   const value = systemName.trim().toLowerCase();
   if (value === "linux") return "linux";
   if (value === "darwin") return "darwin";
@@ -45,7 +45,7 @@ export function platformFromUname(systemName: string): PiHostPlatform | null {
 }
 
 /** `uname -m` → an architecture the release matrix can serve, or `null`. */
-export function archFromUname(machine: string): PiHostArch | null {
+export function archFromUname(machine: string): NibHostArch | null {
   const value = machine.trim().toLowerCase();
   if (value === "x86_64" || value === "amd64") return "x64";
   if (value === "aarch64" || value === "arm64") return "arm64";
@@ -65,7 +65,7 @@ export function parseUnameOutput(stdout: string): { systemName: string; machine:
   return { systemName: lines[0] ?? "", machine: lines[1] ?? "" };
 }
 
-export function resolveTarget(stdout: string): PiHostTarget | null {
+export function resolveTarget(stdout: string): NibHostTarget | null {
   const { systemName, machine } = parseUnameOutput(stdout);
   const platform = platformFromUname(systemName);
   const arch = archFromUname(machine);
@@ -73,30 +73,32 @@ export function resolveTarget(stdout: string): PiHostTarget | null {
   return { platform, arch };
 }
 
-/** Directory name the tarball unpacks to, `bundle.mjs`'s `pi-host-<version>-<platform>-<arch>`. */
-export function piHostBundleDir(version: string, target: PiHostTarget): string {
-  return `pi-host-${version}-${targetKey(target)}`;
+/** Directory name the tarball unpacks to, `bundle.mjs`'s `nib-host-<version>-<platform>-<arch>`. */
+export function nibHostBundleDir(version: string, target: NibHostTarget): string {
+  return `nib-host-${version}-${targetKey(target)}`;
 }
 
-export function piHostArtifactName(version: string, target: PiHostTarget): string {
-  return `${piHostBundleDir(version, target)}.tar.gz`;
+export function nibHostArtifactName(version: string, target: NibHostTarget): string {
+  return `${nibHostBundleDir(version, target)}.tar.gz`;
 }
 
 /**
  * Where the Host artifact is published.
  *
- * Nib builds its own desktop, so the Host it installs must be Nib's build at
- * Nib's version — the upstream repository does not publish that version, and a
- * Host fetched from it runs code that predates this product's own behaviour
- * (which is how the folder picker ended up refusing paths the app allows).
+ * The Host is Nib's own program, built from this repository and released with
+ * it, so it is published from this repository's releases like any other build
+ * artifact. Fetching it from anywhere else would pair the desktop with a Host
+ * built from different code — which is how the folder picker once ended up
+ * refusing paths the app itself allows.
  *
- * `PI_HOST_ARTIFACT_BASE_URL` overrides the whole location, so a mirror or a
- * local test server works without rebuilding the app.
+ * `NIB_HOST_ARTIFACT_BASE_URL` overrides the location for a mirror or a local
+ * test server, without rebuilding the app.
  */
-const DEFAULT_RELEASE_BASE = "https://sknib.com/downloads/pi-host";
+const RELEASE_REPOSITORY = "secretkeyllc/nib";
+const DEFAULT_RELEASE_BASE = `https://github.com/${RELEASE_REPOSITORY}/releases/download`;
 
-export function piHostArtifactBase(version: string): string {
-  const override = process.env.PI_HOST_ARTIFACT_BASE_URL?.trim();
+export function nibHostArtifactBase(version: string): string {
+  const override = process.env.NIB_HOST_ARTIFACT_BASE_URL?.trim();
   if (override) {
     const base = override.replace(/\/+$/, "");
     // `{version}` keeps one setting usable across releases; without it the
@@ -110,12 +112,12 @@ export function piHostArtifactBase(version: string): string {
  * Release asset URLs. `release.yml` uploads both files to the `v<version>` tag,
  * so the desktop and the bootstrap script derive them without an API call.
  */
-export function piHostArtifactUrls(
+export function nibHostArtifactUrls(
   version: string,
-  target: PiHostTarget,
+  target: NibHostTarget,
 ): { tarball: string; checksum: string } {
-  const name = piHostArtifactName(version, target);
-  const base = piHostArtifactBase(version);
+  const name = nibHostArtifactName(version, target);
+  const base = nibHostArtifactBase(version);
   return { tarball: `${base}/${name}`, checksum: `${base}/${name}.sha256` };
 }
 

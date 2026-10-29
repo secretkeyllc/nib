@@ -33,7 +33,7 @@ fi
 
 APP="${APPS[0]}"
 DMG="${DMGS[0]}"
-HOST_CORE="$APP/Contents/Resources/bin/pi-desktop-host-core"
+HOST_CORE="$APP/Contents/Resources/bin/nib-host-core"
 
 echo "==> Inspecting Developer ID signature: $APP"
 SIGNATURE_INFO="$(codesign -dv --verbose=4 "$APP" 2>&1)"

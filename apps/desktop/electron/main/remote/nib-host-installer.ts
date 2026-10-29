@@ -1,11 +1,11 @@
 /** Remote-first install with one verified SSH-upload fallback, never tool replay. */
-import { buildBootstrapScript, parseBootstrapOutput, type PiHostBootstrapScriptInput } from "./pi-host-bootstrap-script.js";
+import { buildBootstrapScript, parseBootstrapOutput, type NibHostBootstrapScriptInput } from "./nib-host-bootstrap-script.js";
 import { uploadSshArtifact } from "./ssh-artifact-transfer.js";
 import type { SshExecResult, SshTransport } from "./ssh-transport.js";
 
 export async function installPiHost(
   transport: SshTransport,
-  input: PiHostBootstrapScriptInput,
+  input: NibHostBootstrapScriptInput,
   options: {
     timeoutMs: number; signal?: AbortSignal;
     uploadArtifact?: typeof uploadSshArtifact;

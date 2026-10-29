@@ -46,10 +46,10 @@ From the repository root, with the existing host toolchain/dependencies:
 pnpm build:js
 pnpm --filter @pi-desktop/agent-runtime bundle
 cargo build -p host-core --locked
-node apps/pi-host/scripts/bundle.mjs --host-core "$PWD/target/debug/pi-desktop-host-core" --out "$PWD/apps/pi-host/dist-bundle/candidate"
+node apps/pi-host/scripts/bundle.mjs --host-core "$PWD/target/debug/nib-host-core" --out "$PWD/apps/pi-host/dist-bundle/candidate"
 PI_HOST_E2E_BUNDLE="$PWD/apps/pi-host/dist-bundle/candidate" node scripts/e2e-remote-mvp.mjs
 node scripts/e2e-remote-mvp-ui.mjs
-PI_HOST_CORE_BINARY="$PWD/target/debug/pi-desktop-host-core" node scripts/e2e-local-agent-remote-tools.mjs
+PI_HOST_CORE_BINARY="$PWD/target/debug/nib-host-core" node scripts/e2e-local-agent-remote-tools.mjs
 ```
 
 Set `--out <directory>` to place the Host bundle elsewhere, and use the actual

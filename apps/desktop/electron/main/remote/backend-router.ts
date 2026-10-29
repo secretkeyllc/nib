@@ -1,7 +1,7 @@
 /**
  * Backend router: the single seam that decides whether a renderer IPC call is
  * served by this desktop's local host-core (the default, byte-for-byte
- * unchanged) or forwarded to a paired remote `pi-host` over RACP-WS.
+ * unchanged) or forwarded to a paired remote `nib-host` over RACP-WS.
  *
  * The frozen architecture keeps this out of the per-domain IPC handlers and out
  * of the God-modules: `register.ts` consults `route()` from inside its `handle`

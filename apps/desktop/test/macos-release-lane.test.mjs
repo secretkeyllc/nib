@@ -46,7 +46,7 @@ case "$*" in
     app="${repoRoot}/apps/desktop/release/mac-arm64/PI-Desktop.app"
     mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources/bin"
     : > "$app/Contents/MacOS/PI-Desktop"
-    : > "$app/Contents/Resources/bin/pi-desktop-host-core"
+    : > "$app/Contents/Resources/bin/nib-host-core"
     : > "${repoRoot}/apps/desktop/release/PI-Desktop-0.0.0-arm64.dmg"
     ;;
 esac

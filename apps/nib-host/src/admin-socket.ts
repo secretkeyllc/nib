@@ -19,14 +19,14 @@ export type AdminSocket = { path: string; close(): Promise<void> };
 type Log = (level: "info" | "warn", message: string, data?: Record<string, unknown>) => void;
 
 export function adminSocketPath(dataDir: string): string {
-  const path = join(dataDir, "pi-host", "admin.sock");
+  const path = join(dataDir, "nib-host", "admin.sock");
   // Relative paths also allow deeply nested isolated test data on macOS.
   const local = relative(process.cwd(), path);
   return Buffer.byteLength(local) < Buffer.byteLength(path) ? local : path;
 }
 export async function prepareAdminDirectory(dataDir: string): Promise<void> {
   if (process.platform === "win32" || !process.getuid) throw new ImportFailure("ADMIN_UNAVAILABLE");
-  for (const dir of [dataDir, join(dataDir, "pi-host")]) {
+  for (const dir of [dataDir, join(dataDir, "nib-host")]) {
     await mkdir(dir, { recursive: true, mode: 0o700 });
     const stat = await lstat(dir);
     if (!stat.isDirectory() || stat.uid !== process.getuid() || (stat.mode & 0o077) !== 0) throw new ImportFailure("ADMIN_UNAVAILABLE");
@@ -57,7 +57,7 @@ async function unlinkOwned(path: string, identity: { ino: number; dev: number })
 }
 /** Serializes socket ownership, including stale socket recovery, before host-core starts. */
 async function claim(dataDir: string): Promise<() => Promise<void>> {
-  const path = join(dataDir, "pi-host", "admin.lock");
+  const path = join(dataDir, "nib-host", "admin.lock");
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       const file = await open(path, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY | constants.O_NOFOLLOW, 0o600);
@@ -183,7 +183,7 @@ export async function sendAdminRequest(dataDir: string, input: ProviderImportPay
   const payload = parseProviderImportPayload(input);
   try {
     // Client checks only; it never creates a directory or starts a host.
-    for (const dir of [dataDir, join(dataDir, "pi-host")]) {
+    for (const dir of [dataDir, join(dataDir, "nib-host")]) {
       const stat = await lstat(dir);
       if (!stat.isDirectory() || stat.uid !== process.getuid?.() || (stat.mode & 0o077) !== 0) throw new ImportFailure("ADMIN_UNAVAILABLE");
     }

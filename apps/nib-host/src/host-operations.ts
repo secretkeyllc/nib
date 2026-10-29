@@ -42,7 +42,7 @@ function projectSummary(row: ProjectRow): RacpProjectSummary {
 export type HostOperationsDeps = {
   getHost: () => HostRpc | null;
   runtime: Pick<RuntimeService, "compact" | "isBusy">;
-  /** `pi-host` boots the sidecar's session cleanup on delete; the runtime link is optional at boot. */
+  /** `nib-host` boots the sidecar's session cleanup on delete; the runtime link is optional at boot. */
   disposeSession?: (sessionId: string) => Promise<void>;
   revokeDevice?: (deviceId: string) => Promise<boolean>;
   /** Root the folder picker may not leave; defaults to the user's home directory. */
@@ -277,7 +277,7 @@ export function createHostOperations(deps: HostOperationsDeps): Omit<RacpHostOpe
     workspaceFiles: createWorkspaceFiles(),
     workspacePluginFiles: createWorkspacePluginFiles({
       browseRoot: deps.browseRoot ?? homedir(),
-      protectedPaths: [deps.dataDir ?? join(homedir(), ".pi-desktop")],
+      protectedPaths: [deps.dataDir ?? join(homedir(), ".nib")],
       isRegisteredRoot: async (root) => {
         const host = requireHost(deps.getHost);
         const result = await host.call<{ projects: ProjectRow[] }>("projects.list", {}).catch(hostError);

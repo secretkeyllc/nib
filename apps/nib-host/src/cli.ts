@@ -2,11 +2,11 @@
 import { parseArgs, resolveConfig } from "./config.js";
 
 /**
- * `pi-host [--data-dir <dir>] [--port <n>] [--pair] [--host-core <bin>] [--sidecar <entry>]`
+ * `nib-host [--data-dir <dir>] [--port <n>] [--pair] [--host-core <bin>] [--sidecar <entry>]`
  *
  * stdout carries exactly the lines a bootstrap script parses:
- *   PI_HOST_READY {"hostId":..,"port":..,"version":..}
- *   PI_HOST_PAIRING_TOKEN {"token":..,"expiresAt":..}   (with --pair)
+ *   NIB_HOST_READY {"hostId":..,"port":..,"version":..}
+ *   NIB_HOST_PAIRING_TOKEN {"token":..,"expiresAt":..}   (with --pair)
  * Everything else is structured stderr.
  */
 async function main(): Promise<void> {
@@ -19,15 +19,15 @@ async function main(): Promise<void> {
   if (args.help === true) {
     process.stdout.write(
       [
-        "pi-host — headless PI Agent Host (RACP-WS on loopback)",
+        "nib-host — headless Nib Agent Host (RACP-WS on loopback)",
         "  provider-import          import selected providers from SSH stdin",
         "",
-        "  --data-dir <dir>          host data directory (default ~/.pi-desktop)",
+        "  --data-dir <dir>          host data directory (default ~/.nib)",
         "  --port <n>                loopback port (default 0 = pick free)",
         "  --host <addr>             bind address; loopback only",
         "  --pair                    print a single-use pairing token at start",
         "  --pairing-lifetime-ms <n> pairing token lifetime (default 600000)",
-        "  --host-core <path>        pi-desktop-host-core binary",
+        "  --host-core <path>        nib-host-core binary",
         "  --sidecar <path>          agent sidecar entry",
         "  --browse-root <dir>       folder-picker root (default home)",
         "  --log-level <level>       info | warn | error",
@@ -39,10 +39,10 @@ async function main(): Promise<void> {
   const config = resolveConfig(args);
   const { startPiHost } = await import("./app.js");
   const app = await startPiHost(config);
-  process.stdout.write(`PI_HOST_READY ${JSON.stringify({ hostId: app.hostId, host: app.address.host, port: app.address.port, version: (await import("@pi-desktop/shared")).APP_VERSION })}\n`);
+  process.stdout.write(`NIB_HOST_READY ${JSON.stringify({ hostId: app.hostId, host: app.address.host, port: app.address.port, version: (await import("@pi-desktop/shared")).APP_VERSION })}\n`);
   if (config.pair) {
     const pairing = await app.issuePairingToken(config.pairingLifetimeMs);
-    process.stdout.write(`PI_HOST_PAIRING_TOKEN ${JSON.stringify(pairing)}\n`);
+    process.stdout.write(`NIB_HOST_PAIRING_TOKEN ${JSON.stringify(pairing)}\n`);
   }
   const stop = (signal: string) => {
     app.log("info", "signal received", { signal });
@@ -60,7 +60,7 @@ async function main(): Promise<void> {
 
 main().catch((error) => {
   const code = (error as { errorCode?: string })?.errorCode ?? "INTERNAL";
-  process.stderr.write(`${JSON.stringify({ ts: new Date().toISOString(), level: "error", channel: "pi-host", message: "pi-host failed to start", data: { code, error: error instanceof Error ? error.message : String(error) } })}\n`);
-  process.stdout.write(`PI_HOST_FAILED ${JSON.stringify({ code })}\n`);
+  process.stderr.write(`${JSON.stringify({ ts: new Date().toISOString(), level: "error", channel: "nib-host", message: "nib-host failed to start", data: { code, error: error instanceof Error ? error.message : String(error) } })}\n`);
+  process.stdout.write(`NIB_HOST_FAILED ${JSON.stringify({ code })}\n`);
   process.exit(1);
 });

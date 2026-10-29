@@ -27,15 +27,15 @@ export function resolveHostBinary(): string {
   const exe = process.platform === "win32" ? ".exe" : "";
   const candidates = [
     // packaged resources
-    join(process.resourcesPath || "", `bin/pi-desktop-host-core${exe}`),
+    join(process.resourcesPath || "", `bin/nib-host-core${exe}`),
     // monorepo dev/build
     join(
       getModuleDirectory(import.meta.url),
-      `../../../../target/debug/pi-desktop-host-core${exe}`,
+      `../../../../target/debug/nib-host-core${exe}`,
     ),
     join(
       getModuleDirectory(import.meta.url),
-      `../../../../target/release/pi-desktop-host-core${exe}`,
+      `../../../../target/release/nib-host-core${exe}`,
     ),
   ];
   for (const c of candidates) {
