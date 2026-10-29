@@ -4,7 +4,7 @@
   "desktopName": "nib.desktop",
   "private": true,
   "description": "Nib — AI coding agent for your desktop",
-  "homepage": "https://github.com/vastsa/PI-Desktop",
+  "homepage": "https://sknib.com",
   "author": {
     "name": "Secret Key LLC",
     "email": "support@sknib.com"
@@ -145,7 +145,7 @@
       }
     ],
     "mac": {
-      "artifactName": "PI-Desktop-${version}-${arch}-mac.${ext}",
+      "artifactName": "Nib-${version}-${arch}-mac.${ext}",
       "target": [
         {
           "target": "dmg"
@@ -161,8 +161,8 @@
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
       "extendInfo": {
-        "NSLocalNetworkUsageDescription": "PI-Desktop needs local network access so agents can reach OpenAI-compatible providers, Ollama, and other AI endpoints running on your LAN. / PI-Desktop 需要本地网络访问权限，以便助手请求同一局域网中的 OpenAI 兼容服务、Ollama 等本地 AI 端点。",
-        "NSMicrophoneUsageDescription": "PI-Desktop uses the microphone for Live voice calls and authorized plugin audio access. / PI-Desktop 使用麦克风进行实时语音通话，以及你已授权的插件音频访问。",
+        "NSLocalNetworkUsageDescription": "Nib needs local network access so agents can reach OpenAI-compatible providers, Ollama, and other AI endpoints running on your LAN. / Nib 需要本地网络访问权限，以便助手请求同一局域网中的 OpenAI 兼容服务、Ollama 等本地 AI 端点。",
+        "NSMicrophoneUsageDescription": "Nib uses the microphone for Live voice calls and authorized plugin audio access. / Nib 使用麦克风进行实时语音通话，以及你已授权的插件音频访问。",
         "NSBonjourServices": [
           "_http._tcp",
           "_https._tcp"

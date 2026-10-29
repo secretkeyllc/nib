@@ -105,6 +105,7 @@ import { useUpdateState } from "../hooks/use-update-state";
 import { ProjectDeleteDialog } from "./ProjectDeleteDialog";
 import { ProjectEditDialog } from "./ProjectEditDialog";
 import { SessionRenameDialog } from "./SessionRenameDialog";
+import { NibAccountButton } from "../features/chat/composer/NibAccountButton";
 import {
   IconArchive,
   IconArchiveRestore,
@@ -2751,6 +2752,10 @@ export function Sidebar({
 
         <div className="sidebar-footer no-drag">
           <div className="footer-actions">
+            {/* Account first: Nib is sold as a subscription, so "who am I and
+                what plan is this" belongs ahead of settings, the way Codex and
+                zcode order it. */}
+            <NibAccountButton />
             <TooltipButton
               type="button"
               className={`footer-action ${page === "settings" ? "active" : ""}`}

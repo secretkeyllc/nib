@@ -65,3 +65,6 @@ worktrees
 apps/desktop/release/
 apps/desktop/out/
 target/
+
+# Test scratch directories
+.artifacts/

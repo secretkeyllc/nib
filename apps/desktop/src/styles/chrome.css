@@ -1398,11 +1398,11 @@
   gap: 6px;
   margin-right: 8px;
   padding: 3px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   border: 1px solid var(--ds-border-subtle);
   background: var(--ds-tile);
-  font-size: 0.74rem;
-  line-height: 1.4;
+  font-size: var(--text-xs);
+  line-height: var(--leading-compact-plus);
   white-space: nowrap;
   color: var(--ds-text-muted);
 }
@@ -1414,5 +1414,24 @@
 .conversation-topbar .ct-nib-count {
   color: var(--ds-text);
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
+}
+
+/* Announcements from the admin console sit above task outcomes: same list
+ * rhythm, different accent so a maintenance notice is not mistaken for a
+ * failed run. */
+.notification-section-label {
+  padding: 4px 2px 6px;
+  color: var(--ds-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: none;
+}
+
+.notification-item.is-announcement {
+  cursor: default;
+}
+
+.notification-kind-icon.is-announcement {
+  color: var(--ds-accent, var(--ds-text-secondary));
 }

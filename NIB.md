@@ -15,6 +15,23 @@ upstream manageable and keeps the LGPL-covered surface small.
 | Publisher | `build.publish` points at the Nib release channel |
 | Provider | `resources/plugins/nib.provider` — Nib as an OAuth provider with device-code sign-in |
 | Usage panel | same plugin, `views/usage.html` — plan, credits and limits |
+| Account menu | `src/features/chat/composer/NibAccountButton.tsx` — sidebar account, plan and preferences |
+| Brand marks | `build/icon*.{png,ico,icns}`, `resources/{icon,tray-icon-*}.png`, `src/assets/brand/` all derive from the Nib logo |
+
+## Product differences from upstream
+
+Nib is account-first. Where upstream treats every model service as something
+the user added, Nib ships one:
+
+| Surface | Behaviour |
+|---|---|
+| Sidebar footer | an account button before settings: plan, credits, sign in/out, language, appearance |
+| Model settings | the Nib row carries the app mark, no "Plugin" badge, and counts the gateway catalogue rather than the fallback list |
+| Composer model menu | a "current model" section above recents, readable model names, reasoning levels on every row |
+| Credits chip | `left/total` only; a popover with today / week / month meters, matching the context inspector |
+| Context ring | the arc fills with the share of the window *used*, so empty means nothing spent |
+| Notifications | admin announcements appear above task outcomes |
+| Sign-in | the browser opens on the approval page with the code already in the URL; the code is never shown |
 
 ## The Nib provider plugin
 

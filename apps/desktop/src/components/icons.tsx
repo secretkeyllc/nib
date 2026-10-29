@@ -65,6 +65,7 @@ import {
   PanelRight,
   PanelRightOpen,
   Maximize2,
+  Megaphone,
   Minimize2,
   PawPrint,
   PhoneOff,
@@ -244,6 +245,7 @@ export const IconInfo = icon(Info);
 export const IconServer = icon(Server);
 export const IconSun = icon(Sun);
 export const IconMoon = icon(Moon);
+export const IconMegaphone = icon(Megaphone);
 export const IconMonitor = icon(Monitor);
 export const IconPet = icon(PawPrint);
 export const IconSnapshot = icon(RotateCw);

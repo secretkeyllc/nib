@@ -81,7 +81,10 @@ export function serviceRowBadges(
   if (!provider.enabled) {
     badges.push({ key: "disabled", label: t("settings.providerDisabledBadge"), tone: "neutral" });
   }
-  if (kind === "plugin" || provider.ownerPluginId) {
+  // Bundled rows (Nib itself) are not something the user installed, removed or
+  // manages: showing "Plugin" beside the product's own name reads as a
+  // limitation of the account rather than the way the client ships it.
+  if ((kind === "plugin" || provider.ownerPluginId) && !isBundledProvider(provider)) {
     badges.push({
       key: "plugin",
       label: t("settings.pluginProviderBadge"),
@@ -100,9 +103,19 @@ export function serviceRowBadges(
  * serves. An account has no endpoint worth showing, and a signed-out one says
  * what to do instead.
  */
-export function serviceRowMeta(provider: ProviderPublic, t: Translate): string[] {
+export function serviceRowMeta(
+  provider: ProviderPublic,
+  t: Translate,
+  /**
+   * Models the gateway actually serves. A bundled provider declares a small
+   * fallback list and discovers the real catalogue at sign-in, so counting
+   * `provider.models` understates it by an order of magnitude.
+   */
+  discoveredCount?: number,
+): string[] {
   const kind = serviceRowKind(provider);
-  const models = t("settings.providerModelCount", { count: provider.models?.length ?? 0 });
+  const count = Math.max(discoveredCount ?? 0, provider.models?.length ?? 0);
+  const models = t("settings.providerModelCount", { count });
   if (kind === "account") {
     return provider.hasOauth ? [models] : [t("settings.vendorDisconnectedDesc")];
   }
@@ -127,4 +140,15 @@ export function hostFromBaseUrl(baseUrl?: string | null): string {
   } catch {
     return baseUrl.replace(/^https?:\/\//, "").split("/")[0] || baseUrl;
   }
+}
+
+/**
+ * Rows the app ships with, as opposed to ones the user added or installed.
+ *
+ * The Nib provider is delivered as a bundled plugin so it can use the same
+ * provider API as a marketplace plugin; to the user it is simply the product's
+ * account, and every plugin-shaped label on it would be misleading.
+ */
+export function isBundledProvider(provider: ProviderPublic): boolean {
+  return provider.ownerPluginId === "nib.provider";
 }

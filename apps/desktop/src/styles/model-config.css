@@ -1688,7 +1688,13 @@
 
 /* Dim the identity of a disabled row but keep its switch fully legible. */
 .model-provider-row.is-disabled > .service-monogram,
-.model-provider-row.is-disabled > .model-provider-row-copy {
+.model-provider-row.is-disabled > /* The product's own account shows the app mark instead of a letter. */
+.service-monogram.is-brand {
+  background: transparent;
+  box-shadow: none;
+}
+
+.model-provider-row-copy {
   opacity: 0.55;
 }
 

@@ -8,8 +8,9 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { portalToBody } from "../lib/portal-visibility";
-import type { AppNotification } from "@pi-desktop/shared";
+import type { AppNotification, NibAnnouncement } from "@pi-desktop/shared";
 import { useTranslation } from "react-i18next";
+import { api } from "../lib/api";
 import { useAppStore } from "../stores/app-store";
 import {
   inboxNotifications,
@@ -20,6 +21,7 @@ import {
   IconCheckCheck,
   IconCircleAlert,
   IconCircleCheck,
+  IconMegaphone,
   IconTrash,
 } from "./icons";
 import { TooltipButton } from "./ui";
@@ -86,6 +88,12 @@ export function NotificationCenter({
   const openNotification = useAppStore((state) => state.openNotification);
   const showToast = useAppStore((state) => state.showToast);
 
+  // Admin announcements live beside task outcomes but are not task outcomes:
+  // they come from the control plane, are authored by staff, and are read (not
+  // dismissed). Keeping them in a separate section avoids pretending a
+  // maintenance notice belongs to a session.
+  const [announcements, setAnnouncements] = useState<NibAnnouncement[]>([]);
+  const [announcementsBusy, setAnnouncementsBusy] = useState(false);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState<NotificationFilter>("all");
@@ -127,6 +135,16 @@ export function NotificationCenter({
     place();
     window.addEventListener("resize", place);
     return () => window.removeEventListener("resize", place);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    setAnnouncementsBusy(true);
+    void api
+      .nibAnnouncements()
+      .then(setAnnouncements)
+      .catch(() => setAnnouncements([]))
+      .finally(() => setAnnouncementsBusy(false));
   }, [open]);
 
   useEffect(() => {
@@ -309,6 +327,47 @@ export function NotificationCenter({
             ))}
           </div>
 
+          {announcements.length > 0 ? (
+            <section className="notification-announcements" aria-label={t("notifications.announcements")}>
+              <div className="notification-section-label">
+                {t("notifications.announcements")}
+              </div>
+              <ul className="notification-list">
+                {announcements.map((announcement) => (
+                  <li key={`announcement-${announcement.id}`}>
+                    <div
+                      className={`notification-item is-announcement${announcement.readAt ? "" : " unread"}`}
+                      aria-busy={announcementsBusy}
+                    >
+                      <span className="notification-kind-icon is-announcement" aria-hidden>
+                        <IconMegaphone size={17} />
+                      </span>
+                      <span className="notification-copy">
+                        <span className="notification-item-title">{announcement.title}</span>
+                        {announcement.content ? (
+                          <span className="notification-item-body">{announcement.content}</span>
+                        ) : null}
+                      </span>
+                      <time
+                        className="notification-time"
+                        dateTime={announcement.createdAt}
+                      >
+                        {formatRelativeTime(
+                          announcement.createdAt,
+                          i18n.resolvedLanguage || i18n.language,
+                          t("notifications.justNow"),
+                        )}
+                      </time>
+                      {!announcement.readAt ? (
+                        <span className="notification-unread-dot" aria-hidden />
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
           {visibleNotifications.length > 0 ? (
             <ul className="notification-list">
               {visibleNotifications.map((notification) => {
@@ -368,7 +427,7 @@ export function NotificationCenter({
                 );
               })}
             </ul>
-          ) : (
+          ) : announcements.length === 0 ? (
             <div className="notification-empty" role="status">
               <IconBell size={22} aria-hidden />
               <strong>
@@ -386,7 +445,7 @@ export function NotificationCenter({
                 )}
               </span>
             </div>
-          )}
+          ) : null}
             </div>,
           )
         : null}

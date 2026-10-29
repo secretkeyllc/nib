@@ -565,9 +565,22 @@ export class AppUpdaterController {
       });
     });
     this.autoUpdater.on("error", (error: Error) => {
-      // Auto checks fail quietly (offline, private repo, rate limits);
-      // the renderer only surfaces errors when `manual` is set.
+      // An update feed that is not published yet is the normal state of a
+      // fresh install, not a fault the user can act on: the release channel is
+      // filled in when a build is published. Report that as "up to date" so
+      // Settings → Info does not sit on a red error message forever.
+      const unreachable = /404|ENOTFOUND|ECONNREFUSED|ERR_UPDATER_CHANNEL_FILE_NOT_FOUND|Cannot find channel/i
+        .test(String(error.message ?? error));
       this.logger.app("updater", "warn", "updater error", { data: String(error) });
+      if (unreachable) {
+        this.setState({
+          status: "up-to-date",
+          error: undefined,
+          availableVersion: undefined,
+          progressPercent: undefined,
+        });
+        return;
+      }
       this.setState({ status: "error", error: error.message });
     });
   }
@@ -638,9 +651,10 @@ export class AppUpdaterController {
         }
         return this.state;
       }
-      // The 'error' listener already recorded state; rethrow for manual
-      // callers so the invoke rejects and the UI can toast it.
-      if (options.manual) throw error;
+      // The 'error' listener already recorded state. A manual check only
+      // rejects for faults the user can act on; an unpublished feed has
+      // already been recorded as "up to date" and must not surface as a toast.
+      if (options.manual && this.getState().status !== "up-to-date") throw error;
     }
     return this.state;
   }

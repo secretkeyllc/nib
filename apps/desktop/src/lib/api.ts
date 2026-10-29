@@ -2,6 +2,7 @@ import { projectPlanHistory } from "./plan-history";
 import { guardRemoteInvocation } from "./remote-ipc-safety";
 import { isRemoteSession, safeSessionSummary } from "./remote-session-safety";
 import type {
+  NibAnnouncement,
   NibEntitlement,
   ConfigSyncTestInput,
   ConfigSyncTestResult,
@@ -1487,6 +1488,12 @@ export const api = {
   listPluginViews: () => invoke<PluginViewMeta[]>(IPC.invoke.pluginViews),
   /** Nib plan and credits for the signed-in account; never throws. */
   nibEntitlement: () => invoke<NibEntitlement>(IPC.invoke.nibEntitlement),
+  /** Open the Nib web console in the system browser. */
+  openConsole: () => invoke<{ ok: boolean }>(IPC.invoke.nibOpenConsole),
+  /** Sign out locally: drop the provider key and the control-plane token. */
+  nibSignOut: () => invoke<{ ok: boolean }>(IPC.invoke.nibSignOut),
+  /** Announcements the admin console published for this account. */
+  nibAnnouncements: () => invoke<NibAnnouncement[]>(IPC.invoke.nibAnnouncements),
   /** Create or reuse the view's web contents. Does not show it. */
   pluginViewOpen: (
     pluginId: string,

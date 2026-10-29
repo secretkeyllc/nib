@@ -200,13 +200,38 @@ test("a configured alias labels its row while displayName shows the wire id", ()
   assert.equal(composerModelMatchesQuery(models[0], "provider", "DeepSeek V4 Pro", "pro"), false);
 });
 
-test("a catalog friendly name never replaces the selected wire id without an alias", () => {
+test("an id with no alias and no published name renders as a readable label", () => {
+  // The wire id stays the identity (row title, request body); the label is a
+  // presentation transform, so a namespaced id keeps its namespace and gains
+  // capitalisation.
   assert.equal(
     composerModelDisplayName(
       { id: "custom", models: [binding("ag/claude-sonnet-4-6")] },
       "ag/claude-sonnet-4-6",
     ),
-    "ag/claude-sonnet-4-6",
+    "ag/Claude Sonnet 4.6",
+  );
+});
+
+test("a published name wins over the id-derived label", () => {
+  assert.equal(
+    composerModelDisplayName(
+      { id: "custom", models: [binding("claude-haiku-4-5-20251001")] },
+      "claude-haiku-4-5-20251001",
+      "Claude Haiku 4.5",
+    ),
+    "Claude Haiku 4.5",
+  );
+});
+
+test("a published name that merely repeats the id is not a name", () => {
+  assert.equal(
+    composerModelDisplayName(
+      { id: "custom", models: [binding("gpt-6-astra")] },
+      "gpt-6-astra",
+      "gpt-6-astra",
+    ),
+    "GPT 6 Astra",
   );
 });
 test("a configured alias is visible before discovery data is available", () => {
@@ -265,7 +290,7 @@ test("a blank alias leaves the wire id as display name", () => {
       { id: "deepseek", models: [{ ...binding("deepseek-v4-pro"), alias: "   " }] },
       "deepseek-v4-pro",
     ),
-    "deepseek-v4-pro",
+    "DeepSeek V4 Pro",
   );
 });
 
@@ -376,7 +401,8 @@ test("legacy unprefixed selection does not borrow a prefixed route's metadata", 
   assert.equal(rows[0].displayName, "proxy/model");
   assert.deepEqual(rows[0].capabilities, ["text"]);
   assert.equal(composerModelBinding(provider, "model"), undefined);
-  assert.equal(composerModelDisplayName(provider, "model"), "model");
+  // Unbound ids still get a readable label; identity stays the wire id.
+  assert.equal(composerModelDisplayName(provider, "model"), "Model");
 });
 
 test("discovery rows without a trusted match keep the full ladder after loading", () => {

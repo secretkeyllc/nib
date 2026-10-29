@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Derive PI-Desktop platform icon resources from the canonical logo.
+"""Derive Nib platform icon resources from the canonical logo.
 
 The tracked ``apps/desktop/build/icon_1024.png`` file is the brand source of
 truth. This script preserves that file and emits:
@@ -9,6 +9,7 @@ truth. This script preserves that file and emits:
   apps/desktop/build/icon.ico       - multi-size Windows application icon
   apps/desktop/build/icon.png       - 512px Windows/Linux package icon
   apps/desktop/build/tray-icon-mac.png - transparent macOS template icon
+  apps/desktop/resources/{icon,tray-icon-32,tray-icon-64}.png - runtime copies
 
 Run: python3 scripts/make-icon.py
 """
@@ -57,34 +58,54 @@ def main() -> None:
     master.resize((512, 512), Image.LANCZOS).save(package_icon)
 
     # macOS menu bar icons are template images: the opaque pixels are tinted
-    # by the system. The application icon has an opaque light tile, so using
-    # it directly would turn that tile into the tray silhouette. Derive the
-    # dark PI mark as a transparent, monochrome image instead.
-    tray_icon = master.convert("L")
-    tray_alpha = ImageChops.multiply(
-        tray_icon.point(
-            lambda luminance: max(0, min(255, (160 - luminance) * 255 // 80))
-        ),
-        master.getchannel("A"),
+    # by the system. The application icon has an opaque dark tile, so using it
+    # directly would turn that tile into the tray silhouette. Derive the white
+    # mark as a transparent, monochrome image instead.
+    #
+    # The Nib mark is light artwork on a dark tile, so the silhouette is the
+    # *light* pixels rather than the dark ones the previous brand used.
+    tray_alpha = master.convert("L").point(
+        lambda luminance: max(0, min(255, (luminance - 96) * 255 // 80))
     )
-    # The source artwork also contains a soft outline around its light app
-    # tile. Keep the known PI mark area so that outline cannot leak into the
-    # menu bar template silhouette.
-    mark_clip = Image.new("L", master.size, 0)
-    mark_draw = ImageDraw.Draw(mark_clip)
-    mark_draw.rectangle((120, 115, 850, 800), fill=255)
-    mark_draw.rectangle((120, 115, 250, 250), fill=0)
-    tray_alpha = ImageChops.multiply(tray_alpha, mark_clip)
+    tray_alpha = ImageChops.multiply(tray_alpha, master.getchannel("A"))
     tray_icon_mac = Image.new("RGBA", master.size, (0, 0, 0, 0))
     tray_icon_mac.putalpha(tray_alpha)
     mark_bounds = tray_alpha.getbbox()
     if mark_bounds is None:
-        raise ValueError("canonical logo does not contain a dark PI mark")
+        raise ValueError("canonical logo does not contain a light Nib mark")
     mark = tray_icon_mac.crop(mark_bounds).resize((768, 768), Image.LANCZOS)
     tray_icon_mac = Image.new("RGBA", master.size, (0, 0, 0, 0))
     tray_icon_mac.paste(mark, (128, 128), mark)
     tray_icon_mac_path = BUILD / "tray-icon-mac.png"
     tray_icon_mac.save(tray_icon_mac_path)
+
+    # Runtime copies. The packaged app reads tray-icon.png / icon.png from
+    # resources/, and dev builds read icon.png, so both must be regenerated
+    # from the same master or a stale mark survives a rebrand.
+    resources = ROOT / "apps" / "desktop" / "resources"
+    resources.mkdir(parents=True, exist_ok=True)
+    master.resize((512, 512), Image.LANCZOS).save(resources / "icon.png")
+    # Tray icons are template images too: transparent background, dark mark,
+    # so the OS supplies the tint for light and dark menu bars.
+    tray_small = Image.new("RGBA", master.size, (0, 0, 0, 0))
+    inverse_alpha = ImageChops.multiply(
+        master.convert("L").point(
+            lambda luminance: max(0, min(255, (luminance - 96) * 255 // 80))
+        ),
+        master.getchannel("A"),
+    )
+    tray_small.putalpha(inverse_alpha)
+    bounds = inverse_alpha.getbbox()
+    if bounds is None:
+        raise ValueError("canonical logo does not contain a light Nib mark")
+    square = max(bounds[2] - bounds[0], bounds[3] - bounds[1])
+    tray_canvas = Image.new("L", (square, square), 0)
+    cropped = inverse_alpha.crop(bounds)
+    tray_canvas.paste(cropped, ((square - cropped.width) // 2, (square - cropped.height) // 2))
+    for size in (32, 64):
+        glyph = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        glyph.putalpha(tray_canvas.resize((size, size), Image.LANCZOS))
+        glyph.save(resources / f"tray-icon-{size}.png")
 
     iconset = BUILD / "icon.iconset"
     if iconset.exists():

@@ -52,6 +52,7 @@ export function ComposerModelPicker({
     modelListRef,
     modelGroups,
     recentEntries,
+    currentEntry,
     thinkingMenuLevels,
     selectModel,
     commitThinkingLevel,
@@ -113,7 +114,8 @@ export function ComposerModelPicker({
           t={t} query={query} setQuery={setQuery}
           modelSearchRef={modelSearchRef} modelListRef={modelListRef}
           modelGroups={modelGroups} modelHighlight={modelHighlight}
-          recentEntries={recentEntries} hasOtherModels={hasOtherModels}
+          recentEntries={recentEntries} currentEntry={currentEntry}
+          hasOtherModels={hasOtherModels}
           otherModelsExpanded={otherModelsExpanded}
           setOtherModelsExpanded={setOtherModelsExpanded}
           setModelHighlight={setModelHighlight} selectModel={selectModel}

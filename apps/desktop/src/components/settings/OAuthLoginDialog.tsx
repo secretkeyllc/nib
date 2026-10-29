@@ -20,6 +20,8 @@ type AuthUrlState = { url: string; instructions?: string; opened: boolean };
 type DeviceCodeState = {
   userCode: string;
   verificationUri: string;
+  /** The host already opened the approval page with the code embedded. */
+  opened: boolean;
 };
 
 export function OAuthLoginDialog({
@@ -69,6 +71,7 @@ export function OAuthLoginDialog({
           setDeviceCode({
             userCode: event.userCode,
             verificationUri: event.verificationUri,
+            opened: event.opened === true,
           });
           break;
         case "prompt":
@@ -201,31 +204,25 @@ export function OAuthLoginDialog({
 
         {deviceCode ? (
           <div className="oauth-block">
+            {/*
+              The browser already opened on the approval page with the code in
+              the URL, so the code is not shown: it is an implementation detail
+              the user should never have to transcribe. When the browser could
+              not be launched the link is still here, carrying the same code.
+            */}
             <div className="oauth-block-text">
-              {t("settings.vendorDeviceCodeHint")}
+              {deviceCode.opened
+                ? t("settings.vendorApproveInBrowser")
+                : t("settings.vendorBrowserFailed")}
             </div>
-            <TooltipButton
-              type="button"
-              className="oauth-device-code font-mono"
-              tooltip={t("settings.vendorCopyCode")}
-              ariaLabel={t("settings.vendorCopyCode")}
-              onClick={() => copy(deviceCode.userCode)}
-            >
-              <span>{deviceCode.userCode}</span>
-              {copied === deviceCode.userCode ? (
-                <IconCheck size={14} />
-              ) : (
-                <IconCopy size={14} />
-              )}
-            </TooltipButton>
             <a
               className="oauth-link"
-              href={deviceCode.verificationUri}
+              href={`${deviceCode.verificationUri}${deviceCode.verificationUri.includes("?") ? "&" : "?"}code=${encodeURIComponent(deviceCode.userCode)}`}
               target="_blank"
               rel="noreferrer"
             >
               <IconExternal size={13} />
-              <span>{deviceCode.verificationUri}</span>
+              <span>{t("settings.vendorOpenApprovalPage")}</span>
             </a>
           </div>
         ) : null}

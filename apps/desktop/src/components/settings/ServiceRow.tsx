@@ -14,7 +14,9 @@ import type { ProviderPublic } from "@pi-desktop/shared";
 import { Badge, Button, Field, Input, SettingsToggle, cx } from "../ui";
 import { CapabilityRowMenu, type CapabilityMenuItem } from "./AgentCapabilityLayout";
 import { ServiceMonogram } from "./ServiceMonogram";
+import { useAppStore } from "../../stores/app-store";
 import {
+  isBundledProvider,
   serviceRowBadges,
   serviceRowKind,
   serviceRowMeta,
@@ -73,7 +75,12 @@ export function ServiceRow({
   const kind = serviceRowKind(provider);
   const title = serviceRowTitle(provider, entry, t);
   const badges = serviceRowBadges(provider, { isDefault, entry }, t);
-  const meta = serviceRowMeta(provider, t);
+  // The gateway catalogue is the real model count for a bundled provider; the
+  // row's own list is only the fallback used before the first sign-in.
+  const discoveredCount = useAppStore((state) =>
+    state.providerModels[provider.id]?.length,
+  );
+  const meta = serviceRowMeta(provider, t, discoveredCount);
   // Read at pointerdown, before the outside press has closed the menu.
   const menuWasOpen = useRef(false);
   const { onPointerDown, onClickCapture, onKeyDown, ...reorderAttributes } = reorderEvents;
@@ -123,7 +130,7 @@ export function ServiceRow({
         onOpen();
       }}
     >
-      <ServiceMonogram name={title.name} />
+      <ServiceMonogram name={title.name} bundled={isBundledProvider(provider)} />
       <div className="model-provider-row-copy">
         <div className="model-provider-row-title">
           <span className="model-provider-row-name">{title.name}</span>

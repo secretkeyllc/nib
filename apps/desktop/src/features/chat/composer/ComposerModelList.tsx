@@ -20,8 +20,15 @@ export type ComposerModelGroup = {
 export function ComposerModelList({
   t, query, setQuery, modelSearchRef, modelListRef, modelGroups,
   modelHighlight, setModelHighlight, selectedProviderId, selectedModelId, selectModel,
-  recentEntries, hasOtherModels, otherModelsExpanded, setOtherModelsExpanded,
+  currentEntry, recentEntries, hasOtherModels, otherModelsExpanded, setOtherModelsExpanded,
 }: {
+  /**
+   * The model this conversation is on, resolved against the visible groups.
+   * It gets its own section above recents: with dozens of models plus search,
+   * the checked row is easy to lose, and "which model am I on" is the first
+   * question this menu has to answer.
+   */
+  currentEntry?: { provider: ProviderPublic; model: ModelInfo } | null;
   recentEntries: Array<{ provider: ProviderPublic; model: ModelInfo }>;
   hasOtherModels: boolean;
   otherModelsExpanded: boolean;
@@ -39,6 +46,15 @@ export function ComposerModelList({
   selectModel: (provider: ProviderPublic, modelId: string) => void | Promise<void>;
 }) {
   const flatModels = modelGroups.flatMap(group => group.models);
+  const currentKey = currentEntry
+    ? `${currentEntry.provider.id}:${currentEntry.model.modelId}`
+    : null;
+  // Recents never repeat the row pinned above them.
+  const recentWithoutCurrent = currentKey
+    ? recentEntries.filter(
+        ({ provider, model }) => `${provider.id}:${model.modelId}` !== currentKey,
+      )
+    : recentEntries;
   return <>
               <label className="composer-model-search">
                 <IconSearch size={13} aria-hidden="true" />
@@ -57,22 +73,45 @@ export function ComposerModelList({
                 />
               </label>
               <div className="composer-model-list" ref={modelListRef}>
-                {recentEntries.length > 0 ? (
+                {currentEntry ? (
+                  <div className="composer-model-group" role="group" aria-label={t("chat.currentModel")}>
+                    <div className="composer-model-group-label">{t("chat.currentModel")}</div>
+                    <button
+                      type="button" role="menuitemradio" aria-checked="true"
+                      data-model-index={0}
+                      className={`composer-plus-item composer-model-option active ${modelHighlight === 0 ? "kb-active" : ""}`}
+                      title={`${providerDisplayName(currentEntry.provider)} · ${currentEntry.model.modelId}`}
+                      onClick={() => void selectModel(currentEntry.provider, currentEntry.model.modelId)}
+                    >
+                      <span className="composer-model-option-main">
+                        <span className="composer-model-label">
+                          {composerModelDisplayName(currentEntry.provider, currentEntry.model.modelId, currentEntry.model.displayName)}
+                        </span>
+                        <span className="composer-model-option-meta" title={providerDisplayName(currentEntry.provider)}>
+                          {providerDisplayName(currentEntry.provider)}
+                        </span>
+                      </span>
+                      <IconCheck size={14} aria-hidden="true" />
+                    </button>
+                  </div>
+                ) : null}
+                {recentWithoutCurrent.length > 0 ? (
                   <div className="composer-model-group" role="group" aria-label={t("chat.recentModels")}>
                     <div className="composer-model-group-label">{t("chat.recentModels")}</div>
-                    {recentEntries.map(({ provider, model }, index) => {
+                    {recentWithoutCurrent.map(({ provider, model }, index) => {
                       const active = provider.id === selectedProviderId && sameComposerModelId(model.modelId, selectedModelId ?? "");
+                      const rowIndex = index + (currentEntry ? 1 : 0);
                       return (
                         <button
                           key={`${provider.id}:${model.modelId}`}
                           type="button" role="menuitemradio" aria-checked={active}
-                          data-model-index={index}
-                          className={`composer-plus-item composer-model-option ${modelHighlight === index ? "kb-active" : ""}`}
+                          data-model-index={rowIndex}
+                          className={`composer-plus-item composer-model-option ${modelHighlight === rowIndex ? "kb-active" : ""}`}
                           title={`${providerDisplayName(provider)} · ${model.modelId}`}
                           onClick={() => void selectModel(provider, model.modelId)}
                         >
                           <span className="composer-model-option-main">
-                            <span className="composer-model-label">{composerModelDisplayName(provider, model.modelId)}</span>
+                            <span className="composer-model-label">{composerModelDisplayName(provider, model.modelId, model.displayName)}</span>
                             <span className="composer-model-option-meta" title={providerDisplayName(provider)}>
                               {providerDisplayName(provider)}
                             </span>
@@ -92,7 +131,7 @@ export function ComposerModelList({
                   </button>
                 ) : null}
                 {(() => {
-                  let flatIndex = recentEntries.length;
+                  let flatIndex = recentWithoutCurrent.length + (currentEntry ? 1 : 0);
                   return modelGroups.map((group) => (
                     <div
                       key={group.provider.id}
@@ -176,7 +215,7 @@ export function ComposerModelList({
                     </div>
                   ));
                 })()}
-                {flatModels.length === 0 && recentEntries.length === 0 ? (
+                {flatModels.length === 0 && recentWithoutCurrent.length === 0 && !currentEntry ? (
                   <div className="composer-model-empty">{t("chat.noModelResults")}</div>
                 ) : null}
               </div>

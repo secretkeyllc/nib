@@ -157,6 +157,12 @@ export type OAuthLoginEvent = {
       kind: "deviceCode";
       userCode: string;
       verificationUri: string;
+      /**
+       * True when the host already opened the verification page with the code
+       * embedded. The dialog then shows "waiting for approval" instead of the
+       * code itself: the user never has to copy it.
+       */
+      opened?: boolean;
       intervalSeconds?: number;
       expiresInSeconds?: number;
     }

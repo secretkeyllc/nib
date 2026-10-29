@@ -482,6 +482,14 @@ export function ContextUsageInspector({
             cy="12"
             r={CONTEXT_RING_RADIUS}
           />
+          {/*
+            The arc always shows the share of the window that is *used*, never
+            the share that is left: an empty ring reads as "nothing spent yet"
+            and each turn darkens a little more of it. The leading figure still
+            follows the configured display mode, so "80% left" can sit beside a
+            ring one fifth filled — both describe the same window, and the
+            number next to it says which quantity it is.
+          */}
           <circle
             className="context-inspector-ring-progress"
             cx="12"
@@ -489,7 +497,7 @@ export function ContextUsageInspector({
             r={CONTEXT_RING_RADIUS}
             strokeDasharray={CONTEXT_RING_CIRCUMFERENCE}
             strokeDashoffset={
-              CONTEXT_RING_CIRCUMFERENCE * (1 - display.ratio)
+              CONTEXT_RING_CIRCUMFERENCE * (1 - context.usedRatio)
             }
           />
         </svg>

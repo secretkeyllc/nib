@@ -298,6 +298,23 @@ function isHttpUrl(value: unknown): value is string {
   }
 }
 
+/**
+ * The approval page with the user code as a query parameter.
+ *
+ * The vendor supplies a bare verification URI; carrying the code in the URL is
+ * what lets the page open on a single "Approve" button instead of asking the
+ * user to retype eight characters from another window.
+ */
+export function withDeviceCode(verificationUri: string, userCode: string): string {
+  try {
+    const url = new URL(verificationUri);
+    url.searchParams.set("code", userCode);
+    return url.toString();
+  } catch {
+    return verificationUri;
+  }
+}
+
 function normalizePluginCredential(raw: unknown): PluginProviderOAuthCredential {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
     throw new Error("plugin OAuth credential must be an object");
@@ -650,12 +667,24 @@ export class VendorOAuth {
     }
     if (event.kind === "deviceCode") {
       if (!isHttpUrl(event.verificationUri)) throw new Error("verificationUri must use HTTP or HTTPS");
-      this.pushPluginEvent(session, {
-        kind: "deviceCode",
-        userCode: clippedText(event.userCode, 256),
-        verificationUri: event.verificationUri.slice(0, 4_096),
-        ...(Number.isFinite(event.intervalSeconds) ? { intervalSeconds: event.intervalSeconds } : {}),
-        ...(Number.isFinite(event.expiresInSeconds) ? { expiresInSeconds: event.expiresInSeconds } : {}),
+      const userCode = clippedText(event.userCode, 256);
+      const verificationUri = event.verificationUri.slice(0, 4_096);
+      // Open the approval page with the code already in the URL so the user
+      // confirms one button instead of moving a code between two windows. The
+      // bare URI stays in the event as the copy-link fallback.
+      const approvalUrl = withDeviceCode(verificationUri, userCode);
+      session.tail = session.tail.then(async () => {
+        const opened = await this.deps
+          .openExternal(approvalUrl)
+          .then(() => true, () => false);
+        this.pushPluginEvent(session, {
+          kind: "deviceCode",
+          userCode,
+          verificationUri,
+          opened,
+          ...(Number.isFinite(event.intervalSeconds) ? { intervalSeconds: event.intervalSeconds } : {}),
+          ...(Number.isFinite(event.expiresInSeconds) ? { expiresInSeconds: event.expiresInSeconds } : {}),
+        });
       });
       await session.tail;
       return;

@@ -19,7 +19,7 @@ import { registerPluginIpc } from "./plugin-ipc";
 import { registerPluginUiIpc } from "./plugin-ui-ipc";
 import { registerJevIpc } from "./jev-ipc";
 import { registerProviderIpc } from "./provider-ipc";
-import { registerNibIpc } from "./nib-ipc";
+import { registerNibIpc, NIB_PROVIDER_ROW_ID } from "./nib-ipc";
 import { registerScheduledIpc } from "./scheduled-ipc";
 import { registerSessionIpc } from "./session-ipc";
 import { registerSettingsIpc } from "./settings-ipc";
@@ -337,6 +337,13 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
     dataDir: () => dataDir,
     logger,
     channel: IPC.invoke.nibEntitlement,
+    consoleChannel: IPC.invoke.nibOpenConsole,
+    signOutChannel: IPC.invoke.nibSignOut,
+    announcementsChannel: IPC.invoke.nibAnnouncements,
+    providerId: NIB_PROVIDER_ROW_ID,
+    // The row's key lives in the host secret store; only VendorOAuth can delete
+    // it atomically together with the row's secret reference.
+    forgetProviderCredential: (providerId) => vendorOAuth.deleteAccount(providerId),
   });
   registerJevIpc({ registrar, logger });
   registerWorktreeIpc({

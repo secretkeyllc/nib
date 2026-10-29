@@ -1406,10 +1406,18 @@
 }
 
 /* Nib plan + remaining credits, inline beside the context readout.
- * A thin bar plus a short label: this is a background fact while working, so
+ * A thin bar plus a short number: this is a background fact while working, so
  * it stays quieter than the model picker next to it. Hidden entirely while
- * signed out (the component renders nothing). */
+ * signed out (the component renders nothing).
+ *
+ * The trigger is a button, not a div, because it opens the same kind of
+ * popover the context readout does — the two must feel like one control. */
 .composer-right .nib-credits {
+  display: inline-flex;
+  align-items: center;
+}
+
+.composer-right .nib-credits-trigger {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1418,11 +1426,20 @@
   border-radius: var(--radius-full);
   border: 1px solid var(--ds-border-subtle);
   background: var(--ds-tile);
-  font-size: 0.72rem;
-  line-height: 1;
+  font: inherit;
+  font-size: var(--text-xs);
+  line-height: var(--leading-none);
   white-space: nowrap;
   color: var(--ds-text-muted);
-  cursor: default;
+  cursor: pointer;
+  transition: color var(--motion-duration-fast) var(--motion-ease-out),
+    border-color var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.composer-right .nib-credits-trigger:hover,
+.composer-right .nib-credits-trigger.active {
+  color: var(--ds-text-primary);
+  border-color: var(--ds-border-default);
 }
 
 .composer-right .nib-credits-bar {
@@ -1430,7 +1447,7 @@
   display: inline-block;
   width: 28px;
   height: 4px;
-  border-radius: 2px;
+  border-radius: var(--radius-3xs);
   background: var(--ds-border-subtle);
   overflow: hidden;
 }
@@ -1438,10 +1455,287 @@
 .composer-right .nib-credits-fill {
   position: absolute;
   inset: 0 auto 0 0;
-  border-radius: 2px;
+  border-radius: var(--radius-3xs);
   background: var(--ds-accent, var(--ds-text));
 }
 
 .composer-right .nib-credits-label {
   font-variant-numeric: tabular-nums;
+}
+
+/* Popover: same box, type scale and entrance as .context-inspector-popover,
+ * because both are readouts on the same toolbar and a different treatment
+ * would read as a different class of information. */
+.nib-credits-popover {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  width: min(320px, calc(100vw - 32px));
+  flex-direction: column;
+  overflow-y: auto;
+  border: 1px solid var(--ds-border-default);
+  border-radius: var(--radius-md-plus);
+  background: var(--ds-bg-elevated-opaque);
+  padding: 16px;
+  color: var(--ds-text-primary);
+  box-shadow: var(--ds-shadow-dialog);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+  text-align: left;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  visibility: hidden;
+  transition:
+    opacity var(--motion-duration-fast) var(--motion-ease-out),
+    transform var(--motion-duration-fast) var(--motion-ease-out),
+    visibility 0s linear var(--motion-duration-fast);
+}
+
+.nib-credits-popover.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.nib-credits-popover-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nib-credits-popover-plan {
+  min-width: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-strong);
+  line-height: var(--leading-none);
+}
+
+.nib-credits-popover-reset {
+  flex: 0 0 auto;
+  color: var(--ds-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.nib-credits-popover-meters {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.nib-credits-meter-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.nib-credits-meter-label {
+  color: var(--ds-text-muted);
+}
+
+.nib-credits-meter-values {
+  color: var(--ds-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.nib-credits-meter-percent {
+  margin-left: 8px;
+  color: var(--ds-text-muted);
+}
+
+.nib-credits-meter-track {
+  position: relative;
+  height: 4px;
+  border-radius: var(--radius-3xs);
+  background: var(--ds-border-subtle);
+  overflow: hidden;
+}
+
+.nib-credits-meter-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: var(--radius-3xs);
+  background: var(--ds-accent, var(--ds-text));
+  transition: width var(--motion-duration-normal) var(--motion-ease-out);
+}
+
+.nib-credits-popover-extra {
+  margin-top: 14px;
+  color: var(--ds-text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+ * Account menu (sidebar footer)
+ *
+ * Nib is an account-first product: the plan is what the user pays for, so the
+ * account lives in the chrome next to settings rather than inside it. The
+ * popover reuses the context-inspector box so every readout in the app shares
+ * one visual language.
+ * ------------------------------------------------------------------------- */
+.sidebar-footer .nib-account {
+  display: inline-flex;
+}
+
+.nib-account-popover {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  width: min(288px, calc(100vw - 32px));
+  flex-direction: column;
+  overflow-y: auto;
+  border: 1px solid var(--ds-border-default);
+  border-radius: var(--radius-md-plus);
+  background: var(--ds-bg-elevated-opaque);
+  padding: 14px;
+  color: var(--ds-text-primary);
+  box-shadow: var(--ds-shadow-dialog);
+  font-size: var(--text-xs);
+  line-height: var(--leading-body);
+  text-align: left;
+  white-space: normal;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  visibility: hidden;
+  transition:
+    opacity var(--motion-duration-fast) var(--motion-ease-out),
+    transform var(--motion-duration-fast) var(--motion-ease-out),
+    visibility 0s linear var(--motion-duration-fast);
+}
+
+.nib-account-popover.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.nib-account-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ds-border-subtle);
+}
+
+.nib-account-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-full);
+  background: var(--ds-tile);
+  color: var(--ds-text-muted);
+}
+
+.nib-account-identity {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nib-account-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-strong);
+  line-height: var(--leading-compact);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nib-account-plan {
+  color: var(--ds-text-muted);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nib-account-actions {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0;
+}
+
+.nib-account-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ds-text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nib-account-action:hover:not(:disabled) {
+  background: var(--ds-tile);
+}
+
+.nib-account-action:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.nib-account-action.is-primary {
+  color: var(--ds-accent, var(--ds-text-primary));
+  font-weight: var(--font-weight-strong);
+}
+
+.nib-account-prefs {
+  padding-top: 10px;
+  border-top: 1px solid var(--ds-border-subtle);
+}
+
+.nib-account-pref-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: var(--ds-text-muted);
+}
+
+.nib-account-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.nib-account-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid var(--ds-border-subtle);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--ds-text-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.nib-account-chip:hover {
+  color: var(--ds-text-primary);
+  border-color: var(--ds-border-default);
+}
+
+.nib-account-chip.is-active {
+  border-color: var(--ds-accent, var(--ds-border-default));
+  color: var(--ds-text-primary);
+  background: var(--ds-tile);
 }

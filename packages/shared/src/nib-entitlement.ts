@@ -22,3 +22,20 @@ export type NibEntitlement = {
   resetsAt?: string;
   concurrency?: number;
 };
+
+/**
+ * One announcement written in the admin console and shown in the desktop
+ * notification center.
+ *
+ * The body is plain text: the admin editor writes it that way, and rendering
+ * arbitrary HTML from the control plane inside the app would be an injection
+ * surface for no benefit.
+ */
+export type NibAnnouncement = {
+  id: string;
+  title: string;
+  content: string;
+  /** ISO 8601 instant the announcement was published. */
+  createdAt: string;
+  readAt?: string | null;
+};

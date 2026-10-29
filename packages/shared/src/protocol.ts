@@ -299,6 +299,31 @@ export const IPC = {
      */
     nibEntitlement: "pi-desktop/nib/entitlement",
     /**
+     * Open the Nib web console in the system browser.
+     *
+     * The desktop app never embeds the console: account, billing and invoice
+     * pages live behind the control plane's browser session, and hosting them
+     * inside a window with provider credentials loaded would blur the two
+     * credential models this product keeps apart.
+     */
+    nibOpenConsole: "pi-desktop/nib/open-console",
+    /**
+     * Sign out of Nib locally: drop the gateway key from the provider row and
+     * the control-plane JWT from the plugin's settings.
+     *
+     * Signs the app out, not the browser session; the web console stays signed
+     * in so a user who signs out to switch machines is not logged out of both.
+     */
+    nibSignOut: "pi-desktop/nib/sign-out",
+    /**
+     * Announcements published from the admin console.
+     *
+     * These are account messages (maintenance, plan changes, policy notices),
+     * not task outcomes, so they arrive on their own channel and render in
+     * their own section of the notification center.
+     */
+    nibAnnouncements: "pi-desktop/nib/announcements",
+    /**
      * Look one model id up in the local models.dev snapshot.
      *
      * `providersListModels` cannot answer this: it describes a saved or

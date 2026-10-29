@@ -152,6 +152,22 @@ export function useComposerModelMenu({
       return entry ? [entry] : [];
     }).slice(0, 3);
   }, [modelGroups, recentModels]);
+  // The row the conversation is actually on, resolved from the same groups the
+  // list renders, so the pinned entry can never disagree with the checked row.
+  const currentEntry = useMemo(() => {
+    if (!provider?.id || !modelId) return null;
+    const group = modelGroups.find(candidate => candidate.provider.id === provider.id);
+    const model = group?.models.find(candidate =>
+      sameComposerModelId(candidate.modelId, modelId));
+    return group && model ? { provider: group.provider, model } : null;
+  }, [modelGroups, provider?.id, modelId]);
+  // Recents never repeat the row pinned above them.
+  const displayRecents = useMemo(() => {
+    if (!currentEntry) return recentEntries;
+    return recentEntries.filter(entry =>
+      !(entry.provider.id === currentEntry.provider.id &&
+        sameComposerModelId(entry.model.modelId, currentEntry.model.modelId)));
+  }, [recentEntries, currentEntry]);
   const queryNeedle = query.trim().toLowerCase();
   const filteredModelGroups = useMemo(
     () =>
@@ -172,19 +188,27 @@ export function useComposerModelMenu({
         : modelGroups,
     [modelGroups, queryNeedle],
   );
-  const showRecents = !queryNeedle && recentEntries.length > 0;
+  const showRecents = !queryNeedle && displayRecents.length > 0;
   const remainingGroups = showRecents ? filteredModelGroups.map(group => ({
     ...group,
-    models: group.models.filter(model => !recentEntries.some(entry =>
-      entry.provider.id === group.provider.id && sameComposerModelId(entry.model.modelId, model.modelId))),
+    models: group.models.filter(model =>
+      !displayRecents.some(entry =>
+        entry.provider.id === group.provider.id && sameComposerModelId(entry.model.modelId, model.modelId))
+      && !(currentEntry &&
+        currentEntry.provider.id === group.provider.id &&
+        sameComposerModelId(currentEntry.model.modelId, model.modelId))),
   })).filter(group => group.models.length > 0) : filteredModelGroups;
   const visibleGroups = !showRecents || otherModelsExpanded ? remainingGroups : [];
   const flatModels = useMemo(
     () =>
-      [...(showRecents ? recentEntries : []), ...visibleGroups.flatMap((group) =>
-        group.models.map((model) => ({ provider: group.provider, model })),
-      )],
-    [visibleGroups, showRecents, recentEntries],
+      [
+        ...(currentEntry ? [currentEntry] : []),
+        ...(showRecents ? displayRecents : []),
+        ...visibleGroups.flatMap((group) =>
+          group.models.map((model) => ({ provider: group.provider, model })),
+        ),
+      ],
+    [visibleGroups, showRecents, displayRecents, currentEntry],
   );
   const flatModelsKey = useMemo(
     () => flatModels.map((entry) => `${entry.provider.id}:${entry.model.modelId}`).join("|"),
@@ -348,7 +372,8 @@ export function useComposerModelMenu({
     modelSearchRef,
     modelListRef,
     modelGroups: visibleGroups,
-    recentEntries: showRecents ? recentEntries : [],
+    currentEntry,
+    recentEntries: showRecents ? displayRecents : [],
     hasOtherModels: showRecents && remainingGroups.length > 0,
     flatModels,
     thinkingMenuLevels,
