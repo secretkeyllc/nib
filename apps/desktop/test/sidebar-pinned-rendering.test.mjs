@@ -1,3 +1,7 @@
+// The assertions pin the UTC rendering of the seeded timestamps ("Jan 1"),
+// so the suite pins the timezone instead of inheriting the machine's.
+process.env.TZ = "UTC";
+
 import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";

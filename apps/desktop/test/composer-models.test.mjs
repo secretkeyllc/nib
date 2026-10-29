@@ -27,7 +27,7 @@ const model = (modelId, displayName = modelId) => ({
   source: "discovered",
 });
 
-test("Composer only lists models configured for the provider", () => {
+test("Composer lists configured models first, then the discovered catalogue", () => {
   const models = composerModelsForProvider(
     {
       id: "mimo",
@@ -40,11 +40,14 @@ test("Composer only lists models configured for the provider", () => {
     ],
   );
 
+  // A gateway's catalogue is the entitlement, so discovery contributes ids;
+  // the user's explicit choices keep the top of the list.
   assert.deepEqual(
     models.map(({ modelId, displayName }) => ({ modelId, displayName })),
     [
       { modelId: "claude-opus-4-6", displayName: "claude-opus-4-6" },
       { modelId: "x-ai/grok-4.6", displayName: "x-ai/grok-4.6" },
+      { modelId: "aws/claude-fable-5-006", displayName: "aws/claude-fable-5-006" },
     ],
   );
 });

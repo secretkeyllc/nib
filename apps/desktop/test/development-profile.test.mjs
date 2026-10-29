@@ -33,11 +33,12 @@ test("a development build owns a different data directory than the shipped app",
     join(home, DEVELOPMENT_DATA_DIR_NAME),
   );
 
-  // A shipped installation must keep the directory its users already have, so
-  // the split can only have moved the development side.
-  assert.equal(INSTALLATION_DATA_DIR_NAME, ".pi-desktop");
-  assert.equal(DEVELOPMENT_DATA_DIR_NAME, ".pi-desktop-dev");
-  assert.equal(DEVELOPMENT_INSTALLATION_NAME, "PI-Desktop Dev");
+  // The 0.22.0 rename moved the tree to the product name and migrates a
+  // pre-existing ~/.pi-desktop in place (see data-paths.ts), so both profiles
+  // share the new root and only the development side has a suffix.
+  assert.equal(INSTALLATION_DATA_DIR_NAME, ".nib");
+  assert.equal(DEVELOPMENT_DATA_DIR_NAME, ".nib-dev");
+  assert.equal(DEVELOPMENT_INSTALLATION_NAME, "Nib Dev");
 });
 
 test("PI_DESKTOP_DATA_DIR still overrides either profile", () => {

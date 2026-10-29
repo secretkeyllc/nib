@@ -44,9 +44,20 @@ export function composerModelsForProvider(
   // its catalogue IS the entitlement ("every model on every plan"), so the
   // discovered list is what the picker should show. Configured ids stay first.
   const discoveredIds = (discovered ?? []).map((model) => model.modelId);
-  const ids = discoveredIds.length > 0
-    ? [...new Set([...configuredModelIds(provider), ...discoveredIds])]
-    : configuredModelIds(provider);
+  let ids: string[];
+  if (discoveredIds.length > 0) {
+    // One wire id, one row: the dedupe is case-insensitive on purpose and
+    // matches the identity check below — a snapshot publishing `BETA` must
+    // never list a second row beside the configured `beta`.
+    const merged: string[] = [];
+    const seen = (id: string) => merged.some((existing) => sameComposerModelId(existing, id));
+    for (const id of [...configuredModelIds(provider), ...discoveredIds]) {
+      if (!seen(id)) merged.push(id);
+    }
+    ids = merged;
+  } else {
+    ids = configuredModelIds(provider);
+  }
 
   return ids.filter((modelId) =>
     !isImageGenerationModel(imageGeneration, provider.id, modelId)

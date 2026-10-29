@@ -15,6 +15,19 @@ const { IPC } = await import("@pi-desktop/shared");
 
 const SESSION = "session-1";
 
+/** The relays unref their answer timers on purpose (a pending suggestion must
+    not keep the app alive); in a bare test process the loop would drain before
+    the timeout fires, so awaits that expect a timeout hold a ref'd handle. */
+async function withLoopAlive(run) {
+  const keepAlive = setInterval(() => {}, 1_000);
+  try {
+    return await run();
+  } finally {
+    clearInterval(keepAlive);
+  }
+}
+
+
 function makeRelay({ activeSession = SESSION, answerTimeoutMs = 50 } = {}) {
   const sent = [];
   const relay = createComposerSuggestionRelay({
@@ -74,7 +87,9 @@ test("a draft that cannot take the line is reported with its own reason", async 
 
 test("a silent window costs the caller a miss, never a hang", async () => {
   const { relay } = makeRelay({ answerTimeoutMs: 20 });
-  assert.deepEqual(await relay.offer(offer()), { shown: false, reason: "unsupported" });
+  await withLoopAlive(async () => {
+    assert.deepEqual(await relay.offer(offer()), { shown: false, reason: "unsupported" });
+  });
 });
 
 test("one suggestion per session: the newer offer takes the slot", async () => {

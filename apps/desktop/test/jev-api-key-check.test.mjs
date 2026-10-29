@@ -37,6 +37,19 @@ function jsonResponse({ ok, status, body = "" }) {
   };
 }
 
+
+/** AbortSignal.timeout does not keep the event loop active by design; a bare
+    test process would drain before the abort fires, so timeout awaits hold a
+    ref'd handle. */
+async function withLoopAlive(run) {
+  const keepAlive = setInterval(() => {}, 1_000);
+  try {
+    return await run();
+  } finally {
+    clearInterval(keepAlive);
+  }
+}
+
 test("the check asks the System One endpoint the classifier tool uses", async () => {
   const { calls, fetch } = recordingFetch(jsonResponse({ ok: true, status: 200 }));
   const result = await probeJevApiKey(KEY, { fetchImpl: fetch });
@@ -107,10 +120,12 @@ test("a silent service is reported as a timeout", async () => {
         });
       }),
   );
-  const result = await probeJevApiKey(KEY, { fetchImpl: fetch, timeoutMs: 20 });
-  assert.equal(result.ok, false);
-  assert.match(result.message, /did not answer/);
-  assert.ok(!result.message.includes(KEY));
+  await withLoopAlive(async () => {
+    const result = await probeJevApiKey(KEY, { fetchImpl: fetch, timeoutMs: 20 });
+    assert.equal(result.ok, false);
+    assert.match(result.message, /did not answer/);
+    assert.ok(!result.message.includes(KEY));
+  });
 });
 
 test("the default timeout is bounded", () => {

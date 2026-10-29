@@ -253,12 +253,14 @@ test("check-for-updates is reachable from the application menu", () => {
   }
 });
 
-test("packaging publishes an electron-updater feed for GitHub Releases", async () => {
+test("packaging publishes an electron-updater feed on the Nib download server", async () => {
   const pkg = JSON.parse(pkgSource);
   assert.ok(pkg.dependencies["electron-updater"], "electron-updater dependency");
-  assert.equal(pkg.build.publish[0].provider, "github");
-  assert.equal(pkg.build.publish[0].owner, "vastsa");
-  assert.equal(pkg.build.publish[0].repo, "PI-Desktop");
+  // The feed moved off GitHub Releases with the 0.22.0 rename: the updater
+  // polls the generic provider on the download server, where latest.yml and
+  // the artifacts are published per release.
+  assert.equal(pkg.build.publish[0].provider, "generic");
+  assert.equal(pkg.build.publish[0].url, "https://nib.am/downloads/updates");
   const windowsUpdateConfigResource = pkg.build.win.extraResources.find(
     ({ from }) => from === "resources/app-update.yml",
   );
@@ -280,8 +282,7 @@ test("packaging publishes an electron-updater feed for GitHub Releases", async (
   );
   assert.deepEqual(updateConfig, {
     provider: pkg.build.publish[0].provider,
-    owner: pkg.build.publish[0].owner,
-    repo: pkg.build.publish[0].repo,
+    url: pkg.build.publish[0].url,
     updaterCacheDirName: `${pkg.name.replaceAll("/", "")}-updater`,
   });
   const macTargets = pkg.build.mac.target.map((entry) => entry.target);
@@ -296,20 +297,19 @@ test("packaging publishes an electron-updater feed for GitHub Releases", async (
     );
   }
   assert.match(pkg.scripts.dist, /build-desktop-release\.mjs/);
-  assert.equal(pkg.build.linux.executableName, "pi-desktop");
+  assert.equal(pkg.build.linux.executableName, "nib");
   const linuxTargets = pkg.build.linux.target.map((entry) => entry.target);
-  assert.deepEqual(
-    linuxTargets,
-    ["AppImage", "deb", "rpm"],
-    "Linux release targets",
-  );
+  // rpm stays out of the shipped targets on purpose: the download page
+  // publishes the AppImage and the deb, and the rpm path is validated
+  // manually (see linux-package.yml) against the config below.
+  assert.deepEqual(linuxTargets, ["AppImage", "deb"], "Linux release targets");
   // Scoped package name is not a valid deb/rpm package or file name.
-  assert.equal(pkg.build.deb.packageName, "pi-desktop");
-  assert.equal(pkg.build.rpm.packageName, "pi-desktop");
+  assert.equal(pkg.build.deb.packageName, "nib");
+  assert.equal(pkg.build.rpm.packageName, "nib");
   assert.ok(!pkg.build.deb.artifactName.includes("${name}"), "deb artifactName");
   assert.equal(
     pkg.build.rpm.artifactName,
-    "pi-desktop-${version}-${arch}.${ext}",
+    "Nib-${version}-${arch}.${ext}",
     "rpm artifactName",
   );
   assert.deepEqual(
@@ -318,13 +318,13 @@ test("packaging publishes an electron-updater feed for GitHub Releases", async (
     "rpm build-id configuration",
   );
   // GitHub asset URLs mangle spaces; keep Windows artifact names space-free.
-  assert.equal(pkg.build.nsis.artifactName, "PI-Desktop-Setup-${version}.${ext}");
+  assert.equal(pkg.build.nsis.artifactName, "Nib-Setup-${version}.${ext}");
   const winTargets = pkg.build.win.target.map((entry) => entry.target);
   assert.deepEqual(winTargets, ["nsis", "zip", "portable"], "Windows release targets");
-  assert.equal(pkg.build.portable.artifactName, "PI-Desktop-Portable-${version}.${ext}", "portable artifact name");
+  assert.equal(pkg.build.portable.artifactName, "Nib-Portable-${version}.${ext}", "portable artifact name");
   assert.equal(
     pkg.build.win.artifactName,
-    "PI-Desktop-Portable-${version}.${ext}",
+    "Nib-Setup-${version}.${ext}",
   );
   assert.equal(pkg.build.extraMetadata.piDistribution, "installed");
   assert.match(pkg.scripts["dist:win"], /build-desktop-release\.mjs win/);

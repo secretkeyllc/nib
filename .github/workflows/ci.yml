@@ -57,7 +57,17 @@ jobs:
         run: node --test scripts/pi-patch-hash.test.mjs
 
       - name: Unit tests
-        run: pnpm -r --if-present test
+        # Failures are surfaced as ::error:: annotations on purpose: the check
+        # annotations of a public repository are readable without an
+        # authenticated log download, so a red run names its failing tests.
+        run: |
+          set -o pipefail
+          if pnpm -r --if-present test 2>&1 | tee /tmp/unit-tests.log; then
+            echo "unit tests passed"
+          else
+            grep -E "^not ok|^FAIL|✗" /tmp/unit-tests.log | head -80 | sed 's/^/::error::unit test failure: /'
+            exit 1
+          fi
 
   rust:
     name: Rust host-core format / lint / test

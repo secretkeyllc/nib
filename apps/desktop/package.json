@@ -242,6 +242,10 @@
         {
           "from": "build/icon.ico",
           "to": "app-icon.ico"
+        },
+        {
+          "from": "resources/app-update.yml",
+          "to": "app-update.yml"
         }
       ]
     },
@@ -259,8 +263,8 @@
       "artifactName": "Nib-${version}-${arch}.${ext}"
     },
     "rpm": {
-      "packageName": "pi-desktop",
-      "artifactName": "pi-desktop-${version}-${arch}.${ext}",
+      "packageName": "nib",
+      "artifactName": "Nib-${version}-${arch}.${ext}",
       "fpm": [
         "--rpm-rpmbuild-define",
         "_build_id_links none"
