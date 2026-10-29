@@ -85,7 +85,9 @@ jobs:
           if pnpm -r --if-present test 2>&1 | tee /tmp/unit-tests.log; then
             echo "unit tests passed"
           else
-            grep -E "^not ok|^FAIL|✗" /tmp/unit-tests.log | head -80 | sed 's/^/::error::unit test failure: /'
+            echo "::error::unit tests failed; matching lines follow"
+            grep -aE "not ok|FAIL|✗|✘|×|AssertionError|ERR_TEST_FAILURE|ELIFECYCLE|Failed Tests" /tmp/unit-tests.log | tail -30 | sed 's/^/::error::unit test failure: /'
+            tail -25 /tmp/unit-tests.log | sed 's/^/::error::log tail: /'
             exit 1
           fi
 
