@@ -16,7 +16,8 @@ const { sshHostRecord, sshMetadataOf, transportOf } = await import(
 
 const VERSION = "0.15.1-beta.5";
 const ARTIFACT_NAME = `pi-host-${VERSION}-linux-x64.tar.gz`;
-const ARTIFACT_URL = `https://github.com/vastsa/PI-Desktop/releases/download/v${VERSION}/${ARTIFACT_NAME}`;
+// Nib publishes the Host itself; upstream does not carry this product's version.
+const ARTIFACT_URL = `https://sknib.com/downloads/pi-host/v${VERSION}/${ARTIFACT_NAME}`;
 const DIGEST = "0123456789abcdef".repeat(4);
 const RESERVED_PORT = 49_152;
 
@@ -197,7 +198,7 @@ test("an arm64 Linux remote installs the published arm64 bundle", async () => {
 
   assert.equal(
     fetched[0],
-    `https://github.com/vastsa/PI-Desktop/releases/download/v${VERSION}/${arm64Artifact}.sha256`,
+    `https://sknib.com/downloads/pi-host/v${VERSION}/${arm64Artifact}.sha256`,
   );
   assert.equal(outcome.ssh.version, VERSION);
   const upload = transport.calls.uploads[0];

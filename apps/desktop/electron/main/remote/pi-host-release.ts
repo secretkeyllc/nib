@@ -9,7 +9,6 @@
  * remote machine. Everything here is pure so the URL, target, and checksum
  * rules stay testable without a network or an SSH connection.
  */
-import { GITHUB_REPO } from "@pi-desktop/shared";
 
 /** Platforms the bootstrap can classify from `uname -s`. */
 export type PiHostPlatform = "linux" | "darwin";
@@ -84,6 +83,30 @@ export function piHostArtifactName(version: string, target: PiHostTarget): strin
 }
 
 /**
+ * Where the Host artifact is published.
+ *
+ * Nib builds its own desktop, so the Host it installs must be Nib's build at
+ * Nib's version — the upstream repository does not publish that version, and a
+ * Host fetched from it runs code that predates this product's own behaviour
+ * (which is how the folder picker ended up refusing paths the app allows).
+ *
+ * `PI_HOST_ARTIFACT_BASE_URL` overrides the whole location, so a mirror or a
+ * local test server works without rebuilding the app.
+ */
+const DEFAULT_RELEASE_BASE = "https://sknib.com/downloads/pi-host";
+
+export function piHostArtifactBase(version: string): string {
+  const override = process.env.PI_HOST_ARTIFACT_BASE_URL?.trim();
+  if (override) {
+    const base = override.replace(/\/+$/, "");
+    // `{version}` keeps one setting usable across releases; without it the
+    // version is appended, which is how a per-release directory is laid out.
+    return base.includes("{version}") ? base.replaceAll("{version}", version) : `${base}/v${version}`;
+  }
+  return `${DEFAULT_RELEASE_BASE}/v${version}`;
+}
+
+/**
  * Release asset URLs. `release.yml` uploads both files to the `v<version>` tag,
  * so the desktop and the bootstrap script derive them without an API call.
  */
@@ -92,7 +115,7 @@ export function piHostArtifactUrls(
   target: PiHostTarget,
 ): { tarball: string; checksum: string } {
   const name = piHostArtifactName(version, target);
-  const base = `https://github.com/${GITHUB_REPO}/releases/download/v${version}`;
+  const base = piHostArtifactBase(version);
   return { tarball: `${base}/${name}`, checksum: `${base}/${name}.sha256` };
 }
 

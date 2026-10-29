@@ -267,9 +267,9 @@ export function NibCreditsChip() {
           reads as a separate pool rather than as a fourth meter.
         */
         <div className="nib-credits-balance">
-          <span className="nib-credits-balance-label">
-            {t("nib.creditsBalanceTitle")}
-          </span>
+          {/* One line: the rule above already separates this pool, so a second
+              "Account balance" heading on top of the value's own label just
+              repeated the word twice. */}
           <strong className="nib-credits-balance-value">
             {t("nib.creditsBalance", {
               amount: Math.round(ent.topupRemaining).toLocaleString(),

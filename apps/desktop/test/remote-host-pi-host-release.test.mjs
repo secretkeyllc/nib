@@ -26,7 +26,9 @@ const {
 const VERSION = "0.15.1-beta.5";
 const LINUX_X64 = { platform: "linux", arch: "x64" };
 const ARTIFACT_NAME = "pi-host-0.15.1-beta.5-linux-x64.tar.gz";
-const RELEASE_BASE = "https://github.com/vastsa/PI-Desktop/releases/download/v0.15.1-beta.5";
+// Nib publishes its own Host build: the upstream repository does not carry this
+// product's version, and a Host fetched from it runs code older than the app.
+const RELEASE_BASE = "https://sknib.com/downloads/pi-host/v0.15.1-beta.5";
 /** 64 hex characters, so it passes `normalizeChecksum`. */
 const DIGEST = "0123456789abcdef".repeat(4);
 /** Same length as {@link DIGEST}, one nibble different: a tampered download. */
@@ -36,8 +38,8 @@ test("artifact name and URLs follow the release tag layout the desktop pins", ()
   assert.equal(piHostBundleDir(VERSION, LINUX_X64), "pi-host-0.15.1-beta.5-linux-x64");
   assert.equal(piHostArtifactName(VERSION, LINUX_X64), ARTIFACT_NAME);
   const urls = piHostArtifactUrls(VERSION, LINUX_X64);
-  // Both files are uploaded to the same v-tagged release by `release.yml`, so
-  // the desktop can derive them without an API call.
+  // Both files are published side by side, so the desktop derives them without
+  // an API call, and the checksum travels with the artifact it describes.
   assert.equal(urls.tarball, `${RELEASE_BASE}/${ARTIFACT_NAME}`);
   assert.equal(urls.checksum, `${RELEASE_BASE}/${ARTIFACT_NAME}.sha256`);
 });
