@@ -809,7 +809,7 @@ export const tr = {
     "creditsToday": "Today",
     "creditsHover": "{{plan}}: {{left}} of {{total}} credits left · renews {{date}}",
     "creditsBalance": "Account balance: {{amount}} credits",
-    "creditsBalanceLabel": "Account balance · never expires",
+    "creditsBalanceTitle": "Account balance",
     "accountSignedIn": "Nib account",
     "accountSignInHint": "Sign in to use your plan",
     "accountLanguageAuto": "Auto",

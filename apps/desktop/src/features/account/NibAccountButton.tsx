@@ -259,7 +259,7 @@ export function NibAccountButton() {
           */}
           {signedIn && ent?.topupRemaining && ent.topupRemaining > 0 ? (
             <span className="nib-account-balance">
-              {t("nib.creditsBalanceLabel")}{" "}
+              {t("nib.creditsBalanceTitle")}{" "}
               <strong>
                 {Math.round(ent.topupRemaining).toLocaleString()}
               </strong>

@@ -22,6 +22,7 @@ import {
   type ContextInspectorPlacement,
 } from "../../../lib/context-inspector-position";
 import { portalToBody } from "../../../lib/portal-visibility";
+import { TooltipButton } from "../../../components/ui";
 
 const REFRESH_MS = 5 * 60 * 1000;
 
@@ -267,7 +268,7 @@ export function NibCreditsChip() {
         */
         <div className="nib-credits-balance">
           <span className="nib-credits-balance-label">
-            {t("nib.creditsBalanceLabel")}
+            {t("nib.creditsBalanceTitle")}
           </span>
           <strong className="nib-credits-balance-value">
             {t("nib.creditsBalance", {
@@ -281,15 +282,15 @@ export function NibCreditsChip() {
 
   return (
     <span className="nib-credits">
-      <button
+      <TooltipButton
         ref={triggerRef}
         type="button"
         className={`nib-credits-trigger${open ? " active" : ""}`}
-        aria-label={ariaLabel}
+        ariaLabel={ariaLabel}
+        tooltip={hoverSummary}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
-        title={hoverSummary}
         onClick={() => setOpen((previous) => !previous)}
       >
         {hasBalance ? (
@@ -301,7 +302,7 @@ export function NibCreditsChip() {
           </span>
         ) : null}
         <span className="nib-credits-label">{label}</span>
-      </button>
+      </TooltipButton>
       {popover && typeof document !== "undefined"
         ? portalToBody(popover)
         : null}

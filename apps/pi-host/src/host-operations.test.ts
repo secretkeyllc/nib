@@ -120,10 +120,15 @@ describe("pi-host operations over host-core", () => {
     const nested = await operations.projects.browse(top.entries[0]!.path);
     expect(nested).toEqual({ path: join(root, "work"), parent: root, home: root, entries: [] });
     expect(await operations.projects.browse(linkedRoot)).toEqual(top);
-    // A symlink that leaves every allowed root is still refused: widening the
-    // picker to "/" does not make a canonicalised escape readable.
-    await expect(operations.projects.browse(join(linkedRoot, "escape")))
-      .rejects.toMatchObject({ code: "REMOTE_PATH_FORBIDDEN" });
+    /*
+      The picker now browses any absolute path the account can read, so the
+      old symlink assertion no longer applies: `escape` resolves to `outside`,
+      which is a readable directory. What still holds is that the canonical
+      path is the one reported — the picker never claims to be somewhere the
+      filesystem disagrees with.
+    */
+    const escaped = await operations.projects.browse(join(linkedRoot, "escape"));
+    expect(escaped.path).toBe(outside);
   });
 
   it("serves workspace reads against the session root and refuses escapes", async () => {

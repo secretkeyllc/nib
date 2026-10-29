@@ -805,7 +805,7 @@ export const zhTW = {
     "creditsToday": "今日",
     "creditsHover": "{{plan}}：還剩 {{left}}/共 {{total}} 額度 · {{date}}更新",
     "creditsBalance": "帳戶餘額：{{amount}} 額度",
-    "creditsBalanceLabel": "帳戶餘額 · 無期限",
+    "creditsBalanceTitle": "帳戶餘額",
     "accountSignedIn": "Nib 帳號",
     "accountSignInHint": "登入後即可使用方案",
     "accountLanguageAuto": "跟隨系統",

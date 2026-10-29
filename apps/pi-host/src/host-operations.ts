@@ -200,22 +200,27 @@ export function createProjectCatalog(deps: HostOperationsDeps): RacpProjectCatal
       return { ...projectSummary(result.project), path: result.project.path };
     },
     async browse(path) {
-      const target = await canonicalDirectory(path ?? browseRoot);
-      const rootReal = await realpath(browseRoot).catch(() => browseRoot);
+      const home = await realpath(browseRoot).catch(() => browseRoot);
       /*
-        The picker starts at the account's home and may walk down from there,
-        but a project is not always under it — a checkout in /srv, a mounted
-        volume, a path outside /home. Two extra roots are therefore allowed:
-        the filesystem root, so the picker can navigate anywhere the account
-        can read, and each parent of the home (e.g. /home for /home/deploy).
-        Everything is still canonicalised, so a symlink cannot climb out of a
-        root the account was not already granted.
+        Any absolute path the account can read is browsable. The picker used to
+        confine itself to the login's home, which made the feature unusable on
+        the machines it targets: a deploy account's project lives in /var/www,
+        a checkout in /srv, a volume under /mnt — none of them under /root, and
+        none of them selectable.
+
+        The boundary that matters is the operating system's, not one invented
+        here: this process can only read what its own permissions allow, and the
+        path is canonicalised first so a symlink cannot present one directory
+        while pointing at another. An unreadable directory is reported as its
+        own error so the picker can say "permission denied" instead of blaming
+        the path.
       */
-      if (!isWithinBrowseRoots(target, rootReal)) {
-        throw new RacpError("REMOTE_PATH_FORBIDDEN", `path ${target} is outside the browsable root ${rootReal}`);
-      }
-      const dirents = await readdir(target, { withFileTypes: true }).catch(() => {
-        throw new RacpError("REMOTE_PATH_FORBIDDEN", `cannot read ${target}`);
+      const target = await canonicalDirectory(path ?? home);
+      const dirents = await readdir(target, { withFileTypes: true }).catch((error: NodeJS.ErrnoException) => {
+        if (error?.code === "EACCES" || error?.code === "EPERM") {
+          throw new RacpError("REMOTE_PATH_FORBIDDEN", `permission denied reading ${target}`);
+        }
+        throw new RacpError("REMOTE_PATH_NOT_FOUND", `cannot read ${target}`);
       });
       const entries = dirents
         .filter((dirent) => dirent.isDirectory() && !HIDDEN_BROWSE_NAMES.has(dirent.name) && !dirent.name.startsWith("."))
@@ -225,24 +230,9 @@ export function createProjectCatalog(deps: HostOperationsDeps): RacpProjectCatal
       const parent = target === "/" ? undefined : dirname(target);
       // `home` lets the picker offer a jump back to where it started without
       // hardcoding a path that only matches a root login.
-      return { path: target, ...(parent ? { parent } : {}), home: rootReal, entries };
+      return { path: target, ...(parent ? { parent } : {}), home, entries };
     },
   };
-}
-
-/**
- * Whether the picker may leave `root` for `target`.
- *
- * The account running the Host can already read whatever its own permissions
- * allow, so the picker's job is to start somewhere sensible and to refuse a
- * path that is not a directory — not to invent a sandbox narrower than the
- * operating system's. The filesystem root is therefore always allowed, which
- * is what makes `/srv/app` reachable from a Host whose home is `/root`.
- */
-function isWithinBrowseRoots(target: string, root: string): boolean {
-  if (target === "/") return true;
-  const prefix = root.endsWith("/") ? root : `${root}/`;
-  return target === root || target.startsWith(prefix);
 }
 
 /** Workspace reads against the session's durable root, on the Host's filesystem. */

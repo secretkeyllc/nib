@@ -805,7 +805,7 @@ export const zhCN = {
     creditsToday: "今日",
     creditsHover: "{{plan}}：还剩 {{left}}/共 {{total}} 额度 · {{date}}更新",
     creditsBalance: "账户余额：{{amount}} 额度",
-    creditsBalanceLabel: "账户余额 · 无限期",
+    creditsBalanceTitle: "账户余额",
     accountSignedIn: "Nib 账号",
     accountSignInHint: "登录后即可使用套餐",
     accountLanguageAuto: "跟随系统",
