@@ -9,7 +9,7 @@ const korean = flattenCatalog(ko);
 const turkish = flattenCatalog(tr);
 
 test("shell status and crash copy stay user-facing", () => {
-  assert.equal(english["app.tagline"], "Local AI coding partner");
+  assert.equal(english["app.tagline"], "I am Nib");
   assert.equal(
     english["app.uiCrashed"],
     "Something went wrong with the interface",
@@ -26,7 +26,7 @@ test("shell status and crash copy stay user-facing", () => {
     "当前 Linux 构建需要 glibc 2.35 或更高版本（Ubuntu 22.04、Debian 12、Fedora 36+）。",
   );
   assert.equal(english["errors.TURN_ABORTED"], "Stopped.");
-  assert.equal(chinese["app.tagline"], "本地 AI 编程助手");
+  assert.equal(chinese["app.tagline"], "I am Nib");
   assert.equal(chinese["app.uiCrashed"], "界面出现了问题");
   assert.equal(chinese["status.hostOk"], "已连接");
 });

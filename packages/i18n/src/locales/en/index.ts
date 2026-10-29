@@ -80,7 +80,7 @@ export const en = {
   },
   app: {
     shellName: "Nib",
-    tagline: "Local AI coding partner",
+    tagline: "I am Nib",
     starting: "Starting Nib…",
     loadingView: "Loading view…",
     uiCrashed: "Something went wrong with the interface",

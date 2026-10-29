@@ -4,10 +4,10 @@
   "desktopName": "nib.desktop",
   "private": true,
   "description": "Nib — AI coding agent for your desktop",
-  "homepage": "https://sknib.com",
+  "homepage": "https://nib.am",
   "author": {
     "name": "Secret Key LLC",
-    "email": "support@sknib.com"
+    "email": "support@nib.am"
   },
   "main": "./out/main/index.js",
   "type": "module",
@@ -96,7 +96,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "https://sknib.com/downloads/updates"
+        "url": "https://nib.am/downloads/updates"
       }
     ],
     "extraMetadata": {

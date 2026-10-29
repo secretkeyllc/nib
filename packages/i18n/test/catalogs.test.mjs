@@ -252,12 +252,12 @@ test("the locale registry lists English first, then other locales by English nam
   assert.equal(turkish["settings.language"], "Dil");
   assert.equal(turkish["settings.languageAuto"], "Sistem dilini kullan");
   assert.equal(turkish["settings.languageSearchPlaceholder"], "Dil ara…");
-  assert.notEqual(turkish["app.tagline"], english["app.tagline"]);
+  assert.equal(turkish["app.tagline"], "I am Nib");
   assert.equal(traditional["settings.language"], "語言");
   assert.equal(traditional["settings.languageAuto"], "跟隨系統");
   assert.equal(traditional["nav.projects"], "專案");
   assert.equal(traditional["nav.temporarySessions"], "臨時對話");
-  assert.match(traditional["app.tagline"], /程式設計/);
+  assert.equal(traditional["app.tagline"], "I am Nib");
   assert.equal(flattenCatalog(catalogs.es)["settings.language"], "Idioma");
   assert.equal(flattenCatalog(catalogs.fr)["settings.language"], "Langue");
   assert.equal(flattenCatalog(catalogs.de)["settings.language"], "Sprache");
@@ -265,13 +265,13 @@ test("the locale registry lists English first, then other locales by English nam
   assert.equal(flattenCatalog(ko)["settings.languageAuto"], "시스템 언어 사용");
   assert.equal(flattenCatalog(ko)["nav.projects"], "프로젝트");
   assert.equal(flattenCatalog(ko)["nav.temporarySessions"], "임시 대화");
-  assert.notEqual(flattenCatalog(ko)["app.tagline"], english["app.tagline"]);
+  assert.equal(flattenCatalog(ko)["app.tagline"], "I am Nib");
   const brazilian = flattenCatalog(catalogs["pt-BR"]);
   assert.equal(brazilian["settings.language"], "Idioma");
   assert.equal(brazilian["settings.languageAuto"], "Usar idioma do sistema");
   assert.equal(brazilian["nav.projects"], "Projetos");
   assert.equal(brazilian["nav.temporarySessions"], "Conversas temporárias");
-  assert.notEqual(brazilian["app.tagline"], english["app.tagline"]);
+  assert.equal(brazilian["app.tagline"], "I am Nib");
 });
 
 function localeInfoNative(id) {

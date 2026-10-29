@@ -15,7 +15,7 @@
     }
   },
   "author": "Secret Key LLC",
-  "homepage": "https://sknib.com",
+  "homepage": "https://nib.am",
   "main": "main.js",
   "contributes": {
     "providers": [
@@ -25,7 +25,7 @@
         "category": "Nib",
         "description": "Every major model family on one subscription. Models are read from the gateway at sign-in.",
         "vendorKey": "custom",
-        "baseUrl": "https://sknib.com/v1",
+        "baseUrl": "https://nib.am/v1",
         "apiStyle": "chat_completions",
         "authKind": "oauth",
         "oauth": {

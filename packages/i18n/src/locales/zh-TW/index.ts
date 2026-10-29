@@ -82,7 +82,7 @@ export const zhTW = {
   },
   app: {
     shellName: "Nib",
-    tagline: "本地 AI 程式設計助手",
+    tagline: "I am Nib",
     starting: "正在啟動 Nib…",
     loadingView: "正在載入頁面…",
     uiCrashed: "介面出現了問題",

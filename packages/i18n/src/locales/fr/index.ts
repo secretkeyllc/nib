@@ -82,7 +82,7 @@ export const fr = {
   },
   "app": {
     "shellName": "Nib",
-    "tagline": "Partenaire de codage IA local",
+    "tagline": "I am Nib",
     "starting": "Démarrage de Nib…",
     "loadingView": "Chargement de la vue…",
     "uiCrashed": "Un problème s'est produit avec l'interface"

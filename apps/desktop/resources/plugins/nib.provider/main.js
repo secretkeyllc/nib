@@ -3,7 +3,7 @@
 /**
  * Nib provider — device-code sign-in for the Nib gateway.
  *
- * Flow (RFC 8628 against the sknib control plane):
+ * Flow (RFC 8628 against the Nib control plane):
  *   1. POST /api/v1/cli/device/authorize  -> device_code + user_code
  *   2. pi.provider.oauth.notify(loginId, { kind: "deviceCode", ... })
  *      The host renders the code, a copy button and the verification link.
@@ -20,7 +20,7 @@
  * authorization_pending / slow_down / access_denied / expired_token.
  */
 
-const API_BASE = "https://sknib.com";
+const API_BASE = "https://nib.am";
 const AUTHORIZE_PATH = "/api/v1/cli/device/authorize";
 const TOKEN_PATH = "/api/v1/cli/device/token";
 

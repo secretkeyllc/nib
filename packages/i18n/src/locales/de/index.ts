@@ -82,7 +82,7 @@ export const de = {
   },
   "app": {
     "shellName": "Nib",
-    "tagline": "Lokaler AI-Codierungspartner",
+    "tagline": "I am Nib",
     "starting": "Nib wird gestartet…",
     "loadingView": "Ansicht wird geladen…",
     "uiCrashed": "Mit der Schnittstelle ist ein Fehler aufgetreten"

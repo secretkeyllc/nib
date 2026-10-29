@@ -82,7 +82,7 @@ export const ko = {
   },
   app: {
     shellName: "Nib",
-    tagline: "로컬 AI 코딩 파트너",
+    tagline: "I am Nib",
     starting: "Nib 시작 중…",
     loadingView: "화면 불러오는 중…",
     uiCrashed: "인터페이스에 문제가 발생했습니다",

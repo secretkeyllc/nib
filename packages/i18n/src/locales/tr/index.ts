@@ -82,7 +82,7 @@ export const tr = {
   },
   app: {
     shellName: "Nib",
-    tagline: "Yerel AI kodlama ortağı",
+    tagline: "I am Nib",
     starting: "Nib başlatılıyor…",
     loadingView: "Görünüm yükleniyor…",
     uiCrashed: "Arayüzde bir sorun oluştu",

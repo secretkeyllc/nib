@@ -82,7 +82,7 @@ export const ptBR = {
   },
   app: {
     shellName: "Nib",
-    tagline: "Parceiro local de programação com IA",
+    tagline: "I am Nib",
     starting: "Iniciando o Nib…",
     loadingView: "Carregando visualização…",
     uiCrashed: "Algo deu errado com a interface"

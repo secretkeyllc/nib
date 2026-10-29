@@ -1,12 +1,27 @@
 # Nib desktop
 
-A branded build of [PI Desktop](https://github.com/vastsa/PI-Desktop) (LGPL-3.0),
-the agent workspace Nib ships as its desktop client.
+Nib is the desktop AI coding agent sold at [nib.am](https://nib.am). This
+repository builds it.
 
-## What this repository changes
+The application core is derived from [PI Desktop](https://github.com/vastsa/PI-Desktop)
+(LGPL-3.0). Everything inherited is kept as-is unless listed below, which keeps
+the LGPL-covered surface small and keeps the product layer easy to audit.
 
-Everything upstream is kept as-is unless listed here. That keeps merges from
-upstream manageable and keeps the LGPL-covered surface small.
+## The Nib product layer
+
+`apps/desktop/resources/plugins/nib.provider/` is the whole account story: the
+provider row, the device-code sign-in, the usage panel, and the plan/credit
+status the app renders. It is the only place Nib talks to the control plane.
+
+| Area | Change |
+|---|---|
+| Identity | `productName`, `appId`, `APP_NAME`, window title, executable names |
+| Icon | `build/icon.{png,ico,icns}` generated from the official Nib logo |
+| Publisher | `build.publish` points at the Nib release channel |
+| Provider | `resources/plugins/nib.provider` — Nib as an OAuth provider with device-code sign-in |
+| Usage panel | same plugin, `views/usage.html` — plan, credits and limits |
+| Account menu | `src/features/chat/composer/NibAccountButton.tsx` — sidebar account, plan and preferences |
+| Brand marks | `build/icon*.{png,ico,icns}`, `resources/{icon,tray-icon-*}.png`, `src/assets/brand/` all derive from the Nib logo |
 
 | Area | Change |
 |---|---|
@@ -38,7 +53,7 @@ the user added, Nib ships one:
 `apps/desktop/resources/plugins/nib.provider/` declares a provider row:
 
 ```
-baseUrl:   https://sknib.com/v1     (OpenAI-compatible inference)
+baseUrl:   https://nib.am/v1     (OpenAI-compatible inference)
 authKind:  oauth                    (device-code sign-in)
 apiStyle:  openai-completions
 ```

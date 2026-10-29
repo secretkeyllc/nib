@@ -20,9 +20,9 @@ import type { NibAnnouncement, NibEntitlement } from "@pi-desktop/shared";
 import type { Logger } from "../logger";
 import type { IpcRegistrar } from "./types";
 
-const ENTITLEMENT_URL = "https://sknib.com/api/v1/product/entitlement";
-const ANNOUNCEMENTS_URL = "https://sknib.com/api/v1/announcements";
-const CONSOLE_URL = "https://sknib.com/app";
+const ENTITLEMENT_URL = "https://nib.am/api/v1/product/entitlement";
+const ANNOUNCEMENTS_URL = "https://nib.am/api/v1/announcements";
+const CONSOLE_URL = "https://nib.am/app";
 const TIMEOUT_MS = 12_000;
 
 /** Reading an announcement goes through the same control-plane route. */

@@ -82,7 +82,7 @@ export const zhCN = {
   },
   app: {
     shellName: "Nib",
-    tagline: "本地 AI 编程助手",
+    tagline: "I am Nib",
     starting: "正在启动 Nib…",
     loadingView: "正在加载页面…",
     uiCrashed: "界面出现了问题",
