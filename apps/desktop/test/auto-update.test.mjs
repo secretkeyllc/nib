@@ -141,7 +141,7 @@ test("updater gates delivery mode by platform and delivery policy", () => {
   assert.match(updaterSource, /autoUpdater\.on\("error"/);
   assert.match(
     updaterSource,
-    /github\.com\/vastsa\/PI-Desktop\/releases/,
+    /github\.com\/secretkeyllc\/nib\/releases/,
     "releases fallback URL",
   );
   assert.match(
@@ -353,7 +353,7 @@ test("shared shipped-locale changelog is the in-app notes source of truth", () =
   assert.match(changelogSource, /formatChangelogNotes/);
   assert.match(changelogSource, /"zh-CN"/);
   assert.match(changelogSource, /"zh-TW"/);
-  assert.match(englishChangelogSource, /version: "0\.2\.7"/);
+  assert.match(englishChangelogSource, /version: "0\.22\.0"/);
   assert.match(
     mainSource,
     /getLocale:\s*\(\)\s*=>\s*(?:updaterLocale|mainState\.updaterLocale)/,

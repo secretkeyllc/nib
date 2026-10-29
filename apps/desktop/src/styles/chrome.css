@@ -1429,7 +1429,18 @@
 }
 
 .notification-item.is-announcement {
-  cursor: default;
+  cursor: pointer;
+}
+
+/* An expanded notice shows its whole body: the two-line clamp is what makes
+   the list scannable, and lifting it is what "opening" a notice means. */
+.notification-item.is-announcement.is-expanded .notification-item-body {
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.notification-item.is-announcement.is-expanded .notification-item-title {
+  white-space: normal;
 }
 
 .notification-kind-icon.is-announcement {

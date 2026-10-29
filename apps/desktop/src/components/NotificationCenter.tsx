@@ -94,6 +94,7 @@ export function NotificationCenter({
   // maintenance notice belongs to a session.
   const [announcements, setAnnouncements] = useState<NibAnnouncement[]>([]);
   const [announcementsBusy, setAnnouncementsBusy] = useState(false);
+  const [expandedAnnouncementId, setExpandedAnnouncementId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState<NotificationFilter>("all");
@@ -115,6 +116,15 @@ export function NotificationCenter({
     if (restoreFocus) {
       requestAnimationFrame(() => triggerRef.current?.focus());
     }
+  }, []);
+
+  /** Mark one notice read: patch the list, then tell the control plane. */
+  const markAnnouncementRead = useCallback((id: string) => {
+    const markedAt = new Date().toISOString();
+    setAnnouncements((current) =>
+      current.map((row) => (row.id === id && !row.readAt ? { ...row, readAt: markedAt } : row)),
+    );
+    void api.nibAnnouncementRead(id).catch(() => undefined);
   }, []);
 
   useLayoutEffect(() => {
@@ -144,12 +154,18 @@ export function NotificationCenter({
       .nibAnnouncements()
       .then((rows) => {
         setAnnouncements(rows);
-        // Opening the inbox is what "reading" a notice means here: it is
-        // rendered in full in this popover, there is no detail view to open.
-        // Reporting it back is what keeps the badge from resetting on the next
-        // launch, so the call is best-effort and never blocks the render.
-        for (const row of rows) {
-          if (row.readAt) continue;
+        // A notice counts as read once it has been shown in this popover;
+        // there is no detail view to open. The local list is patched at the
+        // same time, because otherwise the unread dot and the unread filter
+        // would keep showing it until the popover is next opened — the server
+        // has already recorded the read by then.
+        const unread = rows.filter((row) => !row.readAt);
+        if (unread.length === 0) return;
+        const markedAt = new Date().toISOString();
+        setAnnouncements((current) =>
+          current.map((row) => (row.readAt ? row : { ...row, readAt: markedAt })),
+        );
+        for (const row of unread) {
           void api.nibAnnouncementRead(row.id).catch(() => undefined);
         }
       })
@@ -356,9 +372,21 @@ export function NotificationCenter({
               <ul className="notification-list">
                 {visibleAnnouncements.map((announcement) => (
                   <li key={`announcement-${announcement.id}`}>
-                    <div
-                      className={`notification-item is-announcement${announcement.readAt ? "" : " unread"}`}
+                    {/* A notice is a body of text, not a link. Clicking it
+                        expands the full message in place, which is the only
+                        "open" this content has — and the click is what marks
+                        it read for anyone who wants to do that deliberately. */}
+                    <button
+                      type="button"
+                      className={`notification-item is-announcement${announcement.readAt ? "" : " unread"}${expandedAnnouncementId === announcement.id ? " is-expanded" : ""}`}
                       aria-busy={announcementsBusy}
+                      aria-expanded={expandedAnnouncementId === announcement.id}
+                      onClick={() => {
+                        setExpandedAnnouncementId((current) =>
+                          current === announcement.id ? null : announcement.id,
+                        );
+                        if (!announcement.readAt) markAnnouncementRead(announcement.id);
+                      }}
                     >
                       <span className="notification-kind-icon is-announcement" aria-hidden>
                         <IconMegaphone size={17} />
@@ -382,7 +410,7 @@ export function NotificationCenter({
                       {!announcement.readAt ? (
                         <span className="notification-unread-dot" aria-hidden />
                       ) : null}
-                    </div>
+                    </button>
                   </li>
                 ))}
               </ul>

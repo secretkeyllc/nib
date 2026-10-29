@@ -28,6 +28,11 @@ Windows · macOS · Linux
 
 <img src="docs/image/readme/home.webp" alt="Nib 桌面客户端" width="94%" />
 
+<br />
+
+<img src="docs/image/readme/session.webp" alt="Nib 在会话中修改代码" width="46%" />
+<img src="docs/image/readme/notifications.webp" alt="Nib 通知中心中的公告" width="46%" />
+
 </div>
 
 ---

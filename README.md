@@ -28,6 +28,11 @@ Windows · macOS · Linux
 
 <img src="docs/image/readme/home.webp" alt="The Nib desktop app" width="94%" />
 
+<br />
+
+<img src="docs/image/readme/session.webp" alt="A Nib session editing a repository" width="46%" />
+<img src="docs/image/readme/notifications.webp" alt="The Nib notification center showing an announcement" width="46%" />
+
 </div>
 
 ---
