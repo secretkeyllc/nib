@@ -291,26 +291,48 @@ export function createSshBootstrap(deps: SshBootstrapDeps): SshBootstrap {
           );
         }
 
-        // 2. Resolve the artifact and the digest the release published for it.
+        // 2. Resolve the artifact and the digest a release source published
+        //    for it. The sources are walked in order and the first one that
+        //    answers wins: the download server is primary (reachable where
+        //    GitHub is not), the GitHub release is the fallback.
         mark("resolve-release");
-        const urls = nibHostArtifactUrls(deps.version, remoteTarget);
         const artifactName = nibHostArtifactName(deps.version, remoteTarget);
-        mark("download-checksum");
-        const expectedSha256 = parseChecksumFile(await fetchChecksum(urls.checksum, signal), artifactName);
+        const sources = nibHostArtifactUrls(deps.version, remoteTarget);
+        let expectedSha256: string | null = null;
+        let checksumUrl = sources[0].checksum;
+        let lastChecksumError: unknown;
+        for (const source of sources) {
+          try {
+            expectedSha256 = parseChecksumFile(
+              await fetchChecksum(source.checksum, signal),
+              artifactName,
+            );
+            if (expectedSha256) {
+              checksumUrl = source.checksum;
+              mark("download-checksum");
+              break;
+            }
+          } catch (error) {
+            lastChecksumError = error;
+          }
+        }
         signal?.throwIfAborted();
         if (!expectedSha256) {
           throw fail(
             `no usable SHA-256 published for ${artifactName}`,
             ErrorCodes.HOST_BOOTSTRAP_FAILED,
-            { url: urls.checksum },
+            { url: checksumUrl, cause: String(lastChecksumError) },
           );
         }
+        // The tarball comes from the source whose checksum was verified; a
+        // digest must never be paired with a mirror it was not published on.
+        const tarballUrl = checksumUrl.replace(/\.sha256$/, "");
 
         // 3. Prefer remote download; use a verified upload only if that download fails.
         mark("install");
         const scriptInput: NibHostBootstrapScriptInput = {
           version: deps.version,
-          artifactUrl: urls.tarball,
+          artifactUrl: tarballUrl,
           artifactName,
           bundleDir: nibHostBundleDir(deps.version, remoteTarget),
           expectedSha256,

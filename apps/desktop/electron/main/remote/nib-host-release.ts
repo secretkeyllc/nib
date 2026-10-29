@@ -86,39 +86,47 @@ export function nibHostArtifactName(version: string, target: NibHostTarget): str
  * Where the Host artifact is published.
  *
  * The Host is Nib's own program, built from this repository and released with
- * it, so it is published from this repository's releases like any other build
- * artifact. Fetching it from anywhere else would pair the desktop with a Host
- * built from different code — which is how the folder picker once ended up
- * refusing paths the app itself allows.
+ * it. The download server is the primary source: it is the same host that
+ * serves the installer and the updater feed, and unlike GitHub it is reachable
+ * from the networks where this product is actually used — a remote Host that
+ * cannot fetch its bundle is exactly the failure the pairing toast reports.
+ * The GitHub release stays in the list as a fallback for the case where the
+ * site is down behind an otherwise-working GitHub route.
  *
  * `NIB_HOST_ARTIFACT_BASE_URL` overrides the location for a mirror or a local
  * test server, without rebuilding the app.
  */
 const RELEASE_REPOSITORY = "secretkeyllc/nib";
+const DEFAULT_SITE_BASE = "https://nib.am/downloads/host";
 const DEFAULT_RELEASE_BASE = `https://github.com/${RELEASE_REPOSITORY}/releases/download`;
 
-export function nibHostArtifactBase(version: string): string {
+export function nibHostArtifactBases(version: string): string[] {
   const override = process.env.NIB_HOST_ARTIFACT_BASE_URL?.trim();
   if (override) {
     const base = override.replace(/\/+$/, "");
     // `{version}` keeps one setting usable across releases; without it the
     // version is appended, which is how a per-release directory is laid out.
-    return base.includes("{version}") ? base.replaceAll("{version}", version) : `${base}/v${version}`;
+    const resolved = base.includes("{version}")
+      ? base.replaceAll("{version}", version)
+      : `${base}/v${version}`;
+    return [resolved];
   }
-  return `${DEFAULT_RELEASE_BASE}/v${version}`;
+  return [`${DEFAULT_SITE_BASE}/v${version}`, `${DEFAULT_RELEASE_BASE}/v${version}`];
 }
 
 /**
- * Release asset URLs. `release.yml` uploads both files to the `v<version>` tag,
- * so the desktop and the bootstrap script derive them without an API call.
+ * Release asset URLs, primary source first. Every base must host both files
+ * (tarball + .sha256 sidecar); the bootstrap walks the list until one answers.
  */
 export function nibHostArtifactUrls(
   version: string,
   target: NibHostTarget,
-): { tarball: string; checksum: string } {
+): Array<{ tarball: string; checksum: string }> {
   const name = nibHostArtifactName(version, target);
-  const base = nibHostArtifactBase(version);
-  return { tarball: `${base}/${name}`, checksum: `${base}/${name}.sha256` };
+  return nibHostArtifactBases(version).map((base) => ({
+    tarball: `${base}/${name}`,
+    checksum: `${base}/${name}.sha256`,
+  }));
 }
 
 const SHA256_HEX = /^[0-9a-f]{64}$/;

@@ -26,8 +26,9 @@ const {
 const VERSION = "0.15.1-beta.5";
 const LINUX_X64 = { platform: "linux", arch: "x64" };
 const ARTIFACT_NAME = "nib-host-0.15.1-beta.5-linux-x64.tar.gz";
-// The Host is Nib's own program and ships from Nib's own releases, so the
-// desktop and the Host are always built from the same source.
+// The download server is the primary source (reachable where GitHub is not);
+// the GitHub release stays in the list as a fallback.
+const SITE_BASE = "https://nib.am/downloads/host/v0.15.1-beta.5";
 const RELEASE_BASE = "https://github.com/secretkeyllc/nib/releases/download/v0.15.1-beta.5";
 /** 64 hex characters, so it passes `normalizeChecksum`. */
 const DIGEST = "0123456789abcdef".repeat(4);
@@ -38,10 +39,13 @@ test("artifact name and URLs follow the release tag layout the desktop pins", ()
   assert.equal(nibHostBundleDir(VERSION, LINUX_X64), "nib-host-0.15.1-beta.5-linux-x64");
   assert.equal(nibHostArtifactName(VERSION, LINUX_X64), ARTIFACT_NAME);
   const urls = nibHostArtifactUrls(VERSION, LINUX_X64);
-  // Both files are published side by side, so the desktop derives them without
-  // an API call, and the checksum travels with the artifact it describes.
-  assert.equal(urls.tarball, `${RELEASE_BASE}/${ARTIFACT_NAME}`);
-  assert.equal(urls.checksum, `${RELEASE_BASE}/${ARTIFACT_NAME}.sha256`);
+  // Every source hosts both files side by side, so the desktop derives them
+  // without an API call, and the checksum travels with the artifact it
+  // describes. The download server answers first; GitHub is the fallback.
+  assert.deepEqual(urls, [
+    { tarball: `${SITE_BASE}/${ARTIFACT_NAME}`, checksum: `${SITE_BASE}/${ARTIFACT_NAME}.sha256` },
+    { tarball: `${RELEASE_BASE}/${ARTIFACT_NAME}`, checksum: `${RELEASE_BASE}/${ARTIFACT_NAME}.sha256` },
+  ]);
 });
 
 test("resolveTarget maps uname output to a release target", () => {
