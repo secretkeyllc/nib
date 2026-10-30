@@ -239,6 +239,106 @@ Linux 更新源带上它们所构建的架构：x64 为 `latest-linux.yml`，arm
 `latest-linux-arm64.yml`。这正是 `electron-updater` 在对应架构上请求的通道文件，
 因此某条通道若缺少自己的更新源，会在上传前就失败。
 
+### 没有证书时构建并分发 macOS
+
+**不需要 Apple 开发者帐户也能产出可用的构建。** 无证书通道是
+`workflow_dispatch` 且 `sign_macos=false`，它设置 `CSC_NAME='-'`，让
+electron-builder 做 ad-hoc 签名。
+
+- **Apple Silicon（arm64）执行任何程序都必须有签名**，用户自己构建的也不例外。
+  完全未签名的 arm64 应用会在启动瞬间被内核杀掉。ad-hoc 签名满足该要求，
+  所以 `.dmg` 装上就能运行。
+- **Gatekeeper 仍会警告。** ad-hoc 签名没有发布者身份，也无法公证，首次启动
+  会提示“Apple 无法验证…”。用户到 **系统设置 → 隐私与安全性** 点
+  **仍要打开** 并确认。macOS 15 起同一入口就在该面板；旧的“右键 → 打开”
+  快捷方式已失效。
+- **x64 Mac 更宽松**，但同样会出现首次启动提示。
+- **不要大规模分发这个构建。** 每个用户都要手动放行一次，警告本身也很劝退。
+  在拿到证书之前，只用于内测和下载页的预览版本。
+
+一旦证书就绪，添加下面六个密钥，tag 通道就会自动签名并公证，无需其他改动。
+
+### 配置 macOS 签名（你自己的 Apple 开发者帐户）
+
+签名用来证明应用出自你手。它需要**你自己的** Apple Developer Program 会员资格
+（$99/年）以及签发给你的团队的 **Developer ID Application** 证书 —— 不能借用
+他人的身份，且发布工作流从仓库密钥读取身份和团队，而不是写死。
+
+1. **加入 Apple Developer Program**：<https://developer.apple.com/programs/>，
+   使用应拥有该应用的 Apple ID。个人注册即可；只有需要发布者显示为公司时，
+   才需要组织注册（需 D-U-N-S 编号）。
+
+2. **创建 Developer ID Application 证书**（在 Mac 上）：
+   - 钥匙串访问 → *证书助理* → *从证书颁发机构请求证书*，把 CSR 存到磁盘。
+   - <https://developer.apple.com/account/resources/certificates> →
+     *Create a Certificate* → **Developer ID Application** → 上传 CSR →
+     下载 `.cer`。
+   - 双击 `.cer` 导入；它会与 CSR 创建的私钥配对。确认 *我的证书* 下该项带有
+     展开三角（证书**和**密钥）。
+
+   在 <https://developer.apple.com/account>（Membership details）记下
+   **Team ID** —— 10 个字符，例如 `A1B2C3D4E5`。
+
+3. **导出为 `.p12`**：同时选中证书*和*其私钥，*文件 → 导出项目* → `.p12`，
+   设置密码。
+
+4. **转为 base64**（electron-builder 直接接受 base64，运行器上不会落文件）：
+
+   ```bash
+   base64 -i DeveloperID.p12 | tr -d '\n' > csc-link.b64   # macOS
+   base64 -w0 DeveloperID.p12 > csc-link.b64                # Linux
+   ```
+
+5. **创建应用专用密码**：<https://appleid.apple.com> →
+   *登录与安全 → App 专用密码*。`notarytool` 拒绝普通 Apple ID 密码。
+
+6. **添加密钥**（Settings → Secrets and variables → Actions）：
+
+   | 密钥 | 值 |
+   |---|---|
+   | `CSC_LINK` | `csc-link.b64` 的内容 |
+   | `CSC_KEY_PASSWORD` | 导出 `.p12` 时设置的密码 |
+   | `APPLE_ID` | 拥有该团队的 Apple ID 邮箱 |
+   | `APPLE_APP_SPECIFIC_PASSWORD` | 第 5 步生成的应用专用密码 |
+   | `APPLE_TEAM_ID` | 第 2 步的 10 位团队 ID |
+   | `MAC_SIGNING_IDENTITY` | 证书裸通用名，例如 `Your Name (A1B2C3D4E5)` |
+
+   `MAC_SIGNING_IDENTITY` 是证书通用名**去掉** `Developer ID Application:`
+   前缀的形式 —— electron-builder 拒绝该前缀。
+
+   使用 GitHub CLI：
+
+   ```bash
+   gh secret set CSC_LINK --body "$(cat csc-link.b64)"
+   gh secret set CSC_KEY_PASSWORD --body '<p12 password>'
+   gh secret set APPLE_ID --body '<apple id email>'
+   gh secret set APPLE_APP_SPECIFIC_PASSWORD --body '<app-specific password>'
+   gh secret set APPLE_TEAM_ID --body '<your team id>'
+   gh secret set MAC_SIGNING_IDENTITY --body '<name (TEAMID)>'
+   ```
+
+7. **删除本地 `.p12` 和 `csc-link.b64`**。
+
+8. **重跑 tag 构建。** 工作流在任务开始时读取密钥，所以*Re-run failed jobs*
+   就够了。macOS 随后会签名、通过 `notarytool` 公证、对应用和 DMG 装订
+   （staple），并验证 Gatekeeper。
+
+### Windows 代码签名（可选，建议开启）
+
+Windows 二进制默认未签名。未签名安装包仍可运行，但 SmartScreen 会显示
+“未知发布者”，且终端防护可能**隔离刚解压出的 `.exe`/`.dll`** —— 安装看起来
+像悄悄丢了 `Nib.exe`，这既是支持负担也是安全隐忧。
+
+签名需要一个 Authenticode 证书（EV 证书可跳过 SmartScreen 信誉积累；普通 OV
+证书也可用，但需要时间积累信誉）：
+
+| 密钥 | 值 |
+|---|---|
+| `WINDOWS_CSC_LINK` | `.pfx` 的 base64，或 electron-builder 可读取的路径/URL |
+| `WINDOWS_CSC_KEY_PASSWORD` | `.pfx` 密码 |
+
+两者均可选：未设置时 Windows 任务按现状构建。
+
 ### 4.4 CNB 镜像触发
 
 `softprops/action-gh-release` 发布或更新 GitHub Release 之后，
