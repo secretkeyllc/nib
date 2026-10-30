@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
@@ -526,26 +527,38 @@ test("the ad-hoc lane signs through mac.identity, not CSC_NAME", () => {
     /-c\.mac\.identity=-/,
     "ad-hoc signing must be requested through mac.identity",
   );
+  // It must reach electron-builder as an option, not after a literal "--":
+  // `pnpm run x -- --arm64 -c...` forwards the separator and electron-builder
+  // drops the flag, which is how v0.22.5 still produced an unsigned app.
+  assert.doesNotMatch(
+    adHocBlock,
+    /pnpm --filter nib-desktop run dist:mac -- /,
+    "passing args through `run <script> --` loses the identity flag",
+  );
+  assert.match(adHocBlock, /exec electron-builder --mac/);
   assert.doesNotMatch(
     adHocBlock,
     /CSC_NAME:\s*['"]?-/,
     "CSC_NAME='-' is read as a certificate name and skips signing entirely",
   );
-  assert.doesNotMatch(
-    adHocBlock,
-    /CSC_IDENTITY_AUTO_DISCOVERY/,
-    "auto-discovery only affects keychain lookup; it does not enable ad-hoc",
-  );
 });
 
-test("the Windows native-runner gate reads the architecture from Windows", () => {
-  // `uname -m` under MSYS2 reports the MSYS runtime's architecture, so the
-  // windows-11-arm lane failed this gate before building anything and blocked
-  // the whole release from publishing.
-  const gate = releaseWorkflowSource.match(
-    /- name: Verify native runner architecture[\s\S]*?(?=\n      - name:)/,
+test("runner architecture is recorded, not used as a gate", () => {
+  // GitHub's ARM64 Windows image runs every shell as an emulated x64 process,
+  // so neither uname -m nor PROCESSOR_ARCHITECTURE reports the machine. Gating
+  // on them failed the windows-11-arm lane before it built anything and blocked
+  // the release. The real architecture checks read the packaged binary instead.
+  const step = releaseWorkflowSource.match(
+    /- name: Record runner architecture[\s\S]*?(?=\n      - name:)/,
   )?.[0];
-  assert.ok(gate, "native runner architecture gate is missing");
-  assert.match(gate, /RuntimeInformation\]::OSArchitecture/);
-  assert.match(gate, /shell:\s*bash/);
+  assert.ok(step, "runner architecture step is missing");
+  assert.doesNotMatch(step, /exit 1/, "the runner probe must not fail the build");
+
+  const releaseScript = readFileSync(
+    new URL("../../../scripts/build-desktop-release.mjs", import.meta.url),
+    "utf8",
+  );
+  assert.match(releaseScript, /check-windows-host-imports\.mjs/);
+  assert.match(releaseScript, /"--expect-arch", arch/);
+  assert.match(releaseScript, /check-bundled-host\.mjs/);
 });

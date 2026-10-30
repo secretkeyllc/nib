@@ -86,7 +86,7 @@ async function stageWinSidecar(arch) {
   const staged = join(repoRoot, "target", `${arch}-win-sidecar`, "nib-host-core.exe");
   const check = spawnSync(
     process.execPath,
-    [join(repoRoot, "scripts", "check-windows-host-imports.mjs"), staged],
+    [join(repoRoot, "scripts", "check-windows-host-imports.mjs"), staged, "--expect-arch", arch],
     { cwd: repoRoot, stdio: "inherit" },
   );
   if (check.status !== 0) {

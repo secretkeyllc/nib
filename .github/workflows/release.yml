@@ -165,38 +165,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Verify native runner architecture
-        # A mislabelled or emulated runner would wrap one architecture's
-        # Electron app around the other architecture's Rust sidecar.
-        #
-        # `uname -m` is not trustworthy on Windows: the shell is MSYS2, whose
-        # uname reports the architecture of the MSYS runtime it was started
-        # from rather than the machine. Ask Windows instead.
+      - name: Record runner architecture
+        # Informational. The architectures throughout the build are verified by
+        # the artifact itself: check-windows-host-imports.mjs reads the sidecar's
+        # PE machine type before packaging, and check-bundled-host.mjs does the
+        # same for the macOS and Linux bundles afterwards. Those checks cannot be
+        # fooled by an emulated shell, which is why this step does not gate.
         if: matrix.runner_arch
         shell: bash
         run: |
-          set -euo pipefail
-          expected_arch="${{ matrix.runner_arch }}"
-          case "${{ matrix.platform }}" in
-            windows)
-              actual_arch="$(powershell -NoProfile -Command                 '$a=[System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture; $a.ToString().ToLower()')"
-              ;;
-            *)
-              actual_arch="$(uname -m)"
-              ;;
-          esac
-          case "$actual_arch" in
-            arm64|aarch64) actual_arch="aarch64" ;;
-            x86_64|amd64|x64) actual_arch="x86_64" ;;
-          esac
-          case "$expected_arch" in
-            arm64|aarch64) expected_arch="aarch64" ;;
-            x86_64|amd64|x64) expected_arch="x86_64" ;;
-          esac
-          if [ "$actual_arch" != "$expected_arch" ]; then
-            echo "::error::Expected $expected_arch runner, got $actual_arch."
-            exit 1
-          fi
+          echo "runner=${{ matrix.name }}"
+          echo "uname=$(uname -m)"
+          echo "PROCESSOR_ARCHITECTURE=${PROCESSOR_ARCHITECTURE:-n/a}"
+          echo "ImageOS=${ImageOS:-n/a}"
 
       - name: Compare tag with apps/desktop/package.json
         if: startsWith(github.ref, 'refs/tags/v')
@@ -293,13 +274,24 @@ jobs:
         # identity matches, and electron-builder silently skips signing — which
         # produced an unsigned app that Apple Silicon will not start.
         if: matrix.platform == 'macos' && steps.macos_sign.outputs.signed != 'true'
+        env:
+          # Auto-discovery would look for a Developer ID in the keychain and skip
+          # signing when it finds none; the identity below is explicit.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: |
           set -euo pipefail
-          # Artifact names are defined in apps/desktop/package.json: the mac
-          # pattern labels ZIPs, and the dmg target pattern labels DMGs.
-          # dist:mac builds the Rust sidecar and the renderer bundle before it
-          # calls electron-builder, so keep it and append the ad-hoc identity.
-          pnpm --filter nib-desktop run dist:mac -- --${{ matrix.arch }} -c.mac.identity=-
+          # Build the Rust sidecar and the renderer bundle first: dist:mac does
+          # that, but it appends its arguments after a literal "--", which
+          # electron-builder treats as positional and drops the identity flag.
+          pnpm --filter nib-desktop run build:deps
+          pnpm --filter nib-desktop run build:host-release
+          pnpm --filter nib-desktop run bundle:runtime
+          pnpm --filter nib-desktop exec electron-vite build
+          # `mac.identity=-` is the only switch that reaches electron-builder's
+          # ad-hoc branch. CSC_NAME='-' is read as a certificate *name*, matches
+          # no identity, and skips signing silently.
+          pnpm --filter nib-desktop exec electron-builder --mac --publish never \
+            --${{ matrix.arch }} -c.mac.identity=-
 
       - name: Diagnose macOS signing environment
         # Records the runner baseline (system, codesign, identities, keychain,

@@ -51,7 +51,7 @@ if (result.status !== 0) process.exit(result.status ?? 1);
 // check-windows-host-imports.mjs for the failure this caught in 0.22.2.
 const importsCheck = spawnSync(
   process.execPath,
-  [join(root, "scripts", "check-windows-host-imports.mjs"), built],
+  [join(root, "scripts", "check-windows-host-imports.mjs"), built, "--expect-arch", arch],
   { cwd: root, stdio: "inherit" },
 );
 if (importsCheck.status !== 0) {

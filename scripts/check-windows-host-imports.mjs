@@ -9,17 +9,32 @@
  * llvm-mingw while the x64 MinGW build happened to link it statically.
  *
  * Usage:
- *   node scripts/check-windows-host-imports.mjs [path-to-host-core.exe]
+ *   node scripts/check-windows-host-imports.mjs [path-to-host-core.exe] [--expect-arch arm64|x64]
  *
- * Exit codes: 0 clean, 1 a non-system import, 2 unreadable binary.
+ * Exit codes: 0 clean, 1 a non-system import or wrong architecture, 2 unreadable.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
+const argv = process.argv.slice(2);
+// `--expect-arch <arch>` is an option; everything else positional is the binary.
+// Parse by walking the list so an option's value cannot be mistaken for it.
+const positionals = [];
+let expectedArch;
+for (let index = 0; index < argv.length; index += 1) {
+  const arg = argv[index];
+  if (arg === "--expect-arch") {
+    expectedArch = argv[index + 1];
+    index += 1;
+  } else {
+    positionals.push(arg);
+  }
+}
+const binaryArg = positionals[0];
 const binary = path.resolve(
-  process.argv[2] || path.join(root, "target/x86_64-pc-windows-gnu/release/nib-host-core.exe"),
+  binaryArg || path.join(root, "target/x86_64-pc-windows-gnu/release/nib-host-core.exe"),
 );
 
 /**
@@ -148,6 +163,19 @@ if (foreign.length > 0) {
   process.exit(1);
 }
 
+// The packaged sidecar must match the Electron app's architecture: an x64
+// sidecar inside an arm64 app installs cleanly and then fails to start.
+if (expectedArch) {
+  const machines = { arm64: 0xaa64, x64: 0x8664 };
+  const want = machines[expectedArch];
+  if (parsed.machine !== want) {
+    console.error(
+      `${binary}: expected ${expectedArch} but the PE machine type is 0x${parsed.machine.toString(16)}.`,
+    );
+    process.exit(1);
+  }
+}
+
 console.log(
-  `host-core imports ${parsed.dlls.length} system DLLs and no foreign dependencies (machine 0x${parsed.machine.toString(16)}).`,
+  `host-core imports ${parsed.dlls.length} system DLLs, no foreign dependencies, machine 0x${parsed.machine.toString(16)}.`,
 );
