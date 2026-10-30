@@ -44,6 +44,16 @@ Windows 可执行文件和原生窗口图标中使用 `build/icon.ico`。渲染�
 
 ## 2. 先决条件（发布通道）
 
+0. **没有证书也能出可用的 macOS 包。** `workflow_dispatch` 里把 `sign_macos`
+   设为 `false` 就走 `CSC_NAME='-'` 的 ad-hoc 签名通道：
+   - Apple Silicon **必须**有签名才能执行任何程序，完全未签名的 arm64 应用会在
+     启动瞬间被内核杀掉。ad-hoc 签名满足这个要求，`.dmg` 装上即可运行。
+   - 但 ad-hoc 没有发布者身份，也无法公证，首次启动会提示“Apple 无法验证…”。
+     用户到 **系统设置 → 隐私与安全性** 点 **仍要打开** 才能运行（macOS 15 起
+     旧的“右键 → 打开”已不生效）。
+   - 每个下载者都要手动放行一次，只适合内测和临时分发；拿到证书后补上下面这些
+     密钥，tag 通道就会自动签名并公证。
+
 1. 你自己的 Apple 开发者帐户，密钥串中具有该团队的 **Developer ID Application** 证书（完整申请步骤见英文版 runbook 的 “Setting up macOS signing” 一节）。
 2. 本地签名通道的环境变量：
    - `MAC_SIGNING_IDENTITY` — 证书裸通用名，形如 `<Your Name> (<YOUR_TEAM_ID>)`；electron-builder 拒绝保留 `Developer ID Application:` 前缀的名称，脚本会自动去掉该前缀

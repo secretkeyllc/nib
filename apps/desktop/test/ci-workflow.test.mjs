@@ -242,8 +242,8 @@ test("release matrix packages both native macOS architectures", () => {
   );
   assert.match(
     releaseWorkflowSource,
-    /Package unsigned macOS installer[\s\S]*?pnpm --filter nib-desktop run dist:mac -- --\$\{\{ matrix\.arch \}\}/,
-    "unsigned macOS builds use the shared artifact naming config",
+    /Package macOS installer \(ad-hoc signed\)[\s\S]*?pnpm --filter nib-desktop run dist:mac -- --\$\{\{ matrix\.arch \}\}/,
+    "ad-hoc macOS builds use the shared artifact naming config",
   );
   assert.doesNotMatch(
     releaseWorkflowSource,
@@ -274,11 +274,14 @@ test("macOS release signing is required on tag pushes", () => {
   );
 
   const unsignedBlock = releaseWorkflowSource.match(
-    /- name: Package unsigned macOS installer[\s\S]*?(?=\n      - name:)/,
+    /- name: Package macOS installer \(ad-hoc signed\)[\s\S]*?(?=\n      - name:)/,
   )?.[0];
-  assert.ok(unsignedBlock, "unsigned macOS debug package step is missing");
+  assert.ok(unsignedBlock, "ad-hoc macOS package step is missing");
   assert.match(unsignedBlock, /env\.MACOS_SIGN_RELEASE != 'true'/);
   assert.match(unsignedBlock, /CSC_IDENTITY_AUTO_DISCOVERY:\s*'false'/);
+  // Apple Silicon will not execute an unsigned arm64 binary, so the no-certificate
+  // lane must still be ad-hoc signed.
+  assert.match(unsignedBlock, /CSC_NAME:\s*'-'/);
   assert.doesNotMatch(unsignedBlock, /CSC_LINK:|CSC_KEY_PASSWORD:|APPLE_/);
   assert.doesNotMatch(unsignedBlock, /forceCodeSigning|notarize/);
 
@@ -448,16 +451,20 @@ test("both macOS lanes only reference scripts that exist", async () => {
 test("macOS signing instrumentation stays out of the Windows and Linux lanes", () => {
   const instrumentation =
     /macos-signing-watchdog|macos-signing-diagnostics|macos-bundle-inventory/;
+  // Escape regex metacharacters: step names may contain parentheses, e.g.
+  // "Package macOS installer (ad-hoc signed)".
+  const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const stepBlock = (name) =>
-    releaseWorkflowSource.match(new RegExp(`- name: ${name}[^]*?(?=\\n      - name:)`))?.[0] ??
-    "";
+    releaseWorkflowSource.match(
+      new RegExp(`- name: ${escapeRegExp(name)}[^]*?(?=\\n      - name:)`),
+    )?.[0] ?? "";
   assert.doesNotMatch(stepBlock("Package installers"), instrumentation);
   assert.doesNotMatch(stepBlock("Verify Linux host-core glibc floor"), instrumentation);
   assert.doesNotMatch(stepBlock("Export Linux ASAR release asset"), instrumentation);
   // The unsigned macOS debug lane reports its bundle size but must not gain a
   // signing identity, notarization, or publishing behaviour.
-  const unsignedBlock = stepBlock("Package unsigned macOS installer");
-  assert.ok(unsignedBlock, "unsigned macOS debug package step is missing");
+  const unsignedBlock = stepBlock("Package macOS installer (ad-hoc signed)");
+  assert.ok(unsignedBlock, "ad-hoc macOS package step is missing");
   assert.doesNotMatch(unsignedBlock, instrumentation);
 });
 

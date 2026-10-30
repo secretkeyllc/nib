@@ -262,10 +262,18 @@ jobs:
           echo "feed renamed to latest-arm64.yml"
           cat latest-arm64.yml
 
-      - name: Package unsigned macOS installer
+      - name: Package macOS installer (ad-hoc signed)
         if: matrix.platform == 'macos' && env.MACOS_SIGN_RELEASE != 'true'
         env:
-          # Debug-only lane: workflow_dispatch with sign_macos=false.
+          # No Apple Developer certificate yet. Apple Silicon refuses to execute
+          # an arm64 binary that carries no signature at all, so this is an
+          # ad-hoc signature (`codesign -s -`): the app launches locally, but
+          # Gatekeeper cannot vouch for a publisher, so the person who downloads
+          # it approves it once in System Settings → Privacy & Security.
+          # Ad-hoc signatures cannot pass Apple's notarization service. Setting
+          # the six signing secrets switches this lane to a Developer ID
+          # (see the release runbook).
+          CSC_NAME: '-'
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: |
           set -euo pipefail

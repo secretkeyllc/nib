@@ -218,6 +218,29 @@ runtime, verifying the host build, building the Desktop application once, and
 invoking electron-builder. This avoids a redundant Desktop build without
 changing the package scripts or release artifacts.
 
+### Building and shipping macOS without a certificate
+
+**You do not need an Apple Developer account to produce a working build.** The
+no-certificate lane is `workflow_dispatch` with `sign_macos=false`; it sets
+`CSC_NAME='-'`, which tells electron-builder to ad-hoc sign.
+
+- **Apple Silicon (arm64) requires a signature to execute anything**, even one
+  the user built themselves. A truly unsigned arm64 app is killed by the kernel
+  at launch. Ad-hoc signing satisfies that requirement, so the `.dmg` installs
+  and runs.
+- **Gatekeeper still warns.** Ad-hoc signatures carry no publisher identity and
+  cannot be notarized, so the first launch shows "Apple could not verify ... is
+  free of malware". The user opens **System Settings → Privacy & Security**,
+  clicks **Open Anyway**, and confirms. On macOS 15 and later the same control
+  lives in that pane; the old Control-click → Open shortcut no longer works.
+- **x64 Macs are more permissive** but still show the same first-launch prompt.
+- **Do not distribute this build widely.** Every user has to perform the manual
+  approval, and the warning scares people. Use it for internal testing and for
+  the downloadable preview while the certificate is being obtained.
+
+Once the certificate exists, add the six secrets below and the tag lane signs
+and notarizes automatically — no other change is needed.
+
 ### Setting up macOS signing (your own Apple Developer account)
 
 Signing proves the app came from you. It requires **your own** Apple Developer
