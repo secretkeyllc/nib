@@ -277,7 +277,9 @@ test("macOS release signing is required on tag pushes", () => {
     /- name: Package macOS installer \(ad-hoc signed\)[\s\S]*?(?=\n      - name:)/,
   )?.[0];
   assert.ok(unsignedBlock, "ad-hoc macOS package step is missing");
-  assert.match(unsignedBlock, /env\.MACOS_SIGN_RELEASE != 'true'/);
+  // The lane is chosen by the decision step, not by the workflow input alone:
+  // without a certificate a tag build must still produce a runnable artifact.
+  assert.match(unsignedBlock, /steps\.macos_sign\.outputs\.signed != 'true'/);
   assert.match(unsignedBlock, /CSC_IDENTITY_AUTO_DISCOVERY:\s*'false'/);
   // Apple Silicon will not execute an unsigned arm64 binary, so the no-certificate
   // lane must still be ad-hoc signed.
@@ -285,10 +287,12 @@ test("macOS release signing is required on tag pushes", () => {
   assert.doesNotMatch(unsignedBlock, /CSC_LINK:|CSC_KEY_PASSWORD:|APPLE_/);
   assert.doesNotMatch(unsignedBlock, /forceCodeSigning|notarize/);
 
+  // Missing secrets warn and fall back instead of failing the release.
   assert.match(
     releaseWorkflowSource,
-    /Require macOS signing and notarization secrets[\s\S]*?Missing GitHub Actions secrets for macOS signing/,
+    /Decide whether macOS is signed or ad-hoc[\s\S]*?signed=false[\s\S]*?signed=true/,
   );
+  assert.match(releaseWorkflowSource, /::warning::macOS Developer ID secrets are not configured/);
   // The team belongs to whoever operates the release, so the workflow checks
   // its shape rather than a hardcoded value.
   assert.match(releaseWorkflowSource, /APPLE_TEAM_ID must be a 10-character Apple team id/);
@@ -299,7 +303,7 @@ test("macOS release signing is required on tag pushes", () => {
     /- name: Package signed and notarized macOS installer[\s\S]*?(?=\n      - name:)/,
   )?.[0];
   assert.ok(signedBlock, "signed macOS package step is missing");
-  assert.match(signedBlock, /env\.MACOS_SIGN_RELEASE == 'true'/);
+  assert.match(signedBlock, /steps\.macos_sign\.outputs\.signed == 'true'/);
   for (const secret of [
     "CSC_LINK",
     "CSC_KEY_PASSWORD",
@@ -343,7 +347,7 @@ test("macOS release signing is required on tag pushes", () => {
     /- name: Notarize and staple the macOS DMG[\s\S]*?(?=\n      - name:)/,
   )?.[0];
   assert.ok(dmgBlock, "DMG notarization step is missing");
-  assert.match(dmgBlock, /env\.MACOS_SIGN_RELEASE == 'true'/);
+  assert.match(dmgBlock, /steps\.macos_sign\.outputs\.signed == 'true'/);
   for (const secret of [
     "APPLE_ID",
     "APPLE_APP_SPECIFIC_PASSWORD",
@@ -367,7 +371,7 @@ test("macOS release signing is required on tag pushes", () => {
   );
   assert.match(
     releaseWorkflowSource,
-    /Notarize and staple the macOS DMG[\s\S]*?if: matrix\.platform == 'macos' && env\.MACOS_SIGN_RELEASE == 'true'[\s\S]*?Verify signed and notarized macOS installer/,
+    /Notarize and staple the macOS DMG[\s\S]*?if: matrix\.platform == 'macos' && steps\.macos_sign\.outputs\.signed == 'true'[\s\S]*?Verify signed and notarized macOS installer/,
   );
   assert.doesNotMatch(releaseWorkflowSource, /scripts\/staple-macos-release-dmg\.sh/);
 });

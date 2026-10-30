@@ -263,7 +263,7 @@ jobs:
           cat latest-arm64.yml
 
       - name: Package macOS installer (ad-hoc signed)
-        if: matrix.platform == 'macos' && env.MACOS_SIGN_RELEASE != 'true'
+        if: matrix.platform == 'macos' && steps.macos_sign.outputs.signed != 'true'
         env:
           # No Apple Developer certificate yet. Apple Silicon refuses to execute
           # an arm64 binary that carries no signature at all, so this is an
@@ -289,8 +289,13 @@ jobs:
         if: matrix.platform == 'macos'
         run: scripts/macos-signing-diagnostics.sh
 
-      - name: Require macOS signing and notarization secrets
-        if: matrix.platform == 'macos' && env.MACOS_SIGN_RELEASE == 'true'
+      - name: Decide whether macOS is signed or ad-hoc
+        # Until the Developer ID secrets exist, a tag build still has to produce
+        # a runnable macOS artifact: Apple Silicon will not start an unsigned
+        # arm64 binary. Downgrade to the ad-hoc lane instead of failing, and
+        # record the decision so the packaging step and the release notes agree.
+        if: matrix.platform == 'macos'
+        id: macos_sign
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
@@ -307,10 +312,13 @@ jobs:
           [[ -n "${APPLE_APP_SPECIFIC_PASSWORD}" ]] || missing+=(APPLE_APP_SPECIFIC_PASSWORD)
           [[ -n "${APPLE_TEAM_ID}" ]] || missing+=(APPLE_TEAM_ID)
           [[ -n "${MAC_SIGNING_IDENTITY}" ]] || missing+=(MAC_SIGNING_IDENTITY)
+
           if ((${#missing[@]} > 0)); then
-            echo "::error::Missing GitHub Actions secrets for macOS signing/notarization: ${missing[*]}"
-            echo "::error::Add them under Settings → Secrets and variables → Actions. See docs/spec/06-delivery/06-release-runbook.md."
-            exit 1
+            if [[ "${MACOS_SIGN_RELEASE}" == "true" ]]; then
+              echo "::warning::macOS Developer ID secrets are not configured (${missing[*]}); the build is ad-hoc signed and cannot be notarized. See docs/spec/06-delivery/06-release-runbook.md."
+            fi
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           # The team id belongs to the certificate owner, so it is whatever the
           # operator stored — not a value this workflow can know. It is only
@@ -319,9 +327,10 @@ jobs:
             echo "::error::APPLE_TEAM_ID must be a 10-character Apple team id."
             exit 1
           fi
+          echo "signed=true" >> "$GITHUB_OUTPUT"
 
       - name: Package signed and notarized macOS installer
-        if: matrix.platform == 'macos' && env.MACOS_SIGN_RELEASE == 'true'
+        if: matrix.platform == 'macos' && steps.macos_sign.outputs.signed == 'true'
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
@@ -380,7 +389,9 @@ jobs:
         run: node scripts/macos-bundle-inventory.mjs apps/desktop/release
 
       - name: Notarize and staple the macOS DMG
-        if: matrix.platform == 'macos' && env.MACOS_SIGN_RELEASE == 'true'
+        # Ad-hoc signatures cannot be notarized; the decision step records
+        # whether a Developer ID was available.
+        if: matrix.platform == 'macos' && steps.macos_sign.outputs.signed == 'true'
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
@@ -398,7 +409,7 @@ jobs:
             -- scripts/notarize-and-staple-macos-release-dmg.sh apps/desktop/release
 
       - name: Verify signed and notarized macOS installer
-        if: matrix.platform == 'macos' && env.MACOS_SIGN_RELEASE == 'true'
+        if: matrix.platform == 'macos' && steps.macos_sign.outputs.signed == 'true'
         run: scripts/verify-macos-release.sh apps/desktop/release
 
       - name: Verify Linux host-core glibc floor
