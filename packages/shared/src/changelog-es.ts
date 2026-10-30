@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const esEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.2",
+    date: "2026-10-30",
+    highlights: [
+      "El instalador de Windows on Arm vuelve a extraer Nib.exe y todas las DLL.",
+      "El instalador de Arm se detiene con un aviso en un equipo x64 en lugar de instalar una carpeta vacía.",
+    ],
+  },
+  {
     version: "0.22.1",
     date: "2026-10-29",
     highlights: [

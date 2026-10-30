@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhCNEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.2",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm 安装包又能正确解出 Nib.exe 和全部 DLL。",
+      "Arm 安装包在 x64 电脑上会直接提示，而不是装出一个空目录。",
+    ],
+  },
+  {
     version: "0.22.1",
     date: "2026-10-29",
     highlights: [

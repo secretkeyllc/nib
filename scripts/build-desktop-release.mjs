@@ -66,10 +66,25 @@ async function stageWinSidecar(arch) {
   await copyFile(source, staged);
 }
 
+/**
+ * Force the x86 BCJ2 filter for the NSIS 7z payload.
+ *
+ * 7-Zip 24.09 — the `7za` electron-builder bundles — detects ARM64 binaries
+ * and applies its `ARM64` branch filter. The installer extracts that payload
+ * with `nsis7z.dll`, which is 7-Zip 19.00 and has no ARM64 filter, so every
+ * ARM64-filtered entry silently fails to extract: the install reports success,
+ * writes the shortcut, and the app is missing its .exe and .dll files. BCJ2 is
+ * understood by 19.00, and the payloads round-trip byte-identically.
+ */
+function forceBcj2Filter() {
+  process.env.ELECTRON_BUILDER_7Z_FILTER = "BCJ2";
+}
+
 if (target === "win") {
   const archArg = forwardedArgs.find((arg) => arg === "--x64" || arg === "--arm64");
   const arch = archArg === "--arm64" ? "arm64" : "x64";
   await stageWinSidecar(arch);
+  forceBcj2Filter();
 
   await runBuilder([
     "--win",

@@ -1,6 +1,6 @@
 {
   "name": "nib-desktop",
-  "version": "0.22.1",
+  "version": "0.22.2",
   "desktopName": "nib.desktop",
   "private": true,
   "description": "Nib — AI coding agent for your desktop",
@@ -256,7 +256,8 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "shortcutName": "Nib",
-      "artifactName": "Nib-Setup-${version}-${arch}.${ext}"
+      "artifactName": "Nib-Setup-${version}-${arch}.${ext}",
+      "include": "installer.nsh"
     },
     "portable": {
       "artifactName": "Nib-Portable-${version}-${arch}.${ext}"

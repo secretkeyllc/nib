@@ -1,6 +1,6 @@
 {
   "name": "@nib/desktop-host",
-  "version": "0.22.1",
+  "version": "0.22.2",
   "private": true,
   "type": "module",
   "description": "Headless Nib Agent Host: RACP-WS server over the Agent Host module, the agent sidecar, and host-core",

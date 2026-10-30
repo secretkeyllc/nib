@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const trEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.2",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm yükleyicisi Nib.exe ve tüm DLL dosyalarını yeniden çıkarıyor.",
+      "Arm yükleyicisi x64 bir bilgisayarda boş bir klasör kurmak yerine uyarı verip duruyor.",
+    ],
+  },
+  {
     version: "0.22.1",
     date: "2026-10-29",
     highlights: [

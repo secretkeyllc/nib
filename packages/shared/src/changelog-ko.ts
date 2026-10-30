@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const koEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.2",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm 설치 프로그램이 Nib.exe와 모든 DLL을 다시 추출합니다.",
+      "Arm 설치 프로그램은 x64 PC에서 빈 폴더를 설치하는 대신 안내를 표시하고 중단합니다.",
+    ],
+  },
+  {
     version: "0.22.1",
     date: "2026-10-29",
     highlights: [
