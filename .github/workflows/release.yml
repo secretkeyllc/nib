@@ -167,14 +167,32 @@ jobs:
 
       - name: Verify native runner architecture
         # A mislabelled or emulated runner would wrap one architecture's
-        # Electron app around the other architecture's Rust sidecar. The
-        # Windows rows carry no `runner_arch` because electron-builder
-        # cross-builds Windows from any runner.
+        # Electron app around the other architecture's Rust sidecar.
+        #
+        # `uname -m` is not trustworthy on Windows: the shell is MSYS2, whose
+        # uname reports the architecture of the MSYS runtime it was started
+        # from rather than the machine. Ask Windows instead.
         if: matrix.runner_arch
+        shell: bash
         run: |
           set -euo pipefail
-          actual_arch="$(uname -m)"
           expected_arch="${{ matrix.runner_arch }}"
+          case "${{ matrix.platform }}" in
+            windows)
+              actual_arch="$(powershell -NoProfile -Command                 '$a=[System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture; $a.ToString().ToLower()')"
+              ;;
+            *)
+              actual_arch="$(uname -m)"
+              ;;
+          esac
+          case "$actual_arch" in
+            arm64|aarch64) actual_arch="aarch64" ;;
+            x86_64|amd64|x64) actual_arch="x86_64" ;;
+          esac
+          case "$expected_arch" in
+            arm64|aarch64) expected_arch="aarch64" ;;
+            x86_64|amd64|x64) expected_arch="x86_64" ;;
+          esac
           if [ "$actual_arch" != "$expected_arch" ]; then
             echo "::error::Expected $expected_arch runner, got $actual_arch."
             exit 1
