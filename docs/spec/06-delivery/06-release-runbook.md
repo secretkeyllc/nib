@@ -218,6 +218,75 @@ runtime, verifying the host build, building the Desktop application once, and
 invoking electron-builder. This avoids a redundant Desktop build without
 changing the package scripts or release artifacts.
 
+### Setting up the macOS signing secrets (new repository)
+
+Signing needs five GitHub Actions secrets. They live per repository, so a
+repository rename or a new repo starts empty even when the Developer ID
+certificate itself is unchanged — which is why a tag build on a fresh repo
+fails at "Require macOS signing and notarization secrets".
+
+1. **Get the certificate as a `.p12`.** On a Mac with the certificate in the
+   login keychain, open Keychain Access → *My Certificates*, find
+   `Developer ID Application: XingYu Liu (DUV63RKYTW)`, expand it, select the
+   certificate **and** its private key, then *File → Export Items* → `.p12`
+   with a password. Alternatively download the `.cer` from
+   <https://developer.apple.com/account/resources/certificates> and import it
+   together with the private key; the private key exists only on machines that
+   created the CSR, so export from one of those.
+
+2. **Base64 the `.p12` for `CSC_LINK`** (electron-builder accepts base64
+   directly, which avoids storing a file):
+
+   ```bash
+   base64 -i DeveloperID.p12 | tr -d '\n' > csc-link.b64   # macOS
+   # or, on Linux with the exported file:
+   base64 -w0 DeveloperID.p12 > csc-link.b64
+   ```
+
+3. **Create an app-specific password** for notarization at
+   <https://appleid.apple.com> → *Sign-In and Security → App-Specific
+   Passwords*. A normal Apple ID password is rejected by `notarytool`.
+
+4. **Add the five secrets** (Settings → Secrets and variables → Actions →
+   *New repository secret*):
+
+   | Secret | Value |
+   |---|---|
+   | `CSC_LINK` | contents of `csc-link.b64` (base64 of the `.p12`) |
+   | `CSC_KEY_PASSWORD` | the password chosen when exporting the `.p12` |
+   | `APPLE_ID` | the Apple ID email that owns the team |
+   | `APPLE_APP_SPECIFIC_PASSWORD` | the app-specific password from step 3 |
+   | `APPLE_TEAM_ID` | `DUV63RKYTW` (the workflow pins this value) |
+
+   With the GitHub CLI, all five in one go:
+
+   ```bash
+   gh secret set CSC_LINK --body "$(cat csc-link.b64)"
+   gh secret set CSC_KEY_PASSWORD --body '<p12 password>'
+   gh secret set APPLE_ID --body '<apple id email>'
+   gh secret set APPLE_APP_SPECIFIC_PASSWORD --body '<app-specific password>'
+   gh secret set APPLE_TEAM_ID --body 'DUV63RKYTW'
+   ```
+
+5. **Delete the local `.p12` and `csc-link.b64`** once the secrets are stored.
+
+6. **Re-run the tag build**: the release workflow re-reads secrets at job
+   start, so run *Re-run failed jobs* on the tag run (or push the tag again).
+   The macOS jobs then sign with
+   `CSC_NAME=XingYu Liu (DUV63RKYTW)`, notarize through `notarytool`, staple
+   both the app and the DMG, and verify Gatekeeper before upload.
+
+What each failure means:
+
+- `Missing GitHub Actions secrets ...` — step 4 skipped a value, or the tag
+  build ran before the secrets were saved.
+- `APPLE_TEAM_ID must be DUV63RKYTW` — the secret holds a different team; the
+  workflow pins the team that owns the certificate.
+- `notarytool` returns *Invalid* with "The software asset has already been
+  uploaded" — the tag was rebuilt with an identical binary; bump the version.
+- `errSecInternalComponent` during codesign — the keychain was locked or the
+  `.p12` has no private key; re-export from the Mac that holds it.
+
 **Default macOS release policy:** GitHub tag releases Developer ID-sign,
 notarize, staple, and Gatekeeper-verify macOS DMG/ZIP before upload (D450 /
 ADR 0289). Missing signing or notarization secrets fail the job. A
