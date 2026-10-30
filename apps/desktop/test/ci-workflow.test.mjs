@@ -280,12 +280,14 @@ test("macOS release signing is required on tag pushes", () => {
   // The lane is chosen by the decision step, not by the workflow input alone:
   // without a certificate a tag build must still produce a runnable artifact.
   assert.match(unsignedBlock, /steps\.macos_sign\.outputs\.signed != 'true'/);
-  assert.match(unsignedBlock, /CSC_IDENTITY_AUTO_DISCOVERY:\s*'false'/);
   // Apple Silicon will not execute an unsigned arm64 binary, so the no-certificate
-  // lane must still be ad-hoc signed.
-  assert.match(unsignedBlock, /CSC_NAME:\s*'-'/);
+  // lane must still be ad-hoc signed. `mac.identity=-` is the switch that reaches
+  // electron-builder's ad-hoc branch; CSC_NAME='-' is read as a certificate name,
+  // matches nothing, and silently skips signing.
+  assert.match(unsignedBlock, /-c\.mac\.identity=-/);
+  assert.doesNotMatch(unsignedBlock, /CSC_NAME:/);
   assert.doesNotMatch(unsignedBlock, /CSC_LINK:|CSC_KEY_PASSWORD:|APPLE_/);
-  assert.doesNotMatch(unsignedBlock, /forceCodeSigning|notarize/);
+  assert.doesNotMatch(unsignedBlock, /forceCodeSigning=|notarize=true/);
 
   // Missing secrets warn and fall back instead of failing the release.
   assert.match(
@@ -506,4 +508,44 @@ test("GitHub releases trigger the CNB mirror pipeline with a JSON payload", () =
     /-d ".*github\.event\.release\.tag_name/,
     "JSON payload must not interpolate the release tag through YAML string escaping",
   );
+});
+
+test("the ad-hoc lane signs through mac.identity, not CSC_NAME", () => {
+  // Observed in the v0.22.4 release: the lane set CSC_NAME='-' and
+  // CSC_IDENTITY_AUTO_DISCOVERY=false. electron-builder reads CSC_NAME as the
+  // name of a certificate, finds no identity called "-", and skips signing
+  // silently — the shipped dmg had no _CodeSignature directory at all, and
+  // Apple Silicon refuses to start an unsigned arm64 app.
+  const adHocBlock = releaseWorkflowSource.match(
+    /- name: Package macOS installer \(ad-hoc signed\)[\s\S]*?(?=\n      - name:)/,
+  )?.[0];
+  assert.ok(adHocBlock, "ad-hoc macOS package step is missing");
+
+  assert.match(
+    adHocBlock,
+    /-c\.mac\.identity=-/,
+    "ad-hoc signing must be requested through mac.identity",
+  );
+  assert.doesNotMatch(
+    adHocBlock,
+    /CSC_NAME:\s*['"]?-/,
+    "CSC_NAME='-' is read as a certificate name and skips signing entirely",
+  );
+  assert.doesNotMatch(
+    adHocBlock,
+    /CSC_IDENTITY_AUTO_DISCOVERY/,
+    "auto-discovery only affects keychain lookup; it does not enable ad-hoc",
+  );
+});
+
+test("the Windows native-runner gate reads the architecture from Windows", () => {
+  // `uname -m` under MSYS2 reports the MSYS runtime's architecture, so the
+  // windows-11-arm lane failed this gate before building anything and blocked
+  // the whole release from publishing.
+  const gate = releaseWorkflowSource.match(
+    /- name: Verify native runner architecture[\s\S]*?(?=\n      - name:)/,
+  )?.[0];
+  assert.ok(gate, "native runner architecture gate is missing");
+  assert.match(gate, /RuntimeInformation\]::OSArchitecture/);
+  assert.match(gate, /shell:\s*bash/);
 });

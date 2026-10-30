@@ -51,24 +51,18 @@ function machoInfo(buffer) {
   const magicLE = buffer.readUInt32LE(0);
   const magicBE = buffer.readUInt32BE(0);
   const cpus = { 0x0100000c: "arm64", 0x01000007: "x64" };
-  // MH_MAGIC_64 / MH_MAGIC in either byte order. A little-endian Mach-O stores
-  // 0xfeedfacf as the bytes cf fa ed fe, i.e. 0xcffaedfe when read LE.
-  const isMachO =
-    magicLE === 0xcffaedfe ||
-    magicLE === 0xcefaedfe ||
-    magicBE === 0xfeedfacf ||
-    magicBE === 0xfeedface;
-  if (isMachO) {
-    // cputype follows the magic and uses the same byte order as the file.
-    const cpuType = magicLE === 0xcffaedfe || magicLE === 0xcefaedfe
-      ? buffer.readUInt32LE(4)
-      : buffer.readUInt32BE(4);
-    return { format: "mach-o", arch: cpus[cpuType] ?? `cpu:${cpuType.toString(16)}` };
-  }
-  if (magicBE === 0xcafebabe) {
-    return { format: "mach-o", arch: "universal" };
-  }
-  return null;
+  // A little-endian Mach-O 64 begins with 0xfeedfacf; those four bytes read as
+  // a little-endian integer are 0xfeedfacf and as a big-endian integer are
+  // 0xcffaedfe. Accept both byte orders and follow the file's own order when
+  // reading cputype (which sits at offset 4 in the same order).
+  let littleEndian;
+  if (magicLE === 0xfeedfacf || magicLE === 0xfeedface) littleEndian = true;
+  else if (magicBE === 0xfeedfacf || magicBE === 0xfeedface) littleEndian = false;
+  else if (magicBE === 0xcafebabe) return { format: "mach-o", arch: "universal" };
+  else return null;
+
+  const cpuType = littleEndian ? buffer.readUInt32LE(4) : buffer.readUInt32BE(4);
+  return { format: "mach-o", arch: cpus[cpuType] ?? `cpu:${cpuType.toString(16)}` };
 }
 
 function elfInfo(buffer) {

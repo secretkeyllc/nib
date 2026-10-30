@@ -281,23 +281,25 @@ jobs:
           cat latest-arm64.yml
 
       - name: Package macOS installer (ad-hoc signed)
+        # No Apple Developer certificate yet. Apple Silicon refuses to execute an
+        # arm64 binary that carries no signature at all, so this lane signs
+        # ad-hoc (`codesign -s -`): the app launches, but Gatekeeper cannot vouch
+        # for a publisher, so the person who downloads it approves it once in
+        # System Settings → Privacy & Security. Ad-hoc cannot be notarized;
+        # setting the six signing secrets switches this lane to a Developer ID.
+        #
+        # `mac.identity=-` is the only switch that reaches the ad-hoc branch.
+        # CSC_NAME='-' does not: it is read as the *name* of a certificate, no
+        # identity matches, and electron-builder silently skips signing — which
+        # produced an unsigned app that Apple Silicon will not start.
         if: matrix.platform == 'macos' && steps.macos_sign.outputs.signed != 'true'
-        env:
-          # No Apple Developer certificate yet. Apple Silicon refuses to execute
-          # an arm64 binary that carries no signature at all, so this is an
-          # ad-hoc signature (`codesign -s -`): the app launches locally, but
-          # Gatekeeper cannot vouch for a publisher, so the person who downloads
-          # it approves it once in System Settings → Privacy & Security.
-          # Ad-hoc signatures cannot pass Apple's notarization service. Setting
-          # the six signing secrets switches this lane to a Developer ID
-          # (see the release runbook).
-          CSC_NAME: '-'
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: |
           set -euo pipefail
           # Artifact names are defined in apps/desktop/package.json: the mac
           # pattern labels ZIPs, and the dmg target pattern labels DMGs.
-          pnpm --filter nib-desktop run dist:mac -- --${{ matrix.arch }}
+          # dist:mac builds the Rust sidecar and the renderer bundle before it
+          # calls electron-builder, so keep it and append the ad-hoc identity.
+          pnpm --filter nib-desktop run dist:mac -- --${{ matrix.arch }} -c.mac.identity=-
 
       - name: Diagnose macOS signing environment
         # Records the runner baseline (system, codesign, identities, keychain,

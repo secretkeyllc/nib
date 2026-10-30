@@ -12,11 +12,12 @@ const checker = join(repoRoot, "scripts/check-bundled-host.mjs");
 
 /**
  * Minimal little-endian Mach-O 64 header for `arch`.
- * On disk MH_MAGIC_64 is the bytes cf fa ed fe, which read as 0xcffaedfe.
+ * A real Mach-O 64 file starts with 0xfeedfacf when its first four bytes are
+ * read little-endian (the bytes are cf fa ed fe), so that is what we write.
  */
 function macho(arch) {
   const buffer = Buffer.alloc(64);
-  buffer.writeUInt32LE(0xcffaedfe, 0);
+  buffer.writeUInt32LE(0xfeedfacf, 0);
   buffer.writeUInt32LE(arch === "arm64" ? 0x0100000c : 0x01000007, 4);
   return buffer;
 }
