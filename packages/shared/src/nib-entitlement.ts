@@ -24,6 +24,12 @@ export type NibEntitlement = {
   topupRemaining?: number;
   /** ISO 8601 instant the monthly allowance resets. */
   resetsAt?: string;
+  /** ISO 8601 instant today's allowance resets, for the per-meter countdown. */
+  dailyResetsAt?: string;
+  /** ISO 8601 instant this week's allowance resets. */
+  weeklyResetsAt?: string;
+  /** ISO 8601 instant this month's allowance resets. */
+  monthlyResetsAt?: string;
   concurrency?: number;
 };
 

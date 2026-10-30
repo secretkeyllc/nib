@@ -806,6 +806,7 @@ export const ptBR = {
     "accountVendorMissing": "The Nib provider is not loaded, so sign-in is unavailable. Reinstall the app or check the plugin.",
     "creditsThisWeek": "This week",
     "creditsThisMonth": "This month",
+    "creditsResetsIn": "Reinicia em {{time}}",
     "creditsRenews": "Renews {{date}}",
     "creditsTopup": "{{amount}} top-up credits",
     "creditsAria": "{{plan}}: {{left}} of {{total}} credits left",

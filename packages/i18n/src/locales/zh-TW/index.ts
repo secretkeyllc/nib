@@ -812,6 +812,7 @@ export const zhTW = {
     "accountVendorMissing": "Nib 服務未載入，暫時無法登入。請重裝應用或檢查外掛。",
     "creditsThisWeek": "本週",
     "creditsThisMonth": "本月",
+    "creditsResetsIn": "剩餘 {{time}} 重置",
     "creditsRenews": "{{date}} 更新",
     "creditsTopup": "加購餘額 {{amount}}",
     "creditsAria": "{{plan}}：剩餘 {{left}} / {{total}}",

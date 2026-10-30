@@ -26,12 +26,19 @@ import {
 } from "../../../lib/context-inspector-position";
 import { portalToBody } from "../../../lib/portal-visibility";
 import { TooltipButton } from "../../../components/ui";
+import { useResetCountdown } from "./use-reset-countdown";
 
 const REFRESH_MS = 5 * 60 * 1000;
 /** A failed read retries at this cadence instead of the settled one. */
 const RETRY_MS = 30 * 1000;
 
-type Meter = { label: string; used: number; limit: number };
+type Meter = {
+  label: string;
+  used: number;
+  limit: number;
+  /** ISO instant this window resets; absent when the window never refreshes. */
+  resetsAt?: string;
+};
 
 function percentOf(used: number, limit: number): number {
   if (limit <= 0) return 0;
@@ -182,6 +189,7 @@ export function NibCreditsChip() {
       label: t("nib.creditsToday"),
       used: Math.round(ent.dailyUsed ?? 0),
       limit: Math.round(ent.dailyLimit),
+      resetsAt: ent.dailyResetsAt,
     });
   }
   if (ent.weeklyLimit) {
@@ -189,6 +197,7 @@ export function NibCreditsChip() {
       label: t("nib.creditsThisWeek"),
       used: Math.round(ent.weeklyUsed ?? 0),
       limit: Math.round(ent.weeklyLimit),
+      resetsAt: ent.weeklyResetsAt,
     });
   }
   if (hasBalance) {
@@ -196,6 +205,7 @@ export function NibCreditsChip() {
       label: t("nib.creditsThisMonth"),
       used,
       limit: total,
+      resetsAt: ent.monthlyResetsAt ?? ent.resetsAt,
     });
   }
 
@@ -259,6 +269,10 @@ export function NibCreditsChip() {
               <div className="nib-credits-meter" key={meter.label}>
                 <div className="nib-credits-meter-row">
                   <span className="nib-credits-meter-label">{meter.label}</span>
+                  {/* The countdown rides on the label row so "Today" and
+                      "resets in 18h 50m" are read together, and the numbers
+                      stay right-aligned across the three meters. */}
+                  <MeterCountdown resetsAt={meter.resetsAt} />
                   <span className="nib-credits-meter-values">
                     {meter.used.toLocaleString()} /{" "}
                     {meter.limit.toLocaleString()}
@@ -330,6 +344,22 @@ export function NibCreditsChip() {
       {popover && typeof document !== "undefined"
         ? portalToBody(popover)
         : null}
+    </span>
+  );
+}
+
+/**
+ * Countdown for one meter. `useResetCountdown` must be called unconditionally
+ * per meter row, so this stays a component rather than a hook called in a loop
+ * inside the popover's map.
+ */
+function MeterCountdown({ resetsAt }: { resetsAt?: string }) {
+  const { t } = useTranslation();
+  const remaining = useResetCountdown(resetsAt);
+  if (!remaining) return null;
+  return (
+    <span className="nib-credits-meter-reset">
+      {t("nib.creditsResetsIn", { time: remaining })}
     </span>
   );
 }

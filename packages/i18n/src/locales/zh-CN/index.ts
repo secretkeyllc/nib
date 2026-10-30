@@ -812,6 +812,7 @@ export const zhCN = {
     accountVendorMissing: "Nib 服务未加载，暂时无法登录。请重装应用或检查插件。",
     creditsThisWeek: "本周",
     creditsThisMonth: "本月",
+    creditsResetsIn: "剩余 {{time}} 重置",
     creditsRenews: "{{date}} 更新",
     creditsTopup: "加购余额 {{amount}}",
     creditsAria: "{{plan}}：剩余 {{left}} / {{total}}",

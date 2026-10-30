@@ -153,6 +153,12 @@ export function registerNibIpc({
         weeklyLimit: num(usage.weekly_limit),
         topupRemaining: num(usage.topup_credits_remaining),
         resetsAt: typeof usage.resets_at === "string" ? usage.resets_at : undefined,
+        dailyResetsAt:
+          typeof usage.daily_resets_at === "string" ? usage.daily_resets_at : undefined,
+        weeklyResetsAt:
+          typeof usage.weekly_resets_at === "string" ? usage.weekly_resets_at : undefined,
+        monthlyResetsAt:
+          typeof usage.monthly_resets_at === "string" ? usage.monthly_resets_at : undefined,
         concurrency: num(plan.concurrency),
       };
     } catch (error) {
