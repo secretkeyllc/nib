@@ -9,3 +9,9 @@ rustflags = ["-C", "target-feature=+crt-static"]
 # not bundle — so the app starts but the local service exits immediately.
 [target.aarch64-pc-windows-gnullvm]
 rustflags = ["-C", "target-feature=+crt-static"]
+
+# Same contract for the native Windows ARM64 build (MSVC). Without this the
+# sidecar imports VCRUNTIME140.dll, which is only present when the Visual C++
+# Redistributable happens to be installed.
+[target.aarch64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]

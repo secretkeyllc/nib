@@ -130,3 +130,18 @@ test("dist:win forwards the requested architecture to electron-builder", async (
     /filter\(\(arg\) => arg !== "--x64" && arg !== "--arm64"\)/,
   );
 });
+
+test("every Windows target links the CRT statically", () => {
+  // The MSVC arm64 sidecar imported VCRUNTIME140.dll, which only exists when
+  // the Visual C++ Redistributable happens to be installed. Each target the
+  // build can select needs the flag; a missing stanza fails at package time.
+  for (const target of [
+    "x86_64-pc-windows-msvc",
+    "aarch64-pc-windows-msvc",
+    "aarch64-pc-windows-gnullvm",
+  ]) {
+    const block = cargoConfig.split(`[target.${target}]`)[1]?.split("[target.")[0];
+    assert.ok(block, `${target} has no rustflags stanza`);
+    assert.match(block, /target-feature=\+crt-static/, target);
+  }
+});
