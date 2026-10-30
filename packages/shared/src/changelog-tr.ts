@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const trEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.3",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm'da yerel hizmet yeniden başlıyor: çalışma zamanı artık statik bağlanıyor.",
+      "Arm sürümünü x64 bir PC'ye kurmak artık net bir mesajla duruyor.",
+    ],
+  },
+  {
     version: "0.22.2",
     date: "2026-10-30",
     highlights: [

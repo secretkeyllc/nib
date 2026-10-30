@@ -1,9 +1,14 @@
-import { spawn } from "node:child_process";
-import { copyFile, mkdir } from "node:fs/promises";
-import { dirname } from "node:path";
+import { spawn, spawnSync } from "node:child_process";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import process from "node:process";
 
-const forwardedArgs = process.argv.slice(2);
+const repoRoot = fileURLToPath(new URL("..", import.meta.url));
+// `pnpm run dist:win -- --arm64` forwards the standalone `--` separator too, so
+// argv is ["--", "--arm64"]. Left in place it reaches electron-builder as a
+// positional argument, which makes it ignore the architecture flag and silently
+// build x64 for both lanes.
+const forwardedArgs = process.argv.slice(2).filter((arg) => arg !== "--");
 
 const hostTarget =
   process.platform === "win32"
@@ -55,15 +60,40 @@ function runBuilder(args) {
  * must be the same architecture as the Electron app or the local service
  * refuses to start. The two cross targets live in different directories, so
  * the right binary is copied into the single path package.json names.
+ *
+ * Refuse a sidecar that imports a DLL Windows does not ship: it installs fine
+ * and then dies on first launch (0.22.2 shipped an arm64 build linked against
+ * libunwind.dll). `pnpm run dist:win` builds it through build-win-sidecar.mjs
+ * and checks it there too; this covers a bare `electron-builder --win` run.
  */
 async function stageWinSidecar(arch) {
-  const source =
-    arch === "arm64"
-      ? "target/aarch64-pc-windows-gnullvm/release/nib-host-core.exe"
-      : "target/x86_64-pc-windows-gnu/release/nib-host-core.exe";
-  const staged = `target/${arch}-win-sidecar/nib-host-core.exe`;
-  await mkdir(dirname(staged), { recursive: true });
-  await copyFile(source, staged);
+  // Build it here rather than relying on a separate chained script: pnpm
+  // appends `--arm64` to the end of `dist:win`, so a standalone
+  // `build-win-sidecar.mjs` invocation never sees the flag and silently builds
+  // x64 for both lanes. That script also stages the binary where
+  // `extraResources` expects it, so there is nothing to copy afterwards.
+  const build = spawnSync(
+    process.execPath,
+    [join(repoRoot, "scripts", "build-win-sidecar.mjs"), `--${arch}`],
+    { cwd: repoRoot, stdio: "inherit" },
+  );
+  if (build.status !== 0) {
+    throw new Error(`${arch} sidecar build failed`);
+  }
+
+  // pnpm runs this module with apps/desktop as the working directory, so every
+  // path handed to a child or the fs API must be absolute.
+  const staged = join(repoRoot, "target", `${arch}-win-sidecar`, "nib-host-core.exe");
+  const check = spawnSync(
+    process.execPath,
+    [join(repoRoot, "scripts", "check-windows-host-imports.mjs"), staged],
+    { cwd: repoRoot, stdio: "inherit" },
+  );
+  if (check.status !== 0) {
+    throw new Error(
+      `${arch} sidecar is not self-contained; refusing to package it`,
+    );
+  }
 }
 
 /**
@@ -83,33 +113,32 @@ function forceBcj2Filter() {
 if (target === "win") {
   const archArg = forwardedArgs.find((arg) => arg === "--x64" || arg === "--arm64");
   const arch = archArg === "--arm64" ? "arm64" : "x64";
+
+  // Pass the architecture explicitly and drop the caller's copy. Forwarding it
+  // verbatim made electron-builder fall back to its default (x64) on the arm64
+  // lane, so that release channel shipped x64 installers.
+  const builderArgs = [
+    `--${arch}`,
+    ...forwardedArgs.filter((arg) => arg !== "--x64" && arg !== "--arm64"),
+  ];
+
   await stageWinSidecar(arch);
   forceBcj2Filter();
 
-  await runBuilder([
-    "--win",
-    "nsis",
-    "--publish",
-    "never",
-    ...forwardedArgs,
-    "-c.extraMetadata.piDistribution=installed",
-  ]);
-  await runBuilder([
-    "--win",
-    "zip",
-    "--publish",
-    "never",
-    ...forwardedArgs,
-    "-c.extraMetadata.piDistribution=zip",
-  ]);
-  await runBuilder([
-    "--win",
-    "portable",
-    "--publish",
-    "never",
-    ...forwardedArgs,
-    "-c.extraMetadata.piDistribution=portable",
-  ]);
+  for (const [targetName, distribution] of [
+    ["nsis", "installed"],
+    ["zip", "zip"],
+    ["portable", "portable"],
+  ]) {
+    await runBuilder([
+      "--win",
+      targetName,
+      "--publish",
+      "never",
+      ...builderArgs,
+      `-c.extraMetadata.piDistribution=${distribution}`,
+    ]);
+  }
 } else {
   await runBuilder([
     `--${target}`,

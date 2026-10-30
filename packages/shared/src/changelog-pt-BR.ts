@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const ptBREntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.3",
+    date: "2026-10-30",
+    highlights: [
+      "O serviço local volta a iniciar no Windows on Arm: o runtime agora é vinculado estaticamente.",
+      "Instalar a versão Arm em um PC x64 agora para com uma mensagem clara.",
+    ],
+  },
+  {
     version: "0.22.2",
     date: "2026-10-30",
     highlights: [

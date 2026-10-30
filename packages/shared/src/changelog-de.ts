@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const deEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.3",
+    date: "2026-10-30",
+    highlights: [
+      "Der lokale Dienst startet unter Windows on Arm wieder: die Laufzeit ist jetzt statisch gelinkt.",
+      "Die Arm-Version bricht auf einem x64-PC jetzt mit einer klaren Meldung ab.",
+    ],
+  },
+  {
     version: "0.22.2",
     date: "2026-10-30",
     highlights: [

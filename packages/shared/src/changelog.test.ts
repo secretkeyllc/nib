@@ -34,7 +34,7 @@ describe("changelog catalog", () => {
     // Only versions Nib actually published belong here. Earlier entries in the
     // inherited catalogue described a different product and were removed.
     const versions = CHANGELOG.en.map((e) => e.version);
-    expect(versions).toEqual(["0.22.2", "0.22.1", "0.22.0", "0.21.0"]);
+    expect(versions).toEqual(["0.22.3", "0.22.2", "0.22.1", "0.22.0", "0.21.0"]);
     for (const version of versions) {
       expect(version).not.toMatch(/-/);
     }
@@ -62,10 +62,10 @@ describe("changelog catalog", () => {
   it("looks up and formats notes with English fallback", () => {
     const entry = getChangelogEntry("v0.21.0", "en");
     expect(entry?.version).toBe("0.21.0");
-    const notes = formatChangelogNotes("0.22.2", "en");
+    const notes = formatChangelogNotes("0.22.3", "en");
     expect(notes).toMatch(/^• /);
     expect(notes?.split("\n").length).toBe(
-      getChangelogEntry("0.22.2", "en")?.highlights.length,
+      getChangelogEntry("0.22.3", "en")?.highlights.length,
     );
     expect(formatChangelogNotes("9.9.9", "en")).toBeUndefined();
     expect(formatChangelogNotes("0.22.1-rc.6", "en")).toBeUndefined();

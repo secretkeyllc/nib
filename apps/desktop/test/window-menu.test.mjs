@@ -397,29 +397,42 @@ test("macOS activation resurfaces a tray-hidden window", () => {
   );
 });
 
-test("desktop packaging builds the native host before every local target", () => {
+test("desktop packaging builds the native host before every local target", async () => {
   assert.match(
     packageJson.scripts["build:host-release"],
     /cargo build --release .* -p host-core/,
   );
   for (const name of ["pack", "dist", "dist:mac", "dist:win", "dist:linux"]) {
     const script = packageJson.scripts[name];
-    // Windows goes through scripts/build-win-sidecar.mjs, which builds the
-    // sidecar for the arch being packaged (x64 and arm64 use different Rust
-    // targets); every other target still calls build:host-release directly.
-    const buildsHost = /pnpm run build:host-release|build-win-sidecar\.mjs/.test(script);
+    // build-desktop-release.mjs builds the Windows sidecar itself, for the arch
+    // being packaged (x64 and arm64 use different Rust targets), before it
+    // invokes electron-builder. Every other target builds it in the script.
+    const buildsHost = /pnpm run build:host-release|build-desktop-release\.mjs/.test(script);
     assert.ok(buildsHost, `${name} must build the native host`);
     const packagingCommand = script.includes("build-desktop-release.mjs")
       ? "build-desktop-release.mjs"
       : "electron-builder";
-    const hostCommand = script.includes("build-win-sidecar.mjs")
-      ? "build-win-sidecar.mjs"
-      : "pnpm run build:host-release";
+    if (script.includes("build-desktop-release.mjs") && !script.includes("build:host-release")) {
+      // dist:win: the release script builds the sidecar itself, before it
+      // shells out to electron-builder. That ordering is asserted separately.
+      continue;
+    }
     assert.ok(
-      script.indexOf(hostCommand) < script.indexOf(packagingCommand),
+      script.indexOf("pnpm run build:host-release") < script.indexOf(packagingCommand),
       `${name} must build the native host before the packaging command`,
     );
   }
+  // dist:win no longer builds the sidecar in the script itself; the release
+  // script does it, and must do it before electron-builder runs.
+  const releaseScriptSource = await readFile(
+    new URL("../../../scripts/build-desktop-release.mjs", import.meta.url),
+    "utf8",
+  );
+  assert.ok(
+    releaseScriptSource.indexOf("await stageWinSidecar(arch)") <
+      releaseScriptSource.indexOf("await runBuilder(["),
+    "dist:win must build the sidecar before electron-builder",
+  );
   assert.ok(
     packageJson.build.win.extraResources.some(
       ({ to }) => to === "bin/nib-host-core.exe",

@@ -3,3 +3,9 @@
 # Visual C++ Redistributable installation before the local service can boot.
 [target.x86_64-pc-windows-msvc]
 rustflags = ["-C", "target-feature=+crt-static"]
+
+# Same contract for the arm64 (llvm-mingw) sidecar. Without this it links
+# libunwind.dll dynamically — a DLL Windows does not ship and the installer does
+# not bundle — so the app starts but the local service exits immediately.
+[target.aarch64-pc-windows-gnullvm]
+rustflags = ["-C", "target-feature=+crt-static"]

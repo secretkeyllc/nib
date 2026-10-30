@@ -1,6 +1,6 @@
 {
   "name": "nib-desktop",
-  "version": "0.22.2",
+  "version": "0.22.3",
   "desktopName": "nib.desktop",
   "private": true,
   "description": "Nib — AI coding agent for your desktop",
@@ -27,7 +27,7 @@
     "pack": "pnpm run build:deps && pnpm run build:host-release && pnpm run bundle:runtime && electron-vite build && electron-builder --dir",
     "dist": "pnpm run build:deps && pnpm run build:host-release && pnpm run bundle:runtime && electron-vite build && node ../../scripts/build-desktop-release.mjs",
     "dist:mac": "pnpm run build:deps && pnpm run build:host-release && pnpm run bundle:runtime && electron-vite build && electron-builder --mac --publish never",
-    "dist:win": "pnpm run build:deps && node ../../scripts/build-win-sidecar.mjs && pnpm run bundle:runtime && electron-vite build && node ../../scripts/build-desktop-release.mjs win",
+    "dist:win": "pnpm run build:deps && pnpm run bundle:runtime && electron-vite build && node ../../scripts/build-desktop-release.mjs win",
     "dist:linux": "pnpm run build:deps && pnpm run build:host-release && pnpm run bundle:runtime && electron-vite build && electron-builder --linux --publish never"
   },
   "dependencies": {

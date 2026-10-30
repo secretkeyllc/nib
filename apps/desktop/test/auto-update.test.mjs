@@ -329,13 +329,15 @@ test("packaging publishes an electron-updater feed on the Nib download server", 
   );
   assert.equal(pkg.build.extraMetadata.piDistribution, "installed");
   assert.match(pkg.scripts["dist:win"], /build-desktop-release\.mjs win/);
-  assert.match(buildReleaseSource, /"--win",\s*"nsis"/);
-  assert.match(buildReleaseSource, /"--win",\s*"zip"/);
-  assert.match(buildReleaseSource, /"--win",\s*"portable"/);
-  assert.match(buildReleaseSource, /piDistribution=portable/);
+  // The Windows builder targets come from a table so the requested
+  // architecture can be passed explicitly to each one; assert the targets and
+  // the distribution flag instead of one literal call per target.
+  assert.match(buildReleaseSource, /\["nsis", "installed"\]/);
+  assert.match(buildReleaseSource, /\["zip", "zip"\]/);
+  assert.match(buildReleaseSource, /\["portable", "portable"\]/);
+  assert.match(buildReleaseSource, /"--win",\s*targetName/);
+  assert.match(buildReleaseSource, /piDistribution=\$\{distribution\}/);
   assert.match(buildReleaseSource, /"--publish",\s*"never"/);
-  assert.match(buildReleaseSource, /piDistribution=installed/);
-  assert.match(buildReleaseSource, /piDistribution=zip/);
   assert.match(
     buildReleaseSource,
     /shell:\s*process\.platform === "win32"/,

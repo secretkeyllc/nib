@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const koEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.3",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm에서 로컬 서비스가 다시 시작됩니다. 런타임이 정적 링크로 바뀌었습니다.",
+      "Arm 버전을 x64 PC에 설치하면 이제 명확한 안내와 함께 중단됩니다.",
+    ],
+  },
+  {
     version: "0.22.2",
     date: "2026-10-30",
     highlights: [

@@ -46,6 +46,19 @@ if (result.error) {
 }
 if (result.status !== 0) process.exit(result.status ?? 1);
 
+// A sidecar that imports a DLL Windows does not ship installs "successfully"
+// and then dies on the first launch, so refuse to stage one. See
+// check-windows-host-imports.mjs for the failure this caught in 0.22.2.
+const importsCheck = spawnSync(
+  process.execPath,
+  [join(root, "scripts", "check-windows-host-imports.mjs"), built],
+  { cwd: root, stdio: "inherit" },
+);
+if (importsCheck.status !== 0) {
+  console.error(`refusing to stage ${arch} sidecar: it is not self-contained`);
+  process.exit(1);
+}
+
 await mkdir(dirname(staged), { recursive: true });
 await copyFile(built, staged);
 console.log(`staged ${arch} sidecar: ${staged}`);

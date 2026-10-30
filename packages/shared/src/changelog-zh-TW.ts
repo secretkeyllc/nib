@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhTWEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.3",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm 的本機服務恢復啟動：執行階段改為靜態連結。",
+      "Arm 安裝在 x64 電腦上會明確提示並停止。",
+    ],
+  },
+  {
     version: "0.22.2",
     date: "2026-10-30",
     highlights: [

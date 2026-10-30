@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhCNEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.3",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm 的本地服务恢复启动：运行时改为静态链接。",
+      "Arm 安装在 x64 电脑上会明确提示并停止。",
+    ],
+  },
+  {
     version: "0.22.2",
     date: "2026-10-30",
     highlights: [
