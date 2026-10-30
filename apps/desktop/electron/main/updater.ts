@@ -466,6 +466,15 @@ export class AppUpdaterController {
     // newer stable release such as 0.2.2. Always track GitHub's latest
     // stable release so RC installs can graduate to stable.
     this.autoUpdater.allowPrerelease = false;
+    // Windows publishes one feed per architecture (`latest.yml` for x64,
+    // `latest-arm64.yml` for arm64), exactly like the Linux lanes: the two
+    // artifacts cannot share a feed or an x64 install would be offered the
+    // arm64 package. Setting the channel makes electron-updater request
+    // `<channel>.yml`; x64 keeps the default name so existing installs
+    // continue to read the file they always have.
+    if (process.platform === "win32" && process.arch === "arm64") {
+      this.autoUpdater.channel = "latest-arm64";
+    }
     // Only automatic mode may install on quit; manual mode never hands an
     // installer a no-install/portable directory.
     this.autoUpdater.logger = {

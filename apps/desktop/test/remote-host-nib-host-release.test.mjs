@@ -28,7 +28,7 @@ const LINUX_X64 = { platform: "linux", arch: "x64" };
 const ARTIFACT_NAME = "nib-host-0.15.1-beta.5-linux-x64.tar.gz";
 // The download server is the primary source (reachable where GitHub is not);
 // the GitHub release stays in the list as a fallback.
-const SITE_BASE = "https://nib.am/downloads/host/v0.15.1-beta.5";
+const SITE_BASE = "https://dl.nib.am/host/v0.15.1-beta.5";
 const RELEASE_BASE = "https://github.com/secretkeyllc/nib/releases/download/v0.15.1-beta.5";
 /** 64 hex characters, so it passes `normalizeChecksum`. */
 const DIGEST = "0123456789abcdef".repeat(4);

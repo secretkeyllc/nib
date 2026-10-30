@@ -97,7 +97,7 @@ export function nibHostArtifactName(version: string, target: NibHostTarget): str
  * test server, without rebuilding the app.
  */
 const RELEASE_REPOSITORY = "secretkeyllc/nib";
-const DEFAULT_SITE_BASE = "https://nib.am/downloads/host";
+const DEFAULT_SITE_BASE = "https://dl.nib.am/host";
 const DEFAULT_RELEASE_BASE = `https://github.com/${RELEASE_REPOSITORY}/releases/download`;
 
 export function nibHostArtifactBases(version: string): string[] {

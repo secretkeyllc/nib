@@ -27,7 +27,7 @@
     "pack": "pnpm run build:deps && pnpm run build:host-release && pnpm run bundle:runtime && electron-vite build && electron-builder --dir",
     "dist": "pnpm run build:deps && pnpm run build:host-release && pnpm run bundle:runtime && electron-vite build && node ../../scripts/build-desktop-release.mjs",
     "dist:mac": "pnpm run build:deps && pnpm run build:host-release && pnpm run bundle:runtime && electron-vite build && electron-builder --mac --publish never",
-    "dist:win": "pnpm run build:deps && pnpm run build:host-release && pnpm run bundle:runtime && electron-vite build && node ../../scripts/build-desktop-release.mjs win",
+    "dist:win": "pnpm run build:deps && node ../../scripts/build-win-sidecar.mjs && pnpm run bundle:runtime && electron-vite build && node ../../scripts/build-desktop-release.mjs win",
     "dist:linux": "pnpm run build:deps && pnpm run build:host-release && pnpm run bundle:runtime && electron-vite build && electron-builder --linux --publish never"
   },
   "dependencies": {
@@ -96,7 +96,7 @@
     "publish": [
       {
         "provider": "generic",
-        "url": "https://nib.am/downloads/updates"
+        "url": "https://dl.nib.am/updates"
       }
     ],
     "extraMetadata": {
@@ -212,31 +212,34 @@
     },
     "win": {
       "executableName": "Nib",
-      "artifactName": "Nib-Setup-${version}.${ext}",
+      "artifactName": "Nib-Setup-${version}-${arch}.${ext}",
       "target": [
         {
           "target": "nsis",
           "arch": [
-            "x64"
+            "x64",
+            "arm64"
           ]
         },
         {
           "target": "zip",
           "arch": [
-            "x64"
+            "x64",
+            "arm64"
           ]
         },
         {
           "target": "portable",
           "arch": [
-            "x64"
+            "x64",
+            "arm64"
           ]
         }
       ],
       "icon": "build/icon.ico",
       "extraResources": [
         {
-          "from": "../../target/x86_64-pc-windows-gnu/release/nib-host-core.exe",
+          "from": "../../target/${arch}-win-sidecar/nib-host-core.exe",
           "to": "bin/nib-host-core.exe"
         },
         {
@@ -253,10 +256,10 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "shortcutName": "Nib",
-      "artifactName": "Nib-Setup-${version}.${ext}"
+      "artifactName": "Nib-Setup-${version}-${arch}.${ext}"
     },
     "portable": {
-      "artifactName": "Nib-Portable-${version}.${ext}"
+      "artifactName": "Nib-Portable-${version}-${arch}.${ext}"
     },
     "deb": {
       "packageName": "nib",

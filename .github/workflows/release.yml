@@ -124,6 +124,16 @@ jobs:
             artifact: windows-x64
             platform: windows
             dist: dist:win
+          - name: Windows arm64
+            # Native arm64 runner: the MinGW/llvm-mingw cross targets are
+            # available there, and the Electron package and the host-core
+            # sidecar are built at the same architecture.
+            os: windows-11-arm
+            arch: arm64
+            runner_arch: aarch64
+            artifact: windows-arm64
+            platform: windows
+            dist: dist:win
           - name: Linux x64
             # Ubuntu 22.04 keeps host-core at glibc 2.35 so Ubuntu 22.04,
             # Debian 12, and Fedora 36+ can load the binary. ubuntu-latest
@@ -226,6 +236,21 @@ jobs:
         # The explicit architecture keeps the package and native Rust sidecar
         # aligned with the runner selected by this matrix entry.
         run: pnpm --filter nib-desktop run ${{ matrix.dist }} -- --${{ matrix.arch }}
+
+      - name: Split the Windows updater feed by architecture
+        # electron-builder always names the NSIS feed `latest.yml`, so the x64
+        # and arm64 lanes would overwrite each other and one architecture
+        # would be offered the other's installer. The arm64 lane renames its
+        # feed to `latest-arm64.yml`, which is what the arm64 updater requests
+        # via its channel (see updater.ts).
+        if: matrix.platform == 'windows' && matrix.arch == 'arm64'
+        run: |
+          set -euo pipefail
+          cd apps/desktop/release
+          test -f latest.yml
+          mv latest.yml latest-arm64.yml
+          echo "feed renamed to latest-arm64.yml"
+          cat latest-arm64.yml
 
       - name: Package unsigned macOS installer
         if: matrix.platform == 'macos' && env.MACOS_SIGN_RELEASE != 'true'

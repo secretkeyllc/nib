@@ -1,4 +1,6 @@
 import { spawn } from "node:child_process";
+import { copyFile, mkdir } from "node:fs/promises";
+import { dirname } from "node:path";
 import process from "node:process";
 
 const forwardedArgs = process.argv.slice(2);
@@ -46,7 +48,29 @@ function runBuilder(args) {
   });
 }
 
+/**
+ * Stage the host-core sidecar for one Windows architecture.
+ *
+ * electron-builder copies `extraResources` verbatim, and the packaged sidecar
+ * must be the same architecture as the Electron app or the local service
+ * refuses to start. The two cross targets live in different directories, so
+ * the right binary is copied into the single path package.json names.
+ */
+async function stageWinSidecar(arch) {
+  const source =
+    arch === "arm64"
+      ? "target/aarch64-pc-windows-gnullvm/release/nib-host-core.exe"
+      : "target/x86_64-pc-windows-gnu/release/nib-host-core.exe";
+  const staged = `target/${arch}-win-sidecar/nib-host-core.exe`;
+  await mkdir(dirname(staged), { recursive: true });
+  await copyFile(source, staged);
+}
+
 if (target === "win") {
+  const archArg = forwardedArgs.find((arg) => arg === "--x64" || arg === "--arm64");
+  const arch = archArg === "--arm64" ? "arm64" : "x64";
+  await stageWinSidecar(arch);
+
   await runBuilder([
     "--win",
     "nsis",

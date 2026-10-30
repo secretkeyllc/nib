@@ -404,12 +404,19 @@ test("desktop packaging builds the native host before every local target", () =>
   );
   for (const name of ["pack", "dist", "dist:mac", "dist:win", "dist:linux"]) {
     const script = packageJson.scripts[name];
-    assert.match(script, /pnpm run build:host-release/);
+    // Windows goes through scripts/build-win-sidecar.mjs, which builds the
+    // sidecar for the arch being packaged (x64 and arm64 use different Rust
+    // targets); every other target still calls build:host-release directly.
+    const buildsHost = /pnpm run build:host-release|build-win-sidecar\.mjs/.test(script);
+    assert.ok(buildsHost, `${name} must build the native host`);
     const packagingCommand = script.includes("build-desktop-release.mjs")
       ? "build-desktop-release.mjs"
       : "electron-builder";
+    const hostCommand = script.includes("build-win-sidecar.mjs")
+      ? "build-win-sidecar.mjs"
+      : "pnpm run build:host-release";
     assert.ok(
-      script.indexOf("pnpm run build:host-release") < script.indexOf(packagingCommand),
+      script.indexOf(hostCommand) < script.indexOf(packagingCommand),
       `${name} must build the native host before the packaging command`,
     );
   }

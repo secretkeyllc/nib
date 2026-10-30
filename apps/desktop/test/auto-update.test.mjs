@@ -260,7 +260,7 @@ test("packaging publishes an electron-updater feed on the Nib download server", 
   // polls the generic provider on the download server, where latest.yml and
   // the artifacts are published per release.
   assert.equal(pkg.build.publish[0].provider, "generic");
-  assert.equal(pkg.build.publish[0].url, "https://nib.am/downloads/updates");
+  assert.equal(pkg.build.publish[0].url, "https://dl.nib.am/updates");
   const windowsUpdateConfigResource = pkg.build.win.extraResources.find(
     ({ from }) => from === "resources/app-update.yml",
   );
@@ -318,13 +318,14 @@ test("packaging publishes an electron-updater feed on the Nib download server", 
     "rpm build-id configuration",
   );
   // GitHub asset URLs mangle spaces; keep Windows artifact names space-free.
-  assert.equal(pkg.build.nsis.artifactName, "Nib-Setup-${version}.${ext}");
+  assert.equal(pkg.build.nsis.artifactName, "Nib-Setup-${version}-${arch}.${ext}");
   const winTargets = pkg.build.win.target.map((entry) => entry.target);
   assert.deepEqual(winTargets, ["nsis", "zip", "portable"], "Windows release targets");
-  assert.equal(pkg.build.portable.artifactName, "Nib-Portable-${version}.${ext}", "portable artifact name");
+  assert.equal(pkg.build.portable.artifactName, "Nib-Portable-${version}-${arch}.${ext}", "portable artifact name");
   assert.equal(
     pkg.build.win.artifactName,
-    "Nib-Setup-${version}.${ext}",
+    "Nib-Setup-${version}-${arch}.${ext}",
+    "Windows artifact names carry the architecture, like ZCode's downloads",
   );
   assert.equal(pkg.build.extraMetadata.piDistribution, "installed");
   assert.match(pkg.scripts["dist:win"], /build-desktop-release\.mjs win/);
