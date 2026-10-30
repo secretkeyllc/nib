@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const koEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.8",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm 사이드카가 더 이상 Visual C++ 재배포 패키지를 필요로 하지 않습니다.",
+    ],
+  },
+  {
     version: "0.22.7",
     date: "2026-10-30",
     highlights: [

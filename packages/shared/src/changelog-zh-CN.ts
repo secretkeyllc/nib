@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhCNEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.8",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm 的本地服务不再依赖 Visual C++ 运行库。",
+    ],
+  },
+  {
     version: "0.22.7",
     date: "2026-10-30",
     highlights: [

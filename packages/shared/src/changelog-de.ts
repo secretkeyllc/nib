@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const deEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.8",
+    date: "2026-10-30",
+    highlights: [
+      "Der Windows-on-Arm-Sidecar benötigt kein Visual C++ Redistributable mehr.",
+    ],
+  },
+  {
     version: "0.22.7",
     date: "2026-10-30",
     highlights: [
