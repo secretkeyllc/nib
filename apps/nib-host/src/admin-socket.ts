@@ -24,16 +24,38 @@ export function adminSocketPath(dataDir: string): string {
   const local = relative(process.cwd(), path);
   return Buffer.byteLength(local) < Buffer.byteLength(path) ? local : path;
 }
+/**
+ * The admin socket lives under `dataDir` (`~/.nib` by default), which the
+ * desktop and earlier releases already created — often at 0755, a perfectly
+ * ordinary home-directory layout. Requiring 0700 here rejected those hosts
+ * with ADMIN_UNAVAILABLE even though nothing else was wrong, and the pairing
+ * toast then blamed the network.
+ *
+ * The property that actually matters is that no other user can *write* the
+ * directory or swap the socket: 0755 and 0700 both satisfy it, 0775 and 0777
+ * do not. Read permission is irrelevant — the socket inside is created 0600
+ * and `privateSocket` still enforces owner-only access on it.
+ */
+const UNSAFE_DIR_BITS = 0o022;
+
 export async function prepareAdminDirectory(dataDir: string): Promise<void> {
   if (process.platform === "win32" || !process.getuid) throw new ImportFailure("ADMIN_UNAVAILABLE");
   for (const dir of [dataDir, join(dataDir, "nib-host")]) {
     await mkdir(dir, { recursive: true, mode: 0o700 });
     const stat = await lstat(dir);
-    if (!stat.isDirectory() || stat.uid !== process.getuid() || (stat.mode & 0o077) !== 0) throw new ImportFailure("ADMIN_UNAVAILABLE");
+    if (
+      !stat.isDirectory() ||
+      stat.uid !== process.getuid() ||
+      (stat.mode & UNSAFE_DIR_BITS) !== 0
+    ) {
+      throw new ImportFailure("ADMIN_UNAVAILABLE");
+    }
   }
 }
 async function privateSocket(path: string): Promise<void> {
   const stat = await lstat(path);
+  // A socket is not a directory: anyone who can open it can issue an import, so
+  // this one keeps the strict owner-only rule.
   if (!stat.isSocket() || stat.uid !== process.getuid?.() || (stat.mode & 0o077) !== 0) throw new ImportFailure("ADMIN_UNAVAILABLE");
 }
 function probe(path: string): Promise<"live" | "stale"> {
@@ -70,7 +92,7 @@ async function claim(dataDir: string): Promise<() => Promise<void>> {
       let identity;
       try {
         identity = await file.stat();
-        if (!identity.isFile() || identity.uid !== process.getuid?.() || (identity.mode & 0o077) !== 0 || identity.size > 32) throw new ImportFailure("ADMIN_UNAVAILABLE");
+        if (!identity.isFile() || identity.uid !== process.getuid?.() || (identity.mode & UNSAFE_DIR_BITS) !== 0 || identity.size > 32) throw new ImportFailure("ADMIN_UNAVAILABLE");
         const pid = Number(await file.readFile("utf8"));
         if (!Number.isSafeInteger(pid) || pid <= 0) throw new ImportFailure("ADMIN_BUSY");
         try { process.kill(pid, 0); throw new ImportFailure("ADMIN_BUSY"); }

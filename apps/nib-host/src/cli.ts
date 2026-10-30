@@ -59,7 +59,13 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  const code = (error as { errorCode?: string })?.errorCode ?? "INTERNAL";
+  // ImportFailure (and RacpError) carry `code`, not `errorCode`. Reading only
+  // errorCode turned every startup failure into INTERNAL, so the desktop could
+  // only say "check that it can reach GitHub" no matter what actually broke.
+  const code =
+    (error as { errorCode?: string })?.errorCode ??
+    (error as { code?: string })?.code ??
+    "INTERNAL";
   process.stderr.write(`${JSON.stringify({ ts: new Date().toISOString(), level: "error", channel: "nib-host", message: "nib-host failed to start", data: { code, error: error instanceof Error ? error.message : String(error) } })}\n`);
   process.stdout.write(`NIB_HOST_FAILED ${JSON.stringify({ code })}\n`);
   process.exit(1);

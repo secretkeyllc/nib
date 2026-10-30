@@ -162,13 +162,22 @@ describe("provider import over the real owner-only admin socket", () => {
     expect(await sendAdminRequest(dataDir, payload())).toEqual({ ok: true, summary: { imported: [], skipped: [{ sourceId: "source-1", reason: "import_incomplete" }], defaultSet: false } });
     expect(host.methods.filter((method) => method === "providers.create")).toHaveLength(1);
   });
-  it("does not remove another live socket or accept symlinks/world-accessible directories", async () => {
+  it("does not remove another live socket or accept symlinks/world-writable directories", async () => {
     const { dataDir, server } = await fixture();
     const identity = await lstat(server.path);
     await expect(startAdminSocket({ dataDir, getHost: () => null })).rejects.toMatchObject({ code: "ADMIN_BUSY" });
     expect((await lstat(server.path)).ino).toBe(identity.ino);
+    // 0755 is a normal home-directory layout and must work: the desktop (and
+    // earlier releases) create ~/.nib at 0755, and rejecting it made every
+    // such host unreachable with "check that it can reach GitHub".
+    const readable = await directory();
+    await chmod(readable, 0o755);
+    const started = await startAdminSocket({ dataDir: readable, getHost: () => null });
+    await started.close();
+    // Write access for group/other is the real hazard — that is what could let
+    // another user swap the socket — so 0777 stays refused.
     const unsafe = await directory();
-    await chmod(unsafe, 0o755);
+    await chmod(unsafe, 0o777);
     await expect(startAdminSocket({ dataDir: unsafe, getHost: () => null })).rejects.toMatchObject({ code: "ADMIN_UNAVAILABLE" });
     const linked = await directory();
     await symlink(join(dataDir, "nib-host"), join(linked, "nib-host"));
