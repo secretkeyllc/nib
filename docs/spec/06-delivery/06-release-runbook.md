@@ -47,13 +47,13 @@ when macOS `iconutil` is available, without overwriting the canonical source.
 
 1. Apple Developer account with a **Developer ID Application** certificate in
    the login keychain. Official certificate:
-   `Developer ID Application: XingYu Liu (DUV63RKYTW)` (Team ID `DUV63RKYTW`).
+   `Developer ID Application: <Your Name> (<YOUR_TEAM_ID>)` issued to your own team.
 2. Environment variables for the local signed lane:
-   - `MAC_SIGNING_IDENTITY` — bare common name `XingYu Liu (DUV63RKYTW)`;
+   - `MAC_SIGNING_IDENTITY` — bare common name, e.g. `<Your Name> (<YOUR_TEAM_ID>)`;
      electron-builder rejects a name that keeps the
      `Developer ID Application:` prefix, so the script strips it
    - `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` — required for
-     notarization (`APPLE_TEAM_ID` must be `DUV63RKYTW`)
+     notarization (`APPLE_TEAM_ID` is your 10-character team id)
 3. Rust toolchain and pnpm workspace installed. The Rust toolchain must run on
    the native macOS runner: arm64 for Apple Silicon or x86_64 for Intel.
 
@@ -189,7 +189,7 @@ Pre-tag checklist:
 ### 4.2 Build / package
 
 ```bash
-export MAC_SIGNING_IDENTITY="XingYu Liu (DUV63RKYTW)"
+export MAC_SIGNING_IDENTITY="<Your Name> (<YOUR_TEAM_ID>)"
 export APPLE_ID=...
 export APPLE_APP_SPECIFIC_PASSWORD=...
 export APPLE_TEAM_ID=...
@@ -218,74 +218,96 @@ runtime, verifying the host build, building the Desktop application once, and
 invoking electron-builder. This avoids a redundant Desktop build without
 changing the package scripts or release artifacts.
 
-### Setting up the macOS signing secrets (new repository)
+### Setting up macOS signing (your own Apple Developer account)
 
-Signing needs five GitHub Actions secrets. They live per repository, so a
-repository rename or a new repo starts empty even when the Developer ID
-certificate itself is unchanged — which is why a tag build on a fresh repo
-fails at "Require macOS signing and notarization secrets".
+Signing proves the app came from you. It requires **your own** Apple Developer
+Program membership ($99/year) and a **Developer ID Application** certificate
+issued to your team — you cannot reuse anyone else's identity, and the release
+workflow reads the identity and team from repository secrets rather than
+pinning them.
 
-1. **Get the certificate as a `.p12`.** On a Mac with the certificate in the
-   login keychain, open Keychain Access → *My Certificates*, find
-   `Developer ID Application: XingYu Liu (DUV63RKYTW)`, expand it, select the
-   certificate **and** its private key, then *File → Export Items* → `.p12`
-   with a password. Alternatively download the `.cer` from
-   <https://developer.apple.com/account/resources/certificates> and import it
-   together with the private key; the private key exists only on machines that
-   created the CSR, so export from one of those.
+1. **Join the Apple Developer Program** at <https://developer.apple.com/programs/>
+   with the Apple ID that should own the app. Individual enrolment is enough;
+   an Organization enrolment (needs a D-U-N-S number) only matters if the
+   publisher should read as a company.
 
-2. **Base64 the `.p12` for `CSC_LINK`** (electron-builder accepts base64
-   directly, which avoids storing a file):
+2. **Create a Developer ID Application certificate**, on a Mac:
+   - Keychain Access → *Certificate Assistant* → *Request a Certificate from a
+     Certificate Authority*, save the CSR to disk.
+   - <https://developer.apple.com/account/resources/certificates> →
+     *Create a Certificate* → **Developer ID Application** → upload the CSR →
+     download the `.cer`.
+   - Double-click the `.cer` to import it; it pairs with the private key that
+     the CSR created. Confirm the entry appears under *My Certificates* with a
+     disclosure triangle (certificate **and** key).
+
+   Note the **Team ID** shown at <https://developer.apple.com/account>
+   (Membership details) — 10 characters, e.g. `A1B2C3D4E5`.
+
+3. **Export the certificate as `.p12`**: select the certificate *and* its
+   private key, then *File → Export Items* → `.p12` with a password.
+
+4. **Base64 it** (electron-builder takes base64 directly, so no file lands on
+   the runner):
 
    ```bash
    base64 -i DeveloperID.p12 | tr -d '\n' > csc-link.b64   # macOS
-   # or, on Linux with the exported file:
-   base64 -w0 DeveloperID.p12 > csc-link.b64
+   base64 -w0 DeveloperID.p12 > csc-link.b64                # Linux
    ```
 
-3. **Create an app-specific password** for notarization at
+5. **Create an app-specific password** for notarization at
    <https://appleid.apple.com> → *Sign-In and Security → App-Specific
    Passwords*. A normal Apple ID password is rejected by `notarytool`.
 
-4. **Add the five secrets** (Settings → Secrets and variables → Actions →
-   *New repository secret*):
+6. **Add the secrets** (Settings → Secrets and variables → Actions):
 
    | Secret | Value |
    |---|---|
-   | `CSC_LINK` | contents of `csc-link.b64` (base64 of the `.p12`) |
+   | `CSC_LINK` | contents of `csc-link.b64` |
    | `CSC_KEY_PASSWORD` | the password chosen when exporting the `.p12` |
    | `APPLE_ID` | the Apple ID email that owns the team |
-   | `APPLE_APP_SPECIFIC_PASSWORD` | the app-specific password from step 3 |
-   | `APPLE_TEAM_ID` | `DUV63RKYTW` (the workflow pins this value) |
+   | `APPLE_APP_SPECIFIC_PASSWORD` | the app-specific password from step 5 |
+   | `APPLE_TEAM_ID` | your 10-character team id from step 2 |
+   | `MAC_SIGNING_IDENTITY` | bare common name, e.g. `Your Name (A1B2C3D4E5)` |
 
-   With the GitHub CLI, all five in one go:
+   `MAC_SIGNING_IDENTITY` is the certificate's common name **without** the
+   `Developer ID Application:` prefix — electron-builder rejects the prefix.
+
+   With the GitHub CLI:
 
    ```bash
    gh secret set CSC_LINK --body "$(cat csc-link.b64)"
    gh secret set CSC_KEY_PASSWORD --body '<p12 password>'
    gh secret set APPLE_ID --body '<apple id email>'
    gh secret set APPLE_APP_SPECIFIC_PASSWORD --body '<app-specific password>'
-   gh secret set APPLE_TEAM_ID --body 'DUV63RKYTW'
+   gh secret set APPLE_TEAM_ID --body '<your team id>'
+   gh secret set MAC_SIGNING_IDENTITY --body '<name (TEAMID)>'
    ```
 
-5. **Delete the local `.p12` and `csc-link.b64`** once the secrets are stored.
+7. **Delete the local `.p12` and `csc-link.b64`** afterwards.
 
-6. **Re-run the tag build**: the release workflow re-reads secrets at job
-   start, so run *Re-run failed jobs* on the tag run (or push the tag again).
-   The macOS jobs then sign with
-   `CSC_NAME=XingYu Liu (DUV63RKYTW)`, notarize through `notarytool`, staple
-   both the app and the DMG, and verify Gatekeeper before upload.
+8. **Re-run the tag build.** The workflow re-reads secrets at job start, so
+   *Re-run failed jobs* is enough. macOS then signs, notarizes through
+   `notarytool`, staples the app and the DMG, and verifies Gatekeeper.
 
-What each failure means:
+### Windows code signing (optional, recommended)
 
-- `Missing GitHub Actions secrets ...` — step 4 skipped a value, or the tag
-  build ran before the secrets were saved.
-- `APPLE_TEAM_ID must be DUV63RKYTW` — the secret holds a different team; the
-  workflow pins the team that owns the certificate.
-- `notarytool` returns *Invalid* with "The software asset has already been
-  uploaded" — the tag was rebuilt with an identical binary; bump the version.
-- `errSecInternalComponent` during codesign — the keychain was locked or the
-  `.p12` has no private key; re-export from the Mac that holds it.
+The Windows binaries are unsigned by default. Unsigned installers still run,
+but SmartScreen shows "Unknown publisher" and endpoint protection may
+**quarantine the freshly extracted `.exe`/`.dll` files** — the install then
+looks like it silently lost `Nib.exe`, which is a support burden and a
+security smell in equal measure.
+
+Signing needs an Authenticode certificate (an EV certificate avoids the
+SmartScreen reputation warm-up; a standard OV one works but earns reputation
+over time):
+
+| Secret | Value |
+|---|---|
+| `WINDOWS_CSC_LINK` | base64 of the `.pfx`, or a path/hosted URL electron-builder can read |
+| `WINDOWS_CSC_KEY_PASSWORD` | the `.pfx` password |
+
+Both are optional: when unset the Windows job builds exactly as it does now.
 
 **Default macOS release policy:** GitHub tag releases Developer ID-sign,
 notarize, staple, and Gatekeeper-verify macOS DMG/ZIP before upload (D450 /
@@ -301,7 +323,7 @@ electron-builder, and builds `pi-desktop-host-core` on that same native
 runner. Tag builds and `sign_macos: true` (the dispatch default) receive
 `CSC_LINK`, `CSC_KEY_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, and
 `APPLE_TEAM_ID` only from GitHub Actions secrets, pin the certificate through
-`CSC_NAME=XingYu Liu (DUV63RKYTW)` (bare common name — electron-builder rejects
+`CSC_NAME` from `MAC_SIGNING_IDENTITY` (bare common name — electron-builder rejects
 the `Developer ID Application:` prefix), force code signing and
 `notarytool` notarization of `PI-Desktop.app`. The DMG is then submitted to the
 same service on its own (`scripts/notarize-and-staple-macos-release-dmg.sh`),
@@ -395,9 +417,9 @@ app-specific password. Never `echo` these values in CI.
 |---|---|
 | `CSC_LINK` | Base64 of the exported Developer ID Application `.p12` (Certificate + Private Key). electron-builder also accepts a file path, but CI uses the secret body. |
 | `CSC_KEY_PASSWORD` | Password used when exporting that `.p12` |
-| `APPLE_ID` | Apple ID email that belongs to team `DUV63RKYTW` |
+| `APPLE_ID` | Apple ID email that belongs to your team |
 | `APPLE_APP_SPECIFIC_PASSWORD` | App-specific password from https://appleid.apple.com → Sign-In and Security → App-Specific Passwords |
-| `APPLE_TEAM_ID` | `DUV63RKYTW` |
+| `APPLE_TEAM_ID` | your 10-character team id |
 
 Encode the p12 locally (do not paste the output into chat or the repo):
 

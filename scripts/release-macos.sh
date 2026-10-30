@@ -4,12 +4,12 @@
 # Local builds without a certificate remain unsigned. This script injects a
 # real signing identity and requires notarization credentials:
 #
-#   MAC_SIGNING_IDENTITY   default: "XingYu Liu (DUV63RKYTW)" — bare common
+#   MAC_SIGNING_IDENTITY   bare common name of your Developer ID Application
 #                          name; electron-builder rejects the
 #                          "Developer ID Application:" prefix
 #   APPLE_ID               Apple ID email for notarization
 #   APPLE_APP_SPECIFIC_PASSWORD  app-specific password for the Apple ID
-#   APPLE_TEAM_ID          Apple Developer Team ID (must be DUV63RKYTW)
+#   APPLE_TEAM_ID          your Apple Developer Team ID (10 characters)
 #   MAC_ARCH               optional `arm64` or `x64`; must match the host
 #
 # Observability: the packaging command runs under
@@ -55,9 +55,9 @@ if [[ "$MAC_ARCH" != "$DEFAULT_MAC_ARCH" ]]; then
   exit 1
 fi
 
-MAC_SIGNING_IDENTITY="${MAC_SIGNING_IDENTITY:-XingYu Liu (DUV63RKYTW)}"
+MAC_SIGNING_IDENTITY="${MAC_SIGNING_IDENTITY:-}"
 MAC_SIGNING_IDENTITY="${MAC_SIGNING_IDENTITY#Developer ID Application: }"
-APPLE_TEAM_ID="${APPLE_TEAM_ID:-DUV63RKYTW}"
+APPLE_TEAM_ID="${APPLE_TEAM_ID:-}"
 
 if [[ -z "${APPLE_ID:-}" || -z "${APPLE_APP_SPECIFIC_PASSWORD:-}" ]]; then
   echo "error: notarization credentials are required (APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD)." >&2
@@ -65,8 +65,8 @@ if [[ -z "${APPLE_ID:-}" || -z "${APPLE_APP_SPECIFIC_PASSWORD:-}" ]]; then
   exit 1
 fi
 
-if [[ "$APPLE_TEAM_ID" != "DUV63RKYTW" ]]; then
-  echo "error: APPLE_TEAM_ID must be DUV63RKYTW (got: $APPLE_TEAM_ID)." >&2
+if ! [[ "$APPLE_TEAM_ID" =~ ^[A-Z0-9]{10}$ ]]; then
+  echo "error: APPLE_TEAM_ID must be your 10-character Apple team id (got: $APPLE_TEAM_ID)." >&2
   exit 1
 fi
 

@@ -235,6 +235,16 @@ jobs:
         # must not self-publish on tag builds (no token; softprops owns it).
         # The explicit architecture keeps the package and native Rust sidecar
         # aligned with the runner selected by this matrix entry.
+        env:
+          # Windows signing is optional and read from the repository: with
+          # WINDOWS_CSC_LINK set, electron-builder signs the Windows binaries
+          # (installer, app exe, sidecar) with the Authenticode certificate.
+          # Without it the build still succeeds but Windows SmartScreen has no
+          # publisher to show, and endpoint protection is free to quarantine
+          # the freshly-written executables — which reads to the user as an
+          # install that silently lost its .exe and .dll files.
+          CSC_LINK: ${{ matrix.platform == 'windows' && secrets.WINDOWS_CSC_LINK || '' }}
+          CSC_KEY_PASSWORD: ${{ matrix.platform == 'windows' && secrets.WINDOWS_CSC_KEY_PASSWORD || '' }}
         run: pnpm --filter nib-desktop run ${{ matrix.dist }} -- --${{ matrix.arch }}
 
       - name: Split the Windows updater feed by architecture
@@ -279,6 +289,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          MAC_SIGNING_IDENTITY: ${{ secrets.MAC_SIGNING_IDENTITY }}
         run: |
           set -euo pipefail
           missing=()
@@ -287,13 +298,17 @@ jobs:
           [[ -n "${APPLE_ID}" ]] || missing+=(APPLE_ID)
           [[ -n "${APPLE_APP_SPECIFIC_PASSWORD}" ]] || missing+=(APPLE_APP_SPECIFIC_PASSWORD)
           [[ -n "${APPLE_TEAM_ID}" ]] || missing+=(APPLE_TEAM_ID)
+          [[ -n "${MAC_SIGNING_IDENTITY}" ]] || missing+=(MAC_SIGNING_IDENTITY)
           if ((${#missing[@]} > 0)); then
             echo "::error::Missing GitHub Actions secrets for macOS signing/notarization: ${missing[*]}"
             echo "::error::Add them under Settings → Secrets and variables → Actions. See docs/spec/06-delivery/06-release-runbook.md."
             exit 1
           fi
-          if [[ "${APPLE_TEAM_ID}" != "DUV63RKYTW" ]]; then
-            echo "::error::APPLE_TEAM_ID must be DUV63RKYTW (XingYu Liu Developer ID team)."
+          # The team id belongs to the certificate owner, so it is whatever the
+          # operator stored — not a value this workflow can know. It is only
+          # checked for shape here; notarytool rejects a mismatched team.
+          if ! [[ "${APPLE_TEAM_ID}" =~ ^[A-Z0-9]{10}$ ]]; then
+            echo "::error::APPLE_TEAM_ID must be a 10-character Apple team id."
             exit 1
           fi
 
@@ -305,10 +320,14 @@ jobs:
           # electron-builder rejects the "Developer ID Application:" prefix on
           # identity names and resolves the certificate itself, so CSC_NAME
           # carries the bare common name only.
-          CSC_NAME: "XingYu Liu (DUV63RKYTW)"
+          # The identity is read from the repository, not pinned: the certificate
+          # belongs to whoever operates this release, and a hardcoded name would
+          # either fail on their machine or silently sign with the wrong key.
+          CSC_NAME: ${{ secrets.MAC_SIGNING_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          MAC_SIGNING_IDENTITY: ${{ secrets.MAC_SIGNING_IDENTITY }}
           # electron-builder prints one "signing PI-Desktop.app" line and then
           # goes quiet: @electron/osx-sign walks Contents and codesigns every
           # Mach-O serially, builder-util silently retries a failing pass up to
