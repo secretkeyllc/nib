@@ -1580,7 +1580,7 @@
 .settings-about-hero .brand-logo {
   display: block;
   margin-bottom: 8px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   object-fit: contain;
 }
 
