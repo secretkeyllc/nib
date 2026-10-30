@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const trEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.6",
+    date: "2026-10-30",
+    highlights: [
+      "macOS derlemesi artık gerçekten ad-hoc imzalı, bu yüzden Apple Silicon onu açıyor.",
+    ],
+  },
+  {
     version: "0.22.5",
     date: "2026-10-30",
     highlights: [

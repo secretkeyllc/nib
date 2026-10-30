@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const ptBREntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.6",
+    date: "2026-10-30",
+    highlights: [
+      "A compilação do macOS agora está realmente assinada ad-hoc, então o Apple Silicon a abre.",
+    ],
+  },
+  {
     version: "0.22.5",
     date: "2026-10-30",
     highlights: [
