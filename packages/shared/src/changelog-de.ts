@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const deEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.7",
+    date: "2026-10-30",
+    highlights: [
+      "Der Windows-on-Arm-Installer wird wieder in der Release-Pipeline gebaut.",
+    ],
+  },
+  {
     version: "0.22.6",
     date: "2026-10-30",
     highlights: [

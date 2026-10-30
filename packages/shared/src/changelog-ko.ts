@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const koEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.7",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm 설치 프로그램이 릴리스 파이프라인에서 다시 빌드됩니다.",
+    ],
+  },
+  {
     version: "0.22.6",
     date: "2026-10-30",
     highlights: [

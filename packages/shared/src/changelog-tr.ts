@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const trEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.7",
+    date: "2026-10-30",
+    highlights: [
+      "Windows on Arm yükleyicisi yayın hattında yeniden derleniyor.",
+    ],
+  },
+  {
     version: "0.22.6",
     date: "2026-10-30",
     highlights: [
