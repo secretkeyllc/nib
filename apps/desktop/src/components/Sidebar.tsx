@@ -673,13 +673,16 @@ export function Sidebar({
   const updateReady =
     update?.status === "available" || update?.status === "downloaded";
   const appVersion = update?.currentVersion || version?.version || "";
-  const buildLabel = updateReady
-    ? `v${update?.availableVersion ?? appVersion}`
-    : update?.status === "checking"
-      ? t("updates.checking")
-      : appVersion
-        ? `v${appVersion}`
-        : t("nav.buildUnknown");
+  // The chip always reports the version that is actually installed. It used to
+  // swap in `availableVersion` as soon as an update was found, so an install on
+  // 0.22.1 whose feed offered 0.22.3 read "v0.22.3" — indistinguishable from
+  // being current, and it hid the updates behind it. The dot and the tooltip
+  // carry the pending version; the number keeps telling the truth.
+  const buildLabel = update?.status === "checking"
+    ? t("updates.checking")
+    : appVersion
+      ? `v${appVersion}`
+      : t("nav.buildUnknown");
   const buildTitle = updateReady
     ? t("updates.available", { version: update?.availableVersion ?? "" })
     : t("nav.checkForUpdates");

@@ -83,3 +83,42 @@ test("notification popover has bounded desktop and mobile layouts", () => {
   assert.match(globalStyles, /\.notification-list\s*\{[^}]*overflow-y:\s*auto;/s);
   assert.match(globalStyles, /\.notification-item\.unread\s*\{/);
 });
+
+test("announcements keep their unread state until the reader opens them", () => {
+  // Opening the popover used to mark every notice read before it had been
+  // displayed long enough to read, which also emptied the Unread filter.
+  const loader = componentSource.match(
+    /void api\s*\.nibAnnouncements\(\)[\s\S]*?\.finally\(/,
+  )?.[0] ?? "";
+  assert.ok(loader, "announcement loader must exist");
+  assert.doesNotMatch(
+    loader,
+    /nibAnnouncementRead/,
+    "fetching the list must not mark anything read",
+  );
+  // Expanding a row is what records the read.
+  assert.match(
+    componentSource,
+    /if \(!announcement\.readAt\) markAnnouncementRead\(announcement\.id\)/,
+  );
+});
+
+test("a failed announcement fetch keeps the notices already on screen", () => {
+  const loader = componentSource.match(
+    /void api\s*\.nibAnnouncements\(\)[\s\S]*?\.finally\(/,
+  )?.[0] ?? "";
+  assert.ok(loader, "announcement loader must exist");
+  assert.doesNotMatch(
+    loader,
+    /setAnnouncements\(\[\]\)/,
+    "a network blip must not blank the section",
+  );
+  assert.match(loader, /showToast/);
+});
+
+test("admin announcements and local task notifications are separate sections", () => {
+  // The notice feed must never replace the task inbox: both are rendered.
+  assert.match(componentSource, /className="notification-announcements"/);
+  assert.match(componentSource, /visibleNotifications\.map/);
+  assert.match(componentSource, /inboxNotifications\(storedNotifications\)/);
+});

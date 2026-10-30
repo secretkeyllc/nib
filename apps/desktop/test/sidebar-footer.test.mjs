@@ -108,3 +108,15 @@ test("build chip surfaces the version and only dots an actionable update", () =>
   const dot = globalStyles.match(/\.footer-build-dot\s*\{[^}]+\}/)?.[0] ?? "";
   assert.match(dot, /background:\s*var\(--ds-accent\)/);
 });
+
+test("the build chip never reports a pending version as the installed one", () => {
+  // The chip used to print `availableVersion` as soon as a feed offered an
+  // update, so 0.22.1 showed "v0.22.3" and looked current. Only the dot and
+  // the tooltip may mention the pending version.
+  const label = sidebarSource.match(
+    /const buildLabel = [\s\S]*?;\n/,
+  )?.[0] ?? "";
+  assert.ok(label, "buildLabel must be a single assignment");
+  assert.doesNotMatch(label, /availableVersion/);
+  assert.match(label, /update\?\.currentVersion|appVersion/);
+});

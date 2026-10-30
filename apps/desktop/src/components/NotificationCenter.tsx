@@ -152,26 +152,15 @@ export function NotificationCenter({
     setAnnouncementsBusy(true);
     void api
       .nibAnnouncements()
-      .then((rows) => {
-        setAnnouncements(rows);
-        // A notice counts as read once it has been shown in this popover;
-        // there is no detail view to open. The local list is patched at the
-        // same time, because otherwise the unread dot and the unread filter
-        // would keep showing it until the popover is next opened — the server
-        // has already recorded the read by then.
-        const unread = rows.filter((row) => !row.readAt);
-        if (unread.length === 0) return;
-        const markedAt = new Date().toISOString();
-        setAnnouncements((current) =>
-          current.map((row) => (row.readAt ? row : { ...row, readAt: markedAt })),
-        );
-        for (const row of unread) {
-          void api.nibAnnouncementRead(row.id).catch(() => undefined);
-        }
-      })
-      .catch(() => setAnnouncements([]))
+      .then((rows) => setAnnouncements(rows))
+      // A failed fetch must not wipe what is already on screen: the popover
+      // stays open, and dropping the list made a staff notice vanish mid-read.
+      // The next open retries; announce the failure instead of blanking.
+      .catch(() =>
+        showToast(t("notifications.actionFailed"), { variant: "error" }),
+      )
       .finally(() => setAnnouncementsBusy(false));
-  }, [open]);
+  }, [open, showToast, t]);
 
   useEffect(() => {
     if (!open) return;
