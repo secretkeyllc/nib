@@ -30,11 +30,14 @@ describe("changelog catalog", () => {
     }
   });
 
-  it("lists the shipped Nib releases newest-first", () => {
-    // Only versions Nib actually published belong here. Earlier entries in the
-    // inherited catalogue described a different product and were removed.
+  it("lists only the releases worth reading about, newest-first", () => {
+    // Intermediate builds published while one platform was being fixed are
+    // deliberately absent: each was a stepping stone to the next, and listing
+    // them buried the release a reader might actually want. A version earns an
+    // entry by being a release someone could still be running, not merely by
+    // having been published.
     const versions = CHANGELOG.en.map((e) => e.version);
-    expect(versions).toEqual(["0.22.8", "0.22.7", "0.22.6", "0.22.5", "0.22.4", "0.22.3", "0.22.2", "0.22.1", "0.22.0", "0.21.0"]);
+    expect(versions).toEqual(["0.22.9", "0.22.8", "0.22.1", "0.22.0"]);
     for (const version of versions) {
       expect(version).not.toMatch(/-/);
     }
@@ -60,12 +63,12 @@ describe("changelog catalog", () => {
   });
 
   it("looks up and formats notes with English fallback", () => {
-    const entry = getChangelogEntry("v0.21.0", "en");
-    expect(entry?.version).toBe("0.21.0");
-    const notes = formatChangelogNotes("0.22.8", "en");
+    const entry = getChangelogEntry("v0.22.8", "en");
+    expect(entry?.version).toBe("0.22.8");
+    const notes = formatChangelogNotes("0.22.9", "en");
     expect(notes).toMatch(/^• /);
     expect(notes?.split("\n").length).toBe(
-      getChangelogEntry("0.22.8", "en")?.highlights.length,
+      getChangelogEntry("0.22.9", "en")?.highlights.length,
     );
     expect(formatChangelogNotes("9.9.9", "en")).toBeUndefined();
     expect(formatChangelogNotes("0.22.1-rc.6", "en")).toBeUndefined();

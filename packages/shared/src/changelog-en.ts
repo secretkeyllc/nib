@@ -3,55 +3,20 @@ import type { ChangelogEntry } from "./changelog.js";
 export const enEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.9",
+    date: "2026-10-30",
+    highlights: [
+      "Remote hosts install again on machines whose ~/.nib is the ordinary 0755 layout; the installer had refused a safe directory and then blamed the network.",
+      "Each allowance window says when it resets — for example \"Resets in 18h 50m\" — in the credits chip and the console.",
+      "The version chip reports the installed version instead of the pending update's version.",
+      "Settings -> About shows the product mark above the name.",
+    ],
+  },
+  {
     version: "0.22.8",
     date: "2026-10-30",
     highlights: [
       "The Windows on Arm sidecar no longer needs the Visual C++ Redistributable.",
-    ],
-  },
-  {
-    version: "0.22.7",
-    date: "2026-10-30",
-    highlights: [
-      "The Windows on Arm installer builds again in the release pipeline.",
-    ],
-  },
-  {
-    version: "0.22.6",
-    date: "2026-10-30",
-    highlights: [
-      "The macOS build is now ad-hoc signed, so Apple Silicon actually opens it.",
-    ],
-  },
-  {
-    version: "0.22.5",
-    date: "2026-10-30",
-    highlights: [
-      "The macOS download is a real build now: ad-hoc signed, so Apple Silicon starts it after a one-time approval in System Settings.",
-    ],
-  },
-  {
-    version: "0.22.4",
-    date: "2026-10-30",
-    highlights: [
-      "macOS builds are published as a beta: ad-hoc signed, so the first launch needs a one-time approval in System Settings.",
-      "The Windows on Arm installer no longer silently drops Nib.exe, and refuses to install on an x64 PC.",
-    ],
-  },
-  {
-    version: "0.22.3",
-    date: "2026-10-30",
-    highlights: [
-      "The local service starts again on Windows on Arm: its runtime is now linked statically.",
-      "Installing the Arm build on an x64 PC now stops with a clear message.",
-    ],
-  },
-  {
-    version: "0.22.2",
-    date: "2026-10-30",
-    highlights: [
-      "The Windows on Arm installer now extracts Nib.exe and every DLL again.",
-      "The Arm installer refuses to run on an x64 PC instead of installing an empty folder.",
     ],
   },
   {
@@ -71,17 +36,6 @@ export const enEntries: ChangelogEntry[] = [
       "Announcements open in place and clear their unread dot when read.",
       "Report a problem and Release notes now point at the Nib repository.",
       "The browser can hand you back to the app after a web sign-in.",
-    ],
-  },
-  {
-    version: "0.21.0",
-    date: "2026-10-28",
-    highlights: [
-      "First public Nib build: one install, one sign-in, every model.",
-      "Sign in with a Nib account; the browser approval page opens with the code already applied.",
-      "The composer shows the plan, credits left, and today / week / month usage.",
-      "Admin announcements appear above task outcomes in the notification center.",
-      "A Windows x64 installer and Linux AppImage/deb are published.",
     ],
   },
 ];

@@ -33,6 +33,7 @@ import {
   IconMic,
 } from "../../components/icons";
 import { Badge, Button, cx, SegmentedControl, SettingsToggle } from "../../components/ui";
+import { BrandLogo } from "../../components/BrandLogo";
 import { ModelConfigPage } from "../../components/settings/ModelConfigPage";
 import { KeyboardShortcutsSection } from "../../components/settings/KeyboardShortcutsSection";
 import { FontFamilyRow } from "../../components/settings/FontFamilyRow";
@@ -649,6 +650,10 @@ export function SettingsPage() {
           {tab === "about" && (
             <div className="settings-stack">
               <div className="settings-about-hero">
+                {/* BrandLogo swaps the light/dark master on the theme
+                    attribute, so this stays legible in both modes without a
+                    second asset or a CSS filter. */}
+                <BrandLogo size={48} />
                 <div className="settings-about-hero-name">
                   {version?.name || "Nib"}
                 </div>

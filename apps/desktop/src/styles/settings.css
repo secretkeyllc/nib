@@ -1570,8 +1570,18 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 26px 16px 8px;
+  padding: 22px 16px 8px;
   text-align: center;
+}
+
+/* The mark sits above the product name. It is decorative — the name next to
+   it already says which app this is — so the gap is asymmetric: tight to the
+   name it belongs to, looser to the card edge above. */
+.settings-about-hero .brand-logo {
+  display: block;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  object-fit: contain;
 }
 
 .settings-about-hero-name {

@@ -3,55 +3,20 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhCNEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.9",
+    date: "2026-10-30",
+    highlights: [
+      "远程主机在 ~/.nib 为常见 0755 权限的机器上重新可以安装；此前会拒绝这个安全目录并把失败报成网络问题。",
+      "每档额度都显示重置倒计时（如「剩余 18h 50m 重置」），客户端额度弹窗与控制台同步。",
+      "版本标识显示实际已安装的版本，而不是待更新版本。",
+      "设置 → 关于 在名称上方显示产品标识。",
+    ],
+  },
+  {
     version: "0.22.8",
     date: "2026-10-30",
     highlights: [
       "Windows on Arm 的本地服务不再依赖 Visual C++ 运行库。",
-    ],
-  },
-  {
-    version: "0.22.7",
-    date: "2026-10-30",
-    highlights: [
-      "Windows on Arm 安装包恢复在发布流水线中构建。",
-    ],
-  },
-  {
-    version: "0.22.6",
-    date: "2026-10-30",
-    highlights: [
-      "macOS 构建现在真正做了 ad-hoc 签名，Apple Silicon 上可以正常打开。",
-    ],
-  },
-  {
-    version: "0.22.5",
-    date: "2026-10-30",
-    highlights: [
-      "macOS 下载现在是可直接运行的构建：ad-hoc 签名，Apple Silicon 首次在系统设置里放行后即可使用。",
-    ],
-  },
-  {
-    version: "0.22.4",
-    date: "2026-10-30",
-    highlights: [
-      "macOS 版本以 Beta 形式发布：采用 ad-hoc 签名，首次启动需在系统设置里手动放行一次。",
-      "Windows on Arm 安装包不再静默丢失 Nib.exe，并在 x64 电脑上直接拒绝安装。",
-    ],
-  },
-  {
-    version: "0.22.3",
-    date: "2026-10-30",
-    highlights: [
-      "Windows on Arm 的本地服务恢复启动：运行时改为静态链接。",
-      "Arm 安装在 x64 电脑上会明确提示并停止。",
-    ],
-  },
-  {
-    version: "0.22.2",
-    date: "2026-10-30",
-    highlights: [
-      "Windows on Arm 安装包又能正确解出 Nib.exe 和全部 DLL。",
-      "Arm 安装包在 x64 电脑上会直接提示，而不是装出一个空目录。",
     ],
   },
   {
@@ -71,17 +36,6 @@ export const zhCNEntries: ChangelogEntry[] = [
       "公告可以直接展开，读过后未读圆点立即消失。",
       "“问题反馈”和“版本说明”改为指向 Nib 自己的仓库。",
       "网页登录完成后，浏览器可以把你带回客户端。",
-    ],
-  },
-  {
-    version: "0.21.0",
-    date: "2026-10-28",
-    highlights: [
-      "Nib 首个公开版本：一次安装、一次登录、全部模型。",
-      "使用 Nib 账号登录，浏览器批准页会自动带上验证码。",
-      "输入框上方显示套餐、剩余额度，以及日/周/月用量。",
-      "管理员公告出现在通知中心的任务结果之上。",
-      "已发布 Windows x64 安装包与 Linux AppImage/deb。",
     ],
   },
 ];

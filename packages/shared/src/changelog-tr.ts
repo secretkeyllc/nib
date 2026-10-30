@@ -3,55 +3,20 @@ import type { ChangelogEntry } from "./changelog.js";
 export const trEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.9",
+    date: "2026-10-30",
+    highlights: [
+      "~/.nib izni olağan 0755 olan makinelerde uzak host'lar yeniden kurulabiliyor.",
+      "Her kota penceresi artık ne zaman sıfırlanacağını gösteriyor; kredi çipinde ve konsolda.",
+      "Sürüm çipi bekleyen sürümü değil kurulu sürümü gösteriyor.",
+      "Ayarlar -> Hakkında, adın üstünde ürün işaretini gösteriyor.",
+    ],
+  },
+  {
     version: "0.22.8",
     date: "2026-10-30",
     highlights: [
       "Windows on Arm yan süreci artık Visual C++ Yeniden Dağıtılabilir paketine ihtiyaç duymuyor.",
-    ],
-  },
-  {
-    version: "0.22.7",
-    date: "2026-10-30",
-    highlights: [
-      "Windows on Arm yükleyicisi yayın hattında yeniden derleniyor.",
-    ],
-  },
-  {
-    version: "0.22.6",
-    date: "2026-10-30",
-    highlights: [
-      "macOS derlemesi artık gerçekten ad-hoc imzalı, bu yüzden Apple Silicon onu açıyor.",
-    ],
-  },
-  {
-    version: "0.22.5",
-    date: "2026-10-30",
-    highlights: [
-      "macOS indirmesi artık gerçek bir derleme: ad-hoc imzalı, Apple Silicon ilk açılışta Sistem Ayarları'ndan bir kez izin verdikten sonra açılıyor.",
-    ],
-  },
-  {
-    version: "0.22.4",
-    date: "2026-10-30",
-    highlights: [
-      "macOS derlemeleri beta olarak yayınlanıyor: ad-hoc imzalı, ilk açılışta Sistem Ayarları'ndan bir kez izin vermeniz gerekir.",
-      "Windows on Arm yükleyicisi artık Nib.exe'yi sessizce kaybetmiyor ve x64 bir PC'de kurulumu reddediyor.",
-    ],
-  },
-  {
-    version: "0.22.3",
-    date: "2026-10-30",
-    highlights: [
-      "Windows on Arm'da yerel hizmet yeniden başlıyor: çalışma zamanı artık statik bağlanıyor.",
-      "Arm sürümünü x64 bir PC'ye kurmak artık net bir mesajla duruyor.",
-    ],
-  },
-  {
-    version: "0.22.2",
-    date: "2026-10-30",
-    highlights: [
-      "Windows on Arm yükleyicisi Nib.exe ve tüm DLL dosyalarını yeniden çıkarıyor.",
-      "Arm yükleyicisi x64 bir bilgisayarda boş bir klasör kurmak yerine uyarı verip duruyor.",
     ],
   },
   {
@@ -71,17 +36,6 @@ export const trEntries: ChangelogEntry[] = [
       "Duyurular yerinde açılıyor ve okunduğunda okunmadı işareti kalkıyor.",
       "Sorun bildir ve Sürüm notları artık Nib deposunu gösteriyor.",
       "Web oturum açmasından sonra tarayıcı sizi uygulamaya geri getirebiliyor.",
-    ],
-  },
-  {
-    version: "0.21.0",
-    date: "2026-10-28",
-    highlights: [
-      "Nib'in ilk genel sürümü: tek kurulum, tek oturum açma, tüm modeller.",
-      "Nib hesabıyla oturum açın; tarayıcı onay sayfası kodu hazır getirir.",
-      "Yazma alanı planı, kalan krediyi ve günlük/haftalık/aylık kullanımı gösterir.",
-      "Yönetici duyuruları bildirim merkezinde görev sonuçlarının üstünde görünür.",
-      "Windows x64 yükleyicisi ve Linux AppImage/deb yayımlandı.",
     ],
   },
 ];
