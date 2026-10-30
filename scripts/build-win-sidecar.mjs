@@ -7,8 +7,16 @@
  * `dist:win` forwards the target arch flag (`--x64` / `--arm64`), so this script
  * reads the same flag and selects the Rust target:
  *
- *   x64   -> x86_64-pc-windows-gnu    (MinGW, statically linked CRT)
- *   arm64 -> aarch64-pc-windows-gnullvm (llvm-mingw; requires aarch64-w64-mingw32-clang on PATH)
+ * On a Windows runner the MSVC targets are used: the Windows SDK and MSVC
+ * toolchain are already installed there, and they carry the ARM64 sysroot.
+ * From Linux or macOS the MinGW targets are used instead:
+ *
+ *   x64   -> x86_64-pc-windows-gnu      / x86_64-pc-windows-msvc
+ *   arm64 -> aarch64-pc-windows-gnullvm / aarch64-pc-windows-msvc
+ *
+ * The gnullvm target needs llvm-mingw on PATH (`aarch64-w64-mingw32-clang`).
+ * Neither cross target is usable from a Windows ARM64 runner: llvm-mingw's
+ * aarch64 sysroot is absent, which makes ring's C build fail on <assert.h>.
  *
  * The output path is what `electron-builder`'s `extraResources` names, and
  * `scripts/build-desktop-release.mjs` stages it there as well, so a local
@@ -24,8 +32,15 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 const arch = args.includes("--arm64") ? "arm64" : "x64";
 
-const target =
-  arch === "arm64" ? "aarch64-pc-windows-gnullvm" : "x86_64-pc-windows-gnu";
+// Native Windows builds use MSVC; cross builds from Linux/macOS use MinGW.
+const nativeWindows = process.platform === "win32";
+const target = nativeWindows
+  ? arch === "arm64"
+    ? "aarch64-pc-windows-msvc"
+    : "x86_64-pc-windows-msvc"
+  : arch === "arm64"
+    ? "aarch64-pc-windows-gnullvm"
+    : "x86_64-pc-windows-gnu";
 
 const built = join(root, "target", target, "release", "nib-host-core.exe");
 const staged = join(root, "target", `${arch}-win-sidecar`, "nib-host-core.exe");
