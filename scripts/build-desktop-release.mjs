@@ -140,10 +140,48 @@ if (target === "win") {
     ]);
   }
 } else {
+  // `target/release/nib-host-core` holds whatever the host toolchain built, and
+  // the mac/linux package configs copy it verbatim. Packaging a macOS app on a
+  // Linux box therefore embeds an ELF sidecar: the app opens and the local
+  // service never starts. Check the bundle after packaging and delete it rather
+  // than shipping a package that cannot work.
+  const archArg = forwardedArgs.find((arg) => arg === "--arm64" || arg === "--x64");
+  const arch = archArg === "--arm64" ? "arm64" : "x64";
+
   await runBuilder([
     `--${target}`,
     "--publish",
     "never",
     ...forwardedArgs,
   ]);
+
+  // electron-builder names the unpacked dir `mac-arm64` / `mac-x64` for macOS
+  // but `linux-unpacked` for x64 Linux (no arch suffix) and `linux-arm64-unpacked`
+  // for arm64.
+  const bundleDir =
+    target === "mac"
+      ? join(repoRoot, "apps/desktop/release", `mac-${arch}`, "Nib.app")
+      : join(
+          repoRoot,
+          "apps/desktop/release",
+          arch === "x64" ? "linux-unpacked" : `linux-${arch}-unpacked`,
+        );
+  const platformName = target === "mac" ? "macos" : "linux";
+  const check = spawnSync(
+    process.execPath,
+    [
+      join(repoRoot, "scripts", "check-bundled-host.mjs"),
+      bundleDir,
+      "--platform",
+      platformName,
+      "--arch",
+      arch,
+    ],
+    { cwd: repoRoot, stdio: "inherit" },
+  );
+  if (check.status !== 0) {
+    throw new Error(
+      `the ${platformName} package carries the wrong nib-host-core; refusing to ship it`,
+    );
+  }
 }
