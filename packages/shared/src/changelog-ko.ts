@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const koEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.4",
+    date: "2026-10-30",
+    highlights: [
+      "macOS 빌드가 베타로 제공됩니다. ad-hoc 서명이라 첫 실행 시 시스템 설정에서 한 번 허용해야 합니다.",
+      "Windows on Arm 설치 프로그램이 Nib.exe를 조용히 잃어버리지 않고, x64 PC에서는 설치를 거부합니다.",
+    ],
+  },
+  {
     version: "0.22.3",
     date: "2026-10-30",
     highlights: [

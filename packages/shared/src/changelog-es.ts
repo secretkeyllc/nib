@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const esEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.4",
+    date: "2026-10-30",
+    highlights: [
+      "Las compilaciones de macOS se publican como beta: firmadas ad-hoc, así que el primer arranque necesita una aprobación única en Ajustes del Sistema.",
+      "El instalador de Windows on Arm ya no pierde Nib.exe en silencio y rechaza instalarse en un equipo x64.",
+    ],
+  },
+  {
     version: "0.22.3",
     date: "2026-10-30",
     highlights: [

@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const trEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.4",
+    date: "2026-10-30",
+    highlights: [
+      "macOS derlemeleri beta olarak yayınlanıyor: ad-hoc imzalı, ilk açılışta Sistem Ayarları'ndan bir kez izin vermeniz gerekir.",
+      "Windows on Arm yükleyicisi artık Nib.exe'yi sessizce kaybetmiyor ve x64 bir PC'de kurulumu reddediyor.",
+    ],
+  },
+  {
     version: "0.22.3",
     date: "2026-10-30",
     highlights: [

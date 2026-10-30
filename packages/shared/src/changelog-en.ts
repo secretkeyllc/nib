@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const enEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.4",
+    date: "2026-10-30",
+    highlights: [
+      "macOS builds are published as a beta: ad-hoc signed, so the first launch needs a one-time approval in System Settings.",
+      "The Windows on Arm installer no longer silently drops Nib.exe, and refuses to install on an x64 PC.",
+    ],
+  },
+  {
     version: "0.22.3",
     date: "2026-10-30",
     highlights: [

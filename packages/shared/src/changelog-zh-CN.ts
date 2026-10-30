@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhCNEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.4",
+    date: "2026-10-30",
+    highlights: [
+      "macOS 版本以 Beta 形式发布：采用 ad-hoc 签名，首次启动需在系统设置里手动放行一次。",
+      "Windows on Arm 安装包不再静默丢失 Nib.exe，并在 x64 电脑上直接拒绝安装。",
+    ],
+  },
+  {
     version: "0.22.3",
     date: "2026-10-30",
     highlights: [

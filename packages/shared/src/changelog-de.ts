@@ -3,6 +3,14 @@ import type { ChangelogEntry } from "./changelog.js";
 export const deEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.4",
+    date: "2026-10-30",
+    highlights: [
+      "macOS-Builds erscheinen als Beta: ad-hoc signiert, daher ist beim ersten Start eine einmalige Freigabe in den Systemeinstellungen nötig.",
+      "Der Windows-on-Arm-Installer verliert Nib.exe nicht mehr still und verweigert die Installation auf einem x64-PC.",
+    ],
+  },
+  {
     version: "0.22.3",
     date: "2026-10-30",
     highlights: [
