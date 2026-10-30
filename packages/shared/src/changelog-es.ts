@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const esEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.5",
+    date: "2026-10-30",
+    highlights: [
+      "La descarga de macOS ya es una compilación real: firmada ad-hoc, Apple Silicon la inicia tras una aprobación única en Ajustes del Sistema.",
+    ],
+  },
+  {
     version: "0.22.4",
     date: "2026-10-30",
     highlights: [

@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhTWEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.5",
+    date: "2026-10-30",
+    highlights: [
+      "macOS 下載現在是可直接執行的建置：ad-hoc 簽名，Apple Silicon 首次在系統設定裡放行後即可使用。",
+    ],
+  },
+  {
     version: "0.22.4",
     date: "2026-10-30",
     highlights: [

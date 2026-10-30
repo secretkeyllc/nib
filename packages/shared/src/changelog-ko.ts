@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const koEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.5",
+    date: "2026-10-30",
+    highlights: [
+      "macOS 다운로드가 이제 실제 빌드입니다. ad-hoc 서명이라 Apple Silicon에서 처음 한 번 시스템 설정에서 허용하면 실행됩니다.",
+    ],
+  },
+  {
     version: "0.22.4",
     date: "2026-10-30",
     highlights: [

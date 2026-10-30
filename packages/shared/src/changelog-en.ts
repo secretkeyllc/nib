@@ -3,6 +3,13 @@ import type { ChangelogEntry } from "./changelog.js";
 export const enEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.5",
+    date: "2026-10-30",
+    highlights: [
+      "The macOS download is a real build now: ad-hoc signed, so Apple Silicon starts it after a one-time approval in System Settings.",
+    ],
+  },
+  {
     version: "0.22.4",
     date: "2026-10-30",
     highlights: [

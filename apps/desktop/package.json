@@ -1,6 +1,6 @@
 {
   "name": "nib-desktop",
-  "version": "0.22.4",
+  "version": "0.22.5",
   "desktopName": "nib.desktop",
   "private": true,
   "description": "Nib — AI coding agent for your desktop",
