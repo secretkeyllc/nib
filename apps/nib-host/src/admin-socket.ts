@@ -207,7 +207,9 @@ export async function sendAdminRequest(dataDir: string, input: ProviderImportPay
     // Client checks only; it never creates a directory or starts a host.
     for (const dir of [dataDir, join(dataDir, "nib-host")]) {
       const stat = await lstat(dir);
-      if (!stat.isDirectory() || stat.uid !== process.getuid?.() || (stat.mode & 0o077) !== 0) throw new ImportFailure("ADMIN_UNAVAILABLE");
+      // Same rule as prepareAdminDirectory: a directory nobody else can write
+      // is safe to send secrets through, whether it is 0700 or 0755.
+      if (!stat.isDirectory() || stat.uid !== process.getuid?.() || (stat.mode & UNSAFE_DIR_BITS) !== 0) throw new ImportFailure("ADMIN_UNAVAILABLE");
     }
     const path = adminSocketPath(dataDir);
     await privateSocket(path);
