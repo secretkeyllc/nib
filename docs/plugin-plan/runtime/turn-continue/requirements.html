@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-continue · 插件入队续跑（有署名） · 需求</title>
+<title>turn-continue · A plugin enqueues a continuation (attributed) · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,102 +98,102 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-continue</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
-  <div class="crumb">docs/plugin-plan · runtime/turn-continue</div>
-  <h1>turn-continue · 需求</h1>
-  <p>插件主动续跑：入队一条消息，宿主按队列跑一轮。消息带插件署名，用户看得见。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.continue</code> · 走 queuePush · 插件署名可见</div>
+  <div class="crumb">docs/plugin-plan · runtime · turn-continue</div>
+  <h1>turn-continue · Requirements</h1>
+  <p>A plugin continues a turn on its own initiative: it enqueues a message and the host runs a turn from the queue. The message carries plugin attribution, so the user can see it.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.continue</code> · goes through queuePush · plugin attribution visible</div>
 </header>
 
 <main>
 <section>
-  <h2>范围 <span class="tag verified">已核实</span></h2>
+  <h2>Scope <span class="tag verified">Verified</span></h2>
     <ul>
-    <li>只管「插件主动入队续跑」：一条消息进宿主队列，按队列跑一轮。</li>
-    <li>不谈：轮末被动询问（turn-closing）、中止（abort-turn）、发送前拦截（before-send）。</li>
+    <li>Only "a plugin enqueues a continuation on its own initiative": one message enters the host queue, and one turn runs from the queue.</li>
+    <li>Out of scope: the passive end-of-turn query (turn-closing), aborting (abort-turn), intercepting before send (before-send).</li>
   </ul>
 </section>
 
 <section>
-  <h2>现状（代码核实） <span class="tag verified">已核实</span></h2>
+  <h2>Current state (code-verified) <span class="tag verified">Verified</span></h2>
     <ul>
-    <li><b>插件面已实现 + e2e</b>：权限 <code>runtime.turn.continue</code>，经宿主队列 <code>session.queuePush</code> 入列、带插件来源。<br /><span class="cite">feat/528-plugin-slots@<sha> · packages/shared/src/trusted-extensions.ts · runtime.turn.continue</span><br /><span class="cite">feat/528-plugin-slots@<sha> · packages/agent-runtime/src/runtime.ts · continueTurn / queuePush</span><br /><span class="cite">feat/528-plugin-slots@<sha> · packages/agent-runtime/test/trusted-extensions/seed.mjs · continueTurn e2e</span></li>
-    <li><b>署名落库</b>：排队的轮是<b>插件署名的可见行</b>——宿主补 <code>pluginId / pluginLabel</code>，插件伪造不了。</li>
-    <li><b>无配额</b>：现状有意不设上限（ADR 0303（原 0295））——控制手段是署名 + 可见 + 用户随时中止。</li>
-    <li><b>同名不同物</b>：内核的内部续跑路径与本 API 无关；轮末续跑走 <code>agent.steer</code>，那条路径目前缺署名（见 turn-closing）。</li>
-    <li><b>沙箱缺口</b>：沙箱插件的接线通道（ADR 0300）未建——注册、预算、熔断都还没有。</li>
+    <li><b>The plugin side is implemented + e2e</b>: permission <code>runtime.turn.continue</code>, enqueued through the host queue <code>session.queuePush</code> with the plugin as source.<br /><span class="cite">feat/528-plugin-slots@<sha> · packages/shared/src/trusted-extensions.ts · runtime.turn.continue</span><br /><span class="cite">feat/528-plugin-slots@<sha> · packages/agent-runtime/src/runtime.ts · continueTurn / queuePush</span><br /><span class="cite">feat/528-plugin-slots@<sha> · packages/agent-runtime/test/trusted-extensions/seed.mjs · continueTurn e2e</span></li>
+    <li><b>Attribution is persisted</b>: a queued turn is a <b>visible row attributed to the plugin</b> - the host fills in <code>pluginId / pluginLabel</code>, and a plugin cannot forge them.</li>
+    <li><b>No quota</b>: deliberately no upper limit today (ADR 0303 (formerly 0295)) - the controls are attribution + visibility + the user being able to stop at any time.</li>
+    <li><b>Same name, different thing</b>: the core's internal continuation path is unrelated to this API; the end-of-turn continuation goes through <code>agent.steer</code>, and that path currently lacks attribution (see turn-closing).</li>
+    <li><b>Sandbox gap</b>: the wiring channel for sandbox plugins (ADR 0300) does not exist yet - registration, budgets, and circuit breakers are all missing.</li>
   </ul>
-  <div class="callout ok"><b>立身之本：署名可见。</b>插件能花用户的钱让宿主继续跑——交换条件是每一轮都以插件的名义出现在对话里，用户看得到、停得下。有署名的是 queuePush 这条路。</div>
+  <div class="callout ok"><b>What it stands on: visible attribution.</b> A plugin can spend the user's money to make the host keep running - the trade is that every turn appears in the conversation in the plugin's name, so the user can see it and can stop it. The path with attribution is queuePush.</div>
 </section>
 
 <section>
-  <h2>契约（建议） <span class="tag proposal">建议</span></h2>
+  <h2>Contract (proposal) <span class="tag proposal">Proposal</span></h2>
       <table>
-    <thead><tr><th>方面</th><th>内容</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">调用</td><td><code>pi.continueTurn({ message })</code></td></tr>
-      <tr><td class="id">入参</td><td>一条用户可见的消息文本</td></tr>
-      <tr><td class="id">返回</td><td><code>{ queuedTurnId }</code>——入队即返回，不等工作跑完</td></tr>
-      <tr><td class="id">署名</td><td><code>{ message, pluginId, pluginLabel }</code> 入队——对话里显示为插件署名的行</td></tr>
-      <tr><td class="id">配额</td><td>现状<b>无上限</b>；可选上限待拍板</td></tr>
-      <tr><td class="id">权限</td><td><code>runtime.turn.continue</code>，装时确认</td></tr>
+      <tr><td class="id">Call</td><td><code>pi.continueTurn({ message })</code></td></tr>
+      <tr><td class="id">Input</td><td>One user-visible message text</td></tr>
+      <tr><td class="id">Return</td><td><code>{ queuedTurnId }</code> - it returns as soon as the message is queued, without waiting for the work to finish</td></tr>
+      <tr><td class="id">Attribution</td><td><code>{ message, pluginId, pluginLabel }</code> is enqueued - shown in the conversation as a row attributed to the plugin</td></tr>
+      <tr><td class="id">Quota</td><td><b>No upper limit</b> today; an optional cap is TBD</td></tr>
+      <tr><td class="id">Permission</td><td><code>runtime.turn.continue</code>, confirmed at install</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>插件场景 <span class="tag proposal">建议</span></h2>
+  <h2>Plugin scenarios <span class="tag proposal">Proposal</span></h2>
       <table>
-    <thead><tr><th>#</th><th>场景</th><th>动作</th></tr></thead>
+    <thead><tr><th>#</th><th>scenario</th><th>action</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td>两段式确认：gate 先拦，用户点确认后入队「继续执行 X」</td><td>continueTurn</td></tr>
-      <tr><td>2</td><td>巡检续跑：定时检查后，有事才入队一条说明并续跑</td><td>continueTurn</td></tr>
-      <tr><td>3</td><td>批处理：上一轮完成后入队下一项（有署名、用户可停）</td><td>continueTurn</td></tr>
+      <tr><td>1</td><td>Two-phase confirmation: the gate blocks first, and after the user confirms, a "continue running X" message is enqueued</td><td>continueTurn</td></tr>
+      <tr><td>2</td><td>Watchdog continuation: after a periodic check, enqueue a note and continue only when something needs attention</td><td>continueTurn</td></tr>
+      <tr><td>3</td><td>Batch processing: enqueue the next item once the previous turn finishes (attributed, stoppable by the user)</td><td>continueTurn</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>本轮拍板 <span class="tag open">待定</span></h2>
+  <h2>Decisions this round <span class="tag open">TBD</span></h2>
       <table>
-    <thead><tr><th>问题</th><th>选项</th></tr></thead>
+    <thead><tr><th>question</th><th>options</th></tr></thead>
     <tbody>
-      <tr><td>署名展示形态</td><td>A. 用户消息位 + 插件徽标　B. 独立「插件行动」行样式</td></tr>
-      <tr><td>可选上限</td><td>A. 维持无上限　B. 插件声明上限、装时确认　C. 会话级开关（用户可关）</td></tr>
-      <tr><td>与 closing 署名</td><td>A. 给 closing 的 steer 路径补署名（消缺陷）　B. 维持差异并写进用户可见文案</td></tr>
+      <tr><td>How attribution is displayed</td><td>A. In the user-message slot with a plugin badge; B. A separate "plugin action" row style</td></tr>
+      <tr><td>Optional cap</td><td>A. Keep it unlimited; B. The plugin declares a cap, confirmed at install; C. A session-level switch (the user can turn it off)</td></tr>
+      <tr><td>Attribution vs closing</td><td>A. Add attribution to closing's steer path (closing the defect); B. Keep the difference and state it in user-visible copy</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>明确不做 <span class="tag verified">已核实</span></h2>
+  <h2>Explicit non-goals <span class="tag verified">Verified</span></h2>
     <ul>
-    <li>不允许无署名 / 隐藏的续跑轮——可见性是本 API 的存在前提。</li>
-    <li>不允许插件冒充用户身份发消息——署名永远是插件。</li>
-    <li>不让插件改写已存在的消息行。</li>
-    <li>不做静默注入。</li>
+    <li>No unattributed / hidden continuation turns - visibility is the precondition for this API existing.</li>
+    <li>A plugin may not impersonate the user when posting a message - the attribution is always the plugin.</li>
+    <li>Plugins may not rewrite message rows that already exist.</li>
+    <li>No silent injection.</li>
   </ul>
 </section>
 
 <section>
-  <h2>还没定的事 <span class="tag open">未定</span></h2>
+  <h2>Open questions <span class="tag open">Open</span></h2>
     <ul>
-    <li>署名展示形态、可选上限、与 turn-closing 署名不一致如何收口。</li>
-    <li>沙箱插件的接线通道（ADR 0300）未建——注册、预算、熔断都还没有。</li>
+    <li>How attribution is displayed, the optional cap, and how to reconcile the attribution difference with turn-closing.</li>
+    <li>The wiring channel for sandbox plugins (ADR 0300) does not exist yet - registration, budgets, and circuit breakers are all missing.</li>
   </ul>
 </section>
 
-<p class="omitted">省略：无界面</p>
-<p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+<p class="omitted">Omitted: no UI</p>
+<p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

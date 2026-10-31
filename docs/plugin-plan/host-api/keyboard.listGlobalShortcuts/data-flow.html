@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>keyboard.listGlobalShortcuts · 数据流</title>
+<title>keyboard.listGlobalShortcuts · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,84 +49,84 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">keyboard.listGlobalShortcuts</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>keyboard.listGlobalShortcuts · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>keyboard.listGlobalShortcuts · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.keyboard.listGlobalShortcuts(): Promise&lt;PluginGlobalShortcut[]&gt;</pre>
-  <p class="lead">列出宿主当前为本插件持有的全部全局快捷键。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
-  <p class="lead">无入参。</p>
-  <p><b>出参</b></p>
-  <p class="lead">数组元素结构为 <code>PluginGlobalShortcut</code>：</p>
+  <p class="lead">Lists all global shortcuts the host currently holds on behalf of this plugin. Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
+  <p class="lead">No input.</p>
+  <p><b>Output</b></p>
+  <p class="lead">Each array element is a <code>PluginGlobalShortcut</code>:</p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">id</td><td class="id">string</td><td>条目 id，与注册时一致。</td></tr>
-      <tr><td class="id">accelerator</td><td class="id">string</td><td>该条目的加速键串。</td></tr>
-      <tr><td class="id">command</td><td class="id">string</td><td>绑定的本插件命令 id。</td></tr>
-      <tr><td class="id">registered</td><td class="id">boolean</td><td><code>false</code> 表示加速键被系统或其他持有者占用。</td></tr>
-      <tr><td class="id">error</td><td class="id">string?</td><td>注册失败原因，仅失败条目出现。</td></tr>
+      <tr><td class="id">id</td><td class="id">string</td><td>Entry id, identical to the one used at registration time.</td></tr>
+      <tr><td class="id">accelerator</td><td class="id">string</td><td>The entry's accelerator string.</td></tr>
+      <tr><td class="id">command</td><td class="id">string</td><td>The bound command id of this plugin.</td></tr>
+      <tr><td class="id">registered</td><td class="id">boolean</td><td><code>false</code> means the accelerator is taken by the system or another holder.</td></tr>
+      <tr><td class="id">error</td><td class="id">string?</td><td>Reason registration failed; only present on failed entries.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
-  <pre>// 无入参</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Input example</b></p>
+  <pre>// no input</pre>
+  <p><b>Output example</b></p>
   <pre>[
   { "id": "quick-open", "accelerator": "CommandOrControl+Shift+X", "command": "demo.hello.open-panel", "registered": true },
   { "id": "quick-note", "accelerator": "CommandOrControl+Shift+N", "command": "demo.hello.new-note", "registered": false, "error": "SHORTCUT_CONFLICT" }
 ]</pre>
-  <div class="callout"><b>一句话边界。</b>只列本插件自己的条目——其他插件与宿主快捷键不可见；失败条目靠 <code>registered</code> / <code>error</code> 区分。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> Only this plugin's own entries are listed — other plugins' and host shortcuts are invisible; failed entries are distinguished via <code>registered</code> / <code>error</code>.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li>插件调用 <code>pi.keyboard.listGlobalShortcuts()</code>，无入参。</li>
-    <li>宿主按调用方身份过滤，仅返回本插件名下条目。</li>
-    <li>Promise 兑现为快照数组；注册失败条目保留在列表里，<code>registered: false</code> 并带 <code>error</code>。</li>
+    <li>The plugin calls <code>pi.keyboard.listGlobalShortcuts()</code> with no arguments.</li>
+    <li>The host filters by caller identity and returns only entries owned by this plugin.</li>
+    <li>The Promise resolves with a snapshot array; entries that failed to register stay in the list with <code>registered: false</code> and an <code>error</code>.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>无入参的查询请求。</td></tr>
-      <tr><td>宿主 → 插件</td><td><code>PluginGlobalShortcut[]</code> 快照（含失败条目）。</td></tr>
+      <tr><td>Plugin → host</td><td>A query request with no arguments.</td></tr>
+      <tr><td>Host → plugin</td><td>A <code>PluginGlobalShortcut[]</code> snapshot (including failed entries).</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>未获快捷键权限</td><td>Promise 拒绝</td><td class="id">PERMISSION_DENIED</td></tr>
+      <tr><td>Shortcut permission not granted</td><td>Promise rejects</td><td class="id">PERMISSION_DENIED</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不列其他插件或宿主快捷键。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Other plugins' or host shortcuts are not listed.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/keyboard.registerGlobalShortcut</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

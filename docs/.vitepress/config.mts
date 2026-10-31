@@ -132,11 +132,11 @@ const enNav: DefaultTheme.NavItem[] = [
   { text: 'ADRs', link: '/adr/README' },
   { text: 'Plugin guide', link: '/plugin-development' },
   { text: 'Privacy policy', link: '/privacy-policy' },
-  { text: 'GitHub', link: 'https://github.com/vastsa/PI-Desktop' },
+  { text: 'GitHub', link: 'https://github.com/secretkeyllc/nib' },
 ]
 
 export default defineConfig({
-  title: 'PI-Desktop',
+  title: 'Nib',
   description: 'A modular desktop workspace for AI agents',
   // Product shell is dark-base; lock docs to the same charcoal system.
   appearance: 'force-dark',
@@ -156,13 +156,13 @@ export default defineConfig({
   },
   themeConfig: {
     logo: '/app-icon.png',
-    siteTitle: 'PI-Desktop',
+    siteTitle: 'Nib',
     search: { provider: 'local' },
-    socialLinks: [{ icon: 'github', link: 'https://github.com/vastsa/PI-Desktop' }],
-    editLink: { pattern: 'https://github.com/vastsa/PI-Desktop/edit/main/docs/:path', text: 'Edit this page on GitHub' },
+    socialLinks: [{ icon: 'github', link: 'https://github.com/secretkeyllc/nib' }],
+    editLink: { pattern: 'https://github.com/secretkeyllc/nib/edit/main/docs/:path', text: 'Edit this page on GitHub' },
     outline: { level: 'deep', label: 'On this page' },
     docFooter: { prev: 'Previous', next: 'Next' },
-    footer: { message: 'Local-first · Model-agnostic · Plugin-powered. <a href="https://aiuo.net" target="_blank" rel="noreferrer">AIUO.NET</a>', copyright: 'Copyright © 2026 PI-Desktop contributors' },
+    footer: { message: 'Local-first · Model-agnostic · Plugin-powered. <a href="https://nib.am" target="_blank" rel="noreferrer">nib.am</a>', copyright: 'Copyright © 2026 Secret Key LLC' },
     nav: enNav,
     sidebar: enSidebar,
   },

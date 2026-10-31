@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>before-send · 发送后、入队前 · 目录</title>
+<title>before-send · After send, before queueing · Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,49 +98,49 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">before-send</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime · before-send</div>
-  <h1>before-send · 目录</h1>
-  <p>用户消息已经落库、还没交给 agent 的那一刻。插件可以放行、改写文案、或带原因拦下这一次发送。运行时钩子在 agent 侧无界面调用，所以本目录没有演示页。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.send.before</code> · 风险 high · 三动作 continue / transform / handled</div>
+  <h1>before-send · Index</h1>
+  <p>The moment when a user message is already persisted but has not yet reached the agent. A plugin can let it through, rewrite the text, or block this send with a reason. Runtime hooks are called headlessly on the agent side, so this folder has no demo page.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.send.before</code> · risk high · three actions continue / transform / handled</div>
 </header>
 
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：现状（已 emit）、三动作契约、改写留审计、明确不做。</p>
-      <p class="files">范围 / 现状 / 契约 / 场景 / 拍板 / 不做 / 未定</p>
+      <p class="what">What it covers: current state (already emitting), the three-action contract, rewrite auditing, and explicit non-goals.</p>
+      <p class="files">Scope / current state / contract / scenarios / decisions / non-goals / open questions</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：发送路径上钩子在哪一刻被叫到、三动作怎么链、改写怎么留审计。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: when the hook is called on the send path, how the three actions chain, and how rewrites are audited.</p>
+      <p class="files">API contract · How data flows · Error handling · What is not provided · Related entries · Open questions</p>
     </a>
   </div>
-  <div class="omitted"><b>页表省略：无界面</b>——运行时钩子在 agent 侧无界面调用，本目录不设演示页。省略：无界面</div>
+  <div class="omitted"><b>Omitted from the page table: no UI</b> - runtime hooks are called headlessly on the agent side, so this folder has no demo page. Omitted: no UI</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><b>现状已核实</b>：内核已经在发这个钩子——「已 emit」，不是「没 emit」。</li>
-    <li><b>三动作</b>：continue 放行 / transform 改写（带新文案）/ handled 拦下（带用户可读原因）。多个插件按注册顺序链式处理，改写逐条留审计。</li>
-    <li><b>改写留审计</b>：每次 transform 记入 <code>plugin_rewrites</code>（diff 级）；对话里的用户消息行始终是原文。</li>
-    <li><b>不管</b>：附件、已落库的用户消息行、发送按钮与排队（那是输入区的事）。不做「没轮在跑就返回 false」这类状态检查——未核到，不写进契约。</li>
+    <li><b>Current state verified</b>: the core already emits this hook - "already emitted", not "not emitted".</li>
+    <li><b>Three actions</b>: continue lets it through / transform rewrites it (with new text) / handled blocks it (with a user-readable reason). Multiple plugins are chained in registration order, and each rewrite is audited individually.</li>
+    <li><b>Rewrites are audited</b>: every transform is recorded in <code>plugin_rewrites</code> (diff-level); the user message row in the conversation always keeps the original text.</li>
+    <li><b>Not handled</b>: attachments, the already-persisted user message row, the send button and queueing (those belong to the composer). No state checks such as "return false when no turn is running" - not verified, so not written into the contract.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">开放对象、handled 的用户提示形态、预算时长、改写可见性——见 requirements.html 的「本轮拍板」。</p>
-  <p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">Who can use it, the shape of the user-facing handled notice, the budget duration, and rewrite visibility - see "Decisions this round" in requirements.html.</p>
+  <p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

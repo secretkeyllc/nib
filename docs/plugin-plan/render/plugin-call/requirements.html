@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>插件转发 · 需求</title>
+<title>Plugin forwarding - Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -57,128 +57,128 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <a href="index.html">插件转发</a>
+  <a href="index.html">Plugin forwarding</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · render/plugin-call</div>
-  <h1>插件转发 · 需求</h1>
-  <p>渲染侧组件取自己插件的私有数据：<code>dispatch("plugin.call")</code>。一问一答、JSON 应答；method 白名单、体积、限速、超时、熔断五道约束；pluginId 宿主注入。</p>
-  <div class="meta">status: draft · issue #545 · #561 · 出站分层：核心 P</div>
+  <h1>Plugin forwarding - Requirements</h1>
+  <p>A renderer component fetching its own plugin's private data: <code>dispatch("plugin.call")</code>. One question, one JSON answer, with five constraints - a method allowlist, a payload cap, a rate limit, a timeout, and a circuit breaker - and pluginId injected by the host.</p>
+  <div class="meta">status: draft - issue #545 - #561 - outbound layering: core P</div>
 </header>
 
 <main>
 
 <section>
-  <h2>范围 <span class="tag decided">已定</span></h2>
+  <h2>Scope <span class="tag decided">Settled</span></h2>
   <ul>
-    <li>一个渲染侧动作：<code>dispatch("plugin.call")</code>——槽组件向<b>自己这个插件</b>要一份数据。</li>
-    <li>链路固定：dispatch → 校验声明 → 跨进程转发 → 本插件应答 → JSON 回来。</li>
-    <li>不谈：跨插件调用（禁止）、推流 / 订阅（禁止）、宿主能力调用（那是别的出站词）。</li>
+    <li>One renderer action: <code>dispatch("plugin.call")</code> - a slot component asks <b>its own plugin</b> for data.</li>
+    <li>The chain is fixed: dispatch -> validate the declaration -> forward across processes -> the plugin answers -> JSON comes back.</li>
+    <li>Not covered: cross-plugin calls (forbidden), streaming or subscriptions (forbidden), and host capability calls (those are other outbound verbs).</li>
   </ul>
 </section>
 
 <section>
-  <h2>契约形状 <span class="tag decided">已拍板</span></h2>
-<pre><span class="c">// ① 组件侧发起</span>
+  <h2>Contract shape <span class="tag decided">Decided</span></h2>
+<pre><span class="c">// (1) initiated by the component</span>
 <span class="k">const</span> data = <span class="k">await</span> dispatch(<span class="c">"plugin.call"</span>, {
   <span class="k">method</span>: <span class="c">"searchKb"</span>,
-  <span class="k">args</span>:   { <span class="k">query</span>: <span class="c">"退货政策"</span> }
+  <span class="k">args</span>:   { <span class="k">query</span>: <span class="c">"refund policy"</span> }
 })
-<span class="c">// pluginId 不出现在这里——宿主注入，不可自填</span>
+<span class="c">// pluginId never appears here - the host injects it and it cannot be self-supplied</span>
 
-<span class="c">// ② 跨进程载荷（宿主组装）</span>
+<span class="c">// (2) cross-process payload (assembled by the host)</span>
 IPC <span class="k">plugin/renderer/call</span>
   { <span class="k">pluginId</span>, <span class="k">method</span>, <span class="k">args</span> }
 
-<span class="c">// ③ 插件侧应答</span>
-onRendererCall(method, args) → <span class="k">JSON 值</span></pre>
+<span class="c">// (3) plugin-side response</span>
+onRendererCall(method, args) → <span class="k">JSON value</span></pre>
 
   <table>
-    <thead><tr><th>方面</th><th>内容</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">链路</td><td>dispatch → 校验声明 → IPC <code>plugin/renderer/call</code> <code>{pluginId, method, args}</code> → 本插件 <code>onRendererCall</code> → JSON 应答</td></tr>
-      <tr><td class="id">method</td><td><b>白名单</b>——只认插件声明过的；没声明 → <code>PLUGIN_CALL_NO_HANDLER</code></td></tr>
-      <tr><td class="id">载荷</td><td>args 与应答合计 <b>≤64KB</b>；超限拒绝</td></tr>
-      <tr><td class="id">限速</td><td><b>QPS</b>；超速拒绝</td></tr>
-      <tr><td class="id">超时</td><td><b>2s</b>；超时 <code>PLUGIN_CALL_TIMEOUT</code></td></tr>
-      <tr><td class="id">熔断</td><td>连续失败 → <code>PLUGIN_CALL_DISABLED</code>，本插件转发暂时关掉</td></tr>
-      <tr><td class="id">pluginId</td><td><b>宿主注入，不可自填</b>——只能调自己，冒充别家直接拒绝</td></tr>
-      <tr><td class="id">应答</td><td><b>JSON</b>——不能是流、不能是函数、不能是循环引用</td></tr>
+      <tr><td class="id">Chain</td><td>dispatch -> validate the declaration -> IPC <code>plugin/renderer/call</code> <code>{pluginId, method, args}</code> -> the plugin's <code>onRendererCall</code> -> a JSON answer</td></tr>
+      <tr><td class="id">method</td><td><b>Allowlist</b> - only what the plugin declared; undeclared -> <code>PLUGIN_CALL_NO_HANDLER</code></td></tr>
+      <tr><td class="id">Payload</td><td>args plus the answer together must stay under <b>64KB</b>; over the cap is rejected</td></tr>
+      <tr><td class="id">Rate limit</td><td><b>QPS</b>; exceeding it is rejected</td></tr>
+      <tr><td class="id">Timeout</td><td><b>2s</b>; on expiry <code>PLUGIN_CALL_TIMEOUT</code></td></tr>
+      <tr><td class="id">Circuit breaker</td><td>Consecutive failures -> <code>PLUGIN_CALL_DISABLED</code> and this plugin's forwarding is switched off temporarily</td></tr>
+      <tr><td class="id">pluginId</td><td><b>Injected by the host, never self-supplied</b> - a plugin can only call itself, and impersonating another is rejected outright</td></tr>
+      <tr><td class="id">Answer</td><td><b>JSON</b> - not a stream, not a function, no circular references</td></tr>
     </tbody>
   </table>
-  <div class="callout stop"><b>不能推流（拍板）。</b>一问一答，返回值必须能变成 JSON。要持续数据就多次调用，或者去订阅宿主的推送通道——本接口不是流。</div>
-  <div class="callout decided"><b>pluginId 宿主注入（拍板）。</b>组件侧只能写 <code>method</code> 和 <code>args</code>；「这是谁」由宿主在跨进程载荷里补上。这样就堵死了冒充别家插件、绕过归属闸的路。</div>
+  <div class="callout stop"><b>No streaming (decided).</b>One question yields one answer and the return must be JSON-serializable. For ongoing data, call repeatedly or subscribe to the host's push channel - this interface is not a stream.</div>
+  <div class="callout decided"><b>pluginId is injected by the host (decided).</b>A component may write only <code>method</code> and <code>args</code>; the host fills in "who this is" in the cross-process payload. That closes off impersonating another plugin and bypassing the ownership gate.</div>
 
-  <h3>失败码</h3>
+  <h3>Failure codes</h3>
   <table>
-    <thead><tr><th>码</th><th>什么时候</th></tr></thead>
+    <thead><tr><th>code</th><th>when</th></tr></thead>
     <tbody>
-      <tr><td class="id">PLUGIN_CALL_NO_HANDLER</td><td>method 不在白名单，或插件没实现 <code>onRendererCall</code></td></tr>
-      <tr><td class="id">PLUGIN_CALL_UNSERIALIZABLE</td><td>args 或应答不能变成 JSON</td></tr>
-      <tr><td class="id">PLUGIN_CALL_TIMEOUT</td><td>2s 内没答上</td></tr>
-      <tr><td class="id">PLUGIN_CALL_TOO_LARGE</td><td>超过 64KB</td></tr>
-      <tr><td class="id">PLUGIN_CALL_RATE_LIMITED</td><td>超过 QPS</td></tr>
-      <tr><td class="id">PLUGIN_CALL_DISABLED</td><td>连续失败熔断，暂时关掉</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<section>
-  <h2>谁能用 <span class="tag decided">已定</span></h2>
-  <table>
-    <thead><tr><th>谁</th><th>怎么用</th></tr></thead>
-    <tbody>
-      <tr><td class="id">槽组件（渲染侧）</td><td><code>dispatch("plugin.call", …)</code>，只可调自己这个插件</td></tr>
-      <tr><td class="id">本插件 main</td><td>实现 <code>onRendererCall</code>，答 JSON</td></tr>
-      <tr><td class="id">别家插件</td><td><b>不能</b>——pluginId 不可自填，跨插件调用拒绝</td></tr>
+      <tr><td class="id">PLUGIN_CALL_NO_HANDLER</td><td>The method is not in the allowlist, or the plugin does not implement <code>onRendererCall</code></td></tr>
+      <tr><td class="id">PLUGIN_CALL_UNSERIALIZABLE</td><td>args or the answer cannot become JSON</td></tr>
+      <tr><td class="id">PLUGIN_CALL_TIMEOUT</td><td>No answer within 2s</td></tr>
+      <tr><td class="id">PLUGIN_CALL_TOO_LARGE</td><td>Over 64KB</td></tr>
+      <tr><td class="id">PLUGIN_CALL_RATE_LIMITED</td><td>Over QPS</td></tr>
+      <tr><td class="id">PLUGIN_CALL_DISABLED</td><td>The circuit breaker tripped on consecutive failures and it is switched off temporarily</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>场景 <span class="tag proposal">典型用法</span></h2>
+  <h2>Who can use it <span class="tag decided">Settled</span></h2>
   <table>
-    <thead><tr><th>#</th><th>场景</th></tr></thead>
+    <thead><tr><th>who</th><th>how</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td>知识库槽组件要搜自己插件索引里的条目，答一份列表</td></tr>
-      <tr><td>2</td><td>工具卡要取自己插件侧的运行摘要，答一个对象</td></tr>
-      <tr><td>3</td><td>触发符列表要去自己的数据源里筛，答候选数组</td></tr>
+      <tr><td class="id">Slot component (renderer side)</td><td><code>dispatch("plugin.call", ...)</code>, and only against its own plugin</td></tr>
+      <tr><td class="id">This plugin's main</td><td>Implements <code>onRendererCall</code> and answers with JSON</td></tr>
+      <tr><td class="id">Another plugin</td><td><b>Cannot</b> - pluginId cannot be self-supplied, so cross-plugin calls are rejected</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>明确不做 <span class="tag decided">已定</span></h2>
+  <h2>Scenarios <span class="tag proposal">Typical usage</span></h2>
+  <table>
+    <thead><tr><th>#</th><th>scenario</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>A knowledge-base slot component searches entries in its own plugin index and gets a list back</td></tr>
+      <tr><td>2</td><td>A tool card asks its own plugin for a run summary and gets an object back</td></tr>
+      <tr><td>3</td><td>A trigger list filters its own data source and gets an array of candidates back</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Explicit non-goals <span class="tag decided">Settled</span></h2>
   <ul>
-    <li><b>不能推流。</b>不是订阅、不是事件源；一问一答，JSON 应答。</li>
-    <li><b>不能跨插件。</b>pluginId 宿主注入，只能调自己；冒充别家拒绝。</li>
-    <li><b>不给未声明的 method。</b>白名单外一律 <code>NO_HANDLER</code>。</li>
-    <li><b>不限于「取数」的副作用不走这里。</b>写草稿、加附件、复制、打开链接——走各自的出站词，不在 <code>plugin.call</code> 里开后门。</li>
-    <li><b>失败不静默。</b>超时、超限、熔断都带码返回，不假装成功。</li>
-    <li><b>连续失败不无限重试。</b>熔断 <code>PLUGIN_CALL_DISABLED</code>，先歇着。</li>
+    <li><b>No streaming.</b>It is not a subscription or an event source; one question, one JSON answer.</li>
+    <li><b>No cross-plugin calls.</b>The host injects pluginId, so a plugin can only call itself; impersonation is rejected.</li>
+    <li><b>No undeclared methods.</b>Anything outside the allowlist is <code>NO_HANDLER</code>.</li>
+    <li><b>Side effects beyond fetching data do not go here.</b>Writing the draft, adding attachments, copying, and opening links each have their own outbound verb; none opens a back door through <code>plugin.call</code>.</li>
+    <li><b>Failures are never silent.</b> Timeouts, over-limit calls, and the circuit breaker all return a code; nothing pretends to succeed.</li>
+    <li><b>No unlimited retries on consecutive failures.</b> The breaker trips <code>PLUGIN_CALL_DISABLED</code> and forwarding takes a break.</li>
   </ul>
 </section>
 
 <section>
-  <h2>本轮拍板 <span class="tag decided">已拍板</span></h2>
+  <h2>Decisions this round <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>问题</th><th>拍板</th></tr></thead>
+    <thead><tr><th>question</th><th>decision</th></tr></thead>
     <tbody>
-      <tr><td>链路</td><td>dispatch → 校验声明 → IPC <code>plugin/renderer/call</code> <code>{pluginId, method, args}</code> → <code>onRendererCall</code> → JSON</td></tr>
-      <tr><td>method</td><td>白名单</td></tr>
-      <tr><td>载荷</td><td>≤64KB</td></tr>
-      <tr><td>限速</td><td>QPS</td></tr>
-      <tr><td>超时</td><td>2s</td></tr>
-      <tr><td>熔断</td><td>连续失败 → <code>PLUGIN_CALL_DISABLED</code></td></tr>
-      <tr><td>pluginId</td><td>宿主注入，不可自填</td></tr>
-      <tr><td>应答形态</td><td>JSON；不能推流</td></tr>
+      <tr><td>Chain</td><td>dispatch -> validate the declaration -> IPC <code>plugin/renderer/call</code> <code>{pluginId, method, args}</code> -> <code>onRendererCall</code> -> JSON</td></tr>
+      <tr><td>method</td><td>Allowlist</td></tr>
+      <tr><td>Payload</td><td>64KB cap</td></tr>
+      <tr><td>Rate limit</td><td>QPS</td></tr>
+      <tr><td>Timeout</td><td>2s</td></tr>
+      <tr><td>Circuit breaker</td><td>Consecutive failures -> <code>PLUGIN_CALL_DISABLED</code></td></tr>
+      <tr><td>pluginId</td><td>Injected by the host; cannot be self-supplied</td></tr>
+      <tr><td>Answer shape</td><td>JSON; no streaming</td></tr>
     </tbody>
   </table>
 </section>

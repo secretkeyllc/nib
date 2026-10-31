@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>audio.openOutput · 数据流</title>
+<title>audio.openOutput · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,92 +49,92 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">audio.openOutput</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>audio.openOutput · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>audio.openOutput · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>Interface contract</h2>
   <pre class="sig">pi.audio.openOutput(options: PluginAudioOpenOutputOptions): Promise&lt;PluginAudioOutputSession&gt;</pre>
-  <p class="lead">打开一条由宿主持有的播放队列，返回播放会话（权限：<span class="pill perm">—</span>）。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Opens a playback queue held by the host and returns a playback session (permission: <span class="pill perm">—</span>).</p>
+  <p><b>Inputs</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">sampleRate</td><td>number</td><td>是</td><td>目标播放采样率。</td></tr>
-      <tr><td class="id">channels</td><td>number</td><td>否</td><td>声道数。</td></tr>
-      <tr><td class="id">format</td><td>"pcm16"</td><td>否</td><td>采样格式；当前仅支持 PCM16。</td></tr>
+      <tr><td class="id">sampleRate</td><td>number</td><td>Yes</td><td>Target playback sample rate.</td></tr>
+      <tr><td class="id">channels</td><td>number</td><td>No</td><td>Number of channels.</td></tr>
+      <tr><td class="id">format</td><td>"pcm16"</td><td>No</td><td>Sample format; currently only PCM16 is supported.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Outputs</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">streamId</td><td>string</td><td>会话 id；<code>writeOutput</code> / <code>stopOutput</code> / <code>closeOutput</code> 都用它。</td></tr>
-      <tr><td class="id">sampleRate</td><td>number</td><td>实际生效的采样率。</td></tr>
-      <tr><td class="id">channels</td><td>number</td><td>实际生效的声道数。</td></tr>
-      <tr><td class="id">format</td><td>"pcm16"</td><td>播放采样格式。</td></tr>
+      <tr><td class="id">streamId</td><td>string</td><td>Session id; used by <code>writeOutput</code> / <code>stopOutput</code> / <code>closeOutput</code>.</td></tr>
+      <tr><td class="id">sampleRate</td><td>number</td><td>Sample rate actually in effect.</td></tr>
+      <tr><td class="id">channels</td><td>number</td><td>Number of channels actually in effect.</td></tr>
+      <tr><td class="id">format</td><td>"pcm16"</td><td>Playback sample format.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{ "sampleRate": 24000, "channels": 1, "format": "pcm16" }</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>{ "streamId": "out-8c11d0", "sampleRate": 24000, "channels": 1, "format": "pcm16" }</pre>
-  <div class="callout"><b>一句话边界。</b>仅支持 PCM16；拿到的是队列会话而不是设备句柄，播放队列由宿主持有。</div>
+  <div class="callout"><b>Boundary in one sentence.</b>PCM16 only; you get a queue session, not a device handle — the playback queue is held by the host.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b><code>pi.audio.openOutput({ sampleRate, channels?, format? })</code>。</li>
-    <li><b>校验：</b>宿主核对权限（未授权 <code>PERMISSION_DENIED</code>）与参数（如缺 <code>sampleRate</code> 则 <code>INVALID_ARGUMENT</code>）。</li>
-    <li><b>执行：</b>宿主打开系统播放端，为本插件建立播放队列并持有它。</li>
-    <li><b>返回：</b>resolve 播放会话 <code>{ streamId, sampleRate, channels, format }</code>；音频经 <code>writeOutput</code> 入队。</li>
-    <li><b>生命周期：</b>插件禁用 / 卸载时，宿主丢弃未播音频。</li>
+    <li><b>Call:</b> <code>pi.audio.openOutput({ sampleRate, channels?, format? })</code>.</li>
+    <li><b>Validation:</b> the host checks the permission (<code>PERMISSION_DENIED</code> if not authorized) and the parameters (<code>INVALID_ARGUMENT</code> if, say, <code>sampleRate</code> is missing).</li>
+    <li><b>Execution:</b> the host opens the system playback endpoint, creates a playback queue for this plugin, and holds it.</li>
+    <li><b>Return:</b> resolves with the playback session <code>{ streamId, sampleRate, channels, format }</code>; audio is enqueued via <code>writeOutput</code>.</li>
+    <li><b>Lifecycle:</b> when the plugin is disabled / unloaded, the host discards unplayed audio.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>打开请求（采样率、声道数、格式）。</td></tr>
-      <tr><td>宿主 → 插件</td><td>播放会话（<code>streamId</code> 与实际生效参数）。</td></tr>
-      <tr><td>宿主 → 系统</td><td>打开并驱动系统播放设备。</td></tr>
+      <tr><td>plugin → host</td><td>Open request (sample rate, channel count, format).</td></tr>
+      <tr><td>host → plugin</td><td>Playback session (<code>streamId</code> and the parameters actually in effect).</td></tr>
+      <tr><td>host → system</td><td>Opens and drives the system playback device.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>插件未获音频播放权限</td><td>调用失败（reject）</td><td><code>PERMISSION_DENIED</code></td></tr>
-      <tr><td>宿主无音频后端</td><td>调用失败（reject）</td><td><code>UNSUPPORTED</code></td></tr>
-      <tr><td>入参不合法（如缺 <code>sampleRate</code>）</td><td>调用失败（reject）</td><td><code>INVALID_ARGUMENT</code></td></tr>
+      <tr><td>Plugin lacks audio playback permission</td><td>Call fails (reject)</td><td><code>PERMISSION_DENIED</code></td></tr>
+      <tr><td>Host has no audio backend</td><td>Call fails (reject)</td><td><code>UNSUPPORTED</code></td></tr>
+      <tr><td>Invalid input (e.g. missing <code>sampleRate</code>)</td><td>Call fails (reject)</td><td><code>INVALID_ARGUMENT</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">仅 PCM16；不给设备句柄。</p>
+  <h2><span class="n">4</span>What it does not provide</h2>
+  <p class="lead">PCM16 only; no device handle.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/audio.writeOutput</code></li>
     <li><code>host-api/audio.closeOutput</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">设备后端落地时间未定。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">Timeline for the device backend is not yet decided.</p>
 </section>
 
 </main>

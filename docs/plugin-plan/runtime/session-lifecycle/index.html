@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session-lifecycle · 会话生命周期（仅压缩前可否决） · 目录</title>
+<title>session-lifecycle · Session lifecycle (veto only before compaction) · Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,48 +98,48 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">session-lifecycle</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime · session-lifecycle</div>
-  <h1>session-lifecycle · 目录</h1>
-  <p>会话的创建、删除、切换、分叉、压缩。除 before_compact 外全是通知；只有压缩前可以否决一次。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.session.lifecycle</code> · 仅 before_compact 可否决</div>
+  <h1>session-lifecycle · Index</h1>
+  <p>Creating, deleting, switching, forking and compacting a session. Everything except before_compact is a notification; only a compaction can be vetoed, once.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.session.lifecycle</code> · only before_compact can veto</div>
 </header>
 
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：五种时刻、before_compact 完整载荷与否决、不做。</p>
-      <p class="files">范围 / 现状 / 契约 / 场景 / 拍板 / 不做 / 未定</p>
+      <p class="what">What it needs: the five moments, the full before_compact payload and its veto, non-goals.</p>
+      <p class="files">Scope / current state / contract / scenarios / decisions / non-goals / open questions</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：事件从哪来、before_compact 载荷形状、否决怎么生效。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: where the events come from, the shape of the before_compact payload, and how a veto takes effect.</p>
+      <p class="files">API contract · How data flows · Error handling · What is not provided · Related entries · Open questions</p>
     </a>
   </div>
-  <div class="omitted"><b>页表省略：无界面</b>——运行时钩子在 agent 侧无界面调用，本目录不设演示页。省略：无界面</div>
+  <div class="omitted"><b>Omitted from the page table: no UI</b> - runtime hooks are called headlessly on the agent side, so this folder has no demo page. Omitted: no UI</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><b>五种时刻</b>：created / deleted / switch（before_switch）/ fork（before_fork）/ compact（before_compact · compact · compact_failed）。</li>
-    <li><b>唯一否决权</b>：<code>before_compact</code> 可返回 <code>{ cancel?: boolean }</code>——仅压缩前可否决；其余全是通知，不等待、不可拦。</li>
-    <li><b>before_compact 完整载荷</b>：<code>{ type, reason, retentionMode, segment: { messages, messageCount, tokensBefore, retained } }</code>。</li>
+    <li><b>Five moments</b>: created / deleted / switch (before_switch) / fork (before_fork) / compact (before_compact · compact · compact_failed).</li>
+    <li><b>The only veto</b>: <code>before_compact</code> may return <code>{ cancel?: boolean }</code> - only a compaction can be vetoed; everything else is a notification - no waiting, no blocking.</li>
+    <li><b>Full before_compact payload</b>: <code>{ type, reason, retentionMode, segment: { messages, messageCount, tokensBefore, retained } }</code>.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">cancel 的次数上限、retentionMode 的取值表——见 requirements.html 的「本轮拍板」。</p>
-  <p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">The limit on how many times cancel may be used, and the value table for retentionMode - see "Decisions this round" in requirements.html.</p>
+  <p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

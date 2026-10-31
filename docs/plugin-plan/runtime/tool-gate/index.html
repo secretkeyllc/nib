@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>tool-gate · 工具调用前后观察 / 拦截 · 目录</title>
+<title>tool-gate · Observe and block before and after a tool call · Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,48 +98,48 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">tool-gate</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime · tool-gate</div>
-  <h1>tool-gate · 目录</h1>
-  <p>工具调用前可以拦下，调用后可以看结果。改参数永久排除——内核类型里根本没有 args 字段。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.tool.gate</code> · 预算 30s · 改参数永久排除</div>
+  <h1>tool-gate · Index</h1>
+  <p>A tool call can be blocked before it runs, and its result inspected after. Changing arguments is permanently excluded - the core's types have no args field at all.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.tool.gate</code> · budget 30s · changing arguments permanently excluded</div>
 </header>
 
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：前后两点契约、改参数永久排除、慢确认的 UI 义务、不做。</p>
-      <p class="files">范围 / 现状 / 契约 / 场景 / 拍板 / 不做 / 未定</p>
+      <p class="what">What it needs: the contract for the two points, the permanent exclusion of argument changes, the plugin's UI duty for slow confirmations, non-goals.</p>
+      <p class="files">Scope / current state / contract / scenarios / decisions / non-goals / open questions</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：工具生命周期上两个钩子怎么叫、三动作怎么用。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: how the two hooks are called over the tool lifecycle, and how the three actions are used.</p>
+      <p class="files">API contract · How data flows · Error handling · What is not provided · Related entries · Open questions</p>
     </a>
   </div>
-  <div class="omitted"><b>页表省略：无界面</b>——运行时钩子在 agent 侧无界面调用，本目录不设演示页。省略：无界面</div>
+  <div class="omitted"><b>Omitted from the page table: no UI</b> - runtime hooks are called headlessly on the agent side, so this folder has no demo page. Omitted: no UI</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><b>现状已核实</b>：<code>beforeToolCall</code> / <code>afterToolCall</code> 已接进内核循环，映射到 <code>runtime.tool.gate</code>；30 秒预算，超时 = 无意见。</li>
-    <li><b>改参数永久排除</b>：内核返回类型没有 args 字段；连「包一层再改」也排除。</li>
-    <li><b>慢确认是插件的 UI 义务</b>：要问用户就自己画界面，决定后经 turn-continue 两段式——不许在 gate 里干等。</li>
+    <li><b>Current state verified</b>: <code>beforeToolCall</code> / <code>afterToolCall</code> are already wired into the core loop, mapped to <code>runtime.tool.gate</code>; 30-second budget, timeout = no opinion.</li>
+    <li><b>Changing arguments is permanently excluded</b>: the core's return type has no args field; even "wrap it and then change it" is excluded.</li>
+    <li><b>Slow confirmation is the plugin's UI duty</b>: if it needs to ask the user, it draws its own UI, and after the decision it goes through turn-continue's two-phase path - it may not just wait inside the gate.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">慢确认要不要宿主给标准确认卡位、拦截原因的展示形态——见 requirements.html 的「本轮拍板」。</p>
-  <p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">Whether slow confirmation should get a standard confirmation card from the host, and how a block reason is displayed - see "Decisions this round" in requirements.html.</p>
+  <p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

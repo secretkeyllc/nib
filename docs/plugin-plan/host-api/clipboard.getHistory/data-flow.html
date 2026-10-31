@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>clipboard.getHistory · 数据流</title>
+<title>clipboard.getHistory · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,86 +49,86 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">clipboard.getHistory</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>clipboard.getHistory · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>clipboard.getHistory · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.clipboard.getHistory(): Promise&lt;ClipboardHistoryEntry[]&gt;</pre>
-  <p class="lead">读宿主保留的剪贴板历史（权限：<span class="pill perm">—</span>；历史可能含敏感信息，权限为 <code>clipboard.read</code>）。</p>
-  <p class="lead">无入参。</p>
-  <p><b>出参</b></p>
+  <p class="lead">Read the clipboard history the host retains (permission: <span class="pill perm">—</span>; the history may contain sensitive data, and the permission is <code>clipboard.read</code>).</p>
+  <p class="lead">No input.</p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>field</th><th>type</th><th>notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">ClipboardHistoryEntry[]</td><td>历史条目数组；数组元素结构是判别联合，见下列字段。</td></tr>
-      <tr><td class="id">type</td><td class="id">"text" | "image"</td><td>判别字段：文本条目或图片条目。</td></tr>
-      <tr><td class="id">text</td><td class="id">string</td><td>仅 <code>type: "text"</code>：文本内容。</td></tr>
-      <tr><td class="id">format</td><td class="id">"png" | "jpeg" | "webp"</td><td>仅 <code>type: "image"</code>：图片格式。</td></tr>
-      <tr><td class="id">data</td><td class="id">Uint8Array</td><td>仅 <code>type: "image"</code>：图片字节。</td></tr>
-      <tr><td class="id">width / height</td><td class="id">number</td><td>仅 <code>type: "image"</code>：像素尺寸。</td></tr>
-      <tr><td class="id">capturedAt</td><td class="id">string</td><td>两种变体都有：捕获时间。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">ClipboardHistoryEntry[]</td><td>An array of history entries; each element is a discriminated union described by the fields below.</td></tr>
+      <tr><td class="id">type</td><td class="id">"text" | "image"</td><td>The discriminant: a text entry or an image entry.</td></tr>
+      <tr><td class="id">text</td><td class="id">string</td><td><code>type: "text"</code> only: the text content.</td></tr>
+      <tr><td class="id">format</td><td class="id">"png" | "jpeg" | "webp"</td><td><code>type: "image"</code> only: the image format.</td></tr>
+      <tr><td class="id">data</td><td class="id">Uint8Array</td><td><code>type: "image"</code> only: the image bytes.</td></tr>
+      <tr><td class="id">width / height</td><td class="id">number</td><td><code>type: "image"</code> only: the pixel dimensions.</td></tr>
+      <tr><td class="id">capturedAt</td><td class="id">string</td><td>On both variants: when the entry was captured.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>// 无入参</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>[
   { "type": "text", "text": "部署已回滚", "capturedAt": "2026-02-16T09:12:00.000Z" },
   { "type": "image", "format": "png", "data": [137, 80, 78, 71], "width": 640, "height": 400, "capturedAt": "2026-02-16T09:10:41.000Z" }
 ]</pre>
-  <div class="callout"><b>一句话边界。</b>只读宿主保留窗口内的历史（30 天 / 500 条 / 256 MiB 上界），不轮询系统剪贴板；没有删除历史的 API。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> It only reads history inside the host retention window (bounded at 30 days / 500 entries / 256 MiB) and never polls the system clipboard; there is no API to delete history.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件进程发起 <code>pi.clipboard.getHistory()</code>。</li>
-    <li><b>校验：</b>宿主检查读侧权限（<code>clipboard.read</code>）。</li>
-    <li><b>执行：</b>宿主返回自己保留的剪贴板历史快照，有界（30 天 / 500 条 / 256 MiB）；宿主不轮询操作系统剪贴板。</li>
-    <li><b>返回：</b>条目数组一次给全，无游标、无分页；文本与图片条目按 <code>type</code> 判别。</li>
+    <li><b>Call:</b> the plugin process issues <code>pi.clipboard.getHistory()</code>.</li>
+    <li><b>Validate:</b> the host checks the read-side permission (<code>clipboard.read</code>).</li>
+    <li><b>Execute:</b> the host returns a snapshot of the clipboard history it retains, bounded (30 days / 500 entries / 256 MiB); the host does not poll the operating-system clipboard.</li>
+    <li><b>Return:</b> the whole entry array at once, with no cursor and no paging; text and image entries are told apart by <code>type</code>.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>direction</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>无入参，仅调用。</td></tr>
-      <tr><td>宿主 → 插件</td><td><code>ClipboardHistoryEntry[]</code>。</td></tr>
+      <tr><td>plugin → host</td><td>No arguments; just the call.</td></tr>
+      <tr><td>host → plugin</td><td><code>ClipboardHistoryEntry[]</code>.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>code</th></tr></thead>
     <tbody>
-      <tr><td>读侧权限不满足</td><td>Promise 拒绝，不返回历史</td><td class="id">PERMISSION_DENIED</td></tr>
+      <tr><td>The read-side permission is not granted</td><td>Promise rejection; no history is returned</td><td class="id">PERMISSION_DENIED</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">当前表面没有删除历史 API。</p>
-  <div class="callout"><b>宿主保证 / 已接受代价：</b>宿主保证：历史有界（30 天 / 500 条 / 256 MiB），不轮询操作系统剪贴板。已接受代价：更早的历史拿不到。</div>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">The current surface has no API to delete history.</p>
+  <div class="callout"><b>Host guarantees / accepted costs:</b> Host guarantee: the history is bounded (30 days / 500 entries / 256 MiB) and the OS clipboard is never polled. Accepted cost: older history is unavailable.</div>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/clipboard.readText</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

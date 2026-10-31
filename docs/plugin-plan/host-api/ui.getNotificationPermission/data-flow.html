@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ui.getNotificationPermission · 数据流</title>
+<title>ui.getNotificationPermission · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,69 +49,69 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">ui.getNotificationPermission</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>ui.getNotificationPermission · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>ui.getNotificationPermission · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
  <section>
-   <h2><span class="n">1</span>接口约定</h2>
+   <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.ui.getNotificationPermission(): Promise&lt;PluginNotificationPermission&gt;</pre>
-   <p class="lead">查询当前通知权限状态，只读、不弹任何授权框；权限：<span class="pill perm">—</span>。</p>
-   <p><b>入参</b></p>
-   <p class="lead">无入参。</p>
-   <p><b>出参</b></p>
+   <p class="lead">Queries the current notification permission state, read-only, without popping any authorization dialog; permission: <span class="pill perm">—</span>.</p>
+   <p><b>Input</b></p>
+   <p class="lead">No input.</p>
+   <p><b>Output</b></p>
    <table>
-     <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+     <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
      <tbody>
-       <tr><td class="id">（返回值）</td><td class="id">"granted" | "denied" | "unknown" | "unsupported"</td><td>当前通知权限：已授予 / 已拒绝 / 尚未确定 / 宿主不支持。</td></tr>
+       <tr><td class="id">(return value)</td><td class="id">"granted" | "denied" | "unknown" | "unsupported"</td><td>Current notification permission: granted / denied / not yet determined / not supported by the host.</td></tr>
      </tbody>
    </table>
-   <p><b>输入样例</b></p>
-   <pre>// 无入参</pre>
-   <p><b>输出样例</b></p>
+   <p><b>Input example</b></p>
+   <pre>// no input</pre>
+   <p><b>Output example</b></p>
    <pre>"granted"</pre>
-   <div class="callout"><b>一句话边界。</b>只查状态，不弹系统授权框；要申请用 <code>requestNotificationPermission</code>。</div>
+   <div class="callout"><b>Boundary in one sentence.</b> Queries the state only and never pops the system authorization dialog; to request, use <code>requestNotificationPermission</code>.</div>
  </section>
  <section>
-   <h2><span class="n">2</span>数据怎么走</h2>
+   <h2><span class="n">2</span>How data flows</h2>
    <ol>
-     <li><b>调用：</b>插件进程无参调用。</li>
-     <li><b>执行：</b>宿主读取当前通知权限状态，不触发系统授权框。</li>
-     <li><b>返回：</b>状态字符串；插件可据此决定是否再调 <code>requestNotificationPermission</code>。</li>
+     <li><b>Call:</b> the plugin process calls it with no arguments.</li>
+     <li><b>Execution:</b> the host reads the current notification permission state without triggering the system authorization dialog.</li>
+     <li><b>Return:</b> the state string; the plugin can use it to decide whether to call <code>requestNotificationPermission</code> afterwards.</li>
    </ol>
  </section>
  <section>
-   <h2><span class="n">3</span>出错怎么办</h2>
+   <h2><span class="n">3</span>Error handling</h2>
    <table>
-     <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+     <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
      <tbody>
-       <tr><td>清单缺 <code>notify</code> 权限</td><td>Promise 拒绝</td><td class="id">PERMISSION_DENIED</td></tr>
+       <tr><td>Manifest lacks the <code>notify</code> permission</td><td>Promise rejects</td><td class="id">PERMISSION_DENIED</td></tr>
      </tbody>
    </table>
  </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不弹系统授权框。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Does not pop the system authorization dialog.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/ui.requestNotificationPermission</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

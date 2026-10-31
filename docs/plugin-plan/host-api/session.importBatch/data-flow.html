@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session.importBatch · 数据流</title>
+<title>session.importBatch · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,44 +49,44 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">session.importBatch</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>session.importBatch · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>session.importBatch · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>Interface contract</h2>
   <pre class="sig">pi.session.importBatch(input: PluginSessionBatchImportInput): Promise&lt;PluginSessionBatchImportResult&gt;</pre>
-  <p class="lead">一批导入同一 <code>source</code> 的多条外部会话，逐条返回结果并给出计数。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Imports multiple external sessions sharing one <code>source</code> in a batch, returning per-item results plus counts. Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">source</td><td class="id">string</td><td>是</td><td>整批共用的来源 namespace，须在清单 <code>sessionSources</code> 声明。</td></tr>
-      <tr><td class="id">sessions</td><td class="id">Array&lt;Omit&lt;PluginSessionImportInput, "source"&gt;&gt;</td><td>是</td><td>会话数组；元素结构同 <code>pi.session.import</code> 入参去掉 <code>source</code>。</td></tr>
-      <tr><td class="id">mode</td><td class="id">"skip" | "fail"</td><td>否</td><td>单条失败策略：<code>skip</code> 跳过该条继续，<code>fail</code> 整批失败。</td></tr>
+      <tr><td class="id">source</td><td class="id">string</td><td>Yes</td><td>Source namespace shared by the whole batch; must be declared in the manifest's <code>sessionSources</code>.</td></tr>
+      <tr><td class="id">sessions</td><td class="id">Array&lt;Omit&lt;PluginSessionImportInput, "source"&gt;&gt;</td><td>Yes</td><td>Array of sessions; element structure is the <code>pi.session.import</code> input minus <code>source</code>.</td></tr>
+      <tr><td class="id">mode</td><td class="id">"skip" | "fail"</td><td>No</td><td>Per-item failure policy: <code>skip</code> skips the item and continues, <code>fail</code> fails the whole batch.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">results</td><td class="id">数组</td><td>逐条结果。数组元素结构：externalId、sessionId（失败为 null）、status（"imported"|"skipped"|"failed"）、errorCode?、errorMessage?。</td></tr>
-      <tr><td class="id">imported</td><td class="id">number</td><td>成功导入条数。</td></tr>
-      <tr><td class="id">skipped</td><td class="id">number</td><td>跳过条数。</td></tr>
-      <tr><td class="id">failed</td><td class="id">number</td><td>失败条数。</td></tr>
+      <tr><td class="id">results</td><td class="id">array</td><td>Per-item results. Element structure: externalId, sessionId (null on failure), status ("imported"|"skipped"|"failed"), errorCode?, errorMessage?.</td></tr>
+      <tr><td class="id">imported</td><td class="id">number</td><td>Number imported successfully.</td></tr>
+      <tr><td class="id">skipped</td><td class="id">number</td><td>Number skipped.</td></tr>
+      <tr><td class="id">failed</td><td class="id">number</td><td>Number failed.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{
   "source": "wechat-export",
   "mode": "skip",
@@ -100,7 +100,7 @@
     }
   ]
 }</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>{
   "results": [
     { "externalId": "wx-2026-0212-01", "sessionId": "imp_9f3a2c", "status": "imported" },
@@ -110,50 +110,50 @@
   "skipped": 0,
   "failed": 1
 }</pre>
-  <div class="callout"><b>一句话边界。</b>没有事务回滚：<code>mode: "fail"</code> 中止后，已导入的条目仍然保留。</div>
+  <div class="callout"><b>Boundary in one line.</b> No transactional rollback: after <code>mode: "fail"</code> aborts, already-imported items remain.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件提交 <code>source</code> + 会话数组 + <code>mode</code>。</li>
-    <li><b>校验：</b><code>source</code> 必须已声明；整体入参非法直接失败（码同 import）。</li>
-    <li><b>执行：</b>逐条走 <code>session.import</code> 的校验与持久化；单条失败按 <code>mode</code> 决定跳过或中止。</li>
-    <li><b>返回：</b>逐条 <code>status</code>（失败条带 errorCode / errorMessage）与 imported / skipped / failed 计数。</li>
+    <li><b>Call:</b> the plugin submits <code>source</code> + session array + <code>mode</code>.</li>
+    <li><b>Validate:</b> <code>source</code> must be declared; an invalid top-level input fails outright (codes as in import).</li>
+    <li><b>Execute:</b> each item goes through <code>session.import</code> validation and persistence; a failed item is skipped or aborts according to <code>mode</code>.</li>
+    <li><b>Return:</b> per-item <code>status</code> (failed items carry errorCode / errorMessage) plus imported / skipped / failed counts.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>一批外部会话（共用 source）与失败策略。</td></tr>
-      <tr><td>宿主 → 插件</td><td>逐条结果数组与三个计数。</td></tr>
+      <tr><td>plugin → host</td><td>A batch of external sessions (shared source) and the failure policy.</td></tr>
+      <tr><td>host → plugin</td><td>Per-item result array plus the three counts.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td><code>source</code> 未声明或越权</td><td>调用失败，不写入</td><td><code>PERMISSION_DENIED</code></td></tr>
-      <tr><td>入参结构非法</td><td>调用失败，不写入</td><td><code>INVALID_ARGUMENT</code></td></tr>
-      <tr><td>超出大小限制</td><td>调用失败，不写入</td><td><code>LIMIT_EXCEEDED</code></td></tr>
-      <tr><td>频率超限</td><td>调用失败，不写入</td><td><code>RATE_LIMITED</code></td></tr>
-      <tr><td>单条失败（按 <code>mode</code> 跳过或中止）</td><td>该条 <code>results[].status = "failed"</code>，带 errorCode / errorMessage</td><td>—（记入 <code>results[].errorCode</code>）</td></tr>
+      <tr><td><code>source</code> not declared or out of scope</td><td>Call fails, nothing written</td><td><code>PERMISSION_DENIED</code></td></tr>
+      <tr><td>Invalid input structure</td><td>Call fails, nothing written</td><td><code>INVALID_ARGUMENT</code></td></tr>
+      <tr><td>Size limit exceeded</td><td>Call fails, nothing written</td><td><code>LIMIT_EXCEEDED</code></td></tr>
+      <tr><td>Rate limit exceeded</td><td>Call fails, nothing written</td><td><code>RATE_LIMITED</code></td></tr>
+      <tr><td>Per-item failure (skip or abort per <code>mode</code>)</td><td>That item gets <code>results[].status = "failed"</code> with errorCode / errorMessage</td><td>— (recorded in <code>results[].errorCode</code>)</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不是事务回滚；<code>mode: skip</code> 会留下已导入的部分。</p>
+  <h2><span class="n">4</span>Not provided</h2>
+  <p class="lead">Not a transactional rollback; <code>mode: skip</code> leaves already-imported items in place.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/session.import</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

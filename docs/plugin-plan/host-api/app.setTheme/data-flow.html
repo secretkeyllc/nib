@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>app.setTheme · 数据流</title>
+<title>app.setTheme · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,79 +49,79 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">app.setTheme</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>app.setTheme · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>app.setTheme · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
  <section>
-   <h2><span class="n">1</span>接口约定</h2>
+   <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.app.setTheme(themeId: AppThemePreferenceId): Promise&lt;void&gt;</pre>
-   <p class="lead">设置应用主题偏好（内置或已注册插件主题）；权限：<span class="pill perm">—</span>。</p>
-   <p><b>入参</b></p>
+   <p class="lead">Set the app theme preference (a built-in theme or one this plugin registered); permission: <span class="pill perm">—</span>.</p>
+   <p><b>Input</b></p>
    <table>
-     <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+     <thead><tr><th>field</th><th>type</th><th>required</th><th>notes</th></tr></thead>
      <tbody>
-       <tr><td class="id">themeId</td><td class="id">AppThemePreferenceId</td><td>是</td><td>"system" | "light" | "dark" | "plugin:&lt;pluginId&gt;:&lt;themeId&gt;"；只能选内置偏好或当前已注册的插件主题。</td></tr>
+       <tr><td class="id">themeId</td><td class="id">AppThemePreferenceId</td><td>Yes</td><td>"system" | "light" | "dark" | "plugin:&lt;pluginId&gt;:&lt;themeId&gt;"; only a built-in preference or a currently registered plugin theme can be chosen.</td></tr>
      </tbody>
    </table>
-   <p><b>出参</b></p>
+   <p><b>Output</b></p>
    <table>
-     <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+     <thead><tr><th>field</th><th>type</th><th>notes</th></tr></thead>
      <tbody>
-       <tr><td class="id">（返回值）</td><td class="id">void</td><td>无返回数据，成功即 resolve。</td></tr>
+       <tr><td class="id">(return value)</td><td class="id">void</td><td>No data; resolves on success.</td></tr>
      </tbody>
    </table>
-   <p><b>输入样例</b></p>
+   <p><b>Input example</b></p>
    <pre>pi.app.setTheme("dark")</pre>
-   <p><b>输出样例</b></p>
+   <p><b>Output example</b></p>
    <pre>// void —— 成功即 resolve，无输出</pre>
-   <div class="callout"><b>一句话边界。</b>只能切到内置主题或本插件已注册主题；不删除主题、不改 CSS、不切换语言。</div>
+   <div class="callout"><b>Boundary in one sentence.</b> It can only switch to a built-in theme or one this plugin registered; it never deletes a theme, modifies CSS, or switches the language.</div>
  </section>
  <section>
-   <h2><span class="n">2</span>数据怎么走</h2>
+   <h2><span class="n">2</span>How data flows</h2>
    <ol>
-     <li><b>调用：</b>插件进程传入 <code>themeId</code>。</li>
-     <li><b>校验：</b>清单缺 <code>ui.theme</code> 权限或 <code>themeId</code> 格式非法时拒绝。</li>
-     <li><b>校验：</b><code>plugin:…</code> 形式需为当前已注册主题，否则按不存在处理。</li>
-     <li><b>执行：</b>立即写入宿主主题偏好（<code>ui.theme</code>）。</li>
-     <li><b>返回：</b>resolve；外观变化经 <code>appearance:changed</code> 广播。</li>
+     <li><b>Call:</b> the plugin process passes in <code>themeId</code>.</li>
+     <li><b>Validate:</b> rejected when the manifest lacks the <code>ui.theme</code> permission or <code>themeId</code> has an invalid format.</li>
+     <li><b>Validate:</b> a <code>plugin:...</code> form must be a currently registered theme; otherwise it is treated as absent.</li>
+     <li><b>Execute:</b> the host theme preference (<code>ui.theme</code>) is written immediately.</li>
+     <li><b>Return:</b> resolves; appearance changes are broadcast through <code>appearance:changed</code>.</li>
    </ol>
  </section>
  <section>
-   <h2><span class="n">3</span>出错怎么办</h2>
+   <h2><span class="n">3</span>Error handling</h2>
    <table>
-     <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+     <thead><tr><th>case</th><th>result</th><th>code</th></tr></thead>
      <tbody>
-       <tr><td>清单缺 <code>ui.theme</code> 权限</td><td>Promise 拒绝</td><td class="id">PERMISSION_DENIED</td></tr>
-       <tr><td>主题未注册</td><td>Promise 拒绝，偏好不变</td><td class="id">NOT_FOUND</td></tr>
-       <tr><td><code>themeId</code> 格式非法</td><td>Promise 拒绝</td><td class="id">INVALID_ARGUMENT</td></tr>
+       <tr><td>The manifest lacks the <code>ui.theme</code> permission</td><td>Promise rejection</td><td class="id">PERMISSION_DENIED</td></tr>
+       <tr><td>The theme is not registered</td><td>Promise rejection; the preference is unchanged</td><td class="id">NOT_FOUND</td></tr>
+       <tr><td><code>themeId</code> has an invalid format</td><td>Promise rejection</td><td class="id">INVALID_ARGUMENT</td></tr>
      </tbody>
    </table>
  </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不删除主题、不改 CSS、不切换语言。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Does not delete themes, does not modify CSS, and does not switch the language.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/themes.upsert</code></li>
     <li><code>host-api/app.getAppearance</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

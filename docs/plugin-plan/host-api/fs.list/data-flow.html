@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>fs.list · 数据流</title>
+<title>fs.list · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,92 +49,92 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">fs.list</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>fs.list · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>fs.list · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>Interface contract</h2>
   <pre class="sig">pi.fs.list(pathFromRoot: string): Promise&lt;PluginFsEntry[]&gt;</pre>
-  <p class="lead">列出一个目录下的条目（按名称排序），用于懒加载目录树。权限：<span class="pill perm">—</span></p>
-  <p><b>入参</b></p>
+  <p class="lead">Lists the entries under one directory (sorted by name), for lazy-loading a directory tree. Permission: <span class="pill perm">—</span></p>
+  <p><b>Inputs</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">pathFromRoot</td><td class="id">string</td><td>是</td><td>根相对目录路径；只列直接子项，不递归。</td></tr>
+      <tr><td class="id">pathFromRoot</td><td class="id">string</td><td>Yes</td><td>Root-relative directory path; lists direct children only, no recursion.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Outputs</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">PluginFsEntry[]</td><td>按名称排序的条目数组；数组元素结构见下。</td></tr>
-      <tr><td class="id">name</td><td class="id">string</td><td>条目名称（文件名或目录名）。</td></tr>
-      <tr><td class="id">path</td><td class="id">string</td><td>根相对路径，可直接用于 <code>fs.readText</code> / <code>fs.list</code>。</td></tr>
-      <tr><td class="id">isDirectory</td><td class="id">boolean</td><td>是否为目录。</td></tr>
-      <tr><td class="id">size</td><td class="id">number</td><td>仅文件：字节数（目录省略）。</td></tr>
-      <tr><td class="id">mtimeMs</td><td class="id">number</td><td>仅文件：修改时间，Unix 纪元毫秒（目录省略）。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">PluginFsEntry[]</td><td>Array of entries sorted by name; element structure below.</td></tr>
+      <tr><td class="id">name</td><td class="id">string</td><td>Entry name (file or directory name).</td></tr>
+      <tr><td class="id">path</td><td class="id">string</td><td>Root-relative path, usable directly with <code>fs.readText</code> / <code>fs.list</code>.</td></tr>
+      <tr><td class="id">isDirectory</td><td class="id">boolean</td><td>Whether the entry is a directory.</td></tr>
+      <tr><td class="id">size</td><td class="id">number</td><td>Files only: size in bytes (omitted for directories).</td></tr>
+      <tr><td class="id">mtimeMs</td><td class="id">number</td><td>Files only: modification time in Unix epoch milliseconds (omitted for directories).</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>const entries = await pi.fs.list("src");</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>[
   { "name": "index.ts", "path": "src/index.ts", "isDirectory": false, "size": 1024, "mtimeMs": 1739462400000 },
   { "name": "utils", "path": "src/utils", "isDirectory": true }
 ]</pre>
-  <div class="callout"><b>一句话边界。</b>目录总会列出以便导航，文件按读范围过滤；不递归，整棵树用 <code>fs.glob</code>。</div>
+  <div class="callout"><b>Boundary in one sentence.</b>Directories are always listed so the tree stays navigable; files are filtered by the read scope; no recursion — use <code>fs.glob</code> for a whole tree.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件传根相对目录路径。</li>
-    <li><b>校验：</b>路径规范化后不得含 <code>..</code>、不得命中拒绝列表；目录须可访问。</li>
-    <li><b>执行：</b>宿主读一层目录 —— 目录条目始终列出（保持树可导航），文件条目按 <code>manifest.fs</code> 声明的读范围过滤，重目录/受保护目录跳过。</li>
-    <li><b>返回：</b>按名称排序的条目数组回给插件。</li>
+    <li><b>Call:</b> the plugin passes a root-relative directory path.</li>
+    <li><b>Validation:</b> after normalization the path must not contain <code>..</code> nor hit the deny list; the directory must be accessible.</li>
+    <li><b>Execution:</b> the host reads one level of the directory — directory entries are always listed (keeping the tree navigable), file entries are filtered by the read scope declared in <code>manifest.fs</code>, and heavy/protected directories are skipped.</li>
+    <li><b>Return:</b> the sorted array of entries is returned to the plugin.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>根相对目录路径。</td></tr>
-      <tr><td>宿主 → 插件</td><td>排序后的 PluginFsEntry[]。</td></tr>
+      <tr><td>plugin → host</td><td>Root-relative directory path.</td></tr>
+      <tr><td>host → plugin</td><td>The sorted PluginFsEntry[].</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>缺少 fs.read，或目录不可访问</td><td>拒绝</td><td><code>PERMISSION_DENIED</code></td></tr>
-      <tr><td>目录不存在</td><td>拒绝</td><td><code>NOT_FOUND</code></td></tr>
+      <tr><td>Missing fs.read, or the directory is not accessible</td><td>Rejected</td><td><code>PERMISSION_DENIED</code></td></tr>
+      <tr><td>Directory does not exist</td><td>Rejected</td><td><code>NOT_FOUND</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">目录总会列出以便导航，文件按读范围过滤；不递归。</p>
+  <h2><span class="n">4</span>What it does not provide</h2>
+  <p class="lead">Directories are always listed so the tree stays navigable; files are filtered by the read scope; no recursion.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/fs.glob</code></li>
     <li><code>host-api/fs.stat</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

@@ -1,11 +1,11 @@
- <!-- AI生成 -->
+ <!-- AI-generated -->
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>组件插槽公共契约</title>
+<title>Shared component-slot contract</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -48,104 +48,104 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 
 <nav class="plan-nav">
-  <a href="index.html">插件插槽目录</a>
+  <a href="index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <a href="slot-contract.html" aria-current="page">组件插槽公共契约</a>
+  <a href="slot-contract.html" aria-current="page">Shared component-slot contract</a>
   <span class="spacer"></span>
-  <a href="ui/user-action/index.html">用户 action</a>
+  <a href="ui/user-action/index.html">user action</a>
   <a href="ui/assistant-action/index.html">AI action</a>
   <a href="ui/entry-extra/index.html">entryExtra</a>
   <a href="render/draft/index.html">draft</a>
   <a href="render/plugin-call/index.html">plugin.call</a>
 </nav>
 <header class="top">
-  <h1>组件插槽公共契约</h1>
-  <p>所有 UI 插槽共用的一套词与规则。各槽页只写自己的增量。</p>
-   <div class="meta">status: <b>finalized</b> · 引用代码写 <code>分支@sha · 路径 · 符号</code>，不用裸行号</div>
+  <h1>Shared component-slot contract</h1>
+  <p>The shared vocabulary and rules every UI slot uses. Each slot page records only its own additions.</p>
+   <div class="meta">status: <b>finalized</b> - cite code as <code>branch@sha - path - symbol</code>, never bare line numbers</div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>认领与冲突</h2>
+  <h2><span class="n">1</span>Claiming and conflicts</h2>
   <table>
-    <thead><tr><th>类型</th><th>槽</th><th>冲突语义</th></tr></thead>
+    <thead><tr><th>kind</th><th>slot</th><th>conflict semantics</th></tr></thead>
     <tbody>
-       <tr><td>additive 左右位</td><td><code>user-action</code>（<code>userAction</code>） · <code>assistant-action</code>（<code>assistantAction</code>）</td><td>按注册顺序叠；无抢注</td></tr>
-       <tr><td>additive 追加位</td><td><code>entry-extra</code>（<code>entryExtra</code>，仅 AI 回复）</td><td>多插件叠放；无抢注</td></tr>
-      <tr><td>自有工具卡</td><td><code>tool-card</code></td><td>无认领：只画自己注册的工具</td></tr>
-      <tr><td>keyed 语言</td><td><code>block-renderer</code></td><td><code>前缀:语言</code>；不得注册已有语言</td></tr>
+       <tr><td>additive side position</td><td><code>user-action</code>（<code>userAction</code>） · <code>assistant-action</code>（<code>assistantAction</code>）</td><td>Stack in registration order; nothing is claimed</td></tr>
+       <tr><td>additive append position</td><td><code>entry-extra</code> (<code>entryExtra</code>, AI replies only)</td><td>Several plugins stack; nothing is claimed</td></tr>
+      <tr><td>own tool card</td><td><code>tool-card</code></td><td>No claiming: renders only its own registered tools</td></tr>
+      <tr><td>keyed language</td><td><code>block-renderer</code></td><td><code>prefix:language</code>; must not register an existing language</td></tr>
     </tbody>
   </table>
-  <div class="callout warn">若出现替换型槽位，冲突码统一 <code>PLUGIN_SLOT_DUPLICATE</code>（先占者赢）。本轮 UI 槽无替换型。</div>
+  <div class="callout warn">If a replacing slot is ever introduced, the conflict code is always <code>PLUGIN_SLOT_DUPLICATE</code> (first claim wins). No UI slot in this round replaces anything.</div>
 </section>
 
 <section>
-  <h2><span class="n">2</span>Props 骨架</h2>
+  <h2><span class="n">2</span>Props skeleton</h2>
   <table>
-    <thead><tr><th>字段</th><th>含义</th></tr></thead>
+    <thead><tr><th>field</th><th>meaning</th></tr></thead>
     <tbody>
-      <tr><td><code>message</code></td><td>这条消息的数据</td></tr>
-      <tr><td><code>messageId</code> · <code>sessionId</code></td><td>标识</td></tr>
-      <tr><td><code>position?</code></td><td>左右位：<code>"left" | "right"</code></td></tr>
+      <tr><td><code>message</code></td><td>data for this message</td></tr>
+      <tr><td><code>messageId</code> · <code>sessionId</code></td><td>identifier</td></tr>
+      <tr><td><code>position?</code></td><td>side position: <code>"left" | "right"</code></td></tr>
     </tbody>
   </table>
-  <p>action / entryExtra 槽<strong>不提供任何宿主函数</strong>与额外数据面。副作用走 <code>dispatch</code>。</p>
+  <p>The action and entryExtra slots provide <strong>no host functions</strong> and no extra data surface. Side effects go through <code>dispatch</code>.</p>
 </section>
 
 <section>
-  <h2><span class="n">3</span>递交模型与出站词表</h2>
+  <h2><span class="n">3</span>Delivery models and the outbound vocabulary</h2>
   <table>
-    <thead><tr><th>模型</th><th>契约</th><th>用在哪</th></tr></thead>
+    <thead><tr><th>model</th><th>contract</th><th>used where</th></tr></thead>
     <tbody>
-      <tr><td>props-once</td><td>一次给全；重挂载才更新</td><td>块渲染（闭合后）</td></tr>
-      <tr><td><span class="pill core">核心 H</span></td><td><code>composer.acceptTriggerItem</code></td><td>触发符候选选中项回流（<code>label</code> + <code>value</code>）；宿主写入 <code>#label</code> 记号；菜单未开拒绝 <code>PLUGIN_ACTION_UNROUTED</code></td></tr>
-      <tr><td>props-once</td><td>一次给全；重挂载才更新</td><td>块渲染（闭合后）</td></tr>
-      <tr><td>props-push</td><td>宿主推整份，插件不订阅</td><td>action · entryExtra · 工具卡</td></tr>
-      <tr><td>request</td><td>问几次答几次</td><td>触发符候选</td></tr>
+      <tr><td>props-once</td><td>Delivered whole; updates only on remount</td><td>Block rendering (after close)</td></tr>
+      <tr><td><span class="pill core">core H</span></td><td><code>composer.acceptTriggerItem</code></td><td>Flows a selected trigger-item candidate back (<code>label</code> + <code>value</code>); the host writes the <code>#label</code> token; rejected with <code>PLUGIN_ACTION_UNROUTED</code> when the menu is not open</td></tr>
+      <tr><td>props-once</td><td>Delivered whole; updates only on remount</td><td>Block rendering (after close)</td></tr>
+      <tr><td>props-push</td><td>The host pushes the whole payload; the plugin does not subscribe</td><td>action - entryExtra - tool card</td></tr>
+      <tr><td>request</td><td>One answer per question</td><td>Trigger-item candidates</td></tr>
   </table>
   <table>
-    <thead><tr><th>层</th><th>词</th><th>约束</th></tr></thead>
+    <thead><tr><th>layer</th><th>verb</th><th>constraint</th></tr></thead>
     <tbody>
-      <tr><td><span class="pill core">核心 H</span></td><td><code>entry.copy</code> · <code>message.mutate</code> · <code>composer.insertText</code> · <code>attachments.add</code></td><td>mutate 宿主确认+必审计；add 只收 <code>content|token</code></td></tr>
-      <tr><td><span class="pill core">核心 P</span></td><td><code>plugin.call</code></td><td>白名单 · ≤64KB · QPS · 2s 超时熔断 · pluginId 宿主注入</td></tr>
-      <tr><td><span class="pill core">核心 F</span></td><td><code>measureHeight</code> · <code>deriveSummary</code></td><td>同步纯函数 · 禁 I/O · 超时回默认 · F 内禁 H/P</td></tr>
-      <tr><td><span class="pill opt">可选 H</span></td><td><code>ui.toast</code> · <code>ui.ask</code> · <code>clipboard.write</code> · <code>host.open</code> · <code>composer.readDraft</code> · <code>attachments.list/remove</code></td><td>clipboard 同次手势；host.open 只认登记句柄</td></tr>
-      <tr><td><span class="pill no">拒绝</span></td><td>远端来源 <code>replaceDraft</code> · modal/overlay 四动作 · 裸路径附件</td><td>P 返回不得静默改用户数据</td></tr>
+      <tr><td><span class="pill core">core H</span></td><td><code>entry.copy</code> · <code>message.mutate</code> · <code>composer.insertText</code> · <code>attachments.add</code></td><td>mutate needs host confirmation and is always audited; add accepts only <code>content|token</code></td></tr>
+      <tr><td><span class="pill core">core P</span></td><td><code>plugin.call</code></td><td>Allowlist - 64KB cap - QPS limit - 2s timeout with circuit breaker - pluginId injected by the host</td></tr>
+      <tr><td><span class="pill core">core F</span></td><td><code>measureHeight</code> · <code>deriveSummary</code></td><td>Synchronous pure functions - no I/O - timeout falls back to default - H/P calls forbidden inside F</td></tr>
+      <tr><td><span class="pill opt">optional H</span></td><td><code>ui.toast</code> · <code>ui.ask</code> · <code>clipboard.write</code> · <code>host.open</code> · <code>composer.readDraft</code> · <code>attachments.list/remove</code></td><td>clipboard requires the same user gesture; host.open accepts only registered handles</td></tr>
+      <tr><td><span class="pill no">rejected</span></td><td>Remote-origin <code>replaceDraft</code> - the four modal/overlay actions - bare-path attachments</td><td>A P result must never silently change user data</td></tr>
     </tbody>
   </table>
-  <div class="callout ok">F = 渲染线程内同步纯函数；H/P = 跨进程异步 dispatch。组件出站唯一出口是 <code>dispatch</code> + 词表。</div>
+  <div class="callout ok">F = a synchronous pure function on the renderer thread; H/P = asynchronous cross-process dispatch. A component outbound path is always <code>dispatch</code> plus the vocabulary.</div>
 </section>
 
 <section>
-  <h2><span class="n">4</span>回退与出错归属</h2>
+  <h2><span class="n">4</span>Fallback and fault ownership</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th></tr></thead>
     <tbody>
-      <tr><td>additive 组件抛错</td><td>只塌掉自己那一块</td></tr>
-      <tr><td>未加载 / 卸载</td><td>位置释放</td></tr>
-      <tr><td>工具失败</td><td>是数据不是抛错</td></tr>
+      <tr><td>An additive component throws</td><td>Only its own block collapses</td></tr>
+      <tr><td>Not loaded / unloaded</td><td>The position is released</td></tr>
+      <tr><td>Tool failure</td><td>Reported as data, not thrown</td></tr>
     </tbody>
   </table>
-  <div class="callout warn"><b>宿主保证：</b>出错隔离；卸载摘注册与注入样式。<br/><b>已接受代价：</b>同 realm 可碰全局；样式重写可被绕过；声明校验不是安全边界。</div>
+  <div class="callout warn"><b>Host guarantees:</b> failure isolation; unmount removes registrations and injected styles.<br/><b>Accepted costs:</b> same-realm code can reach globals; style rewrites can be bypassed; manifest validation is not a security boundary.</div>
 </section>
 
 <section>
-  <h2><span class="n">5</span>权限</h2>
-  <p>纯展示槽随 <code>renderer.extension</code>。副作用按词表声明并配权限。</p>
+  <h2><span class="n">5</span>Permissions</h2>
+  <p>Pure display slots ride on <code>renderer.extension</code>. Side effects are declared against the vocabulary and paired with a permission.</p>
 </section>
 
  <section>
-   <h2><span class="n">6</span>定稿记录（已定稿）</h2>
+   <h2><span class="n">6</span>Finalization record</h2>
    <ul>
-     <li>SDK 槽名已定稿：<code>userAction</code> / <code>assistantAction</code> / <code>entryExtra</code>；各槽页只链接本契约，不复述</li>
-     <li>注册走统一判别式联合：<code>{ slot: "userAction" | "assistantAction" | "entryExtra" | "toolCard", ... }</code>；<code>toolCard</code> 项须带 <code>toolName</code> 且命中 manifest <code>contributes.agentTools[].name</code></li>
-     <li>左右位（userAction / assistantAction）每侧最多 3 个可见项，第 4 个起进宿主「⋯」折叠菜单；entryExtra 单块折叠态 320px / 展开态 600px 内部滚动</li>
-     <li>composer 触发符固定 <code>@</code> / <code>#</code> / <code>/</code>；记号单草稿上限 8 个；tool-card 运行中 500ms 节拍合并推送（状态跃迁立即推）</li>
-     <li><code>ui.ask</code> 定名不变：与 agent 侧布尔确认同名不同物，消歧表述以 render/ask 为准</li>
-     <li>SDK 与宿主已实现（7 槽 + self-dialog 指导项；dispatch 词表 <code>plugin.call</code> / <code>composer.insertText</code> / <code>composer.acceptTriggerItem</code>）；示例见 <code>examples/plugins/ui-slots-lab</code>，契约测试见 <code>apps/desktop/test/plugin-*.test.mjs</code></li>
+     <li>SDK slot names are final: <code>userAction</code> / <code>assistantAction</code> / <code>entryExtra</code>; each slot page links here instead of restating this contract</li>
+     <li>Registration uses one discriminated union: <code>{ slot: "userAction" | "assistantAction" | "entryExtra" | "toolCard", ... }</code>; a <code>toolCard</code> entry must carry a <code>toolName</code> that matches <code>contributes.agentTools[].name</code> in the manifest</li>
+     <li>Each side position (userAction / assistantAction) shows at most three items; the fourth and later move into the host's "..." overflow menu. A collapsed entryExtra block is 320px tall and a 600px expanded block scrolls internally</li>
+     <li>Composer trigger characters are fixed at <code>@</code> / <code>#</code> / <code>/</code>; a draft holds at most eight tokens; a running tool-card pushes on a 500ms coalescing tick (state transitions push immediately)</li>
+     <li><code>ui.ask</code> keeps its name: it shares a name with, but is not, the agent-side boolean confirmation. The disambiguation wording in render/ask is authoritative</li>
+     <li>The SDK and host are implemented (seven slots plus the self-dialog guidance entry; dispatch vocabulary <code>plugin.call</code> / <code>composer.insertText</code> / <code>composer.acceptTriggerItem</code>); see <code>examples/plugins/ui-slots-lab</code> for a sample and <code>apps/desktop/test/plugin-*.test.mjs</code> for the contract tests</li>
    </ul>
  </section>
 

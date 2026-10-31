@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>工具调用卡 · 需求</title>
+<title>Tool call card · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -53,86 +53,86 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">工具调用卡</span>
+  <span class="here">Tool call card</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
   <div class="crumb">docs/plugin-plan · ui/tool-card</div>
-  <h1>工具调用卡 · 需求</h1>
-  <p>对话里每一次工具调用显示的那张卡。插件只画自己注册的工具，展示不交互。</p>
-   <div class="meta">status: finalized · 本轮拍板见文末</div>
+  <h1>Tool call card · Requirements</h1>
+  <p>The card shown for each tool call in the conversation. A plugin draws only its own registered tools, and the card displays without interacting.</p>
+   <div class="meta">status: finalized · decisions this round at the end</div>
 </header>
 <main>
 
 <section>
-  <h2>范围 <span class="tag decided">已定</span></h2>
+  <h2>Scope <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>只谈对话流里<strong>工具调用卡</strong>的显示。</li>
-    <li>本期<strong>只做展示</strong>：把这次调用的入参和结果显示好。</li>
-    <li>不谈：工具执行本身、输入框上方的确认 / 审批、消息正文其他部分。</li>
+    <li>It covers only how the <strong>tool call card</strong> is displayed in the transcript.</li>
+    <li>This round is <strong>display only</strong>: show this call's input and result well.</li>
+    <li>Not covered: tool execution itself, the confirmation and approval above the composer, and the rest of the message body.</li>
   </ul>
 </section>
 
 <section>
-  <h2>槽形状 <span class="tag decided">已定</span></h2>
-  <div class="callout ok"><b>无认领概念。</b>插件只画<strong>自己注册的</strong>工具的卡片；宿主工具和别人工具<strong>不可定制</strong>，永远走宿主默认卡。</div>
+  <h2>Slot shape <span class="tag decided">Decided</span></h2>
+  <div class="callout ok"><b>No claiming.</b>A plugin draws cards only for <strong>tools it registered</strong>; host tools and other plugins' tools <strong>cannot be customized</strong> and always use the host default card.</div>
   <ul>
-     <li>插件注册工具时一并给出卡片组件，这张卡只服务该工具的调用。注册走统一判别式联合 <code>{ slot:"toolCard", toolName, component }</code>，<code>toolName</code> 须命中 manifest <code>contributes.agentTools[].name</code>。</li>
-    <li>整卡自己画；不提供「只换头部 / 只换一半」的局部替换。</li>
+     <li>A plugin supplies the card component when it registers the tool, and that card serves calls to that tool only. Registration uses the shared discriminated union <code>{ slot:"toolCard", toolName, component }</code>, and <code>toolName</code> must match <code>contributes.agentTools[].name</code> in the manifest.</li>
+    <li>The plugin draws the whole card; there is no partial replacement of, say, only the header or only one half.</li>
   </ul>
 </section>
 
 <section>
-  <h2>插件能拿到什么 <span class="tag decided">已定</span></h2>
+  <h2>What the plugin gets <span class="tag decided">Decided</span></h2>
   <ul>
-    <li><strong>这次调用的数据</strong> — 工具名、入参、状态、结果</li>
-    <li><strong>各种 id</strong> — 调用 id、消息 id、会话 id</li>
-    <li>结果里的<strong>失败信息是数据</strong>（字段），不是抛错</li>
-    <li>不提供宿主函数与额外数据面</li>
+    <li><strong>This call's data</strong> - tool name, input, status, result</li>
+    <li><strong>The various ids</strong> - call id, message id, session id</li>
+    <li><strong>Failure information in the result is data</strong> (a field), not a throw</li>
+    <li>No host functions and no extra data surface</li>
   </ul>
 </section>
 
 <section>
-  <h2>插件场景 <span class="tag decided">已定</span></h2>
+  <h2>Plugin scenarios <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>场景</th><th>装上插件之后</th></tr></thead>
+    <thead><tr><th>Scenario</th><th>With the plugin installed</th></tr></thead>
     <tbody>
-      <tr><td>自己的数据库查询工具</td><td>结果画成 SQL + 表格</td></tr>
-      <tr><td>自己的统计工具</td><td>结果画成条形图</td></tr>
-      <tr><td>调用失败</td><td>错误是数据，由插件画成失败态</td></tr>
+      <tr><td>Its own database query tool</td><td>The result renders as SQL plus a table</td></tr>
+      <tr><td>Its own statistics tool</td><td>The result renders as a bar chart</td></tr>
+      <tr><td>The call fails</td><td>The error is data and the plugin renders a failure state</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>明确不做 <span class="tag decided">已定</span></h2>
+  <h2>Explicit non-goals <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>无认领：不定制宿主工具、不定制别人工具</li>
-    <li>展示不交互：不做下一步、审批、确认、重试再跑</li>
-    <li>不让插件改入参、拦截或放行执行</li>
-    <li>不让插件发起新的工具调用</li>
-    <li>markdown transformer <strong>不做</strong></li>
+    <li>No claiming: no customizing host tools or other plugins' tools</li>
+    <li>Display only, no interaction: no next step, approval, confirmation, or retry</li>
+    <li>A plugin may not rewrite the input, intercept, or allow execution</li>
+    <li>A plugin may not start new tool calls</li>
+    <li>markdown transformer is <strong>not provided</strong></li>
   </ul>
 </section>
 
 <section>
-  <h2>本轮拍板 <span class="tag decided">已定</span></h2>
+  <h2>Decisions this round <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>问题</th><th>决定</th></tr></thead>
+    <thead><tr><th>Question</th><th>Decision</th></tr></thead>
     <tbody>
-      <tr><td>有没有认领</td><td><strong>没有。</strong>插件只画自己注册的工具；宿主 / 他人工具不可定制</td></tr>
-      <tr><td>展示还是交互</td><td><strong>只展示</strong>。等待 / 审批性质一律不做</td></tr>
-      <tr><td>失败怎么给</td><td><strong>失败是数据不是抛错</strong>，进结果字段由插件画</td></tr>
-      <tr><td>宿主 / 他人工具</td><td>永远走宿主默认卡，一个字不变</td></tr>
+      <tr><td>Is there claiming</td><td><strong>No.</strong> A plugin draws only its own registered tools; host and third-party tools cannot be customized</td></tr>
+      <tr><td>Display or interaction</td><td><strong>Display only.</strong> Nothing of a waiting or approval nature</td></tr>
+      <tr><td>How failure is delivered</td><td><strong>Failure is data, not a throw</strong>; it lands in a result field and the plugin draws it</td></tr>
+      <tr><td>Host and third-party tools</td><td>Always use the host default card, unchanged in every detail</td></tr>
     </tbody>
   </table>
-   <div class="callout ok"><b>定稿：</b>卡片数据字段 <code>toolName</code> / <code>toolCallId</code> / <code>toolArgs?</code> / <code>toolStatus</code> / <code>toolResult?</code> / <code>toolError?</code> / <code>durationMs?</code>（复用 SDK 既有词表，失败即数据）；注册走统一判别式联合 <code>{ slot:"toolCard", toolName, component }</code>；运行中 500ms 节拍合并推送整份 props，状态跃迁与最终结果立即推。</div>
+   <div class="callout ok"><b>Finalized:</b> the card data fields are <code>toolName</code> / <code>toolCallId</code> / <code>toolArgs?</code> / <code>toolStatus</code> / <code>toolResult?</code> / <code>toolError?</code> / <code>durationMs?</code> (reusing the existing SDK vocabulary; failure is data). Registration uses the shared discriminated union <code>{ slot:"toolCard", toolName, component }</code>. While the tool runs, the whole props payload is pushed on a 500ms coalescing tick, and state transitions and the final result are pushed immediately.</div>
 </section>
 
 </main>

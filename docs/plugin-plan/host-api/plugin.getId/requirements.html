@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>plugin.getId · 需求描述</title>
+<title>plugin.getId · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,40 +49,40 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">plugin.getId</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
-  <h1>plugin.getId · 需求描述</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>plugin.getId · Requirements</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>用途与边界</h2>
-  <p class="lead">同步返回调用插件自己的 id。</p>
+  <h2><span class="n">1</span>Purpose and scope</h2>
+  <p class="lead">Synchronously returns the calling plugin's own id.</p>
   <pre class="sig">pi.plugin.getId(): string</pre>
-  <p>权限：<span class="pill perm">—</span></p>
+  <p>Permission: <span class="pill perm">—</span></p>
 </section>
 <section>
-  <h2><span class="n">2</span>典型场景</h2>
-  <table><thead><tr><th>场景</th><th>插件做什么</th></tr></thead><tbody>
-<tr><td><b>日志前缀</b></td><td>插件日志统一带上自己的 id。</td></tr>
-<tr><td><b>过滤自发消息</b></td><td>总线里跳过 <code>from</code> 是自己的消息。</td></tr>
+  <h2><span class="n">2</span>Typical scenarios</h2>
+  <table><thead><tr><th>Scenario</th><th>What the plugin does</th></tr></thead><tbody>
+<tr><td><b>Log prefix</b></td><td>Plugin logs consistently carry the plugin's own id.</td></tr>
+<tr><td><b>Filter self-sent messages</b></td><td>Skip bus messages whose <code>from</code> is the plugin itself.</td></tr>
   </tbody></table>
 </section>
 <section>
-  <h2><span class="n">3</span>明确不做什么</h2>
-  <p class="lead">不返回版本、不校验清单。</p>
+  <h2><span class="n">3</span>Explicit non-goals</h2>
+  <p class="lead">Does not return the version or validate the manifest.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>已拍板</h2>
-  <ul><li>同步 API。</li></ul>
+  <h2><span class="n">4</span>Decided</h2>
+  <ul><li>A synchronous API.</li></ul>
 </section>
 
 </main>

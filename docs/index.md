@@ -1,15 +1,15 @@
 ---
 layout: home
-title: PI-Desktop
+title: Nib
 titleTemplate: A modular desktop workspace for AI agents
 hero:
-  name: PI-Desktop
+  name: Nib
   text: A desktop workspace for AI agents.
   tagline: Bring projects, agents, models, plugins, and workflows into one persistent desktop environment.
   actions:
     - theme: brand
       text: Download
-      link: https://github.com/vastsa/PI-Desktop/releases/latest
+      link: https://nib.am/download.html
     - theme: alt
       text: Documentation
       link: /guide/

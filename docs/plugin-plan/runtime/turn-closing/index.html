@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-closing · 轮末询问要不要续（续跑缺署名） · 目录</title>
+<title>turn-closing · Asks at turn end whether to continue (continuation lacks attribution) · Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,48 +98,48 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-closing</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime · turn-closing</div>
-  <h1>turn-closing · 目录</h1>
-  <p>一轮跑完、准备收束时，宿主问插件要不要再续。续跑经 agent.steer 注入消息——这条路径目前没有插件署名，是缺陷。有署名的是 turn-continue → queuePush。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.closing</code> · 续跑走 agent.steer · <b>缺插件署名（缺陷）</b></div>
+  <h1>turn-closing · Index</h1>
+  <p>When a turn has finished and is about to close, the host asks plugins whether to continue. A continuation injects a message through agent.steer - and that path currently carries no plugin attribution, which is a defect. The one with attribution is turn-continue → queuePush.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.closing</code> · continuation goes through agent.steer · <b>plugin attribution missing (defect)</b></div>
 </header>
 
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：轮末询问契约、预算、续跑缺署名（缺陷）、不做。</p>
-      <p class="files">范围 / 现状 / 契约 / 场景 / 拍板 / 不做 / 未定</p>
+      <p class="what">What it needs: the end-of-turn query contract, the budget, the missing attribution on continuation (defect), non-goals.</p>
+      <p class="files">Scope / current state / contract / scenarios / decisions / non-goals / open questions</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：轮末怎么问、continue 怎么续、署名缺口在哪一段。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: how the question is asked at turn end, how continue resumes, and where the attribution gap sits.</p>
+      <p class="files">API contract · How data flows · Error handling · What is not provided · Related entries · Open questions</p>
     </a>
   </div>
-  <div class="omitted"><b>页表省略：无界面</b>——运行时钩子在 agent 侧无界面调用，本目录不设演示页。省略：无界面</div>
+  <div class="omitted"><b>Omitted from the page table: no UI</b> - runtime hooks are called headlessly on the agent side, so this folder has no demo page. Omitted: no UI</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><b>轮末被动询问</b>：宿主在收束前问插件要不要续；多个插件时第一个 continue 生效。</li>
-    <li><b>续跑缺署名（缺陷）</b>：续跑经 <code>agent.steer({role:"user"})</code> 注入，<b>无插件署名</b>——不得写成「署名可见」。有署名的是 turn-continue → <code>queuePush</code>。</li>
-    <li><b>预算</b>：每次运行最多续若干轮（现值 4）；续跑是一条正常的模型请求。</li>
+    <li><b>Passive query at turn end</b>: the host asks plugins before closing whether to continue; with several plugins, the first continue wins.</li>
+    <li><b>Continuation lacks attribution (defect)</b>: a continuation is injected through <code>agent.steer({role:"user"})</code>, <b>with no plugin attribution</b> - it must not be written as "attribution visible". The one with attribution is turn-continue → <code>queuePush</code>.</li>
+    <li><b>Budget</b>: at most a few continuation rounds per run (currently 4); a continuation is a normal model request.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">续跑要不要补署名（消缺陷）、预算值、并发裁决——见 requirements.html 的「本轮拍板」。</p>
-  <p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">Whether continuation should gain attribution (to close the defect), the budget value, and concurrent arbitration - see "Decisions this round" in requirements.html.</p>
+  <p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

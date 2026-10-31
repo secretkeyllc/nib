@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-facts · 读这一轮的结构化事实 · 需求</title>
+<title>turn-facts · Reads the structured facts of this turn · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,97 +98,97 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-facts</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime/turn-facts</div>
-  <h1>turn-facts · 需求</h1>
-  <p>读这一轮的结构化事实。拉取式，显式调用，权限低。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.facts</code> · 宿主机器在 host-core/turn_facts.rs</div>
+  <h1>turn-facts · Requirements</h1>
+  <p>Reads the structured facts of this turn. Pull-style, called explicitly, low permission.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.facts</code> · host machinery in host-core/turn_facts.rs</div>
 </header>
 
 <main>
 <section>
-  <h2>范围 <span class="tag verified">已核实</span></h2>
+  <h2>Scope <span class="tag verified">Verified</span></h2>
     <ul>
-    <li>只管「读这一轮的结构化事实」。</li>
-    <li>不谈：消息正文（turn-recap）、实时事件（turn-watch）、历史（session 范围）。</li>
+    <li>It only covers "read the structured facts of this turn".</li>
+    <li>Out of scope: message bodies (turn-recap), live events (turn-watch), history (the session scope).</li>
   </ul>
 </section>
 
 <section>
-  <h2>现状（代码核实） <span class="tag verified">已核实</span></h2>
+  <h2>Current state (code-verified) <span class="tag verified">Verified</span></h2>
     <ul>
-    <li><b>端到端已实现</b>：<code>pi.turnFacts()</code> 由 <code>runtime.turn.facts</code> 门控，反代宿主 RPC <code>turn.facts</code>；机器在 Rust 侧。<br /><span class="cite">feat/528-plugin-slots@<sha> · packages/shared/src/trusted-extensions.ts · runtime.turn.facts</span><br /><span class="cite">feat/528-plugin-slots@<sha> · packages/agent-runtime/src/runtime.ts · turn.facts 反代</span><br /><span class="cite">feat/528-plugin-slots@<sha> · crates/host-core/src/turn_facts.rs · TurnFacts</span></li>
-    <li><b>低风险</b>：只读结构化字段，不给正文。</li>
-    <li><b>沙箱缺口</b>：沙箱插件的接线通道（ADR 0300）未建——注册、预算、熔断都还没有。</li>
+    <li><b>Implemented end to end</b>: <code>pi.turnFacts()</code> is gated by <code>runtime.turn.facts</code> and proxies the host RPC <code>turn.facts</code>; the machinery is on the Rust side.<br /><span class="cite">feat/528-plugin-slots@<sha> · packages/shared/src/trusted-extensions.ts · runtime.turn.facts</span><br /><span class="cite">feat/528-plugin-slots@<sha> · packages/agent-runtime/src/runtime.ts · the turn.facts proxy</span><br /><span class="cite">feat/528-plugin-slots@<sha> · crates/host-core/src/turn_facts.rs · TurnFacts</span></li>
+    <li><b>Low risk</b>: read-only structured fields, no bodies.</li>
+    <li><b>Sandbox gap</b>: the wiring channel for sandbox plugins (ADR 0300) does not exist yet - registration, budgets, and circuit breakers are all missing.</li>
   </ul>
 </section>
 
 <section>
-  <h2>契约（建议） <span class="tag proposal">建议</span></h2>
+  <h2>Contract (proposal) <span class="tag proposal">Proposal</span></h2>
       <table>
-    <thead><tr><th>方面</th><th>内容</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">调用</td><td><code>pi.turnFacts()</code></td></tr>
-      <tr><td class="id">返回</td><td>该轮结构化事实：状态、token、provider/model、工具计数、动过的文件等</td></tr>
-      <tr><td class="id">方向</td><td>拉取式，显式调用</td></tr>
-      <tr><td class="id">权限</td><td><code>runtime.turn.facts</code>，风险低</td></tr>
-      <tr><td class="id">正文</td><td>不给消息正文</td></tr>
+      <tr><td class="id">Call</td><td><code>pi.turnFacts()</code></td></tr>
+      <tr><td class="id">Return</td><td>The turn's structured facts: status, tokens, provider/model, tool counts, files touched, and so on</td></tr>
+      <tr><td class="id">Direction</td><td>Pull-style, called explicitly</td></tr>
+      <tr><td class="id">Permission</td><td><code>runtime.turn.facts</code>, risk low</td></tr>
+      <tr><td class="id">Bodies</td><td>No message bodies</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>插件场景 <span class="tag proposal">建议</span></h2>
+  <h2>Plugin scenarios <span class="tag proposal">Proposal</span></h2>
       <table>
-    <thead><tr><th>#</th><th>场景</th><th>动作</th></tr></thead>
+    <thead><tr><th>#</th><th>scenario</th><th>action</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td>用量看板：把 token / 工具计数汇到插件自己的统计</td><td>turnFacts</td></tr>
-      <tr><td>2</td><td>变更清单：动过的文件列表，供插件生成变更摘要</td><td>turnFacts</td></tr>
-      <tr><td>3</td><td>健康检查：状态异常时告警</td><td>turnFacts</td></tr>
+      <tr><td>1</td><td>Usage dashboard: fold token / tool counts into the plugin's own statistics</td><td>turnFacts</td></tr>
+      <tr><td>2</td><td>Change list: the list of files touched, for the plugin to build a change summary</td><td>turnFacts</td></tr>
+      <tr><td>3</td><td>Health check: raise an alert when the status is abnormal</td><td>turnFacts</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>本轮拍板 <span class="tag open">待定</span></h2>
+  <h2>Decisions this round <span class="tag open">TBD</span></h2>
       <table>
-    <thead><tr><th>问题</th><th>选项</th></tr></thead>
+    <thead><tr><th>question</th><th>options</th></tr></thead>
     <tbody>
-      <tr><td>字段版本化</td><td>A. 不标版本　B. 返回里带 schema 版本号</td></tr>
-      <tr><td>缺字段</td><td>A. 省略　B. 显式 null，便于调用方区分「没有」和「未知」</td></tr>
+      <tr><td>Field versioning</td><td>A. Do not mark a version; B. Carry a schema version in the return</td></tr>
+      <tr><td>Missing fields</td><td>A. Omit them; B. Explicit null, so callers can tell "absent" from "unknown"</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>明确不做 <span class="tag verified">已核实</span></h2>
+  <h2>Explicit non-goals <span class="tag verified">Verified</span></h2>
     <ul>
-    <li>不给消息正文——那是 <code>turn-recap</code>（且要额外权限）。</li>
-    <li>不给实时推送——拉取式。</li>
-    <li>不改任何东西——只读。</li>
-    <li>不跨轮 / 跨会话聚合——只回当前轮。</li>
+    <li>No message bodies - that is <code>turn-recap</code> (and it needs an extra permission).</li>
+    <li>No live push - pull-style.</li>
+    <li>It changes nothing - read-only.</li>
+    <li>No cross-turn / cross-session aggregation - it answers only for the current turn.</li>
   </ul>
 </section>
 
 <section>
-  <h2>还没定的事 <span class="tag open">未定</span></h2>
+  <h2>Open questions <span class="tag open">Open</span></h2>
     <ul>
-    <li>字段版本化、缺字段语义。</li>
-    <li>沙箱插件的接线通道（ADR 0300）未建——注册、预算、熔断都还没有。</li>
+    <li>Field versioning and the semantics of a missing field.</li>
+    <li>The wiring channel for sandbox plugins (ADR 0300) does not exist yet - registration, budgets, and circuit breakers are all missing.</li>
   </ul>
 </section>
 
-<p class="omitted">省略：无界面</p>
-<p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+<p class="omitted">Omitted: no UI</p>
+<p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>工具调用卡 · 目录</title>
+<title>Tool call card · Index</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -50,47 +50,47 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">工具调用卡</span>
+  <span class="here">Tool call card</span>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
   <div class="crumb">docs/plugin-plan · ui/tool-card</div>
-  <h1>工具调用卡 · 目录</h1>
-  <p>对话里每一次工具调用显示的那张卡。<strong>没有认领概念</strong>：插件只画<strong>自己注册的</strong>工具的卡片；宿主工具和别人工具不可定制。只展示，不交互。</p>
+  <h1>Tool call card · Index</h1>
+  <p>The card shown for each tool call in the conversation. <strong>There is no claiming</strong>: a plugin draws cards only for <strong>tools it registers itself</strong>, and host or third-party tools cannot be customized. Display only, no interaction.</p>
    <div class="meta">status: finalized · folder id <code>tool-card</code></div>
 </header>
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">范围、槽形状、插件能拿到什么、插件场景、明确不做、本轮拍板。</p>
-      <p class="files">六段固定</p>
+      <p class="what">Scope, slot shape, what the plugin gets, plugin scenarios, explicit non-goals, decisions this round.</p>
+      <p class="files">Six fixed sections</p>
     </a>
     <a class="card" href="demo.html">
       <div class="name">demo.html</div>
-      <p class="what">自己的工具画成自己的卡；宿主 / 他人工具走默认卡；失败是数据。</p>
-      <p class="files">只有界面，无解说段落</p>
+      <p class="what">Its own tools get its own card, host and third-party tools use the default card, and failure is data.</p>
+      <p class="files">UI only, no explanatory sections</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-       <p class="what">接口约定、数据怎么走、出错怎么办、不提供什么、相关条目、定稿记录。</p>
-      <p class="files">六节固定</p>
+       <p class="what">API contract, how data flows, error handling, what is not provided, related entries, finalization record.</p>
+      <p class="files">Six fixed sections</p>
     </a>
   </div>
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li>无认领：插件只画自己注册的工具；宿主 / 他人工具不可定制。</li>
-    <li>展示不交互：卡上不做等待 / 审批 / 重试。</li>
-    <li>失败是数据不是抛错：错误进结果字段，由插件画出来。</li>
+    <li>No claiming: a plugin draws only the tools it registered; host and third-party tools cannot be customized.</li>
+    <li>Display only, no interaction: no waiting, approval, or retry on the card.</li>
+    <li>Failure is data, not a throw: the error lands in a result field and the plugin draws it.</li>
   </ul>
-  <div class="callout ok"><b>公共词表与规则</b>见 <a href="../../slot-contract.html">slot-contract.html</a>。</div>
+  <div class="callout ok"><b>Shared vocabulary and rules</b>: see <a href="../../slot-contract.html">slot-contract.html</a>.</div>
 </main>
 </body>
 </html>

@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>commands.unregister · 数据流</title>
+<title>commands.unregister · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,75 +49,75 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">commands.unregister</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>commands.unregister · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>commands.unregister · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.commands.unregister(id: string): Promise&lt;void&gt;</pre>
-  <p class="lead">注销一条本插件已注册的命令。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Unregisters one command previously registered by this plugin. Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">id</td><td class="id">string</td><td>是</td><td>要注销的命令 id，与 register 时一致。</td></tr>
+      <tr><td class="id">id</td><td class="id">string</td><td>Yes</td><td>The command id to unregister, identical to the one used at register time.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">Promise&lt;void&gt;</td><td>注销完成后兑现，无返回数据。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">Promise&lt;void&gt;</td><td>Resolves once unregistration completes; no return data.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>await pi.commands.unregister("demo.hello.sync");</pre>
-  <p><b>输出样例</b></p>
-  <pre>// 无返回值（Promise&lt;void&gt;）</pre>
-  <div class="callout"><b>一句话边界。</b>只能注销本插件自己的命令，宿主命令不受影响；插件卸载时宿主强制清理全部命令。</div>
+  <p><b>Output example</b></p>
+  <pre>// no return value (Promise&lt;void&gt;)</pre>
+  <div class="callout"><b>Boundary in one sentence.</b> Only this plugin's own commands can be unregistered; host commands are unaffected; when the plugin unloads, the host force-cleans all of its commands.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li>插件传入命令 id。</li>
-    <li>宿主立即把命令从命令面板移除。</li>
-    <li>已绑定到这条命令的全局快捷键按宿主策略释放。</li>
-    <li>Promise 兑现为 <code>void</code>。</li>
+    <li>The plugin passes in the command id.</li>
+    <li>The host immediately removes the command from the command panel.</li>
+    <li>Global shortcuts bound to this command are released according to host policy.</li>
+    <li>The Promise resolves as <code>void</code>.</li>
   </ol>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>id 未注册</td><td>静默成功，不报错</td><td class="id">—</td></tr>
+      <tr><td>id is not registered</td><td>Silent success, no error</td><td class="id">—</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不能注销宿主命令。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Host commands cannot be unregistered.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/commands.register</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

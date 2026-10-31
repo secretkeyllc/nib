@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>before-request · 模型请求层（已撤回） · 目录</title>
+<title>before-request · Model request layer (withdrawn) · Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,48 +98,48 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">before-request</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime · before-request</div>
-  <h1>before-request · 目录</h1>
-  <p>曾经设想：插件在模型请求发出前改写请求体。该能力已撤回——不是没做完，是产品上收回。本目录只留迁移表和边界，方便对照。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.request.before</code> · 已撤回 · 不作为正选项重开 message_list 改写</div>
+  <h1>before-request · Index</h1>
+  <p>Once envisioned: a plugin rewriting the request body before a model request goes out. The capability has been withdrawn - not because it was unfinished, but because the product decision was reversed. This folder keeps only the migration table and the boundaries, for comparison.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.request.before</code> · withdrawn · reopening message_list rewriting is not offered as an option</div>
 </header>
 
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：维持撤回、场景迁移表、边界。不把「重开 message_list 改写」写成正选项。</p>
-      <p class="files">范围 / 现状 / 契约 / 场景 / 拍板 / 不做 / 未定</p>
+      <p class="what">What it covers: keeping the withdrawal, the scenario migration table, and the boundaries. Reopening message_list rewriting is not written up as an option.</p>
+      <p class="files">Scope / current state / contract / scenarios / decisions / non-goals / open questions</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：撤回后的对照底稿；各场景已迁去哪条现有路径。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: the reference draft after the withdrawal, and which existing path each scenario has moved to.</p>
+      <p class="files">API contract · How data flows · Error handling · What is not provided · Related entries · Open questions</p>
     </a>
   </div>
-  <div class="omitted"><b>页表省略：无界面</b>——运行时钩子在 agent 侧无界面调用，本目录不设演示页。省略：无界面</div>
+  <div class="omitted"><b>Omitted from the page table: no UI</b> - runtime hooks are called headlessly on the agent side, so this folder has no demo page. Omitted: no UI</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><b>维持撤回</b>：不是实现没跟上，是产品决定收回——插件不改写模型请求体。</li>
-    <li><b>场景有去处</b>：prompt 组装 → inject / compose；历史治理 → 宿主压缩；model / think → 会话绑定；出站拦截 → before-send；取消 → abort-turn。</li>
-    <li><b>不把「重开 message_list 改写」写成正选项</b>——那是风险最高的一档，本轮不讨论重开。</li>
+    <li><b>The withdrawal stands</b>: implementation did not fall behind; the product decision was to take the capability back - plugins do not rewrite the model request body.</li>
+    <li><b>Every scenario has a home</b>: prompt assembly → inject / compose; history governance → host compaction; model / think → session binding; outbound interception → before-send; cancellation → abort-turn.</li>
+    <li><b>Reopening message_list rewriting is not written up as an option</b> - that is the highest-risk tier, and this round does not discuss reopening it.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">若将来真要重开，前置是 diff 级审计、远小于 30 秒的请求级预算、以及一次明确的产品决定。本轮不排期。</p>
-  <p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">If it is ever reopened, the prerequisites are diff-level auditing, a request-level budget far below 30 seconds, and an explicit product decision. It is not scheduled this round.</p>
+  <p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

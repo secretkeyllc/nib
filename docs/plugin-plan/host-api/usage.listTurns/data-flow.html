@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>usage.listTurns · 数据流</title>
+<title>usage.listTurns · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,47 +49,47 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">usage.listTurns</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>usage.listTurns · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>usage.listTurns · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>Interface contract</h2>
   <pre class="sig">pi.usage.listTurns(input?: { fromMs?: number; toMs?: number; projectId?: number | null; sessionId?: string; cursor?: string; limit?: number }): Promise&lt;PluginUsageTurnPage&gt;</pre>
-  <p class="lead">分页读取已完成 turn 的用量事实行（token 计数与标识，只读，无消息正文）。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Reads usage fact rows for completed turns, paginated (token counts and identifiers, read-only, no message bodies). Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Inputs</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">fromMs</td><td class="id">number</td><td>否</td><td>窗口起点，epoch ms（含）；默认 <code>toMs</code> − 30 天。</td></tr>
-      <tr><td class="id">toMs</td><td class="id">number</td><td>否</td><td>窗口终点，epoch ms（含）；默认 now；窗口跨度 ≤ 365 天。</td></tr>
-      <tr><td class="id">projectId</td><td class="id">number | null</td><td>否</td><td>只看某一个持久项目。</td></tr>
-      <tr><td class="id">sessionId</td><td class="id">string</td><td>否</td><td>只看某一个会话。</td></tr>
-      <tr><td class="id">cursor</td><td class="id">string</td><td>否</td><td>上一页返回的 <code>nextCursor</code>（不透明，原样传回）。</td></tr>
-      <tr><td class="id">limit</td><td class="id">number</td><td>否</td><td>每页行数，1..=500；默认 200。</td></tr>
+      <tr><td class="id">fromMs</td><td class="id">number</td><td>No</td><td>Window start, epoch ms (inclusive); defaults to <code>toMs</code> − 30 days.</td></tr>
+      <tr><td class="id">toMs</td><td class="id">number</td><td>No</td><td>Window end, epoch ms (inclusive); defaults to now; window span ≤ 365 days.</td></tr>
+      <tr><td class="id">projectId</td><td class="id">number | null</td><td>No</td><td>Only one persistent project.</td></tr>
+      <tr><td class="id">sessionId</td><td class="id">string</td><td>No</td><td>Only one session.</td></tr>
+      <tr><td class="id">cursor</td><td class="id">string</td><td>No</td><td>The <code>nextCursor</code> returned by the previous page (opaque, pass it back as-is).</td></tr>
+      <tr><td class="id">limit</td><td class="id">number</td><td>No</td><td>Rows per page, 1..=500; default 200.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Outputs</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">turns</td><td class="id">PluginUsageTurn[]</td><td>按 <code>endedAt</code> 升序。数组元素结构：turnId、sessionId、sessionTitle（string|null）、projectId（number|null）、providerId（string|null）、modelId（string|null）、startedAt、endedAt（epoch ms）、inputTokens、outputTokens、cacheReadTokens、cacheWriteTokens、reasoningTokens。</td></tr>
-      <tr><td class="id">nextCursor</td><td class="id">string | null</td><td>下一页游标；<code>null</code> 表示窗口已取完。</td></tr>
+      <tr><td class="id">turns</td><td class="id">PluginUsageTurn[]</td><td>Sorted by <code>endedAt</code> ascending. Element structure: turnId, sessionId, sessionTitle (string|null), projectId (number|null), providerId (string|null), modelId (string|null), startedAt, endedAt (epoch ms), inputTokens, outputTokens, cacheReadTokens, cacheWriteTokens, reasoningTokens.</td></tr>
+      <tr><td class="id">nextCursor</td><td class="id">string | null</td><td>Cursor for the next page; <code>null</code> means the window has been fully read.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{ "fromMs": 1770000000000, "toMs": 1772592000000, "limit": 100 }</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>{
   "turns": [
     {
@@ -110,50 +110,50 @@
   ],
   "nextCursor": null
 }</pre>
-  <div class="callout"><b>一句话边界。</b>只有扁平计数行：无消息正文、无写路径；streak / heatmap 等看板形状由插件自己在行上算。</div>
+  <div class="callout"><b>Boundary in one sentence.</b>Flat count rows only: no message bodies, no write path; dashboard shapes like streak / heatmap are computed by the plugin itself from the rows.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件给窗口（fromMs / toMs）、过滤（projectId / sessionId）、<code>cursor</code>、<code>limit</code>。</li>
-    <li><b>校验：</b>需 <code>usage.read</code> 权限；窗口跨度 ≤ 365 天、<code>limit</code> 1..=500，否则 INVALID_ARGUMENT。</li>
-    <li><b>执行：</b>宿主从用量事实表（<code>turns.usage_json</code>）做 keyset 分页，按 <code>endedAt</code> 升序。</li>
-    <li><b>返回：</b><code>turns</code> + <code>nextCursor</code>；游标为 null 即取完。</li>
+    <li><b>Call:</b> the plugin provides the window (fromMs / toMs), filters (projectId / sessionId), <code>cursor</code>, and <code>limit</code>.</li>
+    <li><b>Validation:</b> requires the <code>usage.read</code> permission; window span ≤ 365 days and <code>limit</code> 1..=500, otherwise INVALID_ARGUMENT.</li>
+    <li><b>Execution:</b> the host does keyset pagination over the usage fact table (<code>turns.usage_json</code>), ordered by <code>endedAt</code> ascending.</li>
+    <li><b>Return:</b> <code>turns</code> + <code>nextCursor</code>; a null cursor means everything has been read.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>窗口 / 过滤 / 分页参数。</td></tr>
-      <tr><td>宿主 → 插件</td><td>用量事实行页 <code>{ turns, nextCursor }</code>。</td></tr>
+      <tr><td>plugin → host</td><td>Window / filter / pagination parameters.</td></tr>
+      <tr><td>host → plugin</td><td>A page of usage fact rows <code>{ turns, nextCursor }</code>.</td></tr>
     </tbody>
   </table>
-  <div class="callout"><b>推荐姿势（能力清单 N2 已结案：不新增推送接口）。</b>事件在用量落库之后才广播（主进程先 await <code>session.endTurn</code> 写库提交、后广播 <code>session:turnEnded</code>），因此监听 <code>session:turnEnded</code> 当信号、再用游标增量拉取本接口即准确：事件丢失可全量补拉，数字与宿主用量页同源。</div>
-  <div class="callout"><b>宿主链路（官方 RPC）。</b>轮内累计 usage → 轮结束 RPC <code>session.endTurn</code> → host-core 事务写 <code>turns</code> 表 → 广播 <code>session:turnEnded</code>；读取侧：插件 <code>usage.listTurns</code> → 主进程校验 <code>usage.read</code> → <code>plugin.usage.listTurns</code> → host-core <code>plugin_usage::list_turns_page</code> → SQLite <code>turns</code>（keyset：<code>ended_at, id</code> 升序）。</div>
+  <div class="callout"><b>Recommended pattern (capability list N2 closed: no new push API).</b>Events are broadcast only after usage is committed to the database (the main process first awaits <code>session.endTurn</code> to commit the write, then broadcasts <code>session:turnEnded</code>), so listening to <code>session:turnEnded</code> as a signal and then pulling this API incrementally with the cursor is accurate: missed events can be backfilled in full, and the numbers share the same source as the host usage page.</div>
+  <div class="callout"><b>Host pipeline (official RPC).</b>In-turn usage accumulation → turn-end RPC <code>session.endTurn</code> → host-core transactionally writes the <code>turns</code> table → broadcasts <code>session:turnEnded</code>; read side: plugin <code>usage.listTurns</code> → main process checks <code>usage.read</code> → <code>plugin.usage.listTurns</code> → host-core <code>plugin_usage::list_turns_page</code> → SQLite <code>turns</code> (keyset: <code>ended_at, id</code> ascending).</div>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>缺 <code>usage.read</code> 权限</td><td>调用失败</td><td><code>PERMISSION_DENIED</code></td></tr>
-      <tr><td>窗口跨度超 365 天或 limit 越界</td><td>调用失败</td><td><code>INVALID_ARGUMENT</code></td></tr>
+      <tr><td>Missing <code>usage.read</code> permission</td><td>Call fails</td><td><code>PERMISSION_DENIED</code></td></tr>
+      <tr><td>Window span exceeds 365 days or limit is out of range</td><td>Call fails</td><td><code>INVALID_ARGUMENT</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">无消息正文、无写路径；streak/heatmap 等看板形状由插件自己在行上算。</p>
+  <h2><span class="n">4</span>What it does not provide</h2>
+  <p class="lead">No message bodies, no write path; dashboard shapes like streak/heatmap are computed by the plugin itself from the rows.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
-    <li><code>host-api/events.on</code> — session:turnEnded 触发信号（监听 + 游标增量拉取的官方姿势见第 2 节）</li>
+    <li><code>host-api/events.on</code> — the session:turnEnded trigger signal (for the official listen + incremental cursor-pull pattern, see section 2)</li>
     <li><code>host-api/agent.complete</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无——N2 推送事件已结案：不新增（见第 2 节「推荐姿势」）。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None — the N2 push event is closed: no new API (see "Recommended pattern" in section 2).</p>
 </section>
 
 </main>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PI-Desktop 插件模块架构图</title>
+<title>Nib 插件模块架构图</title>
 <style>
   :root {
     --bg: #0e1116;
@@ -213,7 +213,7 @@
 
 <header class="page">
   <div>
-    <h1>PI-Desktop 插件模块架构</h1>
+    <h1>Nib 插件模块架构</h1>
     <p class="sub">
       宿主提供能力、插件声明能力：清单校验在 Rust 侧，权限闸门与 API 白名单在 Electron 主进程，
       插件代码在每插件一个 <code>utilityProcess</code> 里跑，只能通过 JSON RPC 回喊宿主。

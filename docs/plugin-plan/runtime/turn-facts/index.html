@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-facts · 读这一轮的结构化事实 · 目录</title>
+<title>turn-facts · Reads the structured facts of this turn · Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,48 +98,48 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-facts</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime · turn-facts</div>
-  <h1>turn-facts · 目录</h1>
-  <p>拉取式读这一轮的结构化事实：状态、消耗、工具计数、动过的文件等。全链已实现，机器在 Rust 侧。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.facts</code> · 宿主机器在 host-core/turn_facts.rs</div>
+  <h1>turn-facts · Index</h1>
+  <p>A pull-style read of this turn's structured facts: status, consumption, tool counts, files touched, and so on. The whole chain is implemented; the machinery lives on the Rust side.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.facts</code> · host machinery in host-core/turn_facts.rs</div>
 </header>
 
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：字段清单、拉取式契约、不做。</p>
-      <p class="files">范围 / 现状 / 契约 / 场景 / 拍板 / 不做 / 未定</p>
+      <p class="what">What it needs: the field list, the pull-style contract, non-goals.</p>
+      <p class="files">Scope / current state / contract / scenarios / decisions / non-goals / open questions</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：插件 → 运行时 → 宿主 RPC → Rust 事实机。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: plugin → runtime → host RPC → the Rust facts engine.</p>
+      <p class="files">API contract · How data flows · Error handling · What is not provided · Related entries · Open questions</p>
     </a>
   </div>
-  <div class="omitted"><b>页表省略：无界面</b>——运行时钩子在 agent 侧无界面调用，本目录不设演示页。省略：无界面</div>
+  <div class="omitted"><b>Omitted from the page table: no UI</b> - runtime hooks are called headlessly on the agent side, so this folder has no demo page. Omitted: no UI</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><b>端到端已实现</b>：<code>pi.turnFacts()</code> → <code>runtime.turn.facts</code> → 宿主 RPC <code>turn.facts</code> → Rust 侧事实机。</li>
-    <li><b>拉取式</b>：插件主动调，宿主答，无推送。</li>
-    <li><b>低风险</b>：只读结构化事实，不给消息正文。</li>
+    <li><b>Implemented end to end</b>: <code>pi.turnFacts()</code> → <code>runtime.turn.facts</code> → host RPC <code>turn.facts</code> → the Rust-side facts engine.</li>
+    <li><b>Pull-style</b>: the plugin calls, the host answers, there is no push.</li>
+    <li><b>Low risk</b>: read-only structured facts that never expose message bodies.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">字段要不要版本化、缺字段时怎么标——见 requirements.html 的「本轮拍板」。</p>
-  <p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">Whether fields should be versioned, and how to mark a missing field - see "Decisions this round" in requirements.html.</p>
+  <p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

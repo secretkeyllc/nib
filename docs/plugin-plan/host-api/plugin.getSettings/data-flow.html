@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>plugin.getSettings · 数据流</title>
+<title>plugin.getSettings · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,81 +49,81 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">plugin.getSettings</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>plugin.getSettings · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>plugin.getSettings · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.plugin.getSettings(): Promise&lt;Record&lt;string, unknown&gt;&gt;</pre>
-  <p class="lead">读取本插件当前设置键值。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
-  <p class="lead">无入参。</p>
-  <p><b>出参</b></p>
+  <p class="lead">Reads this plugin's current settings key-values. Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
+  <p class="lead">No input.</p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">Promise&lt;Record&lt;string, unknown&gt;&gt;</td><td>本插件设置键值对象；未设置的键按清单 <code>contributes.settings</code> 的 <code>default</code> 理解。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">Promise&lt;Record&lt;string, unknown&gt;&gt;</td><td>The plugin's settings key-value object; keys not set are understood as the <code>default</code> from the manifest's <code>contributes.settings</code>.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
-  <pre>// 无入参</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Input example</b></p>
+  <pre>// no input</pre>
+  <p><b>Output example</b></p>
   <pre>{
   "interval": 30,
   "mode": "auto"
 }</pre>
-  <div class="callout"><b>一句话边界。</b>只读本插件自己的设置——读不到其他插件的；<code>secret</code> 类型贡献项仍被校验拒绝。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> Only this plugin's own settings are readable — other plugins' are not; <code>secret</code>-type contributions are still rejected by validation.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li>插件调用 <code>pi.plugin.getSettings()</code>，无入参。</li>
-    <li>宿主按调用方身份圈定本插件设置作用域，不涉及其他插件。</li>
-    <li>每次调用都读宿主持久层，无本地缓存。</li>
-    <li>Promise 兑现为键值对象；设置页编辑会触发 <code>plugin:settingsChanged</code> 事件，可监听后重读。</li>
+    <li>The plugin calls <code>pi.plugin.getSettings()</code> with no arguments.</li>
+    <li>The host scopes the settings to the calling plugin's identity; other plugins are not involved.</li>
+    <li>Every call reads the host's persistence layer; there is no local cache.</li>
+    <li>The Promise resolves with the key-value object; edits in the settings page trigger the <code>plugin:settingsChanged</code> event, which can be subscribed to for re-reading.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>无入参的读取请求。</td></tr>
-      <tr><td>宿主 → 插件</td><td><code>Record&lt;string, unknown&gt;</code> 设置键值。</td></tr>
+      <tr><td>Plugin → host</td><td>A read request with no arguments.</td></tr>
+      <tr><td>Host → plugin</td><td><code>Record&lt;string, unknown&gt;</code> settings key-values.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>宿主设置存储读异常</td><td>Promise 拒绝</td><td class="id">INTERNAL</td></tr>
+      <tr><td>Error reading the host's settings storage</td><td>Promise rejects</td><td class="id">INTERNAL</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不能读其他插件设置；<code>secret</code> 类型仍被校验拒绝。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Other plugins' settings cannot be read; <code>secret</code>-type values are still rejected by validation.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/plugin.setSettings</code></li>
     <li><code>host-api/events.on</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

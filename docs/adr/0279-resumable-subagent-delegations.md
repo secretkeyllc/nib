@@ -2,7 +2,7 @@
 
 - Status: Accepted for implementation
 - Date: 2026-09-17
-- Deciders: PI-Desktop core
+- Deciders: Nib core
 - Related: [ADR 0062](0062-bounded-subagents-behind-a-task-tool.md) ·
   [ADR 0089](0089-proactive-background-subagent-delegation.md) ·
   [ADR 0119](0119-event-driven-subagent-timeouts.md) ·
@@ -235,7 +235,7 @@ counters start at zero; `details.resumedFrom` keeps the link auditable.
 - Failure mode of the read budget is graceful degradation to a cold start, never
   a broken or oversized request.
 
-## Out of scope (二期)
+## Out of scope (phase 2)
 
 - Reviving a `stopped` / `aborted` delegation.
 - In-chain compaction or placeholder substitution for old tool results.

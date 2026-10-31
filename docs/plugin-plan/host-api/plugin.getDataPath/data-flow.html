@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>plugin.getDataPath · 数据流</title>
+<title>plugin.getDataPath · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,65 +49,65 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">plugin.getDataPath</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>plugin.getDataPath · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>plugin.getDataPath · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.plugin.getDataPath(): Promise&lt;string&gt;</pre>
-  <p class="lead">返回本插件私有数据目录的绝对路径。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
-  <p class="lead">无入参。</p>
-  <p><b>出参</b></p>
+  <p class="lead">Return the absolute path of this plugin's private data directory. Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
+  <p class="lead">No input.</p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>field</th><th>type</th><th>notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">Promise&lt;string&gt;</td><td>私有数据目录绝对路径，跨重启稳定；卸载时按打包策略处理。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">Promise&lt;string&gt;</td><td>The absolute path of the private data directory, stable across restarts; it is handled per the packaging policy on unload.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>// 无入参</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>// 目录具体布局由宿主决定，仅示意
-"C:\\Users\\me\\AppData\\Roaming\\PI-Desktop\\plugin-data\\demo.hello"</pre>
-  <div class="callout"><b>一句话边界。</b>这是插件私有目录，不是用户工作区——工作区文件仍要走 <code>pi.fs.*</code> 及其权限。</div>
+"C:\\Users\\me\\AppData\\Roaming\\Nib\\plugin-data\\demo.hello"</pre>
+  <div class="callout"><b>Boundary in one sentence.</b> This is the plugin's private directory, not the user's workspace - workspace files still go through <code>pi.fs.*</code> and its permissions.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li>插件调用 <code>pi.plugin.getDataPath()</code>，无入参。</li>
-    <li>宿主按本插件 id 定位其私有数据目录。</li>
-    <li>Promise 兑现为绝对路径；目录跨重启稳定，卸载时按打包策略处理。</li>
+    <li>The plugin calls <code>pi.plugin.getDataPath()</code> with no arguments.</li>
+    <li>The host resolves the private data directory by this plugin's id.</li>
+    <li>The Promise resolves to the absolute path; the directory is stable across restarts and is handled per the packaging policy on unload.</li>
   </ol>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
-  <p class="lead">定位既有目录，一般不失败。</p>
+  <h2><span class="n">3</span>Error handling</h2>
+  <p class="lead">Locates an existing directory and generally does not fail.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不等于用户工作区；工作区文件仍走 <code>pi.fs.*</code>。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">It is not the user's workspace; workspace files still go through <code>pi.fs.*</code>.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/fs.writeText</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

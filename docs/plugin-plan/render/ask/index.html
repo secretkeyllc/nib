@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>确认卡 · 目录</title>
+<title>Confirmation card - Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -48,53 +48,53 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <a href="index.html">确认卡</a>
+  <a href="index.html">Confirmation card</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · render · ask</div>
-  <h1>确认卡 · 目录</h1>
-  <p>插件向用户问一句话的接口：<code>ui.ask</code>。固定卡壳、配置化按钮，返回恒为 <code>{ choice, reason? }</code>。这是 render 相关接口，不是 UI 槽——没有认领位，不进组件树。</p>
-  <div class="meta">status: draft · issue #545 · #561 · 原 ui.confirm 语义，改名消歧</div>
+  <h1>Confirmation card - Index</h1>
+  <p>The interface for asking the user one question: <code>ui.ask</code>. Fixed card shell, configured buttons, and the return is always <code>{ choice, reason? }</code>. This is a render interface, not a UI slot - it claims no position and never enters the component tree.</p>
+  <div class="meta">status: draft - issue #545 - #561 - the former ui.confirm semantics, renamed to disambiguate</div>
 </header>
 
 <main>
 
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：范围、契约形状、谁能用、场景、明确不做、本轮拍板。</p>
-      <p class="files">范围 · 契约形状 · 谁能用 · 场景 · 明确不做 · 本轮拍板</p>
+      <p class="what">What it covers: scope, contract shape, who can use it, scenarios, explicit non-goals, decisions this round.</p>
+      <p class="files">Scope - contract shape - who can use it - scenarios - explicit non-goals - decisions this round</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：调用与返回、卡片队列、卸载落定、出错怎么办。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: call and return, the card queue, settling on unload, error handling.</p>
+      <p class="files">API contract - how data flows - error handling - what is not provided - related entries - open questions</p>
     </a>
   </div>
 
-  <h2>为什么没有 demo</h2>
-  <div class="callout warn"><b>接口类，省略 demo。</b>本目录只钉契约（入参、返回、边界），没有可挂载的界面槽。卡片长什么样，见 <code>ui/layers/demo.html</code> 的确认卡一幕（原 <code>ui.confirm</code> 形态，外形不变，只改返回值与名字）。</div>
+  <h2>Why there is no demo</h2>
+  <div class="callout warn"><b>Interface-only, so the demo is omitted.</b> This folder pins the contract only (input, return, boundaries); there is no mountable UI slot. For what the card looks like, see the confirmation-card scene in <code>ui/layers/demo.html</code> (the former <code>ui.confirm</code> shape - the look is unchanged; only the return value and the name changed).</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-     <li>名字是 <code>ui.ask</code>（已定名，原 <code>ui.confirm</code>）——与 agent 侧的布尔确认<b>同名不同物</b>，改名消歧。</li>
-    <li>返回<b>恒为对象</b> <code>{ choice, reason? }</code>，禁止「有时字符串、有时对象」两态。</li>
-    <li>卸载时 <code>reason: "plugin-unloaded"</code>，挂起的等待一并落定，不悬空。</li>
-    <li>卡壳宿主固定；按钮配置化（文案、档位）。卡片里没有插件代码在跑。</li>
-    <li><b>不接管</b>宿主的权限审批卡——那张卡是安全决策面，永远只属于宿主。</li>
-    <li>出站分层里属<b>可选 H</b>。</li>
+     <li>The name is <code>ui.ask</code> (settled; formerly <code>ui.confirm</code>) - it shares a name with, but is not, the agent-side boolean confirmation. The rename removes the ambiguity.</li>
+    <li>The return is <b>always an object</b> <code>{ choice, reason? }</code>; a sometimes-string, sometimes-object return is forbidden.</li>
+    <li>On unload the result is <code>reason: "plugin-unloaded"</code>; pending waits settle too and nothing is left hanging.</li>
+    <li>The card shell belongs to the host; buttons are configured (label, variant). No plugin code runs inside the card.</li>
+    <li>It does <b>not</b> take over the host's permission approval card - that card is a security decision surface and always belongs to the host.</li>
+    <li>In the outbound layering it is <b>optional H</b>.</li>
   </ul>
 
-   <h2>定名记录</h2>
-   <p style="color:var(--muted);font-size:13px">命名消歧已定：本接口定名 <code>ui.ask</code>，与 agent 侧布尔确认同名不同物——见 requirements.html「明确不做 / 本轮拍板」。</p>
+   <h2>Naming record</h2>
+   <p style="color:var(--muted);font-size:13px">The naming is settled: this interface is <code>ui.ask</code>, and it shares a name with, but is not, the agent-side boolean confirmation. See "Explicit non-goals / Decisions this round" in requirements.html.</p>
 
 </main>
 </body>

@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>commands.register · 需求描述</title>
+<title>commands.register · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,40 +49,40 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">commands.register</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
-  <h1>commands.register · 需求描述</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>commands.register · Requirements</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>用途与边界</h2>
-  <p class="lead">注册一条插件命令（命令面板 / 快捷键可触发）。</p>
+  <h2><span class="n">1</span>Purpose and boundaries</h2>
+  <p class="lead">Registers a plugin command (triggerable from the command palette / shortcuts).</p>
   <pre class="sig">pi.commands.register(command: PluginCommand): Promise&lt;void&gt;</pre>
-  <p>权限：<span class="pill perm">—</span></p>
+  <p>Permission: <span class="pill perm">—</span></p>
 </section>
 <section>
-  <h2><span class="n">2</span>典型场景</h2>
-  <table><thead><tr><th>场景</th><th>插件做什么</th></tr></thead><tbody>
-<tr><td><b>命令面板入口</b></td><td>用户搜到插件命令并执行。</td></tr>
-<tr><td><b>快捷键目标</b></td><td>全局快捷键指向这条命令。</td></tr>
+  <h2><span class="n">2</span>Typical use cases</h2>
+  <table><thead><tr><th>Scenario</th><th>What the plugin does</th></tr></thead><tbody>
+<tr><td><b>Command palette entry</b></td><td>The user finds and runs the plugin command.</td></tr>
+<tr><td><b>Shortcut target</b></td><td>A global shortcut points at this command.</td></tr>
   </tbody></table>
 </section>
 <section>
-  <h2><span class="n">3</span>明确不做什么</h2>
-  <p class="lead">不能改宿主命令；不能替代全局快捷键注册。</p>
+  <h2><span class="n">3</span>Explicit non-goals</h2>
+  <p class="lead">Cannot modify host commands; not a substitute for global shortcut registration.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>已拍板</h2>
-  <ul><li><code>run</code> 留在插件进程。</li></ul>
+  <h2><span class="n">4</span>Decided</h2>
+  <ul><li><code>run</code> stays in the plugin process.</li></ul>
 </section>
 
 </main>

@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-facts · 读这一轮的结构化事实 · 数据流</title>
+<title>turn-facts · Reads the structured facts of this turn · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,138 +98,138 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-facts</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime/turn-facts</div>
-  <h1>turn-facts · 数据流</h1>
-  <p>一次事实拉取的全链路径。六节固定：接口约定 / 数据怎么走 / 出错怎么办 / 不提供什么 / 相关条目 / 还没定的事。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.facts</code> · 宿主机器在 host-core/turn_facts.rs</div>
+  <h1>turn-facts · Data flow</h1>
+  <p>The full-chain path of one facts pull. Six fixed sections: API contract / How data flows / Error handling / What is not provided / Related entries / Open questions.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.facts</code> · host machinery in host-core/turn_facts.rs</div>
 </header>
 
 <main>
-<!-- ============ 1 接口约定 ============ -->
+<!-- ============ 1 API contract ============ -->
 <section>
-  <h2><span class="n">1</span>接口约定 <span class="tag proposal">建议</span></h2>
-    <p class="lead">无界面接口，<code>runtime.turn.facts</code>（低风险）。拉取式，显式调用。</p>
+  <h2><span class="n">1</span>API contract <span class="tag proposal">Proposal</span></h2>
+    <p class="lead">A headless interface, <code>runtime.turn.facts</code> (low risk). Pull-style, called explicitly.</p>
 <pre><span class="c">// 读这一轮的结构化事实</span>
 <span class="k">const</span> f = <span class="k">await</span> pi.turnFacts();</pre>
     <table>
-    <thead><tr><th>方面</th><th>内容</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">入参</td><td>无（当前轮）</td></tr>
-      <tr><td class="id">返回</td><td>结构化事实字段</td></tr>
-      <tr><td class="id">正文</td><td>不包含</td></tr>
-      <tr><td class="id">权限</td><td><code>runtime.turn.facts</code></td></tr>
+      <tr><td class="id">Input</td><td>None (the current turn)</td></tr>
+      <tr><td class="id">Return</td><td>Structured fact fields</td></tr>
+      <tr><td class="id">Bodies</td><td>Not included</td></tr>
+      <tr><td class="id">Permission</td><td><code>runtime.turn.facts</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 2 数据怎么走 ============ -->
+<!-- ============ 2 How data flows ============ -->
 <section>
-  <h2><span class="n">2</span>数据怎么走 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">2</span>How data flows <span class="tag verified">Verified</span></h2>
     <div class="legend">
-    <span><span class="chip host">host</span> 宿主 / 内核</span>
-    <span><span class="chip slot">slot</span> 钩子边界</span>
-    <span><span class="chip plugin">plugin</span> 插件</span>
+    <span><span class="chip host">host</span> host / core</span>
+    <span><span class="chip slot">slot</span> hook boundary</span>
+    <span><span class="chip plugin">plugin</span> plugin</span>
   </div>
   <div class="flow">
     <div class="flow-head">
-      <div class="h">宿主</div>
-      <div class="s">钩子边界</div>
-      <div class="p">插件</div>
+      <div class="h">host</div>
+      <div class="s">hook boundary</div>
+      <div class="p">plugin</div>
     </div>
     <div class="flow-body">
       <div class="lane"><ul>
-          <li><span class="what">收到 turnFacts</span><span class="why">当前轮</span></li>
-          <li><span class="what">反代宿主 RPC</span><span class="why">turn.facts</span></li>
-          <li><span class="what">Rust 事实机组装</span><span class="why">host-core</span></li>
-          <li><span class="what">结构化返回</span><span class="why">无正文</span></li>
+          <li><span class="what">turnFacts received</span><span class="why">the current turn</span></li>
+          <li><span class="what">Proxies the host RPC</span><span class="why">turn.facts</span></li>
+          <li><span class="what">The Rust facts engine assembles</span><span class="why">host-core</span></li>
+          <li><span class="what">Structured return</span><span class="why">no bodies</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">runtime.turn.facts</span><span class="why">低风险门控</span></li>
-          <li><span class="what">拉取式</span><span class="why">无推送</span></li>
-          <li><span class="what">沙箱缺口</span><span class="why">未接（ADR 0300）</span></li>
+          <li><span class="what">runtime.turn.facts</span><span class="why">low-risk gating</span></li>
+          <li><span class="what">Pull-style</span><span class="why">no push</span></li>
+          <li><span class="what">Sandbox gap</span><span class="why">Not wired (ADR 0300)</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">调用 turnFacts</span><span class="why">无入参</span></li>
-          <li><span class="what">拿结构化字段</span><span class="why">状态 / 用量 / 文件</span></li>
-          <li><span class="what">自己聚合展示</span><span class="why">宿主不管界面</span></li>
+          <li><span class="what">Calls turnFacts</span><span class="why">no input</span></li>
+          <li><span class="what">Gets the structured fields</span><span class="why">status / usage / files</span></li>
+          <li><span class="what">Aggregates and presents on its own</span><span class="why">the host does not own the UI</span></li>
       </ul></div>
     </div>
     <div class="arrow-row">
       <div class="x">→ turnFacts</div>
       <div class="x">RPC →</div>
-      <div class="y">← 结构化事实</div>
+      <div class="y">← structured facts</div>
     </div>
   </div>
-  <h3>一次拉取的一生</h3>
+  <h3>Life of one pull</h3>
     <table>
-    <thead><tr><th>时刻</th><th>发生什么</th></tr></thead>
+    <thead><tr><th>moment</th><th>what happens</th></tr></thead>
     <tbody>
-      <tr><td class="id">调用</td><td>插件调 <code>turnFacts</code></td></tr>
-      <tr><td class="id">门控</td><td><code>runtime.turn.facts</code></td></tr>
-      <tr><td class="id">取数</td><td>运行时反代宿主 RPC，Rust 侧组装</td></tr>
-      <tr><td class="id">返回</td><td>结构化事实回插件</td></tr>
+      <tr><td class="id">Call</td><td>The plugin calls <code>turnFacts</code></td></tr>
+      <tr><td class="id">Gating</td><td><code>runtime.turn.facts</code></td></tr>
+      <tr><td class="id">Fetch</td><td>The runtime proxies the host RPC and the Rust side assembles it</td></tr>
+      <tr><td class="id">Return</td><td>The structured facts go back to the plugin</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 3 出错怎么办 ============ -->
+<!-- ============ 3 Error handling ============ -->
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>情况</th><th>结果</th><th>靠什么保证</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>guaranteed by</th></tr></thead>
     <tbody>
-      <tr><td class="id">无权限</td><td>拒绝 + 诊断</td><td>权限门控</td></tr>
-      <tr><td class="id">没有轮 / 轮未结束</td><td>返回当前可见状态或明确空结果</td><td>宿主校验</td></tr>
-      <tr><td class="id">Rust 侧出错</td><td>错误上抛，不静默</td><td>RPC 错误传播</td></tr>
-      <tr><td class="id">沙箱插件</td><td>目前调不通</td><td>ADR 0300</td></tr>
+      <tr><td class="id">No permission</td><td>Refused plus a diagnostic</td><td>Permission gating</td></tr>
+      <tr><td class="id">No turn / the turn is not finished</td><td>Returns the currently visible state or an explicit empty result</td><td>Host validation</td></tr>
+      <tr><td class="id">The Rust side fails</td><td>The error is raised, never swallowed</td><td>RPC error propagation</td></tr>
+      <tr><td class="id">Sandbox plugin</td><td>Cannot reach it today</td><td>ADR 0300</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 4 不提供什么 ============ -->
+<!-- ============ 4 What is not provided ============ -->
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>不给</th><th>为什么</th></tr></thead>
+    <thead><tr><th>not provided</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td class="id">消息正文</td><td>结构化事实不含正文</td></tr>
-      <tr><td class="id">跨轮聚合</td><td>只回当前轮</td></tr>
-      <tr><td class="id">推送</td><td>拉取式</td></tr>
-      <tr><td class="id">写 / 改</td><td>只读</td></tr>
+      <tr><td class="id">Message bodies</td><td>Structured facts contain no bodies</td></tr>
+      <tr><td class="id">Cross-turn aggregation</td><td>It answers only for the current turn</td></tr>
+      <tr><td class="id">Push</td><td>Pull-style</td></tr>
+      <tr><td class="id">Write / change</td><td>Read-only</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 5 相关条目 ============ -->
+<!-- ============ 5 Related entries ============ -->
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
       <table>
-    <thead><tr><th>谁</th><th>关系</th><th>位置</th></tr></thead>
+    <thead><tr><th>who</th><th>relation</th><th>location</th></tr></thead>
     <tbody>
-      <tr><td class="id">turn-recap</td><td>有正文（有权时）与截断规则</td><td><code>runtime/turn-recap/</code></td></tr>
-      <tr><td class="id">turn-watch</td><td>实时事件流</td><td><code>runtime/turn-watch/</code></td></tr>
-      <tr><td class="id">ADR 0301</td><td>消息与事实的存储模型</td><td><code>docs/adr/0301</code></td></tr>
+      <tr><td class="id">turn-recap</td><td>Has bodies (with permission) and the truncation rule</td><td><code>runtime/turn-recap/</code></td></tr>
+      <tr><td class="id">turn-watch</td><td>The live event stream</td><td><code>runtime/turn-watch/</code></td></tr>
+      <tr><td class="id">ADR 0301</td><td>The storage model for messages and facts</td><td><code>docs/adr/0301</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 6 还没定的事 ============ -->
+<!-- ============ 6 Open questions ============ -->
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-    <p style="color:var(--text-2)">字段版本化、缺字段语义——见 requirements.html 的「本轮拍板」。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+    <p style="color:var(--text-2)">Field versioning and the semantics of a missing field - see "Decisions this round" in requirements.html.</p>
 </section>
 
-<p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+<p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

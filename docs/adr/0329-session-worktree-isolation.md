@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-10-12
-- Deciders: PI-Desktop maintainers
+- Deciders: Nib maintainers
 - Related: ADR 0062 (parallel delegates), ADR 0089 (delegation tools),
   D114 (per-session scratch), `docs/spec/03-runtime/03-tools-and-permissions.md` §4d
 

@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>自理弹窗 · 需求</title>
+<title>Self-managed overlay · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -53,85 +53,85 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">自理弹窗</span>
+  <span class="here">Self-managed overlay</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="demo.html">演示</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="demo.html">Demo</a>
 </nav>
 <header class="top">
   <div class="crumb">docs/plugin-plan · ui/self-dialog</div>
-  <h1>自理弹窗 · 需求</h1>
-  <p>插件自理的全屏弹窗和角落浮层。无槽无注册；四条底线；Esc 不关安全层。</p>
-   <div class="meta">status: finalized · 无数据流页（原因见「本轮拍板」）</div>
+  <h1>Self-managed overlay · Requirements</h1>
+  <p>Full-screen dialogs and corner overlays that a plugin manages itself. No slot and no registration; four hard limits; Esc never closes a security layer.</p>
+   <div class="meta">status: finalized - no data-flow page (see "Decisions this round")</div>
 </header>
 <main>
 
 <section>
-  <h2>范围 <span class="tag decided">已定</span></h2>
+  <h2>Scope <span class="tag decided">Decided</span></h2>
   <ul>
-    <li><strong>弹窗</strong>（模态）与<strong>悬浮层</strong>（非阻塞）由插件自己画。</li>
-    <li>不谈：宿主确认卡、宿主权限审批卡、工具调用卡。</li>
+    <li><strong>Dialogs</strong> (modal) and <strong>floating layers</strong> (non-blocking) are drawn by the plugin itself.</li>
+    <li>Not covered: the host confirmation card, the host permission approval card, and tool call cards.</li>
   </ul>
 </section>
 
 <section>
-  <h2>槽形状 <span class="tag decided">已定</span></h2>
-  <div class="callout ok"><b>无槽、无注册、自理。</b>插件在自己的组件里用 <code>position: fixed</code> 自画。宿主不设槽、不注册、无抢注。</div>
-  <p><strong>四条底线：</strong></p>
+  <h2>Slot shape <span class="tag decided">Decided</span></h2>
+  <div class="callout ok"><b>No slot, no registration, self-managed.</b> The plugin draws it inside its own component with <code>position: fixed</code>. The host provides no slot, no registration, and nothing to claim.</div>
+  <p><strong>The four hard limits:</strong></p>
   <table>
-    <thead><tr><th>底线</th><th>为什么</th></tr></thead>
+    <thead><tr><th>hard limit</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td>画在自己组件里</td><td>不逃出样式作用域</td></tr>
-      <tr><td>卸载即消失</td><td>禁用 / 卸载随组件树消失，宿主不用收拾</td></tr>
-      <tr><td>压不过宿主安全层</td><td>权限审批 / 确认等安全层永远在上</td></tr>
-      <tr><td>插件之间后开在上</td><td>宿主不仲裁</td></tr>
+      <tr><td>Drawn inside its own component</td><td>So it never escapes its style scope</td></tr>
+      <tr><td>Gone on unload</td><td>Disable/unload removes it with the component tree, leaving the host nothing to clean up</td></tr>
+      <tr><td>Never above a host security layer</td><td>Security layers such as permission approval and confirmation always stay on top</td></tr>
+      <tr><td>Among plugins, the later-opened sits on top</td><td>The host does not arbitrate</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>插件能拿到什么 <span class="tag decided">已定</span></h2>
+  <h2>What the plugin gets <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>没有槽、没有注册，也没有宿主给的 props。</li>
-    <li>层的出现与消失就是普通组件的挂载与卸载。</li>
+    <li>There is no slot, no registration, and no props from the host.</li>
+    <li>A layer appearing and disappearing is just a normal component mounting and unmounting.</li>
   </ul>
 </section>
 
 <section>
-  <h2>插件场景 <span class="tag decided">已定</span></h2>
+  <h2>Plugin scenarios <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>场景</th><th>装上插件之后</th></tr></thead>
+    <thead><tr><th>Scenario</th><th>With the plugin installed</th></tr></thead>
     <tbody>
-      <tr><td>全屏向导</td><td>插件自己画模态弹窗</td></tr>
-      <tr><td>角落通知</td><td>插件自己画浮层</td></tr>
+      <tr><td>Full-screen wizard</td><td>The plugin draws its own modal dialog</td></tr>
+      <tr><td>Corner notification</td><td>The plugin draws its own floating layer</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>明确不做 <span class="tag decided">已定</span></h2>
+  <h2>Explicit non-goals <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>宿主不做槽、不做注册、不做抢注仲裁</li>
-    <li>Esc <strong>不关安全层</strong>；关闭只走明确的界面动作（✕）</li>
-    <li>不让自理层压过宿主安全层</li>
+    <li>The host provides no slot, no registration, and no claim arbitration</li>
+    <li>Esc <strong>does not close a security layer</strong>; closing happens only through an explicit UI action (the close button)</li>
+    <li>A self-managed layer may not stack above a host security layer</li>
   </ul>
 </section>
 
 <section>
-  <h2>本轮拍板 <span class="tag decided">已定</span></h2>
+  <h2>Decisions this round <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>问题</th><th>决定</th></tr></thead>
+    <thead><tr><th>Question</th><th>Decision</th></tr></thead>
     <tbody>
-      <tr><td>有没有槽 / 注册</td><td><strong>无槽无注册，自理</strong></td></tr>
-      <tr><td>四条底线</td><td>画在自己组件里；卸载即消失；压不过宿主安全层；插件之间后开在上、宿主不仲裁</td></tr>
-      <tr><td>Esc</td><td><strong>不关安全层</strong>；关闭只走 ✕</td></tr>
-      <tr><td>有没有数据流</td><td><strong>没有 data-flow.html。</strong>宿主不经手任何数据——无槽无注册，没有接口、没有数据往来</td></tr>
+      <tr><td>Is there a slot or registration</td><td><strong>Neither; fully self-managed</strong></td></tr>
+      <tr><td>The four hard limits</td><td>Draw inside its own component; gone on unload; never above a host security layer; among plugins the later-opened sits on top and the host does not arbitrate</td></tr>
+      <tr><td>Esc</td><td><strong>Never closes a security layer</strong>; closing goes through the close button only</td></tr>
+      <tr><td>Is there a data flow</td><td><strong>No data-flow.html.</strong> The host touches no data at all - no slot, no registration, no interface, no data exchange</td></tr>
     </tbody>
   </table>
-   <div class="callout ok"><b>定稿：</b>推荐工具类 <code>p-overlay</code> / <code>p-dialog</code>（含 <code>p-dialog-head/__body/__foot</code>）/ <code>p-notice</code>（含 <code>p-notice-icon/__msg/__dismiss</code>），token <code>--ds-scrim</code>、<code>--ds-shadow-dialog</code>；z 序：插件自理层 600..899（首个 600，每层 +1），宿主安全层固定 900，现网 1000+ 阶梯不动。</div>
+   <div class="callout ok"><b>Finalized:</b> the recommended utility classes are <code>p-overlay</code> / <code>p-dialog</code> (with <code>p-dialog-head/__body/__foot</code>) / <code>p-notice</code> (with <code>p-notice-icon/__msg/__dismiss</code>), and the tokens <code>--ds-scrim</code> and <code>--ds-shadow-dialog</code>. Z-order: self-managed plugin layers occupy 600..899 (the first is 600, each further layer +1), host security layers are fixed at 900, and the existing 1000+ ladder is untouched.</div>
 </section>
 
 </main>

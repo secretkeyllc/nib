@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>fs.stat · 数据流</title>
+<title>fs.stat · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,86 +49,86 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">fs.stat</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>fs.stat · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>fs.stat · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.fs.stat(pathFromRoot: string, grantId?: string): Promise&lt;PluginFsStat&gt;</pre>
-  <p class="lead">读一个文件的大小和修改时间，不载入正文。权限：<span class="pill perm">—</span></p>
-  <p><b>入参</b></p>
+  <p class="lead">Reads a file's size and modification time without loading its content. Permission: <span class="pill perm">—</span></p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">pathFromRoot</td><td class="id">string</td><td>是</td><td>规则根下的相对路径，指向一个文件；受读范围与拒绝列表约束。</td></tr>
-      <tr><td class="id">grantId</td><td class="id">string</td><td>否</td><td>仅拖放授权（dropped-file grant）场景使用。</td></tr>
+      <tr><td class="id">pathFromRoot</td><td class="id">string</td><td>Yes</td><td>Relative path under the policy root, pointing to a file; subject to the read scope and the deny list.</td></tr>
+      <tr><td class="id">grantId</td><td class="id">string</td><td>No</td><td>Only used in the dropped-file grant scenario.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">size</td><td class="id">number</td><td>文件字节数。</td></tr>
-      <tr><td class="id">mtimeMs</td><td class="id">number</td><td>修改时间，Unix 纪元毫秒。</td></tr>
+      <tr><td class="id">size</td><td class="id">number</td><td>File size in bytes.</td></tr>
+      <tr><td class="id">mtimeMs</td><td class="id">number</td><td>Modification time, milliseconds since the Unix epoch.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>const info = await pi.fs.stat("logs/app.log");</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>{ "size": 20480, "mtimeMs": 1739462400000 }</pre>
-  <div class="callout"><b>一句话边界。</b>不读目录，也不给权限位/属主 —— 只有 size 与 mtimeMs。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> Does not read directories and does not return permission bits/owner — only size and mtimeMs.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件传根相对路径；拖放来的文件可带 <code>grantId</code>。</li>
-    <li><b>校验：</b>按读范围与拒绝列表检查路径；<code>grantId</code> 只对拖放授权有效。</li>
-    <li><b>执行：</b>宿主只取该文件的元数据，不读内容。</li>
-    <li><b>返回：</b>size 与 mtimeMs 回给插件。</li>
+    <li><b>Call:</b> the plugin passes a root-relative path; dropped files may carry a <code>grantId</code>.</li>
+    <li><b>Validation:</b> the path is checked against the read scope and deny list; <code>grantId</code> is only valid for dropped-file grants.</li>
+    <li><b>Execution:</b> the host fetches only the file's metadata, not its content.</li>
+    <li><b>Return:</b> size and mtimeMs are handed back to the plugin.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>根相对路径（可选 grantId）。</td></tr>
-      <tr><td>宿主 → 插件</td><td>size 与 mtimeMs。</td></tr>
+      <tr><td>Plugin → host</td><td>Root-relative path (optional grantId).</td></tr>
+      <tr><td>Host → plugin</td><td>size and mtimeMs.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>缺少 fs.read，或路径不在读范围</td><td>拒绝</td><td><code>PERMISSION_DENIED</code></td></tr>
-      <tr><td>文件不存在</td><td>拒绝</td><td><code>NOT_FOUND</code></td></tr>
+      <tr><td>fs.read missing, or path outside the read scope</td><td>Rejected</td><td><code>PERMISSION_DENIED</code></td></tr>
+      <tr><td>File does not exist</td><td>Rejected</td><td><code>NOT_FOUND</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不读目录；不给权限位/属主。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">No directory reads; no permission bits/owner.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/fs.readText</code></li>
     <li><code>host-api/fs.list</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

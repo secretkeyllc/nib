@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>browser.fill · 数据流</title>
+<title>browser.fill · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,83 +49,83 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">browser.fill</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>browser.fill · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>browser.fill · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.browser.fill(input: { uid: string; text: string }): Promise&lt;void&gt;</pre>
-  <p class="lead">按 uid 向访客页输入框填入文本。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Fills a text box on the guest page by uid. Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead><tbody>
-      <tr><td class="id">uid</td><td class="id">string</td><td>是</td><td>browser.snapshot 返回的输入框元素 uid。</td></tr>
-      <tr><td class="id">text</td><td class="id">string</td><td>是</td><td>要填入的文本。</td></tr>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="id">uid</td><td class="id">string</td><td>Yes</td><td>uid of the text box element returned by browser.snapshot.</td></tr>
+      <tr><td class="id">text</td><td class="id">string</td><td>Yes</td><td>The text to fill in.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
-      <tr><td class="id">（返回值）</td><td class="id">void</td><td>无出参；<code>Promise&lt;void&gt;</code> 完成即填写已提交。</td></tr>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="id">(return value)</td><td class="id">void</td><td>No output; once <code>Promise&lt;void&gt;</code> completes, the fill has been committed.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{ "uid": "e2", "text": "PI Desktop 插件" }</pre>
-  <p><b>输出样例</b></p>
-  <pre>// 无出参（Promise&lt;void&gt;）</pre>
-  <div class="callout"><b>一句话边界。</b>uid 必须来自本插件访客页的 browser.snapshot。</div>
+  <p><b>Output example</b></p>
+  <pre>// no output (Promise&lt;void&gt;)</pre>
+  <div class="callout"><b>Boundary in one sentence.</b> The uid must come from a browser.snapshot of this plugin's guest page.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>前置：</b>先 <code>pi.browser.snapshot()</code> 拿到输入框元素 uid。</li>
-    <li><b>调用：</b>插件执行 <code>pi.browser.fill({ uid, text })</code>。</li>
-    <li><b>校验：</b>宿主检查 <code>uid</code> 与 <code>text</code> 均为必填字符串。</li>
-    <li><b>执行/返回：</b>宿主把文本填入访客页对应输入框，<code>Promise&lt;void&gt;</code> 完成。</li>
+    <li><b>Prerequisite:</b> call <code>pi.browser.snapshot()</code> first to get the text box element uid.</li>
+    <li><b>Call:</b> the plugin invokes <code>pi.browser.fill({ uid, text })</code>.</li>
+    <li><b>Validation:</b> the host checks that <code>uid</code> and <code>text</code> are both present strings.</li>
+    <li><b>Execution/return:</b> the host fills the text into the corresponding box on the guest page and <code>Promise&lt;void&gt;</code> completes.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead><tbody>
-      <tr><td>插件 → 宿主</td><td>目标元素 <code>uid</code> 与文本 <code>text</code>。</td></tr>
-      <tr><td>宿主 → 插件</td><td>无返回数据（<code>Promise&lt;void&gt;</code>）。</td></tr>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead><tbody>
+      <tr><td>Plugin → host</td><td>Target element <code>uid</code> and text <code>text</code>.</td></tr>
+      <tr><td>Host → plugin</td><td>No return data (<code>Promise&lt;void&gt;</code>).</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead><tbody>
-      <tr><td>无权操作访客页</td><td>调用被拒绝</td><td class="id">PERMISSION_DENIED</td></tr>
-      <tr><td>uid 不存在或访客页不存在</td><td>调用被拒绝</td><td class="id">NOT_FOUND</td></tr>
-      <tr><td>uid / text 缺省或非字符串</td><td>调用被拒绝</td><td class="id">INVALID_ARGUMENT</td></tr>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead><tbody>
+      <tr><td>No permission to operate on the guest page</td><td>Call rejected</td><td class="id">PERMISSION_DENIED</td></tr>
+      <tr><td>uid does not exist, or the guest page does not exist</td><td>Call rejected</td><td class="id">NOT_FOUND</td></tr>
+      <tr><td>uid / text missing or not a string</td><td>Call rejected</td><td class="id">INVALID_ARGUMENT</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不能逃出访客页边界；不能拿任意站点会话凭证；内容安全策略与隔离仍然生效。</p>
-  <div class="callout"><b>宿主保证 / 已接受代价：</b>宿主保证：访客页边界限制在调用插件视图。已接受代价：白名单外的 CDP 调用不可用。</div>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Cannot escape the guest-page boundary; cannot obtain arbitrary site session credentials; content security policy and isolation still apply.</p>
+  <div class="callout"><b>Host guarantees / accepted costs:</b> Host guarantee: the guest-page boundary is scoped to the calling plugin view. Accepted cost: CDP calls outside the allowlist are unavailable.</div>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/browser.snapshot</code></li>
     <li><code>host-api/browser.navigate</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

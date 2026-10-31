@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>module.onPanelInvoke · 数据流</title>
+<title>module.onPanelInvoke · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,40 +49,40 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">module.onPanelInvoke</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>module.onPanelInvoke · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>module.onPanelInvoke · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">onPanelInvoke?: (channel: string, payload: unknown) =&gt; Promise&lt;unknown&gt; | unknown  // PluginModule 可选钩子</pre>
-  <p class="lead">隔离面板页与插件之间的固定通道调用入口；面板能力不因该钩子扩大，无需声明任何权限。<span class="pill perm">—</span></p>
-  <p><b>入参</b></p>
+  <p class="lead">The fixed-channel call entry point isolating a panel page from its plugin; panel capabilities do not grow through this hook, and no permission needs declaring. <span class="pill perm">—</span></p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>field</th><th>type</th><th>required</th><th>notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">channel</td><td class="id">string</td><td>是</td><td>通道名，由插件自己约定（固定通道，非通用 IPC）。</td></tr>
-      <tr><td class="id">payload</td><td class="id">unknown</td><td>是</td><td>面板页随调用携带的数据；可为空值，结构由插件约定。</td></tr>
+      <tr><td class="id">channel</td><td class="id">string</td><td>Yes</td><td>The channel name, defined by the plugin itself (a fixed channel, not general-purpose IPC).</td></tr>
+      <tr><td class="id">payload</td><td class="id">unknown</td><td>Yes</td><td>Data the panel page carries with the call; it may be empty, and the plugin defines its shape.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>field</th><th>type</th><th>notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">Promise&lt;unknown&gt; | unknown</td><td>处理结果，结构由插件实现决定，原样回传面板页。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">Promise&lt;unknown&gt; | unknown</td><td>The result, whose shape the plugin implementation decides, returned to the panel page unchanged.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>// 宿主调用：转发面板页的固定通道调用
 module.onPanelInvoke("submit", { title: "周报", count: 3 })
 
@@ -91,45 +91,45 @@ onPanelInvoke(channel, payload) {
   if (channel === "submit") return { ok: true, saved: payload.title }
   throw new Error("未知通道: " + channel)
 }</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>// 返回类型为 unknown，结构由插件实现自定义
 { "ok": true, "saved": "周报" }</pre>
-  <div class="callout"><b>一句话边界。</b>不是通用 IPC：通道语义由插件自己约定，宿主不借它暴露 plugin.setSettings、fs.remove 或任意 Electron IPC。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> It is not general-purpose IPC: the plugin defines the channel semantics, and the host never uses it to expose plugin.setSettings, fs.remove, or arbitrary Electron IPC.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用。</b>面板打开期间（<code>ui.openPanel</code> 打开的隔离沙箱页），面板页经固定通道发起调用。</li>
-    <li><b>转发。</b>宿主把通道名与数据转发给插件主模块的 <code>onPanelInvoke</code>；面板页是沙箱页，不直接访问插件进程。</li>
-    <li><b>执行。</b>插件按 <code>channel</code> 分发处理，<code>payload</code> 结构由插件约定。</li>
-    <li><b>返回。</b>处理结果（可 async）回传面板页；通道未处理按宿主错误模型返回。</li>
+    <li><b>Call.</b> While the panel is open (the isolated sandbox page opened by <code>ui.openPanel</code>), the panel page issues a call over the fixed channel.</li>
+    <li><b>Forward.</b> The host forwards the channel name and data to the plugin main module's <code>onPanelInvoke</code>; the panel page is sandboxed and never touches the plugin process directly.</li>
+    <li><b>Execute.</b> The plugin dispatches on <code>channel</code>, and the plugin defines the <code>payload</code> shape.</li>
+    <li><b>Return.</b> The result (possibly async) goes back to the panel page; an unhandled channel returns through the host error model.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>direction</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">宿主 → 插件</td><td><code>channel</code> 通道名与 <code>payload</code> 数据。</td></tr>
-      <tr><td class="id">插件 → 宿主</td><td>处理结果，原样回传面板页。</td></tr>
+      <tr><td class="id">host → plugin</td><td>The <code>channel</code> name and the <code>payload</code> data.</td></tr>
+      <tr><td class="id">plugin → host</td><td>The result, returned to the panel page unchanged.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
-  <p class="lead">无错误码。通道未处理时，按宿主错误模型返回给面板页。</p>
+  <h2><span class="n">3</span>Error handling</h2>
+  <p class="lead">No error codes. When no channel handles the call, the host error model is returned to the panel page.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不是通用 IPC；通道由插件自己约定。</p>
-  <div class="callout"><b>宿主保证 / 已接受代价：</b>宿主保证：不暴露 `plugin.setSettings`、`fs.remove` 或任意 Electron IPC。已接受代价：通道由插件自己约定。</div>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Not a general-purpose IPC; the plugin defines its own channels.</p>
+  <div class="callout"><b>Host guarantees / accepted costs:</b> Host guarantee: `plugin.setSettings`, `fs.remove`, and arbitrary Electron IPC are never exposed. Accepted cost: the plugin defines the channel itself.</div>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/ui.openPanel</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

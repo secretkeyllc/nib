@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AI 回复操作栏 · 需求</title>
+<title>AI reply action bar · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -53,86 +53,86 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">AI 回复操作栏</span>
+  <span class="here">AI reply action bar</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
   <div class="crumb">docs/plugin-plan · ui/assistant-action</div>
-  <h1>AI 回复操作栏 · 需求</h1>
-  <p>AI 回复卡操作栏两侧的新增位。与用户消息操作栏同形、同约束。</p>
-   <div class="meta">status: finalized · 本轮拍板见文末</div>
+  <h1>AI reply action bar · Requirements</h1>
+  <p>Additive positions on both sides of the AI reply card's action bar. Same shape and same constraints as the user message action bar.</p>
+   <div class="meta">status: finalized · decisions this round at the end</div>
 </header>
 <main>
 
 <section>
-  <h2>范围 <span class="tag decided">已定</span></h2>
-  <p>只管 <strong>AI 回复消息卡</strong>操作栏的左右两侧。正文下方的追加块归 <code>ui/entry-extra/</code>。</p>
+  <h2>Scope <span class="tag decided">Decided</span></h2>
+  <p>It covers only the left and right sides of the <strong>AI reply card</strong> action bar. The append block below the body belongs to <code>ui/entry-extra/</code>.</p>
 </section>
 
 <section>
-  <h2>槽形状 <span class="tag decided">已定</span></h2>
-  <div class="callout ok"><b>固定布局：</b><code>【左插槽】宿主键【右插槽】</code>。宿主键永远在中间，只许插件<strong>新增</strong>。</div>
+  <h2>Slot shape <span class="tag decided">Decided</span></h2>
+  <div class="callout ok"><b>Fixed layout:</b> <code>[left slot] host keys [right slot]</code>. The host keys always sit in the middle, and plugins may only <strong>add</strong>.</div>
   <table>
-    <thead><tr><th>位置</th><th>语义</th></tr></thead>
+    <thead><tr><th>position</th><th>meaning</th></tr></thead>
     <tbody>
-      <tr><td>左插槽</td><td>宿主键左侧新增区，可放 0..n 个插件内容</td></tr>
-      <tr><td>右插槽</td><td>宿主键右侧新增区，可放 0..n 个插件内容</td></tr>
+      <tr><td>left slot</td><td>The additive area left of the host keys; holds 0..n plugin items</td></tr>
+      <tr><td>right slot</td><td>The additive area right of the host keys; holds 0..n plugin items</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>插件能拿到什么 <span class="tag decided">已定</span></h2>
+  <h2>What the plugin gets <span class="tag decided">Decided</span></h2>
   <ul>
-    <li><strong>message</strong> — 这条 AI 回复的数据</li>
-    <li><strong>各种 id</strong> — 消息 id、会话 id 等</li>
+    <li><strong>message</strong> - the data for this AI reply</li>
+    <li><strong>the various ids</strong> - message id, session id, and so on</li>
     <li><strong>position</strong> — <code>"left"</code> | <code>"right"</code></li>
-    <li><strong>不提供</strong>宿主函数与额外数据</li>
+    <li><strong>No</strong> host functions and no extra data</li>
   </ul>
 </section>
 
 <section>
-  <h2>插件场景 <span class="tag decided">已定</span></h2>
+  <h2>Plugin scenarios <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>场景</th><th>装上插件之后</th></tr></thead>
+    <thead><tr><th>Scenario</th><th>With the plugin installed</th></tr></thead>
     <tbody>
-      <tr><td>存为知识库</td><td>右插槽一颗按钮，点击后插件自己去存</td></tr>
-      <tr><td>一键复现</td><td>左插槽按钮，把这条回复交给插件自己的流程</td></tr>
+      <tr><td>Save to knowledge base</td><td>One button in the right slot; the plugin stores it itself when clicked</td></tr>
+      <tr><td>Replay in one click</td><td>A button in the left slot that hands this reply to the plugin's own flow</td></tr>
     </tbody>
   </table>
-  <p>插件自实现的功能（含删除）宿主不额外处理。</p>
+  <p>The host does nothing extra for capabilities a plugin implements itself, including delete.</p>
 </section>
 
 <section>
-  <h2>明确不做 <span class="tag decided">已定</span></h2>
+  <h2>Explicit non-goals <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>不改 / 不藏 / 不删宿主键</li>
-    <li>不改回复正文（entry 正文不开放、无整卡替换）</li>
-    <li>不提供宿主函数与额外数据</li>
-    <li>正文下方追加块不在本槽（见 <code>ui/entry-extra/</code>）</li>
-    <li>markdown transformer <strong>不做</strong></li>
+    <li>No editing, hiding, or removing host keys</li>
+    <li>No changing the reply body (the entry body is closed and there is no whole-card replacement)</li>
+    <li>No host functions and no extra data</li>
+    <li>The append block below the body is not part of this slot (see <code>ui/entry-extra/</code>)</li>
+    <li>markdown transformer is <strong>not provided</strong></li>
   </ul>
 </section>
 
 <section>
-  <h2>本轮拍板 <span class="tag decided">已定</span></h2>
+  <h2>Decisions this round <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>问题</th><th>决定</th></tr></thead>
+    <thead><tr><th>Question</th><th>Decision</th></tr></thead>
     <tbody>
-      <tr><td>槽形状</td><td><code>【左插槽】宿主键【右插槽】</code>，与用户卡同形，只许新增</td></tr>
-      <tr><td>props</td><td>只有 message + 各种 id + position；不提供函数、不提供额外数据</td></tr>
-      <tr><td>宿主键可否被改 / 藏 / 删</td><td>不可</td></tr>
-      <tr><td>正文 / 整卡替换</td><td>不做</td></tr>
-      <tr><td>插件自实现功能（含删除）</td><td>宿主不额外处理</td></tr>
+      <tr><td>Slot shape</td><td><code>[left slot] host keys [right slot]</code>, the same as the user card, additions only</td></tr>
+      <tr><td>props</td><td>Only message, the various ids, and position; no functions and no extra data</td></tr>
+      <tr><td>Can a plugin edit / hide / remove host keys</td><td>No</td></tr>
+      <tr><td>Body / whole-card replacement</td><td>Not done</td></tr>
+      <tr><td>Capabilities a plugin implements itself (including delete)</td><td>The host does nothing extra</td></tr>
     </tbody>
   </table>
-   <div class="callout ok"><b>定稿：</b>SDK 槽名 <code>assistantAction</code>（与 <code>userAction</code> 同形，注册形状 <code>positions?: ["left","right"]</code>，省略即两侧）；左右上限与折叠规则与 user-action 完全一致：每侧 3 个可见项 + 宿主「⋯」折叠菜单，宿主键永不折叠。</div>
+   <div class="callout ok"><b>Finalized:</b> the SDK slot name is <code>assistantAction</code> (same shape as <code>userAction</code>, registered as <code>positions?: ["left","right"]</code>; omitting it means both sides). The per-side cap and collapse rules match user-action exactly: three visible items per side plus the host "..." overflow menu, and host keys never collapse.</div>
 </section>
 
 </main>

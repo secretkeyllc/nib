@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>browser.openExternal · 数据流</title>
+<title>browser.openExternal · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,78 +49,78 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">browser.openExternal</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>browser.openExternal · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>browser.openExternal · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.browser.openExternal(): Promise&lt;void&gt;</pre>
-  <p class="lead">把当前访客页交给系统浏览器打开。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
-  <p class="lead">无入参。</p>
-  <p><b>出参</b></p>
+  <p class="lead">Hand the current guest page to the system browser. Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
+  <p class="lead">No input.</p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
-      <tr><td class="id">（返回值）</td><td class="id">void</td><td>无出参；<code>Promise&lt;void&gt;</code> 完成即转交已提交。</td></tr>
+    <thead><tr><th>field</th><th>type</th><th>notes</th></tr></thead><tbody>
+      <tr><td class="id">(return value)</td><td class="id">void</td><td>No output; a resolved <code>Promise&lt;void&gt;</code> means the handoff was submitted.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>// 无入参</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>// 无出参（Promise&lt;void&gt;）</pre>
-  <div class="callout"><b>一句话边界。</b>只能转交当前访客页，无法指定 URL（要指定地址用 browser.navigate）。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> It only hands over the current guest page and cannot take a URL; to target a specific address use browser.navigate.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件执行 <code>pi.browser.openExternal()</code>。</li>
-    <li><b>执行：</b>宿主取本插件访客页的当前页面，交给系统浏览器打开。</li>
-    <li><b>返回：</b><code>Promise&lt;void&gt;</code> 完成，无返回值；插件卸载后绑定失效。</li>
+    <li><b>Call:</b> the plugin runs <code>pi.browser.openExternal()</code>.</li>
+    <li><b>Execute:</b> the host takes the current page of this plugin's guest page and hands it to the system browser.</li>
+    <li><b>Return:</b> the <code>Promise&lt;void&gt;</code> resolves with no value; the binding dies with the plugin.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead><tbody>
-      <tr><td>插件 → 宿主</td><td>转交请求（零参数）。</td></tr>
-      <tr><td>宿主 → 插件</td><td>无返回数据（<code>Promise&lt;void&gt;</code>）。</td></tr>
-      <tr><td>宿主 → 系统</td><td>由系统浏览器打开当前访客页。</td></tr>
+    <thead><tr><th>direction</th><th>content</th></tr></thead><tbody>
+      <tr><td>plugin → host</td><td>The handoff request (no arguments).</td></tr>
+      <tr><td>host → plugin</td><td>No data (<code>Promise&lt;void&gt;</code>).</td></tr>
+      <tr><td>host → system</td><td>The system browser opens the current guest page.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead><tbody>
-      <tr><td>无权转交访客页</td><td>调用被拒绝</td><td class="id">PERMISSION_DENIED</td></tr>
-      <tr><td>访客页不存在（未创建或已销毁）</td><td>调用被拒绝</td><td class="id">NOT_FOUND</td></tr>
-      <tr><td>传入了本接口不需要的参数</td><td>调用被拒绝</td><td class="id">INVALID_ARGUMENT</td></tr>
+    <thead><tr><th>case</th><th>result</th><th>code</th></tr></thead><tbody>
+      <tr><td>Not allowed to hand over the guest page</td><td>Call rejected</td><td class="id">PERMISSION_DENIED</td></tr>
+      <tr><td>The guest page does not exist (never created or already destroyed)</td><td>Call rejected</td><td class="id">NOT_FOUND</td></tr>
+      <tr><td>Arguments this interface does not take were supplied</td><td>Call rejected</td><td class="id">INVALID_ARGUMENT</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不能逃出访客页边界；不能拿任意站点会话凭证；内容安全策略与隔离仍然生效。</p>
-  <div class="callout"><b>宿主保证 / 已接受代价：</b>宿主保证：访客页边界限制在调用插件视图。已接受代价：白名单外的 CDP 调用不可用。</div>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">It cannot escape the guest-page boundary or obtain another site's session credentials; content security policy and isolation still apply.</p>
+  <div class="callout"><b>Host guarantees / accepted costs:</b> Host guarantee: the guest-page boundary confines calls to the plugin view. Accepted cost: CDP calls outside the allowlist are unavailable.</div>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/browser.snapshot</code></li>
     <li><code>host-api/browser.navigate</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

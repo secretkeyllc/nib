@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>tool-extend · 工具返回值上的三个扩展字段 · 数据流</title>
+<title>tool-extend · Three extension fields on a tool result · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,27 +98,27 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">tool-extend</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 
 <header class="top">
-  <div class="crumb">docs/plugin-plan · runtime/tool-extend</div>
-  <h1>tool-extend · 数据流</h1>
-  <p>返回值三字段从插件到宿主的路径。六节固定：接口约定 / 数据怎么走 / 出错怎么办 / 不提供什么 / 相关条目 / 还没定的事。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.tool.extend</code> · addedToolNames / usage / terminate</div>
+  <div class="crumb">docs/plugin-plan · runtime · tool-extend</div>
+  <h1>tool-extend · Data flow</h1>
+  <p>The path of the three return-value fields from the plugin to the host. Six fixed sections: API contract / How data flows / Error handling / What is not provided / Related entries / Open questions.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.tool.extend</code> · addedToolNames / usage / terminate</div>
 </header>
 
 <main>
-<!-- ============ 1 接口约定 ============ -->
+<!-- ============ 1 API contract ============ -->
 <section>
-  <h2><span class="n">1</span>接口约定 <span class="tag proposal">建议</span></h2>
-    <p class="lead">不是一个调用，而是插件<b>自有工具</b>返回值上的三个可选字段；宿主按 <code>runtime.tool.extend</code> 授权决定收下还是剥掉。</p>
+  <h2><span class="n">1</span>API contract <span class="tag proposal">Proposal</span></h2>
+    <p class="lead">Not a call, but three optional fields on the return value of a plugin's <b>own tool</b>; the host decides by <code>runtime.tool.extend</code> authorization whether to accept or strip them.</p>
 <pre><span class="c">// 插件自有工具的返回值（示意）</span>
 <span class="k">return</span> {
   ...normalResult,
@@ -127,114 +127,114 @@
   <span class="k">terminate</span>: <span class="k">true</span>,
 };</pre>
     <table>
-    <thead><tr><th>方面</th><th>内容</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">addedToolNames</td><td>引入新工具；界面署名插件；无授权 → 剥离 + 审计</td></tr>
-      <tr><td class="id">usage</td><td>报告花费；无授权 → 剥离 + 审计</td></tr>
-      <tr><td class="id">terminate</td><td>请求批量终止；无授权 → 剥离 + 审计</td></tr>
-      <tr><td class="id">权限</td><td><code>runtime.tool.extend</code>；refusal / 剥离都留审计</td></tr>
+      <tr><td class="id">addedToolNames</td><td>Introduces new tools; attributed to the plugin in the UI; no authorization → stripped plus an audit record</td></tr>
+      <tr><td class="id">usage</td><td>Reports cost; no authorization → stripped plus an audit record</td></tr>
+      <tr><td class="id">terminate</td><td>Requests a batch termination; no authorization → stripped plus an audit record</td></tr>
+      <tr><td class="id">Permission</td><td><code>runtime.tool.extend</code>; refusals / stripping are both audited</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 2 数据怎么走 ============ -->
+<!-- ============ 2 How data flows ============ -->
 <section>
-  <h2><span class="n">2</span>数据怎么走 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">2</span>How data flows <span class="tag verified">Verified</span></h2>
     <div class="legend">
-    <span><span class="chip host">host</span> 宿主 / 内核</span>
-    <span><span class="chip slot">slot</span> 钩子边界</span>
-    <span><span class="chip plugin">plugin</span> 插件</span>
+    <span><span class="chip host">host</span> host / core</span>
+    <span><span class="chip slot">slot</span> hook boundary</span>
+    <span><span class="chip plugin">plugin</span> plugin</span>
   </div>
   <div class="flow">
     <div class="flow-head">
-      <div class="h">宿主</div>
-      <div class="s">钩子边界</div>
-      <div class="p">插件</div>
+      <div class="h">host</div>
+      <div class="s">hook boundary</div>
+      <div class="p">plugin</div>
     </div>
     <div class="flow-body">
       <div class="lane"><ul>
-          <li><span class="what">收到工具返回值</span><span class="why">插件自有工具</span></li>
-          <li><span class="what">按权限看三字段</span><span class="why">runtime.tool.extend</span></li>
-          <li><span class="what">有授权 → 收下</span><span class="why">注册工具 / 记账 / 终止</span></li>
-          <li><span class="what">无授权 → 剥离</span><span class="why">留审计</span></li>
+          <li><span class="what">Receives the tool result</span><span class="why">plugin's own tool</span></li>
+          <li><span class="what">Checks the three fields by permission</span><span class="why">runtime.tool.extend</span></li>
+          <li><span class="what">Authorized → accept</span><span class="why">register tools / account / terminate</span></li>
+          <li><span class="what">Not authorized → strip</span><span class="why">audit recorded</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">runtime.tool.extend</span><span class="why">字段级授权</span></li>
-          <li><span class="what">剥离不整单失败</span><span class="why">其余结果照常</span></li>
-          <li><span class="what">沙箱缺口</span><span class="why">未接（ADR 0300）</span></li>
+          <li><span class="what">runtime.tool.extend</span><span class="why">field-level authorization</span></li>
+          <li><span class="what">Stripping is not a failure of the result</span><span class="why">the rest goes through as usual</span></li>
+          <li><span class="what">Sandbox gap</span><span class="why">not wired (ADR 0300)</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">在返回值上加字段</span><span class="why">可选</span></li>
-          <li><span class="what">有授权才有用</span><span class="why">否则被剥掉</span></li>
-          <li><span class="what">引入的工具署名</span><span class="why">作者可见</span></li>
+          <li><span class="what">Adds fields to the return value</span><span class="why">optional</span></li>
+          <li><span class="what">Only useful with authorization</span><span class="why">otherwise stripped</span></li>
+          <li><span class="what">Introduced tools are attributed</span><span class="why">author visible</span></li>
       </ul></div>
     </div>
     <div class="arrow-row">
-      <div class="x">→ 返回值 + 三字段</div>
-      <div class="x">收下 / 剥离 →</div>
-      <div class="y">← 结果照常返回</div>
+      <div class="x">→ return value + three fields</div>
+      <div class="x">accept / strip →</div>
+      <div class="y">← result returned as usual</div>
     </div>
   </div>
-  <h3>一次返回的一生</h3>
+  <h3>Life of one return</h3>
     <table>
-    <thead><tr><th>时刻</th><th>发生什么</th></tr></thead>
+    <thead><tr><th>moment</th><th>what happens</th></tr></thead>
     <tbody>
-      <tr><td class="id">工具结束</td><td>插件自有工具返回结果，可带三字段</td></tr>
-      <tr><td class="id">门控</td><td>按 <code>runtime.tool.extend</code> 逐字段决定</td></tr>
-      <tr><td class="id">收下</td><td>addedToolNames 注册（署名插件）；usage 记账；terminate 请求收工</td></tr>
-      <tr><td class="id">剥掉</td><td>字段无效化 + 审计；工具结果本身照常进对话</td></tr>
+      <tr><td class="id">Tool finishes</td><td>The plugin's own tool returns a result, optionally with the three fields</td></tr>
+      <tr><td class="id">Gating</td><td>Each field is decided under <code>runtime.tool.extend</code></td></tr>
+      <tr><td class="id">Accepted</td><td>addedToolNames is registered (attributed to the plugin); usage is accounted; terminate requests a wrap-up</td></tr>
+      <tr><td class="id">Stripped</td><td>The field is nullified plus an audit record; the tool result itself still goes into the conversation as usual</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 3 出错怎么办 ============ -->
+<!-- ============ 3 Error handling ============ -->
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>情况</th><th>结果</th><th>靠什么保证</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>guaranteed by</th></tr></thead>
     <tbody>
-      <tr><td class="id">无授权</td><td>三字段剥离 + 审计，结果照常</td><td>字段级门控</td></tr>
-      <tr><td class="id">addedToolNames 重名</td><td>拒绝注册 + 审计</td><td>命名冲突检查</td></tr>
-      <tr><td class="id">terminate 无授权</td><td>不终止</td><td>门控</td></tr>
-      <tr><td class="id">沙箱插件</td><td>目前调不通</td><td>ADR 0300</td></tr>
+      <tr><td class="id">No authorization</td><td>All three fields are stripped plus an audit record; the result goes through as usual</td><td>Field-level gating</td></tr>
+      <tr><td class="id">addedToolNames name clash</td><td>Registration refused plus an audit record</td><td>Name conflict check</td></tr>
+      <tr><td class="id">terminate without authorization</td><td>Nothing is terminated</td><td>Gating</td></tr>
+      <tr><td class="id">Sandbox plugin</td><td>Currently cannot reach it</td><td>ADR 0300</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 4 不提供什么 ============ -->
+<!-- ============ 4 What is not provided ============ -->
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>不给</th><th>为什么</th></tr></thead>
+    <thead><tr><th>not provided</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td class="id">改宿主工具结果</td><td>那是 tool-gate 的只读边界</td></tr>
-      <tr><td class="id">覆盖内建工具名</td><td>重名拒绝注册</td></tr>
-      <tr><td class="id">静默提权</td><td>没授权就是剥离 + 审计</td></tr>
-      <tr><td class="id">整轮中止语义</td><td>terminate 是批量收工；整轮停走 abort-turn</td></tr>
+      <tr><td class="id">Changing a host tool's result</td><td>That is tool-gate's read-only boundary</td></tr>
+      <tr><td class="id">Overriding built-in tool names</td><td>A name clash is refused registration</td></tr>
+      <tr><td class="id">Silent privilege escalation</td><td>Without authorization it is stripped plus an audit record</td></tr>
+      <tr><td class="id">Whole-turn abort semantics</td><td>terminate is a batch wrap-up; stopping the whole turn goes through abort-turn</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 5 相关条目 ============ -->
+<!-- ============ 5 Related entries ============ -->
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
       <table>
-    <thead><tr><th>谁</th><th>关系</th><th>位置</th></tr></thead>
+    <thead><tr><th>who</th><th>relation</th><th>location</th></tr></thead>
     <tbody>
-      <tr><td class="id">tool-gate</td><td>宿主工具的观察 / 拦截；本页是自有工具返回值扩展</td><td><code>runtime/tool-gate/</code></td></tr>
-      <tr><td class="id">abort-turn</td><td>整轮中止</td><td><code>runtime/abort-turn/</code></td></tr>
-      <tr><td class="id">ADR 0303</td><td>权限模型</td><td><code>docs/adr/0303</code></td></tr>
+      <tr><td class="id">tool-gate</td><td>Observing / intercepting host tools; this page is extending the return value of the plugin's own tools</td><td><code>runtime/tool-gate/</code></td></tr>
+      <tr><td class="id">abort-turn</td><td>Whole-turn abort</td><td><code>runtime/abort-turn/</code></td></tr>
+      <tr><td class="id">ADR 0303</td><td>Permission model</td><td><code>docs/adr/0303</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 6 还没定的事 ============ -->
+<!-- ============ 6 Open questions ============ -->
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-    <p style="color:var(--text-2)">usage 汇总口径、terminate 提示形态——见 requirements.html 的「本轮拍板」。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+    <p style="color:var(--text-2)">The usage aggregation rules, and the shape of the terminate notice - see "Decisions this round" in requirements.html.</p>
 </section>
 
-<p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+<p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

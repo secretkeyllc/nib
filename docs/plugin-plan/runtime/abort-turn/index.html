@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>abort-turn · 请求中止本轮 · 目录</title>
+<title>abort-turn · Abort the current turn · Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,48 +98,48 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">abort-turn</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime · abort-turn</div>
-  <h1>abort-turn · 目录</h1>
-  <p>插件主动要求宿主中止正在跑的这一轮。无载荷，返回布尔。高风险——等于让插件踩刹车。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.abort</code> · 风险 high</div>
+  <h1>abort-turn · Index</h1>
+  <p>A plugin asks the host to abort the turn that is currently running. No payload, boolean return. High risk - it is the plugin hitting the brakes.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.abort</code> · risk high</div>
 </header>
 
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：现状（已实现）、契约、边界、不做。</p>
-      <p class="files">范围 / 现状 / 契约 / 场景 / 拍板 / 不做 / 未定</p>
+      <p class="what">What it covers: current state (implemented), contract, boundaries, non-goals.</p>
+      <p class="files">Scope / current state / contract / scenarios / decisions / non-goals / open questions</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：一次中止请求怎么进宿主、结果怎么回来。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: how an abort request reaches the host and how the result comes back.</p>
+      <p class="files">API contract · How data flows · Error handling · What is not provided · Related entries · Open questions</p>
     </a>
   </div>
-  <div class="omitted"><b>页表省略：无界面</b>——运行时钩子在 agent 侧无界面调用，本目录不设演示页。省略：无界面</div>
+  <div class="omitted"><b>Omitted from the page table: no UI</b> - runtime hooks are called headlessly on the agent side, so this folder has no demo page. Omitted: no UI</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><b>现状已核实</b>：<code>pi.requestTurnAbort()</code> 已实现，权限 <code>runtime.turn.abort</code>，风险 high。</li>
-    <li><b>无载荷</b>：不带原因、不带范围——就是「停」。</li>
-    <li><b>refusal 返回 false</b>并记诊断，不静默。</li>
+    <li><b>Current state verified</b>: <code>pi.requestTurnAbort()</code> is implemented, permission <code>runtime.turn.abort</code>, risk high.</li>
+    <li><b>No payload</b>: no reason, no scope - just "stop".</li>
+    <li><b>A refusal returns false</b> and records a diagnostic; it is never silent.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">要不要给中止带一句用户可读原因、要不要区分「停工具」和「停整轮」——见 requirements.html 的「本轮拍板」。</p>
-  <p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">Whether an abort should carry a user-readable reason, and whether to distinguish "stop the tool" from "stop the whole turn" - see "Decisions this round" in requirements.html.</p>
+  <p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

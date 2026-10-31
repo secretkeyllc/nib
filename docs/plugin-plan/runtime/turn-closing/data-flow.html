@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-closing · 轮末询问要不要续（续跑缺署名） · 数据流</title>
+<title>turn-closing · Asks at turn end whether to continue (continuation lacks attribution) · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,27 +98,27 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-closing</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 
 <header class="top">
-  <div class="crumb">docs/plugin-plan · runtime/turn-closing</div>
-  <h1>turn-closing · 数据流</h1>
-  <p>轮末询问与续跑的路径，以及署名缺口的位置。六节固定：接口约定 / 数据怎么走 / 出错怎么办 / 不提供什么 / 相关条目 / 还没定的事。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.closing</code> · 续跑走 agent.steer · <b>缺插件署名（缺陷）</b></div>
+  <div class="crumb">docs/plugin-plan · runtime · turn-closing</div>
+  <h1>turn-closing · Data flow</h1>
+  <p>The path of the end-of-turn query and the continuation, and where the attribution gap sits. Six fixed sections: API contract / How data flows / Error handling / What is not provided / Related entries / Open questions.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.closing</code> · continuation goes through agent.steer · <b>plugin attribution missing (defect)</b></div>
 </header>
 
 <main>
-<!-- ============ 1 接口约定 ============ -->
+<!-- ============ 1 API contract ============ -->
 <section>
-  <h2><span class="n">1</span>接口约定 <span class="tag proposal">建议</span></h2>
-    <p class="lead">无界面钩子，<code>runtime.turn.closing</code>。轮末被动询问。</p>
+  <h2><span class="n">1</span>API contract <span class="tag proposal">Proposal</span></h2>
+    <p class="lead">A headless hook, <code>runtime.turn.closing</code>. A passive query at turn end.</p>
 <pre><span class="c">// 轮末：宿主问要不要续</span>
 pi.on(<span class="k">"turn_closing"</span>, <span class="k">async</span> () =&gt; {
   <span class="k">if</span> (needMore()) <span class="k">return</span> { <span class="k">continue</span>: <span class="k">true</span>, <span class="k">message</span>: <span class="c">"还有两项未完成，请继续"</span> };
@@ -126,119 +126,119 @@ pi.on(<span class="k">"turn_closing"</span>, <span class="k">async</span> () =&g
 });
 <span class="c">// 续跑：agent.steer({ role: "user" }) 注入——无插件署名（缺陷）</span></pre>
     <table>
-    <thead><tr><th>方面</th><th>内容</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">输入</td><td>轮末上下文（薄）</td></tr>
-      <tr><td class="id">输出</td><td>继续（可带建议消息）/ 不续</td></tr>
-      <tr><td class="id">续跑通道</td><td><code>agent.steer({ role: "user" })</code></td></tr>
-      <tr><td class="id">署名</td><td><b>无</b>（缺陷）——有署名的是 turn-continue → queuePush</td></tr>
-      <tr><td class="id">预算</td><td>每次运行最多续若干轮（现值 4）</td></tr>
-      <tr><td class="id">权限</td><td><code>runtime.turn.closing</code></td></tr>
+      <tr><td class="id">Input</td><td>The end-of-turn context (thin)</td></tr>
+      <tr><td class="id">Output</td><td>Continue (optionally with a suggested message) / do not continue</td></tr>
+      <tr><td class="id">Continuation channel</td><td><code>agent.steer({ role: "user" })</code></td></tr>
+      <tr><td class="id">Attribution</td><td><b>None</b> (defect) - the one with attribution is turn-continue → queuePush</td></tr>
+      <tr><td class="id">Budget</td><td>At most a few continuation rounds per run (currently 4)</td></tr>
+      <tr><td class="id">Permission</td><td><code>runtime.turn.closing</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 2 数据怎么走 ============ -->
+<!-- ============ 2 How data flows ============ -->
 <section>
-  <h2><span class="n">2</span>数据怎么走 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">2</span>How data flows <span class="tag verified">Verified</span></h2>
     <div class="legend">
-    <span><span class="chip host">host</span> 宿主 / 内核</span>
-    <span><span class="chip slot">slot</span> 钩子边界</span>
-    <span><span class="chip plugin">plugin</span> 插件</span>
+    <span><span class="chip host">host</span> host / core</span>
+    <span><span class="chip slot">slot</span> hook boundary</span>
+    <span><span class="chip plugin">plugin</span> plugin</span>
   </div>
   <div class="flow">
     <div class="flow-head">
-      <div class="h">宿主</div>
-      <div class="s">钩子边界</div>
-      <div class="p">插件</div>
+      <div class="h">host</div>
+      <div class="s">hook boundary</div>
+      <div class="p">plugin</div>
     </div>
     <div class="flow-body">
       <div class="lane"><ul>
-          <li><span class="what">一轮跑完</span><span class="why">准备收束</span></li>
-          <li><span class="what">问插件要不要续</span><span class="why">turn_closing</span></li>
-          <li><span class="what">第一个 continue 生效</span><span class="why">默认注入一条消息</span></li>
-          <li><span class="what">agent.steer 续跑</span><span class="why">无插件署名（缺陷）</span></li>
+          <li><span class="what">Turn finished</span><span class="why">about to close</span></li>
+          <li><span class="what">Asks plugins whether to continue</span><span class="why">turn_closing</span></li>
+          <li><span class="what">First continue wins</span><span class="why">one message injected by default</span></li>
+          <li><span class="what">agent.steer continues</span><span class="why">no plugin attribution (defect)</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">runtime.turn.closing</span><span class="why">被动询问</span></li>
-          <li><span class="what">预算封顶</span><span class="why">现值 4</span></li>
-          <li><span class="what">沙箱缺口</span><span class="why">未接（ADR 0300）</span></li>
+          <li><span class="what">runtime.turn.closing</span><span class="why">passive query</span></li>
+          <li><span class="what">Capped by budget</span><span class="why">currently 4</span></li>
+          <li><span class="what">Sandbox gap</span><span class="why">not wired (ADR 0300)</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">轮末被问</span><span class="why">可带建议消息</span></li>
-          <li><span class="what">continue / 不续</span><span class="why">只出建议</span></li>
-          <li><span class="what">不能改历史</span><span class="why">只影响要不要再跑</span></li>
+          <li><span class="what">Asked at turn end</span><span class="why">may include a suggested message</span></li>
+          <li><span class="what">continue / do not continue</span><span class="why">suggestions only</span></li>
+          <li><span class="what">Cannot change history</span><span class="why">only affects whether another round runs</span></li>
       </ul></div>
     </div>
     <div class="arrow-row">
-      <div class="x">→ 询问</div>
+      <div class="x">→ query</div>
       <div class="x">continue → steer</div>
-      <div class="y">← 建议 / 不续</div>
+      <div class="y">← suggestion / no continuation</div>
     </div>
   </div>
-  <h3>一次续跑的一生</h3>
+  <h3>Life of one continuation</h3>
     <table>
-    <thead><tr><th>时刻</th><th>发生什么</th></tr></thead>
+    <thead><tr><th>moment</th><th>what happens</th></tr></thead>
     <tbody>
-      <tr><td class="id">收束前</td><td>宿主发出轮末询问</td></tr>
-      <tr><td class="id">插件</td><td>建议继续（可带一条消息）或不续</td></tr>
-      <tr><td class="id">裁决</td><td>多个插件时第一个 continue 生效</td></tr>
-      <tr><td class="id">续跑</td><td><code>agent.steer({ role: "user" })</code> 注入消息并跑下一轮——<b>该消息无插件署名（缺陷）</b></td></tr>
-      <tr><td class="id">对照</td><td>turn-continue → <code>queuePush</code> 会补 pluginId / pluginLabel</td></tr>
+      <tr><td class="id">Before closing</td><td>The host issues the end-of-turn query</td></tr>
+      <tr><td class="id">Plugin</td><td>Suggests continuing (optionally with a message) or not</td></tr>
+      <tr><td class="id">Arbitration</td><td>With several plugins, the first continue wins</td></tr>
+      <tr><td class="id">Continuation</td><td><code>agent.steer({ role: "user" })</code> injects the message and runs the next turn - <b>that message has no plugin attribution (defect)</b></td></tr>
+      <tr><td class="id">Compare</td><td>turn-continue → <code>queuePush</code> adds pluginId / pluginLabel</td></tr>
     </tbody>
   </table>
-  <div class="callout error"><b>续跑路径缺署名。</b>steer 注入的是匿名 user 消息；用户看不出插件建议过续跑。有署名的是 <code>runtime/turn-continue/</code> 的 queuePush。文档互为对照。</div>
+  <div class="callout error"><b>The continuation path lacks attribution.</b> What steer injects is an anonymous user message; the user cannot tell that a plugin suggested continuing. The one with attribution is <code>runtime/turn-continue/</code>'s queuePush. The documents are cross-references for each other.</div>
 </section>
 
-<!-- ============ 3 出错怎么办 ============ -->
+<!-- ============ 3 Error handling ============ -->
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>情况</th><th>结果</th><th>靠什么保证</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>guaranteed by</th></tr></thead>
     <tbody>
-      <tr><td class="id">多个插件 continue</td><td>第一个生效，其余忽略</td><td>裁决规则</td></tr>
-      <tr><td class="id">预算用尽</td><td>不再续，正常收束</td><td>续跑上限（现值 4）</td></tr>
-      <tr><td class="id">插件抛错</td><td>视为不续 + 诊断</td><td>运行器隔离</td></tr>
-      <tr><td class="id">超时</td><td>视为不续</td><td>结果性询问的预算</td></tr>
-      <tr><td class="id">沙箱插件</td><td>目前收不到</td><td>ADR 0300</td></tr>
+      <tr><td class="id">Several plugins continue</td><td>The first wins; the rest are ignored</td><td>Arbitration rule</td></tr>
+      <tr><td class="id">Budget exhausted</td><td>No further continuation; the turn closes normally</td><td>Continuation cap (currently 4)</td></tr>
+      <tr><td class="id">Plugin throws</td><td>Treated as no continuation plus a diagnostic</td><td>Runner isolation</td></tr>
+      <tr><td class="id">Timeout</td><td>Treated as no continuation</td><td>Result-style query budget</td></tr>
+      <tr><td class="id">Sandbox plugin</td><td>Currently cannot receive it</td><td>ADR 0300</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 4 不提供什么 ============ -->
+<!-- ============ 4 What is not provided ============ -->
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>不给</th><th>为什么</th></tr></thead>
+    <thead><tr><th>not provided</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td class="id">插件署名（当前）</td><td><b>缺陷：steer 路径不带署名</b>——不是故意不给，是对齐 queuePush 前的缺口</td></tr>
-      <tr><td class="id">改历史消息</td><td>只能建议再跑，不能改写已有行</td></tr>
-      <tr><td class="id">无限续跑</td><td>有预算</td></tr>
-      <tr><td class="id">写权限</td><td>轮末只出建议</td></tr>
+      <tr><td class="id">Plugin attribution (currently)</td><td><b>Defect: the steer path carries no attribution</b> - not withheld on purpose, but a gap pending alignment with queuePush</td></tr>
+      <tr><td class="id">Changing historical messages</td><td>It can only suggest another round, not rewrite existing rows</td></tr>
+      <tr><td class="id">Unbounded continuation</td><td>There is a budget</td></tr>
+      <tr><td class="id">Write permission</td><td>At turn end it only makes suggestions</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 5 相关条目 ============ -->
+<!-- ============ 5 Related entries ============ -->
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
       <table>
-    <thead><tr><th>谁</th><th>关系</th><th>位置</th></tr></thead>
+    <thead><tr><th>who</th><th>relation</th><th>location</th></tr></thead>
     <tbody>
-      <tr><td class="id">turn-continue</td><td>插件主动续跑；<b>有署名</b>（queuePush）；与本页互为对照——closing 续跑路径缺署名</td><td><code>runtime/turn-continue/</code></td></tr>
-      <tr><td class="id">abort-turn</td><td>续跑起来后用户 / 插件可停</td><td><code>runtime/abort-turn/</code></td></tr>
-      <tr><td class="id">ADR 0303</td><td>权限与交付语义</td><td><code>docs/adr/0303</code></td></tr>
+      <tr><td class="id">turn-continue</td><td>A plugin actively continuing; <b>with attribution</b> (queuePush); a cross-reference with this page - closing's continuation path lacks attribution</td><td><code>runtime/turn-continue/</code></td></tr>
+      <tr><td class="id">abort-turn</td><td>Once a continuation is running, the user / a plugin can stop it</td><td><code>runtime/abort-turn/</code></td></tr>
+      <tr><td class="id">ADR 0303</td><td>Permissions and delivery semantics</td><td><code>docs/adr/0303</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 6 还没定的事 ============ -->
+<!-- ============ 6 Open questions ============ -->
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-    <p style="color:var(--text-2)">续跑要不要补署名（消缺陷）、预算值、并发裁决、SDK 载荷——见 requirements.html 的「本轮拍板」。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+    <p style="color:var(--text-2)">Whether continuation should gain attribution (to close the defect), the budget value, concurrent arbitration, the SDK payload - see "Decisions this round" in requirements.html.</p>
 </section>
 
-<p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+<p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

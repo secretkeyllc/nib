@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>keyboard.registerGlobalShortcut · 数据流</title>
+<title>keyboard.registerGlobalShortcut · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,94 +49,94 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">keyboard.registerGlobalShortcut</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>keyboard.registerGlobalShortcut · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>keyboard.registerGlobalShortcut · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.keyboard.registerGlobalShortcut(input: { id: string; accelerator: string; command: string }): Promise&lt;PluginGlobalShortcut&gt;</pre>
-  <p class="lead">把一个系统全局加速键绑定到本插件命令，宿主持有并做冲突检查。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Bind a system-wide accelerator to a command from this plugin; the host owns the binding and checks for conflicts. Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>field</th><th>type</th><th>required</th><th>notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">id</td><td class="id">string</td><td>是</td><td>条目 id，本插件内唯一；同 id 再注册会替换加速键。</td></tr>
-      <tr><td class="id">accelerator</td><td class="id">string</td><td>是</td><td>加速键串，如 <code>CommandOrControl+Shift+X</code>。</td></tr>
-      <tr><td class="id">command</td><td class="id">string</td><td>是</td><td>要触发的命令 id，必须已通过 <code>commands.register</code> 注册。</td></tr>
+      <tr><td class="id">id</td><td class="id">string</td><td>Yes</td><td>The entry id, unique within this plugin; registering the same id again replaces its accelerator.</td></tr>
+      <tr><td class="id">accelerator</td><td class="id">string</td><td>Yes</td><td>The accelerator string, for example <code>CommandOrControl+Shift+X</code>.</td></tr>
+      <tr><td class="id">command</td><td class="id">string</td><td>Yes</td><td>The id of the command to trigger, which must already be registered through <code>commands.register</code>.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>field</th><th>type</th><th>notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">id</td><td class="id">string</td><td>回显条目 id。</td></tr>
-      <tr><td class="id">accelerator</td><td class="id">string</td><td>回显加速键串。</td></tr>
-      <tr><td class="id">command</td><td class="id">string</td><td>回显命令 id。</td></tr>
-      <tr><td class="id">registered</td><td class="id">boolean</td><td><code>false</code> 表示加速键被系统或其他持有者占用，未注册成功。</td></tr>
-      <tr><td class="id">error</td><td class="id">string?</td><td>注册失败原因，仅失败时出现。</td></tr>
+      <tr><td class="id">id</td><td class="id">string</td><td>Echoes the entry id.</td></tr>
+      <tr><td class="id">accelerator</td><td class="id">string</td><td>Echoes the accelerator string.</td></tr>
+      <tr><td class="id">command</td><td class="id">string</td><td>Echoes the command id.</td></tr>
+      <tr><td class="id">registered</td><td class="id">boolean</td><td><code>false</code> means the accelerator is held by the system or another owner and registration did not succeed.</td></tr>
+      <tr><td class="id">error</td><td class="id">string?</td><td>The reason registration failed; present only on failure.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{ "id": "quick-open", "accelerator": "CommandOrControl+Shift+X", "command": "demo.hello.open-panel" }</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>{
   "id": "quick-open",
   "accelerator": "CommandOrControl+Shift+X",
   "command": "demo.hello.open-panel",
   "registered": true
 }</pre>
-  <div class="callout"><b>一句话边界。</b>只能绑到本插件自己的命令；加速键被占用时不抢占，结果 <code>registered: false</code>，只能换键。无键盘钩子、无原始按键流。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> It can only bind commands from this plugin; when an accelerator is taken it never grabs it back, the result is <code>registered: false</code>, and another key is the only option. No keyboard hooks and no raw key stream.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li>插件提交 <code>{ id, accelerator, command }</code>。</li>
-    <li>校验：<code>command</code> 必须已注册，否则拒绝（<code>INVALID_ARGUMENT</code>）；平台不支持则 <code>UNSUPPORTED</code>。</li>
-    <li>宿主经 Electron <code>globalShortcut</code> 向系统登记加速键，持续到注销或插件卸载；清单 <code>contributes.globalShortcuts</code> 声明的 <code>default</code> 条目在加载后也自动尝试。</li>
-    <li>Promise 兑现为 <code>PluginGlobalShortcut</code>：失败不抛出，<code>registered: false</code> 且 <code>error</code> 带原因（码见第 3 节），被拒的重注册保留原绑定。</li>
-    <li>加速键触发时宿主执行 <code>command</code> 对应命令的 <code>run</code>。</li>
+    <li>The plugin submits <code>{ id, accelerator, command }</code>.</li>
+    <li>Validate: <code>command</code> must already be registered, otherwise the call is rejected (<code>INVALID_ARGUMENT</code>); an unsupported platform yields <code>UNSUPPORTED</code>.</li>
+    <li>The host registers the accelerator with the OS through Electron <code>globalShortcut</code>, and it lasts until it is unregistered or the plugin unloads; <code>default</code> entries declared in <code>contributes.globalShortcuts</code> are also attempted automatically after load.</li>
+    <li>The Promise resolves to <code>PluginGlobalShortcut</code>: failures are not thrown, they return <code>registered: false</code> with the reason in <code>error</code> (codes in section 3), and a rejected re-registration keeps the original binding.</li>
+    <li>When the accelerator fires, the host runs the <code>run</code> of the command named by <code>command</code>.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>direction</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td><code>{ id, accelerator, command }</code> 注册请求。</td></tr>
-      <tr><td>宿主 → 系统</td><td>向操作系统登记/释放全局加速键（Electron <code>globalShortcut</code>）。</td></tr>
-      <tr><td>宿主 → 插件</td><td>加速键触发时执行 <code>command</code> 对应的 <code>run</code>。</td></tr>
+      <tr><td>plugin → host</td><td>The <code>{ id, accelerator, command }</code> registration request.</td></tr>
+      <tr><td>host → system</td><td>Register or release the global accelerator with the operating system (Electron <code>globalShortcut</code>).</td></tr>
+      <tr><td>host → plugin</td><td>When the accelerator fires, run the <code>run</code> of the command named by <code>command</code>.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>code</th></tr></thead>
     <tbody>
-      <tr><td>平台不支持全局快捷键</td><td>Promise 拒绝</td><td class="id">UNSUPPORTED</td></tr>
-      <tr><td>入参缺字段或命令未注册</td><td>Promise 拒绝</td><td class="id">INVALID_ARGUMENT</td></tr>
-      <tr><td>加速键已被其他程序占用</td><td>Promise 兑现为 <code>registered: false</code></td><td class="id">SHORTCUT_CONFLICT</td></tr>
-      <tr><td>加速键当前不可用</td><td>Promise 兑现为 <code>registered: false</code></td><td class="id">SHORTCUT_UNAVAILABLE</td></tr>
-      <tr><td>加速键串格式非法</td><td>Promise 兑现为 <code>registered: false</code></td><td class="id">INVALID_ACCELERATOR</td></tr>
-      <tr><td>超出每插件 8 条上限</td><td>Promise 兑现为 <code>registered: false</code></td><td class="id">LIMIT_EXCEEDED</td></tr>
+      <tr><td>The platform does not support global shortcuts</td><td>Promise rejection</td><td class="id">UNSUPPORTED</td></tr>
+      <tr><td>A required field is missing, or the command is not registered</td><td>Promise rejection</td><td class="id">INVALID_ARGUMENT</td></tr>
+      <tr><td>The accelerator is already held by another program</td><td>Promise resolves to <code>registered: false</code></td><td class="id">SHORTCUT_CONFLICT</td></tr>
+      <tr><td>The accelerator is currently unavailable</td><td>Promise resolves to <code>registered: false</code></td><td class="id">SHORTCUT_UNAVAILABLE</td></tr>
+      <tr><td>The accelerator string has an invalid format</td><td>Promise resolves to <code>registered: false</code></td><td class="id">INVALID_ACCELERATOR</td></tr>
+      <tr><td>The eight-per-plugin cap is exceeded</td><td>Promise resolves to <code>registered: false</code></td><td class="id">LIMIT_EXCEEDED</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">无键盘钩子、无原始按键流；不抢系统/宿主已占用加速键。</p>
-  <div class="callout"><b>宿主保证 / 已接受代价：</b>宿主保证：拿不到按键事件流。已接受代价：冲突时不会抢占，只能换键。</div>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">No keyboard hooks and no raw key stream; an accelerator already taken by the system or the host is never claimed.</p>
+  <div class="callout"><b>Host guarantees / accepted costs:</b> Host guarantee: no key-event stream is exposed. Accepted cost: a conflict is never grabbed back, so another key is the only option.</div>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/keyboard.unregisterGlobalShortcut</code></li>
     <li><code>host-api/keyboard.listGlobalShortcuts</code></li>
@@ -144,8 +144,8 @@
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

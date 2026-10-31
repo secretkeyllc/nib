@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>草稿读写 · 数据流</title>
+<title>Draft read/write - Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -64,158 +64,158 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <a href="index.html">草稿读写</a>
+  <a href="index.html">Draft read/write</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · render/draft</div>
-  <h1>草稿读写 · 数据流</h1>
-  <p>草稿快照怎么读、文字怎么写回去、变化怎么推给插件。六节固定：接口约定 / 数据怎么走 / 出错怎么办 / 不提供什么 / 相关条目 / 还没定的事。</p>
-  <div class="meta">status: draft · issue #545 · #561 · 字段名是建议值，结构是拍板的</div>
+  <h1>Draft read/write - Data flow</h1>
+  <p>How the draft snapshot is read, how text is written back, and how changes are pushed to plugins. Six fixed sections: API contract / how data flows / error handling / what is not provided / related entries / open questions.</p>
+  <div class="meta">status: draft - issue #545 - #561 - field names are proposals; the structure is decided</div>
 </header>
 
 <main>
 
-<!-- ============ 1 接口约定 ============ -->
+<!-- ============ 1 API contract ============ -->
 <section>
-  <h2><span class="n">1</span>接口约定 <span class="tag decided">已拍板</span></h2>
-  <p class="lead">三个方法，写分主路径与受限路径。草稿变化走推送。</p>
+  <h2><span class="n">1</span>API contract <span class="tag decided">Decided</span></h2>
+  <p class="lead">Three methods; writing splits into a primary path and a restricted path. Draft changes arrive by push.</p>
 
-<pre><span class="c">// ① 读快照</span>
+<pre><span class="c">// (1) read the snapshot</span>
 composer.readDraft()
 <span class="c">// → { text, marks[], generation }</span>
 
-<span class="c">// ② 插入（主路径）</span>
+<span class="c">// (2) insert (primary path)</span>
 composer.insertText({ <span class="k">text</span> })
 <span class="c">// → { ok: true, generation }</span>
 
-<span class="c">// ③ 整体替换（受限：CAS + 非聚焦 + 非远端）</span>
+<span class="c">// (3) whole replacement (restricted: CAS + unfocused + non-remote)</span>
 composer.replaceDraft({ <span class="k">expectedGeneration</span>, <span class="k">text</span>, <span class="k">marks</span>? })
-<span class="c">// → { ok: true, generation } 或整次拒绝</span></pre>
+<span class="c">// -> { ok: true, generation }, or the whole call is rejected</span></pre>
 
-  <h3>字段</h3>
+  <h3>Fields</h3>
   <table>
-    <thead><tr><th>字段</th><th>含义</th></tr></thead>
+    <thead><tr><th>field</th><th>meaning</th></tr></thead>
     <tbody>
-      <tr><td class="id">text</td><td>输入框当前文字；记号占内部字符</td></tr>
-      <tr><td class="id">marks[]</td><td>记号列表（label / 发送策略 / 私有数据 / 位置），按出现顺序</td></tr>
-      <tr><td class="id">generation</td><td>草稿世代号；每次草稿变化 +1。replace 时用 <code>expectedGeneration</code> 对账</td></tr>
-      <tr><td class="id">expectedGeneration</td><td>只在 replaceDraft 出现：必须等于当前值，对不上整次拒绝</td></tr>
+      <tr><td class="id">text</td><td>The composer's current text; tokens occupy characters within it</td></tr>
+      <tr><td class="id">marks[]</td><td>The token list (label / send policy / private data / position), in order of appearance</td></tr>
+      <tr><td class="id">generation</td><td>The draft generation; increments on every change. replace reconciles against <code>expectedGeneration</code></td></tr>
+      <tr><td class="id">expectedGeneration</td><td>Present only on replaceDraft: must equal the current value, or the whole call is rejected</td></tr>
     </tbody>
   </table>
 
-  <h3>replace 三道闸</h3>
+  <h3>The three replace gates</h3>
   <table>
-    <thead><tr><th>闸</th><th>不过会怎样</th></tr></thead>
+    <thead><tr><th>gate</th><th>what happens if it fails</th></tr></thead>
     <tbody>
-      <tr><td class="id">① CAS 世代号</td><td><code>expectedGeneration</code> ≠ 当前 → 整次拒绝（先到先得，不静默盖别人）</td></tr>
-      <tr><td class="id">② 输入框非聚焦</td><td>用户正在输入框里打字 → 拒绝（防吃字）</td></tr>
-      <tr><td class="id">③ 非远端来源</td><td>调用来自异步回调 / 网络返回 / 定时器 → 拒绝，改走 insertText</td></tr>
+      <tr><td class="id">(1) CAS generation</td><td><code>expectedGeneration</code> != current -> the whole call is rejected (first writer wins; no silent overwrite)</td></tr>
+      <tr><td class="id">(2) Composer unfocused</td><td>The user is typing in the composer -> rejected (so their text is not eaten)</td></tr>
+      <tr><td class="id">(3) Not a remote origin</td><td>The call comes from an async callback, a network response, or a timer -> rejected; use insertText instead</td></tr>
     </tbody>
   </table>
 
-  <h3>出站分层（公共）</h3>
+  <h3>Outbound layering (shared)</h3>
   <table>
-    <thead><tr><th>层</th><th>词</th><th>约束</th></tr></thead>
+    <thead><tr><th>layer</th><th>verb</th><th>constraint</th></tr></thead>
     <tbody>
-      <tr><td class="id">核心 H</td><td><code>entry.copy</code> · <code>message.mutate</code> · <b><code>composer.insertText</code></b> · <code>attachments.add</code></td><td>insert 是写草稿主路径</td></tr>
-      <tr><td class="id">核心 P</td><td><code>plugin.call</code></td><td>白名单 · ≤64KB · QPS · 2s 超时 · 熔断 · pluginId 宿主注入</td></tr>
-      <tr><td class="id">核心 F</td><td><code>measureHeight</code> · <code>deriveSummary</code></td><td>同步 16ms · 超时回默认 · F 内禁 H/P</td></tr>
-      <tr><td class="id">可选 H</td><td>toast · ask · clipboard.write · host.open · <b><code>composer.readDraft</code></b> · attachments.list/remove</td><td>clipboard.write 须同次用户手势</td></tr>
-      <tr><td class="id">拒绝</td><td><b>远端来源 replaceDraft</b> · 裸路径附件</td><td>不得静默改用户数据</td></tr>
+      <tr><td class="id">core H</td><td><code>entry.copy</code> - <code>message.mutate</code> - <b><code>composer.insertText</code></b> - <code>attachments.add</code></td><td>insert is the primary way to write the draft</td></tr>
+      <tr><td class="id">core P</td><td><code>plugin.call</code></td><td>allowlist - 64KB cap - QPS - 2s timeout - circuit breaker - pluginId injected by the host</td></tr>
+      <tr><td class="id">core F</td><td><code>measureHeight</code> - <code>deriveSummary</code></td><td>Synchronous 16ms - timeout falls back to default - H/P forbidden inside F</td></tr>
+      <tr><td class="id">optional H</td><td>toast - ask - clipboard.write - host.open - <b><code>composer.readDraft</code></b> - attachments.list/remove</td><td>clipboard.write requires the same user gesture</td></tr>
+      <tr><td class="id">rejected</td><td><b>Remote-origin replaceDraft</b> - bare-path attachments</td><td>Must never silently change user data</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 2 数据怎么走 ============ -->
+<!-- ============ 2 How data flows ============ -->
 <section>
-  <h2><span class="n">2</span>数据怎么走 <span class="tag decided">已拍板</span></h2>
+  <h2><span class="n">2</span>How data flows <span class="tag decided">Decided</span></h2>
   <div class="legend">
-    <span><span class="chip host">host</span> 输入框 / 草稿登记</span>
-    <span><span class="chip slot">slot</span> 方法边界</span>
-    <span><span class="chip plugin">plugin</span> 插件渲染器</span>
+    <span><span class="chip host">host</span> composer / draft registry</span>
+    <span><span class="chip slot">slot</span> method boundary</span>
+    <span><span class="chip plugin">plugin</span> plugin renderer</span>
   </div>
 
   <table>
-    <thead><tr><th>路径</th><th>方向</th><th>怎么走</th></tr></thead>
+    <thead><tr><th>path</th><th>direction</th><th>how it travels</th></tr></thead>
     <tbody>
-      <tr><td class="id">读</td><td>插件 → 宿主 → 插件</td><td><code>readDraft()</code> 同步取一份 <code>{ text, marks[], generation }</code> 快照</td></tr>
-      <tr><td class="id">插</td><td>插件 → 宿主</td><td><code>insertText</code> 在光标处落一段文字；成功后 <code>generation</code> +1</td></tr>
-      <tr><td class="id">换</td><td>插件 → 宿主</td><td><code>replaceDraft</code> 过三道闸后整体换掉；成功后 <code>generation</code> +1</td></tr>
-      <tr><td class="id">推</td><td>宿主 → 插件</td><td>草稿一变（用户打字、删改、插件写入），rendererData <code>draft</code> 推新快照。<b>不要轮询</b></td></tr>
+      <tr><td class="id">read</td><td>plugin -> host -> plugin</td><td><code>readDraft()</code> synchronously takes a <code>{ text, marks[], generation }</code> snapshot</td></tr>
+      <tr><td class="id">insert</td><td>plugin -> host</td><td><code>insertText</code> places a run of text at the caret; on success <code>generation</code> increments</td></tr>
+      <tr><td class="id">replace</td><td>plugin -> host</td><td><code>replaceDraft</code> swaps the whole draft once past the three gates; on success <code>generation</code> increments</td></tr>
+      <tr><td class="id">push</td><td>host -> plugin</td><td>Whenever the draft changes (user typing, edits, a plugin write), rendererData <code>draft</code> pushes a new snapshot. <b>Do not poll</b></td></tr>
     </tbody>
   </table>
 
-  <h3>递交模型</h3>
+  <h3>Delivery model</h3>
   <ul>
-    <li><b>请求 / 应答</b>：三个方法都是一问一答，返回值立刻落定。</li>
-    <li><b>推送</b>：草稿变化是宿主单向推；插件订阅 rendererData <code>draft</code> 即可，不需要也不提供定时拉取。</li>
-    <li><b>生命周期</b>：随会话走。切会话后旧快照作废，以新会话的推送为准。</li>
+    <li><b>Request / response</b>: all three methods are one question, one answer, and the return settles immediately.</li>
+    <li><b>Push</b>: draft changes travel one way from the host; a plugin subscribes to rendererData <code>draft</code>. Timed pulls are neither needed nor offered.</li>
+    <li><b>Lifetime</b>: it follows the session. After a switch the old snapshot is invalid and the new session's pushes take over.</li>
   </ul>
-  <div class="callout decided"><b>为什么不用轮询。</b>轮询会和推送形成两条来源，插件两边都听就会打架；而且轮询永远晚一拍。拍板：只推不拉。</div>
+  <div class="callout decided"><b>Why not polling.</b>Polling alongside pushing creates two sources, and a plugin listening to both ends up in conflict; polling is also always one beat late. Decision: push only, never pull.</div>
 </section>
 
-<!-- ============ 3 出错怎么办 ============ -->
+<!-- ============ 3 Error handling ============ -->
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag decided">Settled</span></h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>靠什么保证</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>guaranteed by</th></tr></thead>
     <tbody>
-      <tr><td class="id">generation 对不上</td><td>replace 整次拒绝；草稿不变</td><td>CAS 对账</td></tr>
-      <tr><td class="id">输入框正聚焦</td><td>replace 整次拒绝</td><td>非聚焦闸</td></tr>
-      <tr><td class="id">远端来源调用 replace</td><td>整次拒绝；应改走 insertText</td><td>来源闸</td></tr>
-      <tr><td class="id">text 里丢了宿主锚点记号</td><td>replace 整次拒绝</td><td>锚点保护</td></tr>
-      <tr><td class="id">没有会话</td><td>整次调用报错，不返回半截快照</td><td>会话检查</td></tr>
-      <tr><td class="id">插件被禁用 / 卸载</td><td>订阅拆除；挂起的写入作废</td><td>生命周期清理</td></tr>
-      <tr><td class="id">写入后 0.5s 内没显示</td><td>整次作废并报错（旧契约，沿用）</td><td>上屏时限</td></tr>
+      <tr><td class="id">Generation mismatch</td><td>replace rejects the whole call; the draft is unchanged</td><td>CAS reconciliation</td></tr>
+      <tr><td class="id">Composer is focused</td><td>replace rejects the whole call</td><td>Unfocused gate</td></tr>
+      <tr><td class="id">A remote origin calls replace</td><td>Whole call rejected; use insertText instead</td><td>Origin gate</td></tr>
+      <tr><td class="id">The text drops the host's anchor token</td><td>replace rejects the whole call</td><td>Anchor protection</td></tr>
+      <tr><td class="id">No session</td><td>The call errors out and no partial snapshot is returned</td><td>Session check</td></tr>
+      <tr><td class="id">Plugin disabled / unloaded</td><td>Subscriptions are torn down and pending writes are void</td><td>Lifecycle cleanup</td></tr>
+      <tr><td class="id">Nothing shows within 0.5s of the write</td><td>The whole call is voided with an error (carried over from the old contract)</td><td>On-screen deadline</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 4 不提供什么 ============ -->
+<!-- ============ 4 What is not provided ============ -->
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag decided">Settled</span></h2>
   <table>
-    <thead><tr><th>不给</th><th>为什么</th></tr></thead>
+    <thead><tr><th>not provided</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td class="id">轮询读草稿</td><td>只推不拉；轮询是第二条源</td></tr>
-      <tr><td class="id">远端来源的 replace</td><td>会吃掉用户正在打的字</td></tr>
-      <tr><td class="id">部分写入 / 静默覆盖</td><td>世代号对不上就整次拒绝</td></tr>
-      <tr><td class="id">动宿主锚点记号</td><td>锚点是编辑历史消息的路标</td></tr>
-      <tr><td class="id">附件读写</td><td>归 <code>render/attachments/</code></td></tr>
-      <tr><td class="id">发送时改写</td><td>归 <code>runtime/before-send/</code>；本目录只管输入框里的草稿</td></tr>
+      <tr><td class="id">Polling the draft</td><td>Push only, never pull; polling would be a second source</td></tr>
+      <tr><td class="id">replace from a remote origin</td><td>It would eat the text the user is typing</td></tr>
+      <tr><td class="id">Partial writes or silent overwrites</td><td>A generation mismatch rejects the whole call</td></tr>
+      <tr><td class="id">Touching the host anchor token</td><td>The anchor is the waypoint for editing a past message</td></tr>
+      <tr><td class="id">Attachment read/write</td><td>Belongs to <code>render/attachments/</code></td></tr>
+      <tr><td class="id">Rewriting at send time</td><td>Belongs to <code>runtime/before-send/</code>; this folder covers the composer draft only</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 5 相关条目 ============ -->
+<!-- ============ 5 Related entries ============ -->
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <table>
-    <thead><tr><th>谁</th><th>关系</th><th>位置</th></tr></thead>
+    <thead><tr><th>who</th><th>relationship</th><th>location</th></tr></thead>
     <tbody>
-      <tr><td class="id">公共契约</td><td>出站分层（insert 核心 H · read 可选 H · 远端 replace 拒绝）</td><td><a href="../../slot-contract.html">../../slot-contract.html</a></td></tr>
-      <tr><td class="id">输入区</td><td>草稿与记号的宿主形态、界面槽与触发符</td><td><a href="../../ui/composer/index.html">../../ui/composer/</a></td></tr>
-      <tr><td class="id">附件</td><td>附件三动作，与草稿分开管</td><td><code>render/attachments/</code></td></tr>
-      <tr><td class="id">确认卡</td><td>问完用户后常接 insertText</td><td><code>render/ask/</code></td></tr>
-      <tr><td class="id">before-send</td><td>发送前的拦截改写——比草稿更晚的一步</td><td><code>runtime/before-send/</code></td></tr>
+      <tr><td class="id">Shared contract</td><td>Outbound layering (insert is core H - read is optional H - remote replace is rejected)</td><td><a href="../../slot-contract.html">../../slot-contract.html</a></td></tr>
+      <tr><td class="id">Composer</td><td>The host shape of the draft and tokens, the UI slot, and the trigger characters</td><td><a href="../../ui/composer/index.html">../../ui/composer/</a></td></tr>
+      <tr><td class="id">Attachments</td><td>The three attachment actions, managed separately from the draft</td><td><code>render/attachments/</code></td></tr>
+      <tr><td class="id">Confirmation card</td><td>Often followed by insertText once the user has answered</td><td><code>render/ask/</code></td></tr>
+      <tr><td class="id">before-send</td><td>Interception and rewriting at send time - a step later than the draft</td><td><code>runtime/before-send/</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 6 还没定的事 ============ -->
+<!-- ============ 6 Open questions ============ -->
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
+  <h2><span class="n">6</span>Open questions</h2>
   <ul>
-    <li>marks 字段名定稿（旧契约叫 tokens，本目录用 marks；SDK 名待定）。</li>
-    <li>generation 计数溢出 / 重开会话后的起点。</li>
-    <li>insertText 是否接受记号占位（当前拍板为纯文字）。</li>
+    <li>Finalizing the marks field name (the old contract called them tokens; this folder uses marks; the SDK name is TBD).</li>
+    <li>Generation counter overflow and the starting value after reopening a session.</li>
+    <li>Whether insertText accepts token placeholders (currently decided as plain text only).</li>
   </ul>
 </section>
 

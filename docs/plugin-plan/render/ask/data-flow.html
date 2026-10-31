@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>确认卡 · 数据流</title>
+<title>Confirmation card - Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -64,133 +64,133 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <a href="index.html">确认卡</a>
+  <a href="index.html">Confirmation card</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · render/ask</div>
-  <h1>确认卡 · 数据流</h1>
-  <p>一次 <code>ui.ask</code> 的往返：插件发起、宿主排卡、用户点按钮、结果落定。六节固定：接口约定 / 数据怎么走 / 出错怎么办 / 不提供什么 / 相关条目 / 还没定的事。</p>
-  <div class="meta">status: draft · issue #545 · #561 · 字段名是建议值，结构是拍板的</div>
+  <h1>Confirmation card - Data flow</h1>
+  <p>One <code>ui.ask</code> round trip: the plugin initiates, the host queues the card, the user presses a button, the result settles. Six fixed sections: API contract / how data flows / error handling / what is not provided / related entries / open questions.</p>
+  <div class="meta">status: draft - issue #545 - #561 - field names are proposals; the structure is decided</div>
 </header>
 
 <main>
 
-<!-- ============ 1 接口约定 ============ -->
+<!-- ============ 1 API contract ============ -->
 <section>
-  <h2><span class="n">1</span>接口约定 <span class="tag decided">已拍板</span></h2>
-  <p class="lead">一个渲染侧接口 <code>ui.ask</code>，出站分层里的<b>可选 H</b>。返回恒为对象。</p>
+  <h2><span class="n">1</span>API contract <span class="tag decided">Decided</span></h2>
+  <p class="lead">One renderer interface, <code>ui.ask</code>, in the <b>optional H</b> tier of the outbound layering. The return is always an object.</p>
 
-<pre><span class="c">// 插件渲染器内</span>
+<pre><span class="c">// inside the plugin renderer</span>
 <span class="k">const</span> { <span class="k">choice</span>, <span class="k">reason</span> } = <span class="k">await</span> pi.ui.ask({
   <span class="k">title</span>, <span class="k">description</span>?, <span class="k">actions</span>: [{ <span class="k">id</span>, <span class="k">label</span>, <span class="k">variant</span>? }]
 })
-<span class="c">// choice = 被按下的按钮 id</span>
-<span class="c">// reason = 仅非正常点击时出现，例如 "plugin-unloaded"</span></pre>
+<span class="c">// choice = id of the pressed button</span>
+<span class="c">// reason = present only for abnormal dismissal, e.g. "plugin-unloaded"</span></pre>
 
-  <h3>返回形状（恒定）</h3>
+  <h3>Return shape (fixed)</h3>
   <table>
-    <thead><tr><th>情况</th><th>返回</th></tr></thead>
+    <thead><tr><th>case</th><th>return</th></tr></thead>
     <tbody>
-      <tr><td class="id">用户点按钮</td><td><code>{ choice: "&lt;actionId&gt;" }</code></td></tr>
-      <tr><td class="id">插件被禁用 / 卸载</td><td><code>{ choice: "cancel", reason: "plugin-unloaded" }</code></td></tr>
+      <tr><td class="id">The user presses a button</td><td><code>{ choice: "&lt;actionId&gt;" }</code></td></tr>
+      <tr><td class="id">Plugin disabled / unloaded</td><td><code>{ choice: "cancel", reason: "plugin-unloaded" }</code></td></tr>
     </tbody>
   </table>
-  <div class="callout stop"><b>禁止 string | object 两态。</b>老契约里有时直接回按钮 id 字符串、卸载时回对象——调用方要写两套分支。现在一律 <code>{ choice, reason? }</code>。</div>
+  <div class="callout stop"><b>String-or-object returns are forbidden.</b> The old contract sometimes returned the button id as a string and sometimes an object on unload, forcing callers to write two branches. Everything is <code>{ choice, reason? }</code> now.</div>
 
-  <h3>出站分层（公共，本接口落在「可选 H」）</h3>
+  <h3>Outbound layering (shared; this interface sits in "optional H")</h3>
   <table>
-    <thead><tr><th>层</th><th>词</th><th>约束</th></tr></thead>
+    <thead><tr><th>layer</th><th>verb</th><th>constraint</th></tr></thead>
     <tbody>
-      <tr><td class="id">核心 H</td><td><code>entry.copy</code> · <code>message.mutate</code> · <code>composer.insertText</code> · <code>attachments.add</code></td><td>mutate 宿主确认 + 必审计；add 只收 <code>content|token</code></td></tr>
-      <tr><td class="id">核心 P</td><td><code>plugin.call</code></td><td>method 白名单 · ≤64KB · QPS · 2s 超时 · 熔断 <code>PLUGIN_CALL_DISABLED</code> · pluginId 宿主注入</td></tr>
-      <tr><td class="id">核心 F</td><td><code>measureHeight</code> · <code>deriveSummary</code></td><td>同步纯函数 · 16ms · 超时回默认 · F 内禁调 H/P</td></tr>
-      <tr><td class="id"><b>可选 H（本接口）</b></td><td><code>toast</code> · <b><code>ui.ask</code></b> · <code>clipboard.write</code> · <code>host.open</code> · <code>composer.readDraft</code> · <code>attachments.list/remove</code></td><td>clipboard.write 须同次用户手势</td></tr>
-      <tr><td class="id">拒绝</td><td>远端来源的 <code>replaceDraft</code> · 裸路径附件</td><td>不得静默改用户数据</td></tr>
+      <tr><td class="id">core H</td><td><code>entry.copy</code> - <code>message.mutate</code> - <code>composer.insertText</code> - <code>attachments.add</code></td><td>mutate needs host confirmation and is always audited; add accepts only <code>content|token</code></td></tr>
+      <tr><td class="id">core P</td><td><code>plugin.call</code></td><td>method allowlist - 64KB cap - QPS limit - 2s timeout - circuit breaker <code>PLUGIN_CALL_DISABLED</code> - pluginId injected by the host</td></tr>
+      <tr><td class="id">core F</td><td><code>measureHeight</code> - <code>deriveSummary</code></td><td>Synchronous pure function - 16ms - timeout falls back to default - H/P calls forbidden inside F</td></tr>
+      <tr><td class="id"><b>optional H (this interface)</b></td><td><code>toast</code> - <b><code>ui.ask</code></b> - <code>clipboard.write</code> - <code>host.open</code> - <code>composer.readDraft</code> - <code>attachments.list/remove</code></td><td>clipboard.write requires the same user gesture</td></tr>
+      <tr><td class="id">rejected</td><td>Remote-origin <code>replaceDraft</code> - bare-path attachments</td><td>Must never silently change user data</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 2 数据怎么走 ============ -->
+<!-- ============ 2 How data flows ============ -->
 <section>
-  <h2><span class="n">2</span>数据怎么走 <span class="tag decided">已拍板</span></h2>
+  <h2><span class="n">2</span>How data flows <span class="tag decided">Decided</span></h2>
   <div class="legend">
-    <span><span class="chip host">host</span> 宿主确认卡</span>
-    <span><span class="chip slot">slot</span> 接口边界</span>
-    <span><span class="chip plugin">plugin</span> 插件渲染器</span>
+    <span><span class="chip host">host</span> host confirmation card</span>
+    <span><span class="chip slot">slot</span> interface boundary</span>
+    <span><span class="chip plugin">plugin</span> plugin renderer</span>
   </div>
 
   <table>
-    <thead><tr><th>时刻</th><th>谁</th><th>发生什么</th></tr></thead>
+    <thead><tr><th>moment</th><th>who</th><th>what happens</th></tr></thead>
     <tbody>
-      <tr><td class="id">调用</td><td>插件</td><td><code>await pi.ui.ask(...)</code>，入参校验通过后进宿主卡片队列</td></tr>
-      <tr><td class="id">排队</td><td>宿主</td><td>插件确认卡先进先出；<b>权限审批卡随时插队</b>（安全优先，不是公平队列）</td></tr>
-      <tr><td class="id">上屏</td><td>宿主</td><td>轮到它时，固定卡壳出现在输入框上方同宽横栏；标题 / 说明 / 按钮由参数排版</td></tr>
-      <tr><td class="id">显示中</td><td>宿主</td><td>内容定格；卡里没有插件代码在跑</td></tr>
-      <tr><td class="id">点击</td><td>用户 → 宿主</td><td>按下按钮 → 卡片移除 → <code>Promise</code> 落定 <code>{ choice }</code> → 下一张上屏</td></tr>
-      <tr><td class="id">卸载</td><td>宿主</td><td>插件被禁用 / 卸载 → 卡片（含排队中的）移除，挂起的 <code>await</code> 落定 <code>{ choice:"cancel", reason:"plugin-unloaded" }</code></td></tr>
+      <tr><td class="id">Call</td><td>Plugin</td><td><code>await pi.ui.ask(...)</code>; once the arguments validate, the card enters the host queue</td></tr>
+      <tr><td class="id">Queueing</td><td>Host</td><td>Plugin confirmation cards are first in, first out; <b>a permission approval card jumps the queue at any time</b> (security first, not a fair queue)</td></tr>
+      <tr><td class="id">On screen</td><td>Host</td><td>When its turn comes, the fixed shell appears as a full-width bar above the composer; title, description, and buttons are laid out from the arguments</td></tr>
+      <tr><td class="id">While shown</td><td>Host</td><td>The content is fixed; no plugin code runs inside the card</td></tr>
+      <tr><td class="id">Click</td><td>User → host</td><td>A button is pressed -> the card is removed -> the <code>Promise</code> settles with <code>{ choice }</code> -> the next card appears</td></tr>
+      <tr><td class="id">Unload</td><td>Host</td><td>Plugin disabled / unloaded -> cards (including queued ones) are removed and the pending <code>await</code> settles with <code>{ choice:"cancel", reason:"plugin-unloaded" }</code></td></tr>
     </tbody>
   </table>
-  <div class="callout decided"><b>返回方向单一。</b>只有「按钮 id + 可选原因」这一条窄通道回插件；卡片拿不到会话内容，插件也拿不到卡壳内部结构。</div>
+  <div class="callout decided"><b>One narrow return path.</b> Only "button id plus optional reason" travels back to the plugin; the card receives no session content and the plugin receives no card internals.</div>
 </section>
 
-<!-- ============ 3 出错怎么办 ============ -->
+<!-- ============ 3 Error handling ============ -->
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag decided">Settled</span></h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>靠什么保证</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>guaranteed by</th></tr></thead>
     <tbody>
-      <tr><td class="id">调用参数不合法</td><td>调用被拒绝并带错误码（按钮超限、字段缺失），不产生卡片</td><td>入参校验</td></tr>
-      <tr><td class="id">插件被禁用 / 卸载</td><td>卡片移除；挂起的等待落定 <code>{ choice:"cancel", reason:"plugin-unloaded" }</code></td><td>插件生命周期清理</td></tr>
-      <tr><td class="id">权限审批卡插队</td><td>插件卡退回队列，处理完按原顺序恢复</td><td>安全优先的队列规则</td></tr>
-      <tr><td class="id">用户不点、一直挂着</td><td>不超时、不响应 Esc；直到点击或卸载才落定</td><td>卡片生命周期</td></tr>
+      <tr><td class="id">Invalid call arguments</td><td>The call is rejected with an error code (too many buttons, missing fields) and no card is created</td><td>Input validation</td></tr>
+      <tr><td class="id">Plugin disabled / unloaded</td><td>Cards are removed; pending waits settle with <code>{ choice:"cancel", reason:"plugin-unloaded" }</code></td><td>Plugin lifecycle cleanup</td></tr>
+      <tr><td class="id">A permission card jumps the queue</td><td>The plugin card returns to the queue and resumes in its original order afterwards</td><td>Security-first queue rules</td></tr>
+      <tr><td class="id">The user never presses anything</td><td>No timeout and no Esc handling; the promise settles only on a click or an unload</td><td>Card lifecycle</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 4 不提供什么 ============ -->
+<!-- ============ 4 What is not provided ============ -->
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag decided">Settled</span></h2>
   <table>
-    <thead><tr><th>不给</th><th>为什么</th></tr></thead>
+    <thead><tr><th>not provided</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td class="id">宿主权限审批卡的接管 / 重画</td><td>安全决策面只属于宿主；<code>ui.ask</code> 不进权限决策路径</td></tr>
-      <tr><td class="id">卡里的自绘 / 组件</td><td>内容只有固定字段；卡片里不跑插件代码</td></tr>
-      <tr><td class="id">string 返回</td><td>禁止两态；恒 <code>{ choice, reason? }</code></td></tr>
-      <tr><td class="id">层机制 / 注册 / 仲裁</td><td>确认卡不是 UI 槽</td></tr>
-      <tr><td class="id">会话 / 消息数据</td><td>卡片只负责问用户</td></tr>
-      <tr><td class="id">与 agent 侧布尔确认共用形状</td><td>同名不同物：那边是允许 / 拒绝布尔，这边是按钮选择对象</td></tr>
+      <tr><td class="id">Taking over or redrawing the host permission approval card</td><td>The security decision surface belongs to the host only; <code>ui.ask</code> never enters the permission decision path</td></tr>
+      <tr><td class="id">Custom drawing or components inside the card</td><td>The content is fixed fields only; no plugin code runs inside the card</td></tr>
+      <tr><td class="id">A string return</td><td>Two states are forbidden; always <code>{ choice, reason? }</code></td></tr>
+      <tr><td class="id">A layer mechanism, registration, or arbitration</td><td>The confirmation card is not a UI slot</td></tr>
+      <tr><td class="id">Session or message data</td><td>The card only asks the user a question</td></tr>
+      <tr><td class="id">Sharing a shape with the agent-side boolean confirmation</td><td>Same name, different thing: that one is an allow / deny boolean, this one is a button-choice object</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 5 相关条目 ============ -->
+<!-- ============ 5 Related entries ============ -->
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <table>
-    <thead><tr><th>谁</th><th>关系</th><th>位置</th></tr></thead>
+    <thead><tr><th>who</th><th>relationship</th><th>location</th></tr></thead>
     <tbody>
-      <tr><td class="id">公共契约</td><td>出站分层、递交模型、回退与权限的总表</td><td><a href="../../slot-contract.html">../../slot-contract.html</a></td></tr>
-      <tr><td class="id">输入区</td><td>确认卡的锚点：与输入框同宽、紧贴其上</td><td><a href="../../ui/composer/index.html">../../ui/composer/</a></td></tr>
-      <tr><td class="id">ui/layers</td><td>原 <code>ui.confirm</code> 的卡型、排队、z 序细节与界面演示</td><td><code>ui/layers/</code></td></tr>
-      <tr><td class="id">ui/self-dialog</td><td>自由界面自理——与本接口分工：问一句话走 <code>ui.ask</code>，自由界面走自理</td><td><code>ui/self-dialog/</code></td></tr>
-      <tr><td class="id">草稿读写</td><td>问完用户后常见下一步：往输入框插一段文字</td><td><code>render/draft/</code></td></tr>
+      <tr><td class="id">Shared contract</td><td>The master table for outbound layering, delivery models, fallbacks, and permissions</td><td><a href="../../slot-contract.html">../../slot-contract.html</a></td></tr>
+      <tr><td class="id">Composer</td><td>The card's anchor: the same width as the input box and directly above it</td><td><a href="../../ui/composer/index.html">../../ui/composer/</a></td></tr>
+      <tr><td class="id">ui/layers</td><td>Card shapes, queueing, z-order details, and the UI demo for the former <code>ui.confirm</code></td><td><code>ui/layers/</code></td></tr>
+      <tr><td class="id">ui/self-dialog</td><td>Free-form self-managed UI - the division of labour: one question goes through <code>ui.ask</code>, a free-form UI is self-managed</td><td><code>ui/self-dialog/</code></td></tr>
+      <tr><td class="id">Draft read/write</td><td>The usual next step after asking: insert a run of text into the composer</td><td><code>render/draft/</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 6 还没定的事 ============ -->
+<!-- ============ 6 Open questions ============ -->
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
+  <h2><span class="n">6</span>Open questions</h2>
   <ul>
-     <li>命名消歧已定：本接口定名 <code>ui.ask</code>，与 agent 侧布尔确认同名不同物（见 slot-contract §6）。</li>
-    <li>按钮数量上限、下拉候选的粒度——沿用 ui/layers 待定项。</li>
+     <li>Disambiguation is settled: this interface is <code>ui.ask</code>, which shares a name with, but is not, the agent-side boolean confirmation (see slot-contract section 6).</li>
+    <li>The button-count cap and the granularity of the dropdown candidates carry over as open items from ui/layers.</li>
   </ul>
 </section>
 

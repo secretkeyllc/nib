@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session.getContext · 数据流</title>
+<title>session.getContext · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,54 +49,54 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a><span class="sep">/</span><a href="index.html">session-context</a>
+  <a href="../../index.html">Plugin slot catalog</a><span class="sep">/</span><a href="index.html">session-context</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>session.getContext · 数据流</h1>
-  <div class="meta">status: <b>draft · 设计稿</b> · 会话数据契约 · 规划出处：能力清单审查 N3 · 权限 <code>session.context.read</code>（新增） · 尚无 SDK 实现</div>
+  <h1>session.getContext · Data flow</h1>
+  <div class="meta">status: <b>draft · design draft</b> · session data contract · planned from: capability inventory review N3 · permission <code>session.context.read</code> (new) · no SDK implementation yet</div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.session.getContext(input?: { sessionId?: string; scope?: "all" | "sinceCompaction"; maxCharsPerMessage?: number }): Promise&lt;PluginSessionContext&gt;</pre>
-  <p class="lead">读当前会话的全量上下文工作集。权限 <code>session.context.read</code>（新增 · high · 装时确认——能读消息正文）。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Reads the full context working set of the current session. Permission <code>session.context.read</code> (new · high · confirmed at install - it can read message bodies).</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">sessionId</td><td class="id">string</td><td>否</td><td>缺省 = 当前会话；跨会话读需显式指定（同权限）。</td></tr>
-      <tr><td class="id">scope</td><td class="id">"all" | "sinceCompaction"</td><td>否</td><td>缺省 <code>sinceCompaction</code>：只回自上次压缩以来的工作集；<code>"all"</code> 回全量。</td></tr>
-      <tr><td class="id">maxCharsPerMessage</td><td class="id">number</td><td>否</td><td>单条正文截断上限；缺省走宿主默认。截断发生时该条 <code>contentTruncated = true</code>。</td></tr>
+      <tr><td class="id">sessionId</td><td class="id">string</td><td>No</td><td>Defaults to the current session; reading across sessions must be explicit (same permission).</td></tr>
+      <tr><td class="id">scope</td><td class="id">"all" | "sinceCompaction"</td><td>No</td><td>Defaults to <code>sinceCompaction</code>: returns only the working set since the last compaction; <code>"all"</code> returns everything.</td></tr>
+      <tr><td class="id">maxCharsPerMessage</td><td class="id">number</td><td>No</td><td>Truncation limit per message body; defaults to the host default. When truncation happens that message has <code>contentTruncated = true</code>.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">sessionId</td><td class="id">string</td><td>快照所属会话 id。</td></tr>
-      <tr><td class="id">compactionCursor</td><td class="id">string | null</td><td>最近一次压缩记录 id；<code>applyCompaction</code> 并发校验（<code>CONFLICT</code> 检测）用。</td></tr>
-      <tr><td class="id">system</td><td class="id">string | undefined</td><td>当前 system prompt；无则缺省。</td></tr>
-      <tr><td class="id">messages</td><td class="id">Array&lt;{…}&gt;</td><td>消息数组，元素结构见下。</td></tr>
-      <tr><td class="id">messages[].id</td><td class="id">string</td><td>消息 id。</td></tr>
-      <tr><td class="id">messages[].role</td><td class="id">"user" | "assistant" | "tool"</td><td>角色；system 单独出 <code>system</code> 字段。</td></tr>
-      <tr><td class="id">messages[].content</td><td class="id">string</td><td>正文；超预算被截断时 <code>contentTruncated = true</code>。</td></tr>
-      <tr><td class="id">messages[].contentTruncated</td><td class="id">boolean | undefined</td><td>该条是否被截断。</td></tr>
-      <tr><td class="id">messages[].createdAt</td><td class="id">string</td><td>ISO 时间字符串，与 <code>session.listMessages</code> 一致。</td></tr>
-      <tr><td class="id">messages[].tool</td><td class="id">{…} | undefined</td><td>工具消息的元信息：<code>name</code> / <code>callId</code> / <code>status</code>("success"|"error") / <code>resultPreview</code>（只给预览，不吐全文）。</td></tr>
-      <tr><td class="id">estimate</td><td class="id">{ tokens: number; truncated: boolean }</td><td>整体 token 估算；<code>truncated</code> 表示是否触发整体预算截断（只回窗口内）。</td></tr>
-      <tr><td class="id">modelKey</td><td class="id">string | undefined</td><td>会话当前绑定的模型（<code>provider/model</code>）。</td></tr>
+      <tr><td class="id">sessionId</td><td class="id">string</td><td>The session id the snapshot belongs to.</td></tr>
+      <tr><td class="id">compactionCursor</td><td class="id">string | null</td><td>Id of the latest compaction record; used for the concurrent check in <code>applyCompaction</code> (<code>CONFLICT</code> detection).</td></tr>
+      <tr><td class="id">system</td><td class="id">string | undefined</td><td>The current system prompt; absent when there is none.</td></tr>
+      <tr><td class="id">messages</td><td class="id">Array&lt;{…}&gt;</td><td>Array of messages; the element shape is described below.</td></tr>
+      <tr><td class="id">messages[].id</td><td class="id">string</td><td>Message id.</td></tr>
+      <tr><td class="id">messages[].role</td><td class="id">"user" | "assistant" | "tool"</td><td>Role; system is returned separately in the <code>system</code> field.</td></tr>
+      <tr><td class="id">messages[].content</td><td class="id">string</td><td>The body; when truncated for budget reasons <code>contentTruncated = true</code>.</td></tr>
+      <tr><td class="id">messages[].contentTruncated</td><td class="id">boolean | undefined</td><td>Whether this message was truncated.</td></tr>
+      <tr><td class="id">messages[].createdAt</td><td class="id">string</td><td>ISO timestamp string, consistent with <code>session.listMessages</code>.</td></tr>
+      <tr><td class="id">messages[].tool</td><td class="id">{…} | undefined</td><td>Metadata for a tool message: <code>name</code> / <code>callId</code> / <code>status</code>("success"|"error") / <code>resultPreview</code> (preview only, never the full text).</td></tr>
+      <tr><td class="id">estimate</td><td class="id">{ tokens: number; truncated: boolean }</td><td>Overall token estimate; <code>truncated</code> says whether the overall budget cut in (only what fits in the window is returned).</td></tr>
+      <tr><td class="id">modelKey</td><td class="id">string | undefined</td><td>The model the session is currently bound to (<code>provider/model</code>).</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{ "scope": "sinceCompaction", "maxCharsPerMessage": 4000 }</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>{
   "sessionId": "s_01J8",
   "compactionCursor": "c_01J7",
@@ -109,69 +109,69 @@
     { "id": "m_3", "role": "tool", "content": "（工具结果预览被截断）",
       "contentTruncated": true,
       "tool": { "name": "fs.readText", "callId": "t_9", "status": "success",
-                "resultPreview": "# PI-Desktop\n…" },
+                "resultPreview": "# Nib\n…" },
       "createdAt": "2026-02-17T09:12:11.000Z", "origin": "external" }
   ],
   "estimate": { "tokens": 21340, "truncated": false },
   "modelKey": "anthropic/claude-sonnet-4-5"
 }</pre>
-  <div class="callout"><b>一句话边界。</b>能读正文，所以权限比 <code>session.read</code> 宽；工具结果只给 <code>resultPreview</code>，不吐全文。使用前提：实现时须放开现有 <code>session.getLlmContext</code>「仅工具执行期可调」的限制，改为纯权限门控——压缩发生在轮边界，不在任何工具调用里。</div>
+  <div class="callout"><b>Boundary in one sentence.</b>It can read message bodies, so its permission is broader than <code>session.read</code>; tool results expose only <code>resultPreview</code>, never the full text. Prerequisite: the implementation must lift the current "callable only during tool execution" restriction on <code>session.getLlmContext</code> and switch to pure permission gating - compaction happens at the turn boundary, not inside any tool call.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用。</b>插件传入可选 <code>{ sessionId?, scope?, maxCharsPerMessage? }</code>。</li>
-    <li><b>校验。</b>主进程校验 <code>session.context.read</code> 权限（装时确认过的高敏域），解析目标会话。</li>
-    <li><b>组装。</b>宿主取会话全量消息与最近压缩记录（数据源与 <code>session.getLlmContext</code> 同链），按 scope 裁剪：压缩点之前的行并入摘要语境；工具结果压成 <code>resultPreview</code>；按整体预算与单条上限截断。</li>
-    <li><b>返回。</b>一次给全；不订阅、不推流。超预算不报错，靠 <code>estimate.truncated</code> 如实标注。</li>
+    <li><b>Call.</b> The plugin passes the optional <code>{ sessionId?, scope?, maxCharsPerMessage? }</code>.</li>
+    <li><b>Validate.</b> The main process checks the <code>session.context.read</code> permission (a high-sensitivity domain confirmed at install) and resolves the target session.</li>
+    <li><b>Assemble.</b> The host reads all session messages and the latest compaction record from the same chain used by <code>session.getLlmContext</code>, then trims by scope: rows before the compaction point fold into the summary context; tool results are reduced to <code>resultPreview</code>; and content is truncated by the overall budget and the per-message limit.</li>
+    <li><b>Return.</b> Everything at once; no subscription and no streaming. Going over budget is not an error and is reported honestly through <code>estimate.truncated</code>.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>direction</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">插件 → 宿主</td><td>读取描述（scope、单条截断上限、目标会话）。</td></tr>
-      <tr><td class="id">宿主 → 插件</td><td>上下文快照（system + 消息 + 估算 + 压缩位点）。</td></tr>
+      <tr><td class="id">plugin → host</td><td>The read description (scope, per-message truncation limit, target session).</td></tr>
+      <tr><td class="id">host → plugin</td><td>The context snapshot (system + messages + estimate + compaction position).</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>code</th></tr></thead>
     <tbody>
-      <tr><td>未声明 <code>session.context.read</code></td><td>Promise 拒绝，不静默</td><td class="id">PERMISSION_DENIED</td></tr>
-      <tr><td><code>sessionId</code> 不存在 / 已删</td><td>Promise 拒绝</td><td class="id">NOT_FOUND</td></tr>
-      <tr><td>参数非法（未知 scope 等）</td><td>Promise 拒绝</td><td class="id">INVALID_ARGUMENT</td></tr>
-      <tr><td>内容超整体预算</td><td>不报错；只回窗口内，<code>estimate.truncated = true</code></td><td class="id">—</td></tr>
+      <tr><td><code>session.context.read</code> not declared</td><td>Promise rejected, never silent</td><td class="id">PERMISSION_DENIED</td></tr>
+      <tr><td><code>sessionId</code> does not exist / was deleted</td><td>Promise rejected</td><td class="id">NOT_FOUND</td></tr>
+      <tr><td>Invalid argument (unknown scope, etc.)</td><td>Promise rejected</td><td class="id">INVALID_ARGUMENT</td></tr>
+      <tr><td>Content exceeds the overall budget</td><td>No error; only what fits in the window is returned with <code>estimate.truncated = true</code></td><td class="id">—</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
+  <h2><span class="n">4</span>What is not provided</h2>
   <table>
-    <thead><tr><th>不给</th><th>为什么</th></tr></thead>
+    <thead><tr><th>not provided</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td class="id">消息写回 / 替换</td><td>写侧只走 <code>session.applyCompaction</code>；<code>replaceMessages</code> 静默改写已被产品排除</td></tr>
-      <tr><td class="id">工具结果全文</td><td>只给 <code>resultPreview</code>；全量正文不向插件开放</td></tr>
-      <tr><td class="id">跨会话缺省读</td><td>缺省当前会话；跨会话需显式 <code>sessionId</code>（同 high 权限）</td></tr>
-      <tr><td class="id">精确 token 口径</td><td>estimate 是估算值，与 ADR 0047 的口径对齐</td></tr>
+      <tr><td class="id">Message write-back / replacement</td><td>The write side goes only through <code>session.applyCompaction</code>; silent rewriting via <code>replaceMessages</code> is excluded by the product</td></tr>
+      <tr><td class="id">Full tool results</td><td>Only <code>resultPreview</code> is given; the full body is not exposed to plugins</td></tr>
+      <tr><td class="id">Cross-session reads by default</td><td>Defaults to the current session; cross-session reads need an explicit <code>sessionId</code> (same high permission)</td></tr>
+      <tr><td class="id">Exact token accounting</td><td>estimate is an approximation, aligned with the accounting in ADR 0047</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <table>
-    <thead><tr><th>谁</th><th>关系</th><th>位置</th></tr></thead>
+    <thead><tr><th>who</th><th>relation</th><th>location</th></tr></thead>
     <tbody>
-      <tr><td class="id">session.applyCompaction</td><td>读侧的写回对端；压缩器成对使用</td><td><code>runtime/session-compaction/</code></td></tr>
-      <tr><td class="id">session.getLlmContext</td><td>同数据链的受限投影（仅工具执行期）</td><td><code>host-api/session.getLlmContext/</code></td></tr>
-      <tr><td class="id">session-lifecycle</td><td>before_compact 拦截 + segment 载荷</td><td><code>runtime/session-lifecycle/</code></td></tr>
-      <tr><td class="id">session-model</td><td>同族契约：当前模型快照（N1）</td><td><code>runtime/session-model/</code></td></tr>
+      <tr><td class="id">session.applyCompaction</td><td>The write-back counterpart on the read side; compactors use the pair together</td><td><code>runtime/session-compaction/</code></td></tr>
+      <tr><td class="id">session.getLlmContext</td><td>A restricted projection over the same data chain (tool execution only)</td><td><code>host-api/session.getLlmContext/</code></td></tr>
+      <tr><td class="id">session-lifecycle</td><td>before_compact interception plus the segment payload</td><td><code>runtime/session-lifecycle/</code></td></tr>
+      <tr><td class="id">session-model</td><td>A sibling contract: the current model snapshot (N1)</td><td><code>runtime/session-model/</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead"><code>resultPreview</code> 的截断长度；<code>estimate.tokens</code> 的估算口径细则（对齐 ADR 0047）；实现是否以 <code>session.getLlmContext</code> 兄弟分支落地。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">The truncation length of <code>resultPreview</code>; the detailed estimation rules for <code>estimate.tokens</code> (aligned with ADR 0047); whether the implementation lands as a sibling branch of <code>session.getLlmContext</code>.</p>
 </section>
 
 </main>

@@ -18,7 +18,7 @@ responses. This uses the existing `responseDurationMs` transcript field; no IPC
 or storage schema changes are needed.
 
 The upstream release also brings its current provider support, retry fixes and
-context-estimation changes. The rebased PI-Desktop patches preserve hosted
+context-estimation changes. The rebased Nib patches preserve hosted
 search replay and estimation, local request error details, bounded Anthropic
 OAuth retries, DeepSeek's published system-message capability, and the upstream
 3.5-characters-per-token estimator. The new OpenAI Decisions classifier is not

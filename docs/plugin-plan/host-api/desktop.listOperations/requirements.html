@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>desktop.listOperations · 需求描述</title>
+<title>desktop.listOperations · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,39 +49,39 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">desktop.listOperations</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
-  <h1>desktop.listOperations · 需求描述</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>desktop.listOperations · Requirements</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>用途与边界</h2>
-  <p class="lead">列出可调用的受控桌面操作目录。</p>
+  <h2><span class="n">1</span>Purpose and scope</h2>
+  <p class="lead">Lists the catalog of callable, controlled desktop operations.</p>
   <pre class="sig">pi.desktop.listOperations(): Promise&lt;PluginDesktopOperation[]&gt;</pre>
-  <p>权限：<span class="pill perm">—</span></p>
+  <p>Permission: <span class="pill perm">—</span></p>
 </section>
 <section>
-  <h2><span class="n">2</span>典型场景</h2>
-  <table><thead><tr><th>场景</th><th>插件做什么</th></tr></thead><tbody>
-<tr><td><b>能力面板</b></td><td>展示插件能代办哪些宿主操作。</td></tr>
+  <h2><span class="n">2</span>Typical scenarios</h2>
+  <table><thead><tr><th>Scenario</th><th>What the plugin does</th></tr></thead><tbody>
+<tr><td><b>Capabilities panel</b></td><td>Show which host operations the plugin can perform on the user's behalf.</td></tr>
   </tbody></table>
 </section>
 <section>
-  <h2><span class="n">3</span>明确不做什么</h2>
-  <p class="lead">不含 MCP 令牌、不含 Electron 通道名。</p>
+  <h2><span class="n">3</span>Explicit non-goals</h2>
+  <p class="lead">No MCP tokens and no Electron channel names.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>已拍板</h2>
-  <ul><li>与本地 MCP 控制平面同一份已审查目录；六个 <code>session/collaboration/*</code> 仅插件可见。</li></ul>
+  <h2><span class="n">4</span>Decided</h2>
+  <ul><li>The same reviewed catalog as the local MCP control plane; the six <code>session/collaboration/*</code> entries are visible to plugins only.</li></ul>
 </section>
 
 </main>

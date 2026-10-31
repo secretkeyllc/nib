@@ -22,15 +22,15 @@ not pass.
 
 On macOS, `pnpm dev` creates and reuses a fingerprinted branded Electron host
 bundle under `.cache/electron-dev/`. Its bundle name, executable, identifier,
-and ICNS resource are development-only PI-Desktop values, so AppKit shows
-PI-Desktop in the application menu and uses the canonical icon in the native
+and ICNS resource are development-only Nib values, so AppKit shows
+Nib in the application menu and uses the canonical icon in the native
 About panel. The runtime also applies `build/icon_1024.png` to the Dock. Stock
 files under `node_modules` are never modified. Windows/Linux development keeps
 the normal electron-vite executable. Windows Main nevertheless registers the
 same `net.aiuo.pi-desktop` AppUserModelID used by the NSIS package before
 Electron readiness, preventing the stock host identity from owning native
 notifications or taskbar groups. The Windows package additionally pins the
-`PI-Desktop` executable and Start menu shortcut names. The launcher sets
+`Nib` executable and Start menu shortcut names. The launcher sets
 `PI_DESKTOP_DEV=1` so runtime packaging checks keep update delivery disabled
 and preserve developer workspace defaults despite the branded executable name.
 The first `pnpm dev` on Electron 43+ downloads the Electron binary on demand
@@ -348,7 +348,7 @@ runner. Tag builds and `sign_macos: true` (the dispatch default) receive
 `APPLE_TEAM_ID` only from GitHub Actions secrets, pin the certificate through
 `CSC_NAME` from `MAC_SIGNING_IDENTITY` (bare common name — electron-builder rejects
 the `Developer ID Application:` prefix), force code signing and
-`notarytool` notarization of `PI-Desktop.app`. The DMG is then submitted to the
+`notarytool` notarization of `Nib.app`. The DMG is then submitted to the
 same service on its own (`scripts/notarize-and-staple-macos-release-dmg.sh`),
 and only an `Accepted` status allows the ticket to be stapled. Verification
 then checks the identity, code-signing integrity (including
@@ -369,9 +369,9 @@ still requires valid stapled tickets on the app and DMG.
 The shared electron-builder configuration applies the architecture-labelled
 pattern at the macOS platform level for ZIPs and overrides it at the DMG target
 level. Both public architectures are therefore explicit: the arm64 lane
-publishes `PI-Desktop-<version>-arm64.dmg` and
-`PI-Desktop-<version>-arm64-mac.zip`, while the Intel x64 lane publishes
-`PI-Desktop-<version>-x64.dmg` and `PI-Desktop-<version>-x64-mac.zip`. This
+publishes `Nib-<version>-arm64.dmg` and
+`Nib-<version>-arm64-mac.zip`, while the Intel x64 lane publishes
+`Nib-<version>-x64.dmg` and `Nib-<version>-x64-mac.zip`. This
 applies to both unsigned and signed macOS lanes, including local release builds,
 and ensures each generated updater feed references its architecture-labelled
 asset names and matching checksums. Before upload, each macOS runner requires
@@ -381,7 +381,7 @@ any unlabelled or wrong-architecture macOS artifact.
 The DMG uses a branded 720×440 background with a two-icon drag-to-Applications
 gesture. The app and Applications link are the only items in the window.
 
-The macOS ZIP contains `PI-Desktop.app` at its root. Neither the DMG nor ZIP
+The macOS ZIP contains `Nib.app` at its root. Neither the DMG nor ZIP
 ships an opening-help note or executable first-launch helper, including local
 and unsigned debug builds. Tagged artifacts remain signed and notarized; the
 unsigned lane is for debugging and does not imply Gatekeeper qualification.
@@ -391,7 +391,7 @@ compressed or compression-insensitive. The workflow therefore uploads their
 temporary Actions artifacts with compression level zero before the publish job
 assembles the GitHub Release. The Linux runners also copy their unpacked
 `resources/app.asar` (`linux-unpacked` on x64, `linux-arm64-unpacked` on arm64)
-to the versioned `PI-Desktop-<version>-linux-<arch>.asar` asset before upload.
+to the versioned `Nib-<version>-linux-<arch>.asar` asset before upload.
 This preserves the exact archive used by the Linux installers for downstream
 repackaging with a system Electron.
 
@@ -417,7 +417,7 @@ https://cnb.cool/aixk/Pi-Desktop.
 
 The job:
 
-- runs only on `vastsa/PI-Desktop`
+- runs only on `secretkeyllc/nib`
 - fires on `release` `published` / `edited`, and on `workflow_dispatch` with
   an explicit tag such as `v0.14.6`
 - sends event `api_trigger_mirror` and `MIRROR_TAGS` set to that tag
@@ -432,7 +432,7 @@ electron-updater feeds.
 
 ### 4.6 GitHub Actions secrets for macOS signing
 
-Create these under GitHub → repository `vastsa/PI-Desktop` → Settings →
+Create these under GitHub → repository `secretkeyllc/nib` → Settings →
 Secrets and variables → Actions. Never commit the p12, password, Apple ID, or
 app-specific password. Never `echo` these values in CI.
 
@@ -456,13 +456,13 @@ enter git: `*.p12`, `*.cer`, `*.p8`, `*.mobileprovision`.
 ### 4.7 macOS signing observability and timeouts
 
 `electron-builder` prints one line before signing — `signing
-file=release/mac-arm64/PI-Desktop.app platform=darwin type=distribution
+file=release/mac-arm64/Nib.app platform=darwin type=distribution
 identityName=...` — and then nothing until the phase is over. Three mechanisms
 hide in that gap, and the macOS lanes now expose all three:
 
 | Point in the phase | What happens | How it is visible |
 |---|---|---|
-| Walk | `@electron/osx-sign` walks `PI-Desktop.app/Contents` and collects every Mach-O file plus nested `.app` and `.framework` bundles | `DEBUG=electron-osx-sign*` prints `Walking... <dir>`; `scripts/macos-bundle-inventory.mjs` prints the same bundle's counts right after packaging |
+| Walk | `@electron/osx-sign` walks `Nib.app/Contents` and collects every Mach-O file plus nested `.app` and `.framework` bundles | `DEBUG=electron-osx-sign*` prints `Walking... <dir>`; `scripts/macos-bundle-inventory.mjs` prints the same bundle's counts right after packaging |
 | Per-file signing | `codesign --force --sign <identity> --timestamp --entitlements ... <file>` runs serially, deepest file first, the app bundle last | `DEBUG=electron-osx-sign*` prints `Signing... <file>` and `Executing... <file> codesign ...`; the codesign shim times every invocation. If a keychain ever refuses to hand the key to a wrapped `codesign`, `PI_SIGNING_NO_CODESIGN_SHIM=1` runs the phase without the shim |
 | Silent retry | A failing pass is retried up to three more times with a 5s/10s/15s backoff and no log line | The watchdog's `codesign-calls` and `failures` lines expose repeated passes |
 | App notarization | `@electron/notarize` zips the app, uploads it, and waits for Apple's queue (`mac.notarize=true`) | `DEBUG=electron-notarize*` prints `zipping application to`, `attempting to upload file to Apple`, `notarization success`, then electron-builder prints `notarization successful` |
@@ -538,8 +538,8 @@ artifact per submission and electron-builder only covers the app:
 
 | Artifact | Submitted by | Ticket |
 |---|---|---|
-| `PI-Desktop.app` (inside the ZIP) | electron-builder `-c.mac.notarize=true` | stapled by electron-builder through the watchdog's bounded `xcrun stapler staple` retry shim |
-| `PI-Desktop-<version>-<arch>.dmg` | `scripts/notarize-and-staple-macos-release-dmg.sh` (`notarytool submit --wait`) | stapled by the same script after `status: Accepted` |
+| `Nib.app` (inside the ZIP) | electron-builder `-c.mac.notarize=true` | stapled by electron-builder through the watchdog's bounded `xcrun stapler staple` retry shim |
+| `Nib-<version>-<arch>.dmg` | `scripts/notarize-and-staple-macos-release-dmg.sh` (`notarytool submit --wait`) | stapled by the same script after `status: Accepted` |
 
 A DMG that was never submitted has no ticket, so stapling it fails with
 `Could not find base64 encoded ticket ... Error 65`. Stapler retries are only
@@ -548,7 +548,7 @@ allowed after Apple returns `Accepted`.
 Run after every signed release build:
 
 ```bash
-for APP in apps/desktop/release/mac-*/PI-Desktop.app; do
+for APP in apps/desktop/release/mac-*/Nib.app; do
   codesign -dv --verbose=4 "$APP"          # identity + hardened runtime flags
   codesign --verify --deep --strict --verbose=2 "$APP"
   spctl --assess --type execute --verbose=4 "$APP"
@@ -671,12 +671,12 @@ so its `woff2` row is no longer current.
 
 Manual smoke on a clean profile (`PI_DESKTOP_DATA_DIR=$(mktemp -d)`):
 
-1. `pnpm dev` launches with `PI-Desktop` in the macOS application menu and the
+1. `pnpm dev` launches with `Nib` in the macOS application menu and the
    canonical icon in both the Dock and native About panel; no Electron brand is
    visible.
 2. App launches from DMG install, window appears, and the application-menu,
    About-panel, and Dock branding match the development lane.
-3. Empty home and expanded/collapsed sidebar show the canonical PI-Desktop
+3. Empty home and expanded/collapsed sidebar show the canonical Nib
    logo; composer prompt rows have no leading brand icon; New task and
    project/Temporary create controls use the message-plus session icon.
 4. Onboarding checklist appears; configure provider; one streamed chat turn.
@@ -717,15 +717,15 @@ D126/D285/D603.
 
 Native-runner output matrix:
 
-- macOS arm64: `PI-Desktop-<version>-arm64.dmg` and
-  `PI-Desktop-<version>-arm64-mac.zip`
-- macOS Intel x64: `PI-Desktop-<version>-x64.dmg` and
-  `PI-Desktop-<version>-x64-mac.zip`
-- Windows x64: NSIS installer `PI-Desktop-Setup-<version>.exe` and portable
-  ZIP `PI-Desktop-Portable-<version>.zip`
+- macOS arm64: `Nib-<version>-arm64.dmg` and
+  `Nib-<version>-arm64-mac.zip`
+- macOS Intel x64: `Nib-<version>-x64.dmg` and
+  `Nib-<version>-x64-mac.zip`
+- Windows x64: NSIS installer `Nib-Setup-<version>.exe` and portable
+  ZIP `Nib-Portable-<version>.zip`
 - Linux x64 and arm64: AppImage, deb, and rpm
-- Linux system Electron assets: `PI-Desktop-<version>-linux-x64.asar` and
-  `PI-Desktop-<version>-linux-arm64.asar`
+- Linux system Electron assets: `Nib-<version>-linux-x64.asar` and
+  `Nib-<version>-linux-arm64.asar`
 
 The portable Windows ZIP target does not write `latest.yml`. The Windows
 release helper builds NSIS and ZIP separately and stamps the ZIP app metadata
@@ -733,11 +733,11 @@ with `piDistribution = "zip"`; packaged ZIP runs use notify-and-link delivery.
 Legacy portable executables remain manual when `PORTABLE_EXECUTABLE_FILE` is
 present. NSIS keeps the in-app download and quit-and-install lane. Data stays
 in the existing application data directory. Users extract the ZIP and launch
-`PI-Desktop.exe` directly, so the package does not run a self-extracting
+`Nib.exe` directly, so the package does not run a self-extracting
 wrapper or request administrator execution.
 
 RPM targets pass `_build_id_links none` to FPM. Bundled Electron binaries live
-under `/opt/PI-Desktop`; omitting global `/usr/lib/.build-id` links prevents
+under `/opt/Nib`; omitting global `/usr/lib/.build-id` links prevents
 collisions with other applications that bundle the same Electron binaries.
 
 The ASAR asset contains the Electron application archive, not a complete Linux
@@ -746,7 +746,7 @@ target Electron resources layout together with the native host and other
 resources from the target package, then launch it with:
 
 ```bash
-electron PI-Desktop-<version>-linux-<arch>.asar
+electron Nib-<version>-linux-<arch>.asar
 ```
 
 Shell smoke on each native runner:

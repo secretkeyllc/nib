@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>草稿读写 · 需求</title>
+<title>Draft read/write - Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -57,133 +57,133 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <a href="index.html">草稿读写</a>
+  <a href="index.html">Draft read/write</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · render/draft</div>
-  <h1>草稿读写 · 需求</h1>
-  <p>输入框草稿的读与写：<code>composer.readDraft</code> / <code>composer.replaceDraft</code> / <code>composer.insertText</code>。插入是主路径；整体替换三道闸；草稿变化用推送，不用轮询。</p>
-  <div class="meta">status: draft · issue #545 · #561 · insertText 核心 H · readDraft 可选 H · 远端 replace 拒绝</div>
+  <h1>Draft read/write - Requirements</h1>
+  <p>Reading and writing the composer draft: <code>composer.readDraft</code> / <code>composer.replaceDraft</code> / <code>composer.insertText</code>. Insertion is the primary path, whole replacement has three gates, and draft changes arrive by push, never by polling.</p>
+  <div class="meta">status: draft - issue #545 - #561 - insertText is core H - readDraft is optional H - remote replace is rejected</div>
 </header>
 
 <main>
 
 <section>
-  <h2>范围 <span class="tag decided">已定</span></h2>
+  <h2>Scope <span class="tag decided">Settled</span></h2>
   <ul>
-    <li>三个方法，管输入框里的草稿文字和记号：
+    <li>Three methods covering the composer's draft text and tokens:
       <ul>
-        <li><code>composer.readDraft</code> — 读一份快照</li>
-        <li><code>composer.insertText</code> — 往光标处插一段文字（主路径）</li>
-        <li><code>composer.replaceDraft</code> — 整体替换草稿（受限）</li>
+        <li><code>composer.readDraft</code> - read a snapshot</li>
+        <li><code>composer.insertText</code> - insert a run of text at the caret (primary path)</li>
+        <li><code>composer.replaceDraft</code> - replace the whole draft (restricted)</li>
       </ul>
     </li>
-    <li>草稿变化由宿主<b>推送</b>（rendererData <code>draft</code>），插件不轮询。</li>
-    <li>不谈：附件三动作（<code>render/attachments/</code>）、输入框界面槽（<code>ui/composer/</code>）、发送前改写（<code>runtime/before-send/</code>）。</li>
+    <li>The host <b>pushes</b> draft changes (rendererData <code>draft</code>); plugins do not poll.</li>
+    <li>Not covered: the three attachment actions (<code>render/attachments/</code>), the composer UI slot (<code>ui/composer/</code>), and pre-send rewriting (<code>runtime/before-send/</code>).</li>
   </ul>
 </section>
 
 <section>
-  <h2>契约形状 <span class="tag decided">已拍板</span></h2>
+  <h2>Contract shape <span class="tag decided">Decided</span></h2>
 
-  <h3>读快照</h3>
-<pre><span class="c">// 请求：无参数</span>
+  <h3>Read a snapshot</h3>
+<pre><span class="c">// request: no arguments</span>
 composer.readDraft()
 
-<span class="c">// 返回</span>
+<span class="c">// returns</span>
 {
-  <span class="k">text</span>,                 <span class="c">// 输入框当前文字</span>
-  <span class="k">marks</span>: [ … ],         <span class="c">// 记号列表，按出现顺序</span>
-  <span class="k">generation</span>            <span class="c">// 草稿世代号；每次草稿变化 +1，给 replaceDraft 对账用</span>
+  <span class="k">text</span>,                 <span class="c">// current composer text</span>
+  <span class="k">marks</span>: [ … ],         <span class="c">// token list, in order of appearance</span>
+  <span class="k">generation</span>            <span class="c">// draft generation; increments on every draft change, used by replaceDraft for reconciliation</span>
 }</pre>
 
-  <h3>插入（主路径）</h3>
-<pre><span class="c">// 请求：光标处插入一段纯文字</span>
+  <h3>Insert (primary path)</h3>
+<pre><span class="c">// request: insert a run of plain text at the caret</span>
 composer.insertText({ <span class="k">text</span>: <span class="c">"请对照 docs/spec/00-baseline.md"</span> })
 
-<span class="c">// 返回</span>
+<span class="c">// returns</span>
 { <span class="k">ok</span>: <span class="k">true</span>, <span class="k">generation</span> }</pre>
 
-  <h3>整体替换（受限）</h3>
-<pre><span class="c">// 请求</span>
+  <h3>Whole replacement (restricted)</h3>
+<pre><span class="c">// request</span>
 composer.replaceDraft({
-  <span class="k">expectedGeneration</span>,   <span class="c">// 必须等于当前 generation，对不上整次拒绝（CAS）</span>
+  <span class="k">expectedGeneration</span>,   <span class="c">// must equal the current generation; a mismatch rejects the whole call (CAS)</span>
   <span class="k">text</span>,
   <span class="k">marks</span>?
 })
 
-<span class="c">// 返回</span>
+<span class="c">// returns</span>
 { <span class="k">ok</span>: <span class="k">true</span>, <span class="k">generation</span> }
-<span class="c">// 或错误：generation 对不上 / 输入框正聚焦 / 来源是远端 → 整次拒绝</span></pre>
+<span class="c">// or an error: generation mismatch / composer focused / remote origin -> whole call rejected</span></pre>
 
   <table>
-    <thead><tr><th>方面</th><th>内容</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">readDraft 返回</td><td>恒 <code>{ text, marks[] }</code>（附 <code>generation</code>）</td></tr>
-      <tr><td class="id">replace 三道闸</td><td>① CAS <code>expectedGeneration</code>；② 输入框<b>非聚焦</b>才可写；③ <b>远端来源禁止</b></td></tr>
-      <tr><td class="id">insert 地位</td><td><b>主路径</b>——远程回来的内容、模板、片段，都走插入</td></tr>
-      <tr><td class="id">递交</td><td>草稿变化经 rendererData <code>draft</code> <b>推送</b>；不要轮询</td></tr>
+      <tr><td class="id">readDraft return</td><td>Always <code>{ text, marks[] }</code> (plus <code>generation</code>)</td></tr>
+      <tr><td class="id">The three replace gates</td><td>(1) CAS <code>expectedGeneration</code>; (2) writable only when the composer is <b>not focused</b>; (3) <b>remote origins are forbidden</b></td></tr>
+      <tr><td class="id">insert's role</td><td><b>The primary path</b> - remote results, templates, and snippets all go through insertion</td></tr>
+      <tr><td class="id">Delivery</td><td>Draft changes are <b>pushed</b> through rendererData <code>draft</code>; do not poll</td></tr>
     </tbody>
   </table>
-  <div class="callout decided"><b>replace 三道闸（拍板）。</b>整体替换会盖掉用户正在打的字，所以必须同时满足：世代号对得上、输入框此刻没有焦点、调用来源不是远端回调。任何一道不过，整次拒绝，不部分写入。</div>
-  <div class="callout stop"><b>远端来源禁止 replace（拍板）。</b>「远端来源」指异步回来的结果：插件转发应答、网络请求回调、定时器里迟到的数据。这些场景只能 <code>insertText</code>，不能整体替换——用户可能正在打字，远端迟到的整段替换会把字吃掉。</div>
-  <div class="callout decided"><b>推送不轮询（拍板）。</b>草稿一变（用户打字、删改、插件写入），宿主经 rendererData <code>draft</code> 推一份新快照。插件订阅即可，不要定时去读。</div>
+  <div class="callout decided"><b>The three replace gates (decided).</b>Whole replacement would overwrite what the user is typing, so all three must hold at once: the generation matches, the composer is not focused, and the caller is not a remote callback. If any gate fails, the entire call is rejected and nothing is partially written.</div>
+  <div class="callout stop"><b>Remote origins cannot replace (decided).</b>A "remote origin" is any asynchronous result: a plugin-forwarding answer, a network callback, data arriving late from a timer. Those cases may only use <code>insertText</code>, never whole replacement - the user may be typing, and a late whole-block replacement would eat their text.</div>
+  <div class="callout decided"><b>Push, never poll (decided).</b>Whenever the draft changes (the user types, edits, or a plugin writes), the host pushes a new snapshot through rendererData <code>draft</code>. A plugin subscribes; it must not read on a timer.</div>
 </section>
 
 <section>
-  <h2>谁能用 <span class="tag decided">已定</span></h2>
+  <h2>Who can use it <span class="tag decided">Settled</span></h2>
   <table>
-    <thead><tr><th>方法</th><th>谁</th><th>出站层</th></tr></thead>
+    <thead><tr><th>method</th><th>who</th><th>outbound layer</th></tr></thead>
     <tbody>
-      <tr><td class="id">composer.insertText</td><td>插件渲染器（用户手势或本地交互路径）</td><td>核心 H</td></tr>
-      <tr><td class="id">composer.readDraft</td><td>插件渲染器</td><td>可选 H</td></tr>
-      <tr><td class="id">composer.replaceDraft</td><td>插件渲染器，且过三道闸</td><td>本地过闸后可用；远端来源 → 拒绝</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<section>
-  <h2>场景 <span class="tag proposal">典型用法</span></h2>
-  <table>
-    <thead><tr><th>#</th><th>场景</th><th>用哪条</th></tr></thead>
-    <tbody>
-      <tr><td>1</td><td>常用语 / 模板：点一下，把一段固定文字插到光标处</td><td>insertText（主路径）</td></tr>
-      <tr><td>2</td><td>润色：用户按「润色」，本地算完整段替换；此时输入框非聚焦、世代号对得上</td><td>replaceDraft（过闸）</td></tr>
-      <tr><td>3</td><td>字数 / 进度统计：订阅推送，算完画在自己的按钮上</td><td>readDraft + 推送</td></tr>
-      <tr><td>4</td><td>远程查资料回来往输入框补一句</td><td>insertText（远端禁止 replace）</td></tr>
+      <tr><td class="id">composer.insertText</td><td>Plugin renderer (a user gesture or a local interaction path)</td><td>core H</td></tr>
+      <tr><td class="id">composer.readDraft</td><td>Plugin renderer</td><td>optional H</td></tr>
+      <tr><td class="id">composer.replaceDraft</td><td>Plugin renderer, and only past the three gates</td><td>Available locally once gated; remote origins -> rejected</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>明确不做 <span class="tag decided">已定</span></h2>
+  <h2>Scenarios <span class="tag proposal">Typical usage</span></h2>
+  <table>
+    <thead><tr><th>#</th><th>scenario</th><th>which one</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Canned phrase / template: one click inserts a fixed run of text at the caret</td><td>insertText (primary path)</td></tr>
+      <tr><td>2</td><td>Polishing: the user presses "Polish" and the replacement is computed locally; the composer is unfocused and the generation matches</td><td>replaceDraft (gated)</td></tr>
+      <tr><td>3</td><td>Word count / progress: subscribe to pushes and render the result on its own button</td><td>readDraft + push</td></tr>
+      <tr><td>4</td><td>A remote lookup returns and appends a sentence to the composer</td><td>insertText (remote may not replace)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Explicit non-goals <span class="tag decided">Settled</span></h2>
   <ul>
-    <li><b>远端来源禁止 replaceDraft。</b>异步回调、网络返回、定时器迟到数据——一律只能插入。</li>
-    <li><b>不提供轮询接口。</b>草稿变化走推送；再提供轮询就是第二条源。</li>
-    <li><b>输入框聚焦时不许整体替换。</b>用户正在打字，替换就是吃字。</li>
-    <li><b>不做「静默覆盖」。</b>世代号对不上就整次拒绝，不部分写入、不强行盖。</li>
-    <li><b>不动宿主自己的记号</b>（例如编辑历史消息时的锚点）：replace 丢掉它 → 整次拒绝。</li>
-    <li><b>不给附件读写。</b>那是 <code>render/attachments/</code>；本目录只管草稿文字与记号。</li>
+    <li><b>Remote origins may not call replaceDraft.</b>Async callbacks, network responses, and late timer data may only insert.</li>
+    <li><b>No polling interface.</b>Draft changes arrive by push; adding polling would create a second source.</li>
+    <li><b>No whole replacement while the composer is focused.</b>The user is typing; replacing would eat their text.</li>
+    <li><b>No silent overwrite.</b>A generation mismatch rejects the whole call; no partial writes and no forced overwrite.</li>
+    <li><b>Never touch the host's own tokens</b> (for example the anchor used when editing a past message): if replace would drop one, the whole call is rejected.</li>
+    <li><b>No attachment read/write.</b>That belongs to <code>render/attachments/</code>; this folder covers draft text and tokens only.</li>
   </ul>
 </section>
 
 <section>
-  <h2>本轮拍板 <span class="tag decided">已拍板</span></h2>
+  <h2>Decisions this round <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>问题</th><th>拍板</th></tr></thead>
+    <thead><tr><th>question</th><th>decision</th></tr></thead>
     <tbody>
-      <tr><td>readDraft 返回</td><td><code>{ text, marks[] }</code>（或带 <code>generation</code>）</td></tr>
-      <tr><td>replace 受限</td><td>CAS <code>expectedGeneration</code> + 输入框非聚焦才可写</td></tr>
-      <tr><td>远端 replace</td><td><b>禁止</b>；远端内容走 insertText</td></tr>
-      <tr><td>写入主路径</td><td><code>composer.insertText</code></td></tr>
-      <tr><td>递交</td><td>草稿变化经 rendererData <code>draft</code> 推送，不要轮询</td></tr>
+      <tr><td>readDraft return</td><td><code>{ text, marks[] }</code> (optionally with <code>generation</code>)</td></tr>
+      <tr><td>replace is restricted</td><td>CAS <code>expectedGeneration</code> plus an unfocused composer</td></tr>
+      <tr><td>Remote replace</td><td><b>Forbidden</b>; remote content goes through insertText</td></tr>
+      <tr><td>Primary write path</td><td><code>composer.insertText</code></td></tr>
+      <tr><td>Delivery</td><td>Draft changes are pushed through rendererData <code>draft</code>; do not poll</td></tr>
     </tbody>
   </table>
 </section>

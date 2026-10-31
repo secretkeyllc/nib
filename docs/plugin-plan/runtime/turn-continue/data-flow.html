@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-continue · 插件入队续跑（有署名） · 数据流</title>
+<title>turn-continue · A plugin enqueues a continuation (attributed) · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,143 +98,143 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-continue</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 
 <header class="top">
-  <div class="crumb">docs/plugin-plan · runtime/turn-continue</div>
-  <h1>turn-continue · 数据流</h1>
-  <p>一条消息从插件到宿主队列、再变成一轮署名续跑的路径。六节固定：接口约定 / 数据怎么走 / 出错怎么办 / 不提供什么 / 相关条目 / 还没定的事。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.continue</code> · 走 queuePush · 插件署名可见</div>
+  <div class="crumb">docs/plugin-plan · runtime · turn-continue</div>
+  <h1>turn-continue · Data flow</h1>
+  <p>The path of a message from the plugin to the host queue, and then into an attributed continuation turn. Six fixed sections: API contract / How data flows / Error handling / What is not provided / Related entries / Open questions.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.continue</code> · goes through queuePush · plugin attribution visible</div>
 </header>
 
 <main>
-<!-- ============ 1 接口约定 ============ -->
+<!-- ============ 1 API contract ============ -->
 <section>
-  <h2><span class="n">1</span>接口约定 <span class="tag proposal">建议</span></h2>
-    <p class="lead">无界面接口，<code>runtime.turn.continue</code>。入队即返回，不等工作跑完。<b>带插件署名。</b></p>
+  <h2><span class="n">1</span>API contract <span class="tag proposal">Proposal</span></h2>
+    <p class="lead">A headless interface, <code>runtime.turn.continue</code>. It returns as soon as the message is queued, without waiting for the work to finish. <b>It carries plugin attribution.</b></p>
 <pre><span class="c">// 入队一条插件署名的续跑消息</span>
 <span class="k">const</span> r = <span class="k">await</span> pi.continueTurn({ message: <span class="c">"继续处理剩下的文件"</span> });
 <span class="c">// 对话里出现插件署名的排队行；轮按队列顺序跑</span></pre>
     <table>
-    <thead><tr><th>方面</th><th>内容</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">入参</td><td><code>{ message }</code></td></tr>
-      <tr><td class="id">返回</td><td><code>{ queuedTurnId }</code></td></tr>
-      <tr><td class="id">署名</td><td>宿主补 <code>{ pluginId, pluginLabel }</code> 落库——行以插件名义可见</td></tr>
-      <tr><td class="id">配额</td><td>现状无上限</td></tr>
-      <tr><td class="id">权限</td><td><code>runtime.turn.continue</code>，装时确认</td></tr>
+      <tr><td class="id">Input</td><td><code>{ message }</code></td></tr>
+      <tr><td class="id">Return</td><td><code>{ queuedTurnId }</code></td></tr>
+      <tr><td class="id">Attribution</td><td>The host fills in <code>{ pluginId, pluginLabel }</code> and persists it - the row is visible in the plugin's name</td></tr>
+      <tr><td class="id">Quota</td><td>No upper limit today</td></tr>
+      <tr><td class="id">Permission</td><td><code>runtime.turn.continue</code>, confirmed at install</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 2 数据怎么走 ============ -->
+<!-- ============ 2 How data flows ============ -->
 <section>
-  <h2><span class="n">2</span>数据怎么走 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">2</span>How data flows <span class="tag verified">Verified</span></h2>
     <div class="legend">
-    <span><span class="chip host">host</span> 宿主 / 内核</span>
-    <span><span class="chip slot">slot</span> 钩子边界</span>
-    <span><span class="chip plugin">plugin</span> 插件</span>
+    <span><span class="chip host">host</span> host / core</span>
+    <span><span class="chip slot">slot</span> hook boundary</span>
+    <span><span class="chip plugin">plugin</span> plugin</span>
   </div>
   <div class="flow">
     <div class="flow-head">
-      <div class="h">宿主</div>
-      <div class="s">钩子边界</div>
-      <div class="p">插件</div>
+      <div class="h">host</div>
+      <div class="s">hook boundary</div>
+      <div class="p">plugin</div>
     </div>
     <div class="flow-body">
       <div class="lane"><ul>
-          <li><span class="what">session.queuePush</span><span class="why">宿主拥有的队列</span></li>
-          <li><span class="what">补署名落库</span><span class="why">pluginId / pluginLabel</span></li>
-          <li><span class="what">按队列跑一轮</span><span class="why">用户随时可停</span></li>
-          <li><span class="what">对话出现可见行</span><span class="why">插件名义</span></li>
+          <li><span class="what">session.queuePush</span><span class="why">the host-owned queue</span></li>
+          <li><span class="what">Adds attribution and persists</span><span class="why">pluginId / pluginLabel</span></li>
+          <li><span class="what">Runs a turn from the queue</span><span class="why">the user can stop at any time</span></li>
+          <li><span class="what">A visible row appears</span><span class="why">in the plugin's name</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">runtime.turn.continue</span><span class="why">权限门控</span></li>
-          <li><span class="what">入队即返回</span><span class="why">不等跑完</span></li>
-          <li><span class="what">沙箱缺口</span><span class="why">未接（ADR 0300）</span></li>
+          <li><span class="what">runtime.turn.continue</span><span class="why">permission gating</span></li>
+          <li><span class="what">Returns on enqueue</span><span class="why">does not wait for completion</span></li>
+          <li><span class="what">Sandbox gap</span><span class="why">not wired (ADR 0300)</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">构造 message</span><span class="why">给用户看的句子</span></li>
-          <li><span class="what">continueTurn</span><span class="why">拿 queuedTurnId</span></li>
-          <li><span class="what">不冒充用户</span><span class="why">署名由宿主补</span></li>
+          <li><span class="what">Builds the message</span><span class="why">a sentence meant for the user</span></li>
+          <li><span class="what">continueTurn</span><span class="why">gets queuedTurnId</span></li>
+          <li><span class="what">Does not impersonate the user</span><span class="why">attribution is added by the host</span></li>
       </ul></div>
     </div>
     <div class="arrow-row">
-      <div class="x">→ message 入队</div>
-      <div class="x">补署名 →</div>
+      <div class="x">→ message enqueued</div>
+      <div class="x">attribution added →</div>
       <div class="y">← queuedTurnId</div>
     </div>
   </div>
-  <h3>一次续跑的一生</h3>
+  <h3>Life of one continuation</h3>
     <table>
-    <thead><tr><th>时刻</th><th>发生什么</th></tr></thead>
+    <thead><tr><th>moment</th><th>what happens</th></tr></thead>
     <tbody>
-      <tr><td class="id">调用</td><td>插件提交 message</td></tr>
-      <tr><td class="id">入队</td><td>宿主补 pluginId / pluginLabel，写成可见行</td></tr>
-      <tr><td class="id">开跑</td><td>按队列顺序跑一轮（一条正常模型请求）</td></tr>
-      <tr><td class="id">用户</td><td>看得见这条行，随时可以中止</td></tr>
+      <tr><td class="id">Call</td><td>The plugin submits the message</td></tr>
+      <tr><td class="id">Enqueue</td><td>The host adds pluginId / pluginLabel and writes a visible row</td></tr>
+      <tr><td class="id">Run</td><td>A turn runs in queue order (one normal model request)</td></tr>
+      <tr><td class="id">User</td><td>Can see the row and can stop at any time</td></tr>
     </tbody>
   </table>
-  <div class="callout warn"><b>与 turn-closing 的分工。</b>本路径（queuePush）有署名；turn-closing 的续跑走 <code>agent.steer({role:"user"})</code>，<b>无插件署名</b>——那是缺陷，见 <code>runtime/turn-closing/</code>。</div>
+  <div class="callout warn"><b>The split from turn-closing.</b> This path (queuePush) carries attribution; turn-closing's continuation goes through <code>agent.steer({role:"user"})</code> <b>with no plugin attribution</b> - that is a defect, see <code>runtime/turn-closing/</code>.</div>
 </section>
 
-<!-- ============ 3 出错怎么办 ============ -->
+<!-- ============ 3 Error handling ============ -->
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>情况</th><th>结果</th><th>靠什么保证</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>guaranteed by</th></tr></thead>
     <tbody>
-      <tr><td class="id">无权限</td><td>拒绝 + 诊断</td><td>权限门控</td></tr>
-      <tr><td class="id">队列满 / 会话忙</td><td>仍入队，按序跑；或明确错误（见宿主队列语义）</td><td>宿主队列</td></tr>
-      <tr><td class="id">插件抛错</td><td>不入队</td><td>调用方</td></tr>
-      <tr><td class="id">用户中止</td><td>署名行和轮都会停</td><td>用户可见 + 可停</td></tr>
-      <tr><td class="id">沙箱插件</td><td>目前调不通</td><td>ADR 0300</td></tr>
+      <tr><td class="id">No permission</td><td>Refused plus a diagnostic</td><td>Permission gating</td></tr>
+      <tr><td class="id">Queue full / session busy</td><td>Still enqueued and run in order; or an explicit error (see the host queue semantics)</td><td>Host queue</td></tr>
+      <tr><td class="id">Plugin throws</td><td>Nothing is enqueued</td><td>The caller</td></tr>
+      <tr><td class="id">User aborts</td><td>The attributed row and the turn both stop</td><td>Visible + stoppable</td></tr>
+      <tr><td class="id">Sandbox plugin</td><td>Currently cannot reach it</td><td>ADR 0300</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 4 不提供什么 ============ -->
+<!-- ============ 4 What is not provided ============ -->
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>不给</th><th>为什么</th></tr></thead>
+    <thead><tr><th>not provided</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td class="id">无署名续跑</td><td>可见性是前提，不存在隐藏通道</td></tr>
-      <tr><td class="id">用户身份冒充</td><td>署名由宿主补，插件伪造不了</td></tr>
-      <tr><td class="id">改历史消息</td><td>只入新行</td></tr>
-      <tr><td class="id">无限静默连跑</td><td>无配额靠可见性兜底；静默连跑被禁止</td></tr>
+      <tr><td class="id">Unattributed continuations</td><td>Visibility is the precondition; there is no hidden channel</td></tr>
+      <tr><td class="id">Impersonating the user</td><td>The host adds the attribution; a plugin cannot forge it</td></tr>
+      <tr><td class="id">Changing historical messages</td><td>It only adds new rows</td></tr>
+      <tr><td class="id">Endless silent chaining</td><td>With no quota, visibility is the backstop; silent chaining is forbidden</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 5 相关条目 ============ -->
+<!-- ============ 5 Related entries ============ -->
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
       <table>
-    <thead><tr><th>谁</th><th>关系</th><th>位置</th></tr></thead>
+    <thead><tr><th>who</th><th>relation</th><th>location</th></tr></thead>
     <tbody>
-      <tr><td class="id">turn-closing</td><td>轮末被动询问；续跑走 steer，<b>缺署名（缺陷）</b>；本路径有署名</td><td><code>runtime/turn-closing/</code></td></tr>
-      <tr><td class="id">abort-turn</td><td>用户 / 插件可停</td><td><code>runtime/abort-turn/</code></td></tr>
-      <tr><td class="id">tool-gate</td><td>两段式确认的前半段：gate 拦下，再 continueTurn</td><td><code>runtime/tool-gate/</code></td></tr>
-      <tr><td class="id">ADR 0303</td><td>无配额与署名可见的出处</td><td><code>docs/adr/0303</code></td></tr>
+      <tr><td class="id">turn-closing</td><td>The passive end-of-turn query; its continuation goes through steer and <b>lacks attribution (defect)</b>; this path has attribution</td><td><code>runtime/turn-closing/</code></td></tr>
+      <tr><td class="id">abort-turn</td><td>The user / a plugin can stop it</td><td><code>runtime/abort-turn/</code></td></tr>
+      <tr><td class="id">tool-gate</td><td>The first half of two-phase confirmation: the gate blocks, then continueTurn</td><td><code>runtime/tool-gate/</code></td></tr>
+      <tr><td class="id">ADR 0303</td><td>The source of the no-quota rule and visible attribution</td><td><code>docs/adr/0303</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 6 还没定的事 ============ -->
+<!-- ============ 6 Open questions ============ -->
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-    <p style="color:var(--text-2)">署名展示形态、可选上限、与 turn-closing 署名不一致如何收口——见 requirements.html 的「本轮拍板」。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+    <p style="color:var(--text-2)">How attribution is displayed, the optional cap, and how to reconcile the attribution difference with turn-closing - see "Decisions this round" in requirements.html.</p>
 </section>
 
-<p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+<p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

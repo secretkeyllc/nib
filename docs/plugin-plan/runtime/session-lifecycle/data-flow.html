@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session-lifecycle · 会话生命周期（仅压缩前可否决） · 数据流</title>
+<title>session-lifecycle · Session lifecycle (veto only before compaction) · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,27 +98,27 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">session-lifecycle</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 
 <header class="top">
-  <div class="crumb">docs/plugin-plan · runtime/session-lifecycle</div>
-  <h1>session-lifecycle · 数据流</h1>
-  <p>生命周期事件与压缩前否决的路径。六节固定：接口约定 / 数据怎么走 / 出错怎么办 / 不提供什么 / 相关条目 / 还没定的事。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.session.lifecycle</code> · 仅 before_compact 可否决</div>
+  <div class="crumb">docs/plugin-plan · runtime · session-lifecycle</div>
+  <h1>session-lifecycle · Data flow</h1>
+  <p>The path of lifecycle events and of the pre-compaction veto. Six fixed sections: API contract / How data flows / Error handling / What is not provided / Related entries / Open questions.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.session.lifecycle</code> · only before_compact can veto</div>
 </header>
 
 <main>
-<!-- ============ 1 接口约定 ============ -->
+<!-- ============ 1 API contract ============ -->
 <section>
-  <h2><span class="n">1</span>接口约定 <span class="tag proposal">建议</span></h2>
-    <p class="lead">无界面事件监听，<code>runtime.session.lifecycle</code>。除 <code>before_compact</code> 外全部通知式。</p>
+  <h2><span class="n">1</span>API contract <span class="tag proposal">Proposal</span></h2>
+    <p class="lead">Headless event listening, <code>runtime.session.lifecycle</code>. Everything except <code>before_compact</code> is notification-style.</p>
 <pre><span class="c">// 仅压缩前可否决</span>
 pi.on(<span class="k">"session_before_compact"</span>, (payload) =&gt; {
   <span class="c">// payload: { type, reason, retentionMode,</span>
@@ -129,117 +129,117 @@ pi.on(<span class="k">"session_before_compact"</span>, (payload) =&gt; {
   <span class="k">return</span> {}; <span class="c">// 或 { cancel: false } / 不返回</span>
 });</pre>
     <table>
-    <thead><tr><th>方面</th><th>内容</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">before_compact 输入</td><td><code>{ type, reason, retentionMode, segment: { messages, messageCount, tokensBefore, retained } }</code></td></tr>
-      <tr><td class="id">before_compact 输出</td><td><code>{ cancel?: boolean }</code>——<b>仅压缩前可否决</b></td></tr>
-      <tr><td class="id">其余时刻</td><td>通知式：不等待、不可拦、返回值忽略</td></tr>
-      <tr><td class="id">权限</td><td><code>runtime.session.lifecycle</code></td></tr>
+      <tr><td class="id">before_compact input</td><td><code>{ type, reason, retentionMode, segment: { messages, messageCount, tokensBefore, retained } }</code></td></tr>
+      <tr><td class="id">before_compact output</td><td><code>{ cancel?: boolean }</code> - <b>only a compaction can be vetoed</b></td></tr>
+      <tr><td class="id">Other moments</td><td>Notification-style: no waiting, no blocking, return value ignored</td></tr>
+      <tr><td class="id">Permission</td><td><code>runtime.session.lifecycle</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 2 数据怎么走 ============ -->
+<!-- ============ 2 How data flows ============ -->
 <section>
-  <h2><span class="n">2</span>数据怎么走 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">2</span>How data flows <span class="tag verified">Verified</span></h2>
     <div class="legend">
-    <span><span class="chip host">host</span> 宿主 / 内核</span>
-    <span><span class="chip slot">slot</span> 钩子边界</span>
-    <span><span class="chip plugin">plugin</span> 插件</span>
+    <span><span class="chip host">host</span> host / core</span>
+    <span><span class="chip slot">slot</span> hook boundary</span>
+    <span><span class="chip plugin">plugin</span> plugin</span>
   </div>
   <div class="flow">
     <div class="flow-head">
-      <div class="h">宿主</div>
-      <div class="s">钩子边界</div>
-      <div class="p">插件</div>
+      <div class="h">host</div>
+      <div class="s">hook boundary</div>
+      <div class="p">plugin</div>
     </div>
     <div class="flow-body">
       <div class="lane"><ul>
-          <li><span class="what">会话时刻发生</span><span class="why">三处来源</span></li>
-          <li><span class="what">create/delete 桌面</span><span class="why">switch/fork 桌面转发</span></li>
-          <li><span class="what">compact sidecar</span><span class="why">before_compact 带完整载荷</span></li>
-          <li><span class="what">cancel → 取消这一次压缩</span><span class="why">其余通知即发</span></li>
+          <li><span class="what">A session moment occurs</span><span class="why">three sources</span></li>
+          <li><span class="what">create/delete from the desktop</span><span class="why">switch/fork forwarded by the desktop</span></li>
+          <li><span class="what">compact from the sidecar</span><span class="why">before_compact carries the full payload</span></li>
+          <li><span class="what">cancel → cancel this compaction</span><span class="why">all other notifications are fire-and-forget</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">runtime.session.lifecycle</span><span class="why">统一权限</span></li>
-          <li><span class="what">before_compact 唯一可否决</span><span class="why">返回 { cancel? }</span></li>
-          <li><span class="what">沙箱缺口</span><span class="why">未接（ADR 0300）</span></li>
+          <li><span class="what">runtime.session.lifecycle</span><span class="why">one shared permission</span></li>
+          <li><span class="what">before_compact is the only veto</span><span class="why">returns { cancel? }</span></li>
+          <li><span class="what">Sandbox gap</span><span class="why">not wired (ADR 0300)</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">监听五种时刻</span><span class="why">只读为主</span></li>
-          <li><span class="what">before_compact 读 segment</span><span class="why">外层 type/reason/retentionMode</span></li>
-          <li><span class="what">可返回 cancel</span><span class="why">仅此一处</span></li>
+          <li><span class="what">Listens to five moments</span><span class="why">mostly read-only</span></li>
+          <li><span class="what">before_compact reads segment</span><span class="why">outer type/reason/retentionMode</span></li>
+          <li><span class="what">May return cancel</span><span class="why">the only place</span></li>
       </ul></div>
     </div>
     <div class="arrow-row">
-      <div class="x">→ 事件 / 压缩前载荷</div>
+      <div class="x">→ event / pre-compaction payload</div>
       <div class="x">cancel? →</div>
-      <div class="y">← 多数无返回</div>
+      <div class="y">← mostly no return</div>
     </div>
   </div>
-  <h3>before_compact 的一生</h3>
+  <h3>Life of a before_compact</h3>
     <table>
-    <thead><tr><th>时刻</th><th>发生什么</th></tr></thead>
+    <thead><tr><th>moment</th><th>what happens</th></tr></thead>
     <tbody>
-      <tr><td class="id">压缩将启</td><td>sidecar 发出 before_compact，载荷含 <code>type, reason, retentionMode, segment</code></td></tr>
-      <tr><td class="id">插件</td><td>读 segment；可返回 <code>{ cancel?: boolean }</code></td></tr>
-      <tr><td class="id">cancel: true</td><td>这一次压缩取消；内容保留</td></tr>
-      <tr><td class="id">不取消 / 超时</td><td>压缩继续；随后 compact 或 compact_failed 通知</td></tr>
+      <tr><td class="id">Compaction about to start</td><td>The sidecar emits before_compact; the payload carries <code>type, reason, retentionMode, segment</code></td></tr>
+      <tr><td class="id">Plugin</td><td>Reads segment; may return <code>{ cancel?: boolean }</code></td></tr>
+      <tr><td class="id">cancel: true</td><td>This compaction is cancelled; the content is retained</td></tr>
+      <tr><td class="id">No cancel / timeout</td><td>Compaction continues; a compact or compact_failed notification follows</td></tr>
     </tbody>
   </table>
-  <div class="callout warn"><b>仅压缩前可否决。</b>切会话、fork、删除都不接受 cancel。</div>
+  <div class="callout warn"><b>Only a compaction can be vetoed.</b> Switching sessions, forking and deleting do not accept cancel.</div>
 </section>
 
-<!-- ============ 3 出错怎么办 ============ -->
+<!-- ============ 3 Error handling ============ -->
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>情况</th><th>结果</th><th>靠什么保证</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>guaranteed by</th></tr></thead>
     <tbody>
-      <tr><td class="id">before_compact 超时</td><td>按不取消处理，压缩继续</td><td>结果性预算</td></tr>
-      <tr><td class="id">返回 cancel: true</td><td>这一次压缩取消</td><td>唯一否决点</td></tr>
-      <tr><td class="id">通知事件抛错</td><td>记诊断，会话操作照常</td><td>通知式隔离</td></tr>
-      <tr><td class="id">试图 cancel 切换 / 删除</td><td>不支持——忽略</td><td>仅压缩前可否决</td></tr>
-      <tr><td class="id">沙箱插件</td><td>目前收不到</td><td>ADR 0300</td></tr>
+      <tr><td class="id">before_compact times out</td><td>Treated as no cancel; compaction continues</td><td>Result-style budget</td></tr>
+      <tr><td class="id">Returns cancel: true</td><td>This compaction is cancelled</td><td>The single veto point</td></tr>
+      <tr><td class="id">A notification event throws</td><td>A diagnostic is recorded; the session operation continues</td><td>Notification-style isolation</td></tr>
+      <tr><td class="id">Trying to cancel a switch / delete</td><td>Not supported - ignored</td><td>Only before_compact can veto</td></tr>
+      <tr><td class="id">Sandbox plugin</td><td>Currently cannot receive it</td><td>ADR 0300</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 4 不提供什么 ============ -->
+<!-- ============ 4 What is not provided ============ -->
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>不给</th><th>为什么</th></tr></thead>
+    <thead><tr><th>not provided</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td class="id">切换 / fork / 删除的否决</td><td>用户直接操作不可拦；仅压缩前可否决</td></tr>
-      <tr><td class="id">改写压缩段</td><td>只能取消这一次，不能改 messages</td></tr>
-      <tr><td class="id">改 retention 策略</td><td>retentionMode 只读</td></tr>
-      <tr><td class="id">通知回执</td><td>通知式，不等待</td></tr>
+      <tr><td class="id">A veto on switch / fork / delete</td><td>Direct user actions cannot be blocked; only before_compact can veto</td></tr>
+      <tr><td class="id">Rewriting the compacted segment</td><td>It can only cancel this one run; it cannot change messages</td></tr>
+      <tr><td class="id">Changing the retention policy</td><td>retentionMode is read-only</td></tr>
+      <tr><td class="id">Notification acknowledgements</td><td>Notification-style, no waiting</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 5 相关条目 ============ -->
+<!-- ============ 5 Related entries ============ -->
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
       <table>
-    <thead><tr><th>谁</th><th>关系</th><th>位置</th></tr></thead>
+    <thead><tr><th>who</th><th>relation</th><th>location</th></tr></thead>
     <tbody>
-      <tr><td class="id">turn-recap</td><td>压缩会改变 recap 能看到的行；可用 before_compact 挡一下</td><td><code>runtime/turn-recap/</code></td></tr>
-      <tr><td class="id">turn-watch</td><td>轮内事件；这里是会话级时刻</td><td><code>runtime/turn-watch/</code></td></tr>
-      <tr><td class="id">ADR 0301</td><td>消息行与压缩后的存储模型</td><td><code>docs/adr/0301</code></td></tr>
-      <tr><td class="id">ADR 0303</td><td>仅压缩前可否决的出处</td><td><code>docs/adr/0303</code></td></tr>
+      <tr><td class="id">turn-recap</td><td>Compaction changes the rows a recap can see; before_compact can hold it off</td><td><code>runtime/turn-recap/</code></td></tr>
+      <tr><td class="id">turn-watch</td><td>In-turn events; here it is session-level moments</td><td><code>runtime/turn-watch/</code></td></tr>
+      <tr><td class="id">ADR 0301</td><td>The message row and post-compaction storage model</td><td><code>docs/adr/0301</code></td></tr>
+      <tr><td class="id">ADR 0303</td><td>The source of "veto only before compaction"</td><td><code>docs/adr/0303</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 6 还没定的事 ============ -->
+<!-- ============ 6 Open questions ============ -->
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-    <p style="color:var(--text-2)">cancel 次数上限、retentionMode 取值表、segment.messages 粒度——见 requirements.html 的「本轮拍板」。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+    <p style="color:var(--text-2)">The limit on cancel counts, the retentionMode value table, the granularity of segment.messages - see "Decisions this round" in requirements.html.</p>
 </section>
 
-<p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+<p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

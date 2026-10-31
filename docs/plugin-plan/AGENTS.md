@@ -22,12 +22,11 @@ docs/plugin-plan/
   runtime/<contract-id>/  one runtime hook or session data contract
                           e.g. runtime/before-send, runtime/session-context
   host-api/<api-id>/   one callable host API or lifecycle hook (implemented
-                        surface; Chinese title 曾经是「已有能力」) e.g. host-api/fs.readText
+                        surface; the title was once "existing capability") e.g. host-api/fs.readText
 ```
 
-Folder id is lowercase-kebab and must match the name the SDK will use. Titles
-inside the pages are Chinese; ids, field names, code, and commit messages stay
-English.
+Folder id is lowercase-kebab and must match the name the SDK will use. Titles,
+prose, ids, field names, code, and commit messages are all English.
 
 ## Required files per folder
 
@@ -47,7 +46,7 @@ raw content over once and the plugin owns everything else may omit it; record
 the omission in that folder's `index.html` and `requirements.html`.
 
 `demo.html` is required for UI slots. Runtime hooks have no UI and omit it;
-record `省略：无界面` in `index.html` and `requirements.html`.
+record `Omitted: no UI` in `index.html` and `requirements.html`.
 
 ## Top navigation
 
@@ -61,12 +60,12 @@ Keep the markup and class name (`plan-nav`) identical across pages.
 
 `data-flow.html` carries these sections, in this order, in plain language:
 
-1. **接口约定** — what data the plugin gets, which host components it can use, which operations it can call, permission name
-2. **数据怎么走** — who passes what, in which direction, over what lifetime
-3. **出错怎么办** — thrown error, unload, edit mode
-4. **不提供什么** — what this position deliberately does NOT provide (include 宿主保证 / 已接受代价 when isolation matters)
-5. **相关条目** — neighbouring slots and core APIs, by folder path
-6. **还没定的事** — unanswered questions, one screen maximum
+1. **Interface contract** — what data the plugin gets, which host components it can use, which operations it can call, permission name
+2. **How the data moves** — who passes what, in which direction, over what lifetime
+3. **What happens on failure** — thrown error, unload, edit mode
+4. **What is not provided** — what this position deliberately does NOT provide (include host guarantees / accepted costs when isolation matters)
+5. **Related entries** — neighbouring slots and core APIs, by folder path
+6. **Open questions** — unanswered questions, one screen maximum
 
 ## Status
 
@@ -81,7 +80,7 @@ Status appears in `index.html` and as an HTML comment on line 1 of each file.
 - Self-contained pages: one file each, no build step, no external assets.
 - No narration in `demo.html`. Stage hints are short phrases only.
 - Write in plain language. Table headers and section titles included.
-  - Say `消息气泡整体`, not `气泡心`; say `现成组件`, not `积木`; say `出错隔离`, not `error boundary`; say `能调用的操作`, not `action 闭包`.
+  - Say `the whole message bubble`, not `bubble core`; say `ready-made component`, not `building block`; say `failure isolation`, not `error boundary`; say `callable operation`, not `action closure`.
 - Code citations use `branch@sha · path · symbol`, never bare line numbers alone.
 - Do not restate an ADR or a spec as if this catalog were authoritative.
 - No deprecation banners or version-history sections. The catalog is current-state only.

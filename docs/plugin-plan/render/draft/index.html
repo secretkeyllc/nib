@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>草稿读写 · 目录</title>
+<title>Draft read/write - Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -48,52 +48,52 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <a href="index.html">草稿读写</a>
+  <a href="index.html">Draft read/write</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · render · draft</div>
-  <h1>草稿读写 · 目录</h1>
-  <p>输入框草稿的三个方法：<code>composer.readDraft</code> / <code>composer.replaceDraft</code> / <code>composer.insertText</code>。读是快照；写分两条路——插入是主路径，整体替换受限。这是 render 相关接口，不是 UI 槽。</p>
-  <div class="meta">status: draft · issue #545 · #561 · 草稿变化经 rendererData <code>draft</code> 推送，不要轮询</div>
+  <h1>Draft read/write - Index</h1>
+  <p>Three methods for the composer draft: <code>composer.readDraft</code> / <code>composer.replaceDraft</code> / <code>composer.insertText</code>. Reading is a snapshot; writing has two paths - insertion is the primary path and whole replacement is restricted. This is a render interface, not a UI slot.</p>
+  <div class="meta">status: draft - issue #545 - #561 - draft changes are pushed through rendererData <code>draft</code>; do not poll</div>
 </header>
 
 <main>
 
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：三方法分工、返回形状、替换的三道闸、明确不做、本轮拍板。</p>
-      <p class="files">范围 · 契约形状 · 谁能用 · 场景 · 明确不做 · 本轮拍板</p>
+      <p class="what">What it covers: how the three methods divide up, return shapes, the three gates on replacement, explicit non-goals, decisions this round.</p>
+      <p class="files">Scope - contract shape - who can use it - scenarios - explicit non-goals - decisions this round</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：快照与世代号、插入与替换、推送通道、出错怎么办。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: the snapshot and generation, insertion and replacement, the push channel, error handling.</p>
+      <p class="files">API contract - how data flows - error handling - what is not provided - related entries - open questions</p>
     </a>
   </div>
 
-  <h2>为什么没有 demo</h2>
-  <div class="callout warn"><b>接口类，省略 demo。</b>本目录钉的是调用契约，没有可挂载的界面槽。输入框和记号长什么样，见 <code>ui/composer/demo.html</code>；草稿方法在那里的场景 5 / 7 / 4 以文字说明出现，不另做界面演示页。</div>
+  <h2>Why there is no demo</h2>
+  <div class="callout warn"><b>Interface-only, so the demo is omitted.</b> This folder pins the call contract; there is no mountable UI slot. For the composer and its tokens, see <code>ui/composer/demo.html</code>; the draft methods appear there in prose under scenarios 5 / 7 / 4, and no separate UI demo page is made.</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><code>readDraft</code> → <code>{ text, marks[] }</code>（带 <code>generation</code> 世代号，给替换对账用）。</li>
-    <li><code>insertText</code> 是<b>主路径</b>：往光标处插一段文字，谁都能用、随时能用。</li>
-    <li><code>replaceDraft</code> <b>受限</b>：三道闸——世代号对账（CAS <code>expectedGeneration</code>）+ 输入框非聚焦才可写 + <b>远端来源禁止</b>。</li>
-    <li>草稿变化宿主 <b>推</b>给插件（rendererData <code>draft</code>），插件不要轮询。</li>
-    <li>出站分层：<code>insertText</code> 属核心 H；<code>readDraft</code> 属可选 H；远端 <code>replaceDraft</code> 属拒绝。</li>
+    <li><code>readDraft</code> -> <code>{ text, marks[] }</code> (carrying a <code>generation</code>, used to reconcile replacement).</li>
+    <li><code>insertText</code> is the <b>primary path</b>: insert a run of text at the caret; any plugin can use it at any time.</li>
+    <li><code>replaceDraft</code> is <b>restricted</b> by three gates: generation reconciliation (CAS <code>expectedGeneration</code>), the composer must not be focused, and <b>remote origins are forbidden</b>.</li>
+    <li>The host <b>pushes</b> draft changes to the plugin (rendererData <code>draft</code>); a plugin must not poll.</li>
+    <li>Outbound layering: <code>insertText</code> is core H; <code>readDraft</code> is optional H; remote <code>replaceDraft</code> is rejected.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">marks 的字段名（沿用旧 tokens 还是定稿 marks）、generation 溢出策略——见 data-flow.html「还没定的事」。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">The field name for marks (keep the old tokens or settle on marks) and the generation overflow policy are open - see "Open questions" in data-flow.html.</p>
 
 </main>
 </body>

@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ui.notify · 数据流</title>
+<title>ui.notify · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,76 +49,76 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">ui.notify</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>ui.notify · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>ui.notify · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
  <section>
-   <h2><span class="n">1</span>接口约定</h2>
+   <h2><span class="n">1</span>Interface contract</h2>
   <pre class="sig">pi.ui.notify(input: { title: string; body?: string }): Promise&lt;void&gt;</pre>
-   <p class="lead">走宿主通知通道提醒用户；权限：<span class="pill perm">—</span>。</p>
-   <p><b>入参</b></p>
+   <p class="lead">Notifies the user through the host notification channel; permission: <span class="pill perm">—</span>.</p>
+   <p><b>Input</b></p>
    <table>
-     <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+     <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
      <tbody>
-       <tr><td class="id">title</td><td class="id">string</td><td>是</td><td>通知标题。</td></tr>
-       <tr><td class="id">body</td><td class="id">string</td><td>否</td><td>通知正文，可省略。</td></tr>
+       <tr><td class="id">title</td><td class="id">string</td><td>Yes</td><td>Notification title.</td></tr>
+       <tr><td class="id">body</td><td class="id">string</td><td>No</td><td>Notification body; may be omitted.</td></tr>
      </tbody>
    </table>
-   <p><b>出参</b></p>
+   <p><b>Output</b></p>
    <table>
-     <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+     <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
      <tbody>
-       <tr><td class="id">（返回值）</td><td class="id">void</td><td>无返回数据，成功即 resolve；是否展示、用户是否点开均不回传。</td></tr>
+       <tr><td class="id">(return value)</td><td class="id">void</td><td>No return data; resolves on success; whether it was shown and whether the user clicked it are not reported back.</td></tr>
      </tbody>
    </table>
-   <p><b>输入样例</b></p>
+   <p><b>Input example</b></p>
    <pre>{ "title": "导出完成", "body": "共 128 个文件" }</pre>
-   <p><b>输出样例</b></p>
-   <pre>// void —— 成功即 resolve，无输出</pre>
-   <div class="callout"><b>一句话边界。</b>走宿主通知策略展示，不等于系统横幅；要系统横幅用 <code>ui.showNativeNotification</code>。</div>
+   <p><b>Output example</b></p>
+   <pre>// void — resolves on success, no output</pre>
+   <div class="callout"><b>Boundary in one sentence.</b> Displayed under the host notification policy; not the same as a system banner; use <code>ui.showNativeNotification</code> for a system banner.</div>
  </section>
  <section>
-   <h2><span class="n">2</span>数据怎么走</h2>
+   <h2><span class="n">2</span>How data flows</h2>
    <ol>
-     <li><b>调用：</b>插件进程传入 <code>{ title, body? }</code>。</li>
-     <li><b>校验：</b>清单缺 <code>notify</code> 权限时拒绝。</li>
-     <li><b>执行：</b>宿主按自己的通知策略展示该条通知。</li>
-     <li><b>返回：</b>resolve，无数据回传。</li>
+     <li><b>Call:</b> the plugin process passes <code>{ title, body? }</code>.</li>
+     <li><b>Validation:</b> rejected when the manifest lacks the <code>notify</code> permission.</li>
+     <li><b>Execution:</b> the host displays the notification under its own notification policy.</li>
+     <li><b>Return:</b> resolves, no data returned.</li>
    </ol>
  </section>
  <section>
-   <h2><span class="n">3</span>出错怎么办</h2>
+   <h2><span class="n">3</span>Error handling</h2>
    <table>
-     <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+     <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
      <tbody>
-       <tr><td>清单缺 <code>notify</code> 权限</td><td>Promise 拒绝，通知不发出</td><td class="id">PERMISSION_DENIED</td></tr>
+       <tr><td>Manifest lacks the <code>notify</code> permission</td><td>Promise rejects; the notification is not sent</td><td class="id">PERMISSION_DENIED</td></tr>
      </tbody>
    </table>
  </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不等于系统横幅。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Not the same as a system banner.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/ui.showNativeNotification</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

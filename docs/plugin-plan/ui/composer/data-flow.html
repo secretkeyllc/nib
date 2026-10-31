@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>输入区 · 数据流</title>
+<title>Composer · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -58,92 +58,92 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">输入区</span>
+  <span class="here">Composer</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>输入区 · 数据流</h1>
-  <p>组件槽的数据怎么走。草稿读写 / 附件方法不在本夹。</p>
-   <div class="meta">status: finalized · 槽名与 props 字段名已定稿（见 slot-contract.html §6）；SDK 与宿主已实现，示例见 examples/plugins/ui-slots-lab</div>
+  <h1>Composer · Data flow</h1>
+  <p>How data moves through the component slots. Draft read/write and attachment methods live elsewhere.</p>
+   <div class="meta">status: finalized · slot names and props field names are final (see slot-contract.html §6); SDK and host are implemented, example in examples/plugins/ui-slots-lab</div>
 </header>
 <main>
 
 <section>
-   <h2><span class="n">1</span>接口约定 <span class="tag decided">已定</span></h2>
-  <p>本夹只谈组件槽：左控件、右控件、触发符、记号。</p>
+   <h2><span class="n">1</span>API contract <span class="tag decided">Decided</span></h2>
+  <p>This folder covers the component slots only: left control, right control, trigger character, and token.</p>
   <table>
-    <thead><tr><th>槽</th><th>插件拿到什么</th></tr></thead>
+    <thead><tr><th>slot</th><th>what the plugin receives</th></tr></thead>
     <tbody>
-      <tr><td>左控件 / 右控件</td><td>渲染位置；无额外数据</td></tr>
-      <tr><td>触发符</td><td>筛选文字（用户打出的）</td></tr>
-      <tr><td>记号</td><td>label / send 两份数据</td></tr>
+      <tr><td>Left / right control</td><td>A render position; no extra data</td></tr>
+      <tr><td>Trigger character</td><td>The filter text the user typed</td></tr>
+      <tr><td>Token</td><td>Two pieces of data: label and send</td></tr>
     </tbody>
   </table>
-  <p>权限：随 <code>renderer.extension</code>。草稿 / 附件方法见 <a href="../../render/draft/">render/draft/</a>、<a href="../../render/attachments/">render/attachments/</a>。</p>
+  <p>Permission: covered by <code>renderer.extension</code>. Draft and attachment methods are in <a href="../../render/draft/">render/draft/</a> and <a href="../../render/attachments/">render/attachments/</a>.</p>
 </section>
 
 <section>
-   <h2><span class="n">2</span>数据怎么走 <span class="tag decided">已定</span></h2>
+   <h2><span class="n">2</span>How data flows <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>宿主 → 插件</td><td>触发符筛选文字；记号渲染数据</td></tr>
-      <tr><td>插件 → 宿主</td><td>触发符列表项；记号 label / send</td></tr>
-      <tr><td>插件 → 自己</td><td>控件交互自理</td></tr>
-    </tbody>
-  </table>
-</section>
-
-<section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag decided">已定</span></h2>
-  <table>
-    <thead><tr><th>情况</th><th>结果</th></tr></thead>
-    <tbody>
-      <tr><td>插件组件抛错</td><td>只塌掉自己那一块控件 / 列表</td></tr>
-      <tr><td>插件未加载 / 已卸载</td><td>槽位释放；固定件不受影响</td></tr>
+      <tr><td>host → plugin</td><td>The trigger filter text; the token render data</td></tr>
+      <tr><td>plugin → host</td><td>Trigger list items; token label / send</td></tr>
+      <tr><td>plugin → itself</td><td>Control interactions are the plugin's own business</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag decided">Decided</span></h2>
+  <table>
+    <thead><tr><th>Case</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>A plugin component throws</td><td>Only its own control or list collapses</td></tr>
+      <tr><td>Plugin not loaded / already unloaded</td><td>The slot is released and the fixed parts are unaffected</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">4</span>What is not provided <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>不提供固定件控制权</li>
-    <li>不提供草稿读写 / 附件方法（不在本夹）</li>
-    <li>附件只收 <code>content|token</code>，禁 path / URL ref</li>
+    <li>No control over the fixed parts</li>
+    <li>No draft read/write or attachment methods (they are not here)</li>
+    <li>Attachments accept only <code>content|token</code>; path / URL refs are forbidden</li>
   </ul>
   <div class="duo">
     <div class="guarantee">
-      <h4>宿主保证</h4>
-      出错隔离；卸载时摘掉注册与注入样式。
+      <h4>Host guarantees</h4>
+      Failure isolation; registration and injected styles are removed on unload.
     </div>
     <div class="cost">
-      <h4>已接受代价</h4>
-      同 realm 可碰全局；样式重写可被绕过。
+      <h4>Accepted costs</h4>
+      Shares the realm, so globals are reachable; style overrides can be bypassed.
     </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="n">5</span>相关条目 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">5</span>Related entries <span class="tag decided">Decided</span></h2>
   <ul>
-    <li><a href="../../render/draft/">render/draft/</a> — 草稿读写</li>
-    <li><a href="../../render/attachments/">render/attachments/</a> — 附件方法</li>
-    <li><a href="../../slot-contract.html">slot-contract.html</a> — 公共契约</li>
+    <li><a href="../../render/draft/">render/draft/</a> - draft read/write</li>
+    <li><a href="../../render/attachments/">render/attachments/</a> - attachment methods</li>
+    <li><a href="../../slot-contract.html">slot-contract.html</a> — shared contract</li>
   </ul>
 </section>
 
 <section>
-   <h2><span class="n">6</span>定稿记录 <span class="tag decided">已定</span></h2>
+   <h2><span class="n">6</span>Finalization record <span class="tag decided">Decided</span></h2>
   <ul>
-     <li>触发符固定 3 个：<code>@</code>（上下文/引用）、<code>#</code>（数据/资源）、<code>/</code>（指令）；全角归一化；一符一插件，重复注册返回 <code>PLUGIN_SLOT_DUPLICATE</code>；仅行首或空白后且非 IME 组词中触发，程序写入永不触发</li>
-     <li>记号单草稿上限 8 个，第 9 个起同位置折叠为宿主记号 <code>⧉ +N</code>（标注首个溢出插件）；发送 payload 不丢</li>
+     <li>Three fixed trigger characters: <code>@</code> (context / reference), <code>#</code> (data / resource), and <code>/</code> (commands); full-width forms are normalized; one character per plugin, and a duplicate registration returns <code>PLUGIN_SLOT_DUPLICATE</code>; they fire only at the start of a line or after whitespace, never mid-IME composition, and programmatic writes never fire them</li>
+     <li>A single draft holds at most eight tokens; from the ninth they collapse in place into a host token <code>+N</code> (labelled with the first overflowing plugin); the send payload loses nothing</li>
   </ul>
 </section>
 

@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session.applyCompaction · 需求描述</title>
+<title>session.applyCompaction · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,44 +49,44 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a><span class="sep">/</span><a href="index.html">session-compaction</a>
+  <a href="../../index.html">Plugin slot catalog</a><span class="sep">/</span><a href="index.html">session-compaction</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
-  <h1>session.applyCompaction · 需求描述</h1>
-  <div class="meta">status: <b>draft · 设计稿</b> · 会话数据契约 · 规划出处：能力清单审查 N4 · 权限 <code>session.compact.write</code>（新增） · 尚无 SDK 实现</div>
+  <h1>session.applyCompaction · Requirements</h1>
+  <div class="meta">status: <b>draft · design draft</b> · session data contract · planned from: capability inventory review N4 · permission <code>session.compact.write</code> (new) · no SDK implementation yet</div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>用途与边界</h2>
-  <p class="lead">把插件算好的压缩摘要交宿主托管写回：宿主校验后写入压缩记录（挂现有 <code>session.appendCompaction</code> 链），界面显示压缩行，下一轮对话生效。插件永远不直接改消息列表。</p>
+  <h2><span class="n">1</span>Purpose and scope</h2>
+  <p class="lead">Hands a compaction summary computed by the plugin to the host for a managed write-back: the host validates it and writes a compaction record (on the existing <code>session.appendCompaction</code> chain), the UI shows a compaction row, and it takes effect on the next turn. A plugin never modifies the message list directly.</p>
   <pre class="sig">pi.session.applyCompaction(input: { sessionId: string; summary: string; retainedMessageIds?: string[]; reason?: string }): Promise&lt;PluginApplyCompactionResult&gt;</pre>
-  <p>权限：<code>session.compact.write</code>（新增 · high · 装时确认 · 操作界面可见可审计）。</p>
+  <p>Permission: <code>session.compact.write</code> (new · high · confirmed at install · the operation is visible in the UI and auditable).</p>
 </section>
 <section>
-  <h2><span class="n">2</span>典型场景</h2>
-  <table><thead><tr><th>场景</th><th>插件做什么</th></tr></thead><tbody>
-<tr><td><b>DIY 压缩器（主场景）</b></td><td>用 <code>session.getContext</code> 读工作集 → 自算摘要（如 <code>agent.complete</code>）→ 提交本接口写回。</td></tr>
-<tr><td><b>领域压缩</b></td><td>按领域知识压缩（代码讨论保代码块、长文档保结论），比通用摘要更省 token。</td></tr>
-<tr><td><b>用户手动触发</b></td><td>插件面板放「立即压缩」按钮，用户主动瘦身话话。</td></tr>
+  <h2><span class="n">2</span>Typical scenarios</h2>
+  <table><thead><tr><th>scenario</th><th>what the plugin does</th></tr></thead><tbody>
+<tr><td><b>DIY compactor (primary scenario)</b></td><td>Reads the working set with <code>session.getContext</code> → computes its own summary (e.g. via <code>agent.complete</code>) → submits it through this interface for write-back.</td></tr>
+<tr><td><b>Domain compaction</b></td><td>Compact using domain knowledge (keep code blocks in code discussions, keep conclusions from long documents), which saves more tokens than a generic summary.</td></tr>
+<tr><td><b>User-triggered</b></td><td>The plugin panel offers a "compact now" button so the user can slim the conversation down on demand.</td></tr>
   </tbody></table>
 </section>
 <section>
-  <h2><span class="n">3</span>明确不做什么</h2>
-  <p class="lead">不做静默改写：不提供 <code>replaceMessages</code>，摘要必须进压缩记录、界面可见、带来源戳。不做撤销/回滚（v1；压缩行可见可审计，回滚留后续版本）。summary 只收纯文本。</p>
+  <h2><span class="n">3</span>Explicit non-goals</h2>
+  <p class="lead">No silent rewriting: <code>replaceMessages</code> is not provided, and a summary must become a compaction record, be visible in the UI, and carry a source stamp. No undo/rollback (v1; the compaction row is visible and auditable, and rollback is left to a later version). summary accepts plain text only.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>已拍板</h2>
+  <h2><span class="n">4</span>Decided</h2>
   <ul>
-    <li>权限开新域 <code>session.compact.write</code>（high，装时确认）；不做二次弹窗，靠界面可见 + 审计兜底。</li>
-    <li>实现挂点：宿主现有 <code>session.appendCompaction</code> RPC（已做形状校验、按 id 去重、下一请求生效），主进程注入 pluginId 作来源戳。</li>
-    <li>并发冲突显式报 <code>CONFLICT</code>，配合 <code>session.getContext</code> 的 <code>compactionCursor</code> 做乐观校验。</li>
+    <li>Open a new permission domain, <code>session.compact.write</code> (high, confirmed at install); no second confirmation dialog - visibility in the UI plus auditing is the safety net.</li>
+    <li>Implementation anchor: the host's existing <code>session.appendCompaction</code> RPC (already does shape validation, de-duplicates by id, and takes effect on the next request); the main process injects the pluginId as the source stamp.</li>
+    <li>Concurrency conflicts are reported explicitly as <code>CONFLICT</code>, using <code>compactionCursor</code> from <code>session.getContext</code> for optimistic checking.</li>
   </ul>
 </section>
 

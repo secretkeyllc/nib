@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>工具调用卡 · 数据流</title>
+<title>Tool call card · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -58,96 +58,96 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">工具调用卡</span>
+  <span class="here">Tool call card</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>工具调用卡 · 数据流</h1>
-  <p>自己注册的工具：调用数据推给卡片组件；失败是数据。宿主 / 他人工具不进插件。</p>
-   <div class="meta">status: finalized · 槽名与 props 字段名已定稿（见 slot-contract.html §6）；SDK 与宿主已实现，示例见 examples/plugins/ui-slots-lab</div>
+  <h1>Tool call card · Data flow</h1>
+  <p>For tools it registered itself, call data is pushed to the card component, and failure is data. Host and third-party tools never reach the plugin.</p>
+   <div class="meta">status: finalized · slot names and props field names are final (see slot-contract.html §6); SDK and host are implemented, example in examples/plugins/ui-slots-lab</div>
 </header>
 <main>
 
 <section>
-   <h2><span class="n">1</span>接口约定 <span class="tag decided">已定</span></h2>
-   <p>插件注册工具时一并给出卡片组件。没有认领，也没有宿主函数。注册走统一判别式联合 <code>{ slot:"toolCard", toolName, component }</code>，<code>toolName</code> 须命中 manifest <code>contributes.agentTools[].name</code>。</p>
+   <h2><span class="n">1</span>API contract <span class="tag decided">Decided</span></h2>
+   <p>A plugin supplies the card component when it registers the tool. There is no claiming and there are no host functions. Registration uses the shared discriminated union <code>{ slot:"toolCard", toolName, component }</code>, and <code>toolName</code> must match <code>contributes.agentTools[].name</code> in the manifest.</p>
   <table>
-    <thead><tr><th>props</th><th>含义</th></tr></thead>
+    <thead><tr><th>props</th><th>Meaning</th></tr></thead>
     <tbody>
-       <tr><td><code>toolName</code> · <code>toolCallId</code> · <code>messageId</code> · <code>sessionId</code></td><td>本次调用与标识（toolName 必是自己注册的工具）</td></tr>
-       <tr><td><code>toolArgs?</code></td><td>入参</td></tr>
+       <tr><td><code>toolName</code> - <code>toolCallId</code> - <code>messageId</code> - <code>sessionId</code></td><td>This call and its identifiers (toolName is always a tool this plugin registered)</td></tr>
+       <tr><td><code>toolArgs?</code></td><td>Input</td></tr>
        <tr><td><code>toolStatus</code></td><td>running / success / error</td></tr>
-       <tr><td><code>toolResult?</code> · <code>toolError?</code> · <code>durationMs?</code></td><td>结果 / 失败信息 / 耗时（失败是数据不是抛错）</td></tr>
+       <tr><td><code>toolResult?</code> - <code>toolError?</code> - <code>durationMs?</code></td><td>Result / failure information / duration (failure is data, not a throw)</td></tr>
     </tbody>
   </table>
-  <p>权限：随 <code>renderer.extension</code>。副作用走插件自己的 <code>plugin.call</code>。</p>
+  <p>Permission: covered by <code>renderer.extension</code>. Side effects go through the plugin's own <code>plugin.call</code>.</p>
 </section>
 
 <section>
-   <h2><span class="n">2</span>数据怎么走 <span class="tag decided">已定</span></h2>
+   <h2><span class="n">2</span>How data flows <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-       <tr><td>宿主 → 插件</td><td>这次调用的整份数据推给卡片组件；运行中 500ms 节拍合并推送，状态跃迁与最终结果立即推</td></tr>
-      <tr><td>插件 → 宿主</td><td><strong>无</strong>。不回调、不改执行</td></tr>
-      <tr><td>宿主 / 他人工具</td><td>不进插件，走宿主默认卡</td></tr>
+       <tr><td>host → plugin</td><td>The whole payload for this call is pushed to the card component; while it runs, pushes are coalesced on a 500ms tick, with state transitions and the final result pushed immediately</td></tr>
+      <tr><td>plugin → host</td><td><strong>None</strong>. No callbacks and no changing execution</td></tr>
+      <tr><td>Host and third-party tools</td><td>They never reach the plugin and use the host default card</td></tr>
     </tbody>
   </table>
-  <p>递交模型：<strong>props-push</strong>。</p>
+  <p>Delivery model: <strong>props-push</strong>.</p>
 </section>
 
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th></tr></thead>
+    <thead><tr><th>Case</th><th>Result</th></tr></thead>
     <tbody>
-      <tr><td>工具执行失败</td><td><strong>失败是数据不是抛错</strong>，进字段由插件画</td></tr>
-      <tr><td>插件组件抛错</td><td>只塌掉这张卡</td></tr>
-      <tr><td>插件未加载 / 已卸载</td><td>回到宿主默认卡</td></tr>
+      <tr><td>Tool execution fails</td><td><strong>Failure is data, not a throw</strong>; it lands in a field and the plugin draws it</td></tr>
+      <tr><td>A plugin component throws</td><td>Only this card collapses</td></tr>
+      <tr><td>Plugin not loaded / already unloaded</td><td>It falls back to the host default card</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>不提供认领：宿主 / 他人工具不可定制</li>
-    <li>不提供交互动作（等待 / 审批 / 重试）</li>
-    <li>不提供宿主函数与额外数据面</li>
-    <li>不让插件改入参、拦截执行、发起调用</li>
+    <li>No claiming: host and third-party tools cannot be customized</li>
+    <li>No interactive actions (waiting, approval, retry)</li>
+    <li>No host functions and no extra data surface</li>
+    <li>A plugin may not rewrite the input, intercept execution, or start calls</li>
   </ul>
   <div class="duo">
     <div class="guarantee">
-      <h4>宿主保证</h4>
-      出错隔离；卸载时摘掉注册与注入样式。
+      <h4>Host guarantees</h4>
+      Failure isolation; registration and injected styles are removed on unload.
     </div>
     <div class="cost">
-      <h4>已接受代价</h4>
-      同 realm 可碰全局；样式重写可被绕过。
+      <h4>Accepted costs</h4>
+      Shares the realm, so globals are reachable; style overrides can be bypassed.
     </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="n">5</span>相关条目 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">5</span>Related entries <span class="tag decided">Decided</span></h2>
   <ul>
-    <li><code>ui/block-renderer/</code> — 代码块渲染</li>
-    <li><code>ui/entry-extra/</code> — AI 回复追加区</li>
-    <li><a href="../../slot-contract.html">slot-contract.html</a> — 公共契约</li>
+    <li><code>ui/block-renderer/</code> - block rendering</li>
+    <li><code>ui/entry-extra/</code> - the AI reply append area</li>
+    <li><a href="../../slot-contract.html">slot-contract.html</a> — shared contract</li>
   </ul>
 </section>
 
 <section>
-   <h2><span class="n">6</span>定稿记录 <span class="tag decided">已定</span></h2>
+   <h2><span class="n">6</span>Finalization record <span class="tag decided">Decided</span></h2>
   <ul>
-     <li>卡片数据字段定稿：<code>toolName</code> / <code>toolCallId</code> / <code>toolArgs?</code> / <code>toolStatus</code> / <code>toolResult?</code> / <code>toolError?</code> / <code>durationMs?</code>（复用 SDK 既有词表；失败即数据）</li>
-     <li>注册走统一判别式联合 <code>{ slot:"toolCard", toolName, component }</code>，<code>toolName</code> 须命中 manifest <code>contributes.agentTools[].name</code>；运行中 500ms 节拍合并推送整份 props，状态跃迁与最终结果立即推</li>
+     <li>Card data fields are final: <code>toolName</code> / <code>toolCallId</code> / <code>toolArgs?</code> / <code>toolStatus</code> / <code>toolResult?</code> / <code>toolError?</code> / <code>durationMs?</code> (reusing the existing SDK vocabulary; failure is data)</li>
+     <li>Registration uses the shared discriminated union <code>{ slot:"toolCard", toolName, component }</code>, and <code>toolName</code> must match <code>contributes.agentTools[].name</code> in the manifest; while running, the whole props payload is pushed on a 500ms coalescing tick, with state transitions and the final result pushed immediately</li>
   </ul>
 </section>
 

@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session.getLlmContext · 数据流</title>
+<title>session.getLlmContext · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,40 +49,40 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">session.getLlmContext</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>session.getLlmContext · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>session.getLlmContext · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.session.getLlmContext(): Promise&lt;PluginLlmContext&gt;</pre>
-  <p class="lead">读取当前进行中工具会话的 LLM 上下文投影（消息、模型、截断标记）。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
-  <p class="lead">无入参。</p>
-  <p><b>出参</b></p>
+  <p class="lead">Reads the LLM context projection of the in-progress tool session (messages, model, truncation flag). Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
+  <p class="lead">No input.</p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">sessionId</td><td class="id">string</td><td>当前工具会话 id。</td></tr>
-      <tr><td class="id">modelKey</td><td class="id">string | null</td><td>当前模型键（providerId/modelId 形态），可为 null。</td></tr>
-      <tr><td class="id">thinkingLevel</td><td class="id">string</td><td>当前思考档位，可缺省。</td></tr>
-      <tr><td class="id">messages</td><td class="id">PluginLlmMessage[]</td><td>投影后的消息。数组元素结构：role（"user"|"assistant"|"tool"|"system"）、content、toolName?。</td></tr>
-      <tr><td class="id">truncated</td><td class="id">boolean</td><td>投影是否被压缩截断。</td></tr>
+      <tr><td class="id">sessionId</td><td class="id">string</td><td>The current tool session id.</td></tr>
+      <tr><td class="id">modelKey</td><td class="id">string | null</td><td>Current model key (providerId/modelId form); may be null.</td></tr>
+      <tr><td class="id">thinkingLevel</td><td class="id">string</td><td>Current thinking level; may be absent.</td></tr>
+      <tr><td class="id">messages</td><td class="id">PluginLlmMessage[]</td><td>Projected messages. Array element shape: role ("user"|"assistant"|"tool"|"system"), content, toolName?.</td></tr>
+      <tr><td class="id">truncated</td><td class="id">boolean</td><td>Whether the projection was compacted/truncated.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
-  <pre>// 无入参</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Input example</b></p>
+  <pre>// no input</pre>
+  <p><b>Output example</b></p>
   <pre>{
   "sessionId": "tool_7d21",
   "modelKey": "anthropic/claude-sonnet-4-5",
@@ -93,49 +93,49 @@
   ],
   "truncated": false
 }</pre>
-  <div class="callout"><b>一句话边界。</b>只读当前进行中的工具会话投影；不能按任意 sessionId 读历史全文，也不能写回。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> Read-only projection of the current in-progress tool session; cannot read the full history of an arbitrary sessionId, and cannot write back.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件无参发起。</li>
-    <li><b>定位：</b>宿主找当前进行中的工具会话；没有即 INVALID_ARGUMENT。</li>
-    <li><b>投影：</b>生成压缩投影（D019 / D336），剥离插件自身的工具调用，不吐 subagent 轨道。</li>
-    <li><b>返回：</b><code>PluginLlmContext</code>；<code>truncated: true</code> 表示内容被压缩过。</li>
+    <li><b>Call:</b> the plugin issues the call with no arguments.</li>
+    <li><b>Locate:</b> the host finds the in-progress tool session; none means INVALID_ARGUMENT.</li>
+    <li><b>Projection:</b> a compacted projection is generated (D019 / D336), stripping the plugin's own tool calls and never emitting subagent tracks.</li>
+    <li><b>Return:</b> <code>PluginLlmContext</code>; <code>truncated: true</code> means the content was compacted.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>无参读取请求。</td></tr>
-      <tr><td>宿主 → 插件</td><td>当前会话上下文投影 <code>PluginLlmContext</code>。</td></tr>
+      <tr><td>Plugin → host</td><td>A read request with no arguments.</td></tr>
+      <tr><td>Host → plugin</td><td>The current session context projection <code>PluginLlmContext</code>.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>调用未被授权</td><td>调用失败</td><td><code>PERMISSION_DENIED</code></td></tr>
-      <tr><td>没有进行中的工具会话</td><td>调用失败</td><td><code>INVALID_ARGUMENT</code></td></tr>
+      <tr><td>Call not authorized</td><td>Call fails</td><td><code>PERMISSION_DENIED</code></td></tr>
+      <tr><td>No in-progress tool session</td><td>Call fails</td><td><code>INVALID_ARGUMENT</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不能按任意 sessionId 读历史全文；不能覆盖写回。</p>
-  <div class="callout"><b>宿主保证 / 已接受代价：</b>宿主保证：投影剥离自身工具调用，不吐 subagent 轨道。已接受代价：只能读进行中工具会话。</div>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Cannot read the full history of an arbitrary sessionId; cannot overwrite/write back.</p>
+  <div class="callout"><b>Host guarantees / accepted costs:</b> Host guarantee: the projection strips the plugin's own tool calls and never emits subagent tracks. Accepted cost: only the in-progress tool session can be read.</div>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/agent.complete</code></li>
-    <li><code>runtime/session-context/</code> — 全量上下文读契约（规划中）</li>
+    <li><code>runtime/session-context/</code> — full-context read contract (planned)</li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">读指定会话上下文、压缩写回仍是缺口。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">Reading a specified session's context and compacted write-back remain gaps.</p>
 </section>
 
 </main>

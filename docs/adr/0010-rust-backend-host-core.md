@@ -5,7 +5,7 @@
 
 ## Context
 
-PI-Desktop needs a robust local backend for:
+Nib needs a robust local backend for:
 
 - filesystem tools
 - process/command execution

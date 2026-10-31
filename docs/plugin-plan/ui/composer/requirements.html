@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>输入区 · 需求</title>
+<title>Composer · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -53,90 +53,90 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">输入区</span>
+  <span class="here">Composer</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
   <div class="crumb">docs/plugin-plan · ui/composer</div>
-  <h1>输入区 · 需求</h1>
-  <p>只写组件槽：左右控件、触发符、记号。固定件归宿主。草稿读写 / 附件方法不在本夹。</p>
-   <div class="meta">status: finalized · 本轮拍板见文末</div>
+  <h1>Composer · Requirements</h1>
+  <p>Component slots only: left and right controls, trigger characters, and tokens. Fixed parts belong to the host. Draft read/write and attachment methods live elsewhere.</p>
+   <div class="meta">status: finalized · decisions this round at the end</div>
 </header>
 <main>
 
 <section>
-  <h2>范围 <span class="tag decided">已定</span></h2>
+  <h2>Scope <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>输入框工具栏的<strong>左右控件</strong>插件位。</li>
-    <li>打触发符弹出的<strong>列表</strong>。</li>
-    <li>输入框里的<strong>记号</strong>。</li>
-    <li>不谈：草稿读写、附件方法（见 <a href="../../render/draft/">render/draft/</a>、<a href="../../render/attachments/">render/attachments/</a>）、发送流程、固定件内部。</li>
+    <li>The plugin position for <strong>left and right controls</strong> in the composer toolbar.</li>
+    <li>The <strong>list</strong> that pops up when a trigger character is typed.</li>
+    <li>The <strong>tokens</strong> inside the composer.</li>
+    <li>Not covered: draft read/write and attachment methods (see <a href="../../render/draft/">render/draft/</a> and <a href="../../render/attachments/">render/attachments/</a>), the send flow, and the internals of the fixed parts.</li>
   </ul>
 </section>
 
 <section>
-  <h2>槽形状 <span class="tag decided">已定</span></h2>
-  <div class="callout ok"><b>固定件归宿主。</b>附件、模式切换、权限切换、模型选择、发送 / 停止插件碰不到。插件只做组件槽。</div>
+  <h2>Slot shape <span class="tag decided">Decided</span></h2>
+  <div class="callout ok"><b>Fixed parts belong to the host.</b> Attachments, mode switching, permission switching, model selection, and send/stop are out of a plugin's reach. A plugin only contributes component slots.</div>
   <table>
-    <thead><tr><th>槽</th><th>位置</th><th>插件能做什么</th></tr></thead>
+    <thead><tr><th>slot</th><th>position</th><th>what a plugin can do</th></tr></thead>
     <tbody>
-      <tr><td>左控件</td><td>左排固定件右边</td><td>加自己的按钮 / 弹层</td></tr>
-      <tr><td>右控件</td><td>模型选择左边</td><td>加自己的按钮</td></tr>
-      <tr><td>触发符</td><td>输入框上方弹出的列表</td><td>注册一个触发符号，提供列表内容</td></tr>
-      <tr><td>记号</td><td>输入框内的记号</td><td>选中项在草稿里长什么样</td></tr>
+      <tr><td>Left control</td><td>Right of the left fixed parts</td><td>Add its own button or popover</td></tr>
+      <tr><td>Right control</td><td>Left of the model selector</td><td>Add its own button</td></tr>
+      <tr><td>Trigger character</td><td>The list that pops up above the composer</td><td>Register one trigger character and supply the list contents</td></tr>
+      <tr><td>Token</td><td>Tokens inside the composer</td><td>How a selected item looks in the draft</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>插件能拿到什么 <span class="tag decided">已定</span></h2>
+  <h2>What the plugin gets <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>组件槽的位置与渲染环境</li>
-    <li>触发符：筛选文字；记号：label / send 数据</li>
-    <li>不提供固定件的控制权</li>
+    <li>The component slot's position and rendering environment</li>
+    <li>Trigger character: the filter text; token: the label / send data</li>
+    <li>No control over the fixed parts</li>
   </ul>
 </section>
 
 <section>
-  <h2>插件场景 <span class="tag decided">已定</span></h2>
+  <h2>Plugin scenarios <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>场景</th><th>装上插件之后</th></tr></thead>
+    <thead><tr><th>Scenario</th><th>With the plugin installed</th></tr></thead>
     <tbody>
-      <tr><td>左排加知识库选择</td><td>固定件右边多一颗按钮</td></tr>
-      <tr><td>打 <code>#</code> 弹列表</td><td>触发符列表，选中插记号</td></tr>
-      <tr><td>常用语</td><td>左排按钮，点选插入片段</td></tr>
+      <tr><td>Add knowledge-base selection to the left row</td><td>One more button right of the fixed parts</td></tr>
+      <tr><td>Typing <code>#</code> opens a list</td><td>The trigger list; selecting inserts a token</td></tr>
+      <tr><td>Canned phrases</td><td>A left-row button that inserts a snippet when clicked</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>明确不做 <span class="tag decided">已定</span></h2>
+  <h2>Explicit non-goals <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>固定件不可隐藏 / 替换 / 重排 / 插队</li>
-    <li>草稿读写、附件方法不在本夹</li>
-    <li>附件只收 <code>content|token</code>，禁 path / URL ref</li>
-    <li>markdown transformer <strong>不做</strong></li>
+    <li>Fixed parts cannot be hidden, replaced, reordered, or jumped</li>
+    <li>Draft read/write and attachment methods are not in this folder</li>
+    <li>Attachments accept only <code>content|token</code>; path / URL refs are forbidden</li>
+    <li>markdown transformer is <strong>not provided</strong></li>
   </ul>
 </section>
 
 <section>
-  <h2>本轮拍板 <span class="tag decided">已定</span></h2>
+  <h2>Decisions this round <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>问题</th><th>决定</th></tr></thead>
+    <thead><tr><th>Question</th><th>Decision</th></tr></thead>
     <tbody>
-      <tr><td>本夹写什么</td><td>只写组件槽：左右控件、触发符、记号</td></tr>
-      <tr><td>固定件</td><td>归宿主</td></tr>
-      <tr><td>草稿读写 / 附件方法</td><td>不在本夹，见 <code>render/draft/</code>、<code>render/attachments/</code></td></tr>
-      <tr><td>附件入参</td><td>只收 <code>content|token</code>，禁 path / URL ref</td></tr>
+      <tr><td>What this folder covers</td><td>Component slots only: left and right controls, trigger characters, tokens</td></tr>
+      <tr><td>Fixed parts</td><td>Belong to the host</td></tr>
+      <tr><td>Draft read/write and attachment methods</td><td>Not here; see <code>render/draft/</code> and <code>render/attachments/</code></td></tr>
+      <tr><td>Attachment input</td><td>Accepts only <code>content|token</code>; path / URL refs are forbidden</td></tr>
     </tbody>
   </table>
-   <div class="callout ok"><b>定稿：</b>触发符固定 <code>@</code> / <code>#</code> / <code>/</code> 三个（一符一插件，重复注册返回 <code>PLUGIN_SLOT_DUPLICATE</code>；行首或空白后、非 IME 组词中才触发，程序写入永不触发）；记号单草稿上限 8 个，第 9 个起折叠为 <code>⧉ +N</code>，发送 payload 不丢。</div>
+   <div class="callout ok"><b>Finalized:</b> the trigger characters are fixed at three - <code>@</code> / <code>#</code> / <code>/</code> (one character per plugin; a duplicate registration returns <code>PLUGIN_SLOT_DUPLICATE</code>; they fire only at the start of a line or after whitespace and never mid-IME composition, and programmatic writes never fire them). A single draft holds at most eight tokens; from the ninth they collapse into <code>+N</code>, and the send payload loses nothing.</div>
 </section>
 
 </main>

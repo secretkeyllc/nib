@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>bus.publish · 数据流</title>
+<title>bus.publish · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,87 +49,87 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">bus.publish</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>bus.publish · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>bus.publish · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.bus.publish(topic: string, payload?: unknown): Promise&lt;void&gt;</pre>
-  <p class="lead">向声明过的主题发布一条消息，广播给其他订阅插件（权限：<span class="pill perm">—</span>；主题必须命中清单 <code>contributes.bus.publish</code> 声明）。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Publishes one message to a declared topic, broadcast to other subscribing plugins (permission: <span class="pill perm">—</span>; the topic must match a declaration in the manifest <code>contributes.bus.publish</code>).</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">topic</td><td class="id">string</td><td>是</td><td>具体主题，不含通配符：点分小节，每段 <code>[a-zA-Z0-9][a-zA-Z0-9_-]*</code>，最多 8 段、总长 ≤128。</td></tr>
-      <tr><td class="id">payload</td><td class="id">unknown</td><td>否</td><td>消息负载，语义由发布方定义；省略即无负载。</td></tr>
+      <tr><td class="id">topic</td><td class="id">string</td><td>Yes</td><td>Concrete topic, no wildcards: dot-separated segments, each matching <code>[a-zA-Z0-9][a-zA-Z0-9_-]*</code>; at most 8 segments and ≤128 characters in total.</td></tr>
+      <tr><td class="id">payload</td><td class="id">unknown</td><td>No</td><td>Message payload; semantics are defined by the publisher; omit it for no payload.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">void</td><td>无返回数据；发布即 resolve，无送达回执。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">void</td><td>No return data; resolves on publish, with no delivery receipt.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>pi.bus.publish("notes.index.ready", { count: 42 })</pre>
-  <p><b>输出样例</b></p>
-  <pre>// void —— 发布即 resolve，无输出</pre>
-  <div class="callout"><b>一句话边界。</b>即发即忘：不保证持久也不保证送达；fan-out 排除发布者自身。</div>
+  <p><b>Output example</b></p>
+  <pre>// void - resolves as soon as the message is published, no output</pre>
+  <div class="callout"><b>Boundary in one sentence.</b> Fire-and-forget: no persistence and no delivery guarantee; fan-out excludes the publisher itself.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件进程传入 topic 与可选 payload。</li>
-    <li><b>校验：</b>topic 必须是合法具体主题（段规则、≤8 段、≤128 字符、不含通配符），且命中清单 <code>contributes.bus.publish</code> 声明，否则 <code>PERMISSION_DENIED</code>。</li>
-    <li><b>执行：</b>宿主给消息打上 <code>from</code>（发布者插件 id）与 <code>at</code>（宿主赋的 ISO 时间戳），按订阅者的主题模式 fan-out；发布者自身的订阅不在接收之列。</li>
-    <li><b>返回：</b>无回执值；订阅方收到的是 <code>PluginBusMessage</code>。</li>
+    <li><b>Call:</b> the plugin process passes a topic and an optional payload.</li>
+    <li><b>Validate:</b> topic must be a valid concrete topic (segment rules, ≤8 segments, ≤128 characters, no wildcards) and must match a declaration in the manifest <code>contributes.bus.publish</code>; otherwise <code>PERMISSION_DENIED</code>.</li>
+    <li><b>Execute:</b> the host stamps the message with <code>from</code> (the publisher's plugin id) and <code>at</code> (an ISO timestamp assigned by the host), then fans out to subscribers' topic patterns; the publisher's own subscriptions are not among the recipients.</li>
+    <li><b>Return:</b> no receipt value; subscribers receive a <code>PluginBusMessage</code>.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td><code>topic</code> + <code>payload</code>。</td></tr>
-      <tr><td>宿主 → 插件</td><td><code>PluginBusMessage</code>（<code>topic / from / payload? / at</code>）派发给命中的订阅插件。</td></tr>
+      <tr><td>plugin → host</td><td><code>topic</code> + <code>payload</code>.</td></tr>
+      <tr><td>host → plugin</td><td><code>PluginBusMessage</code> (<code>topic / from / payload? / at</code>) dispatched to the matching subscriber plugins.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Case</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>主题未在清单声明</td><td>Promise 拒绝，消息不发出</td><td class="id">PERMISSION_DENIED</td></tr>
-      <tr><td>发布频率超限</td><td>Promise 拒绝</td><td class="id">RATE_LIMITED</td></tr>
-      <tr><td>主题超出限制（&gt;128 字符或 &gt;8 段）</td><td>Promise 拒绝</td><td class="id">LIMIT_EXCEEDED</td></tr>
+      <tr><td>Topic not declared in the manifest</td><td>Promise rejects, the message is not sent</td><td class="id">PERMISSION_DENIED</td></tr>
+      <tr><td>Publish rate exceeded</td><td>Promise rejects</td><td class="id">RATE_LIMITED</td></tr>
+      <tr><td>Topic exceeds the limits (&gt;128 characters or &gt;8 segments)</td><td>Promise rejects</td><td class="id">LIMIT_EXCEEDED</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不保证持久、不保证送达。</p>
-  <div class="callout"><b>宿主保证 / 已接受代价：</b>宿主保证：fan-out 排除发布者自身。已接受代价：不保证送达。</div>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">No persistence guarantee, no delivery guarantee.</p>
+  <div class="callout"><b>Host guarantee / accepted cost:</b> Host guarantee: fan-out excludes the publisher itself. Accepted cost: no delivery guarantee.</div>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/bus.subscribe</code></li>
     <li><code>host-api/events.on</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

@@ -158,7 +158,7 @@ before publication leaves pending work to recopy from the source. An unavailable
 selected volume refuses startup rather than creating a blank profile elsewhere.
 If the managed installation's default data root is missing, startup pauses before
 loading app services and offers two recovery choices: create a fresh default data
-root or select an existing PI-Desktop storage root. The selected location must
+root or select an existing Nib storage root. The selected location must
 contain `data/pi.sqlite` or be the data directory containing `pi.sqlite`; its
 pointer is written only after validation. A sibling `browser/` directory is used
 when present, otherwise the installation's current browser root is retained.

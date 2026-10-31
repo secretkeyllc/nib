@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session.applyCompaction · 数据流</title>
+<title>session.applyCompaction · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,118 +49,118 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a><span class="sep">/</span><a href="index.html">session-compaction</a>
+  <a href="../../index.html">Plugin slot catalog</a><span class="sep">/</span><a href="index.html">session-compaction</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>session.applyCompaction · 数据流</h1>
-  <div class="meta">status: <b>draft · 设计稿</b> · 会话数据契约 · 规划出处：能力清单审查 N4 · 权限 <code>session.compact.write</code>（新增） · 尚无 SDK 实现</div>
+  <h1>session.applyCompaction · Data flow</h1>
+  <div class="meta">status: <b>draft · design draft</b> · session data contract · planned from: capability inventory review N4 · permission <code>session.compact.write</code> (new) · no SDK implementation yet</div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.session.applyCompaction(input: { sessionId: string; summary: string; retainedMessageIds?: string[]; reason?: string }): Promise&lt;PluginApplyCompactionResult&gt;</pre>
-  <p class="lead">把插件算好的压缩摘要交宿主托管写回。权限 <code>session.compact.write</code>（新增 · high · 装时确认 · 操作界面可见）。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Hands a compaction summary computed by the plugin to the host for a managed write-back. Permission <code>session.compact.write</code> (new · high · confirmed at install · the operation is visible in the UI).</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">sessionId</td><td class="id">string</td><td>是</td><td>目标会话。</td></tr>
-      <tr><td class="id">summary</td><td class="id">string</td><td>是</td><td>非空纯文本；不允许 HTML；超长按 <code>LIMIT_EXCEEDED</code> 拒绝。</td></tr>
-      <tr><td class="id">retainedMessageIds</td><td class="id">string[]</td><td>否</td><td>保留原消息的 id 列表；缺省 = 只留摘要。必须全部属于本会话。</td></tr>
-      <tr><td class="id">reason</td><td class="id">string</td><td>否</td><td>审计标签，如 <code>"diy-summarizer"</code>；随压缩记录落库展示。</td></tr>
+      <tr><td class="id">sessionId</td><td class="id">string</td><td>Yes</td><td>Target session.</td></tr>
+      <tr><td class="id">summary</td><td class="id">string</td><td>Yes</td><td>Non-empty plain text; HTML is not allowed; if too long it is rejected with <code>LIMIT_EXCEEDED</code>.</td></tr>
+      <tr><td class="id">retainedMessageIds</td><td class="id">string[]</td><td>No</td><td>Ids of original messages to keep; the default means summary only. All of them must belong to this session.</td></tr>
+      <tr><td class="id">reason</td><td class="id">string</td><td>No</td><td>Audit tag, e.g. <code>"diy-summarizer"</code>; stored and shown with the compaction record.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">compactionId</td><td class="id">string</td><td>新建压缩记录的 id。</td></tr>
-      <tr><td class="id">tokensBefore</td><td class="id">number</td><td>压缩前工作集 token 估算。</td></tr>
-      <tr><td class="id">tokensAfter</td><td class="id">number</td><td>压缩后 token 估算。</td></tr>
-      <tr><td class="id">appliedAt</td><td class="id">number</td><td>应用时间戳（毫秒）；审计与排序用。</td></tr>
+      <tr><td class="id">compactionId</td><td class="id">string</td><td>Id of the newly created compaction record.</td></tr>
+      <tr><td class="id">tokensBefore</td><td class="id">number</td><td>Token estimate for the working set before compaction.</td></tr>
+      <tr><td class="id">tokensAfter</td><td class="id">number</td><td>Token estimate after compaction.</td></tr>
+      <tr><td class="id">appliedAt</td><td class="id">number</td><td>Application timestamp (milliseconds); used for auditing and ordering.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{
   "sessionId": "s_01J8",
   "summary": "讨论了存储层三个方案，结论：沿用 SQLite + 压缩检查点；待办：评估 WAL 调优。",
   "retainedMessageIds": ["m_3"],
   "reason": "diy-summarizer"
 }</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>{
   "compactionId": "c_01J9",
   "tokensBefore": 48210,
   "tokensAfter": 6120,
   "appliedAt": 1771234567890
 }</pre>
-  <div class="callout"><b>一句话边界。</b>插件永远不直接改消息列表；宿主托管写回、进压缩记录、界面可见、带来源戳——不是静默改写。Promise resolve 即已生效（下一请求可见）。</div>
+  <div class="callout"><b>Boundary in one sentence.</b>A plugin never modifies the message list directly; the host manages the write-back into a compaction record, visible in the UI and carrying a source stamp - never a silent rewrite. Once the promise resolves the change is in effect (visible to the next request).</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>提交。</b>插件传 <code>{ sessionId, summary, retainedMessageIds?, reason? }</code>。</li>
-    <li><b>校验。</b>主进程校验 <code>session.compact.write</code> 权限；校验 summary 非空纯文本、retained ids 全部属于本会话。</li>
-    <li><b>写入。</b>挂宿主现有 <code>session.appendCompaction</code> RPC：形状校验、按 id 去重、落压缩记录；主进程注入 pluginId 作来源戳（记录「由插件 X 压缩」）。</li>
-    <li><b>可见。</b>界面显示压缩行（renderer 已按 compaction 记录渲染）；审计可查。</li>
-    <li><b>生效。</b>下一请求重建上下文时，摘要 + 保留尾部进入 LLM 视野。</li>
+    <li><b>Submit.</b> The plugin passes <code>{ sessionId, summary, retainedMessageIds?, reason? }</code>.</li>
+    <li><b>Validate.</b> The main process checks the <code>session.compact.write</code> permission, that summary is non-empty plain text, and that all retained ids belong to this session.</li>
+    <li><b>Write.</b> Goes through the host's existing <code>session.appendCompaction</code> RPC: shape validation, de-duplication by id, and the compaction record is stored; the main process injects the pluginId as the source stamp (recording "compacted by plugin X").</li>
+    <li><b>Visible.</b> The UI shows a compaction row (the renderer already renders compaction records); the audit trail is queryable.</li>
+    <li><b>Effective.</b> When the next request rebuilds its context, the summary plus the retained tail enter the LLM's view.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>direction</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">插件 → 宿主</td><td>压缩提交（summary、保留列表、审计标签）。</td></tr>
-      <tr><td class="id">宿主 → 存储</td><td>压缩记录落库（CompactionRecord）。</td></tr>
-      <tr><td class="id">宿主 → 插件</td><td>应用结果（compactionId、前后 token、时间戳）。</td></tr>
+      <tr><td class="id">plugin → host</td><td>The compaction submission (summary, retained list, audit tag).</td></tr>
+      <tr><td class="id">host → storage</td><td>The compaction record is persisted (CompactionRecord).</td></tr>
+      <tr><td class="id">host → plugin</td><td>The application result (compactionId, tokens before and after, timestamp).</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>code</th></tr></thead>
     <tbody>
-      <tr><td>未声明 <code>session.compact.write</code></td><td>Promise 拒绝，不静默</td><td class="id">PERMISSION_DENIED</td></tr>
-      <tr><td><code>sessionId</code> 不存在 / 已删</td><td>Promise 拒绝</td><td class="id">NOT_FOUND</td></tr>
-      <tr><td>summary 为空 / retained ids 含非本会话消息</td><td>Promise 拒绝</td><td class="id">INVALID_ARGUMENT</td></tr>
-      <tr><td>与宿主并发压缩冲突</td><td>Promise 拒绝；重读（<code>session.getContext</code> 取新 <code>compactionCursor</code>）再写</td><td class="id">CONFLICT</td></tr>
-      <tr><td>summary 超长 / 保留条数超上限</td><td>Promise 拒绝</td><td class="id">LIMIT_EXCEEDED</td></tr>
+      <tr><td><code>session.compact.write</code> not declared</td><td>Promise rejected, never silent</td><td class="id">PERMISSION_DENIED</td></tr>
+      <tr><td><code>sessionId</code> does not exist / was deleted</td><td>Promise rejected</td><td class="id">NOT_FOUND</td></tr>
+      <tr><td>summary is empty / retained ids include messages from another session</td><td>Promise rejected</td><td class="id">INVALID_ARGUMENT</td></tr>
+      <tr><td>Conflicts with a concurrent host compaction</td><td>Promise rejected; re-read to get the new <code>compactionCursor</code> from <code>session.getContext</code>, then write again</td><td class="id">CONFLICT</td></tr>
+      <tr><td>summary too long / too many retained entries</td><td>Promise rejected</td><td class="id">LIMIT_EXCEEDED</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
+  <h2><span class="n">4</span>What is not provided</h2>
   <table>
-    <thead><tr><th>不给</th><th>为什么</th></tr></thead>
+    <thead><tr><th>not provided</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td class="id">replaceMessages / 静默覆盖</td><td>产品已排除；写回必须进压缩记录、界面可见、可审计</td></tr>
-      <tr><td class="id">消息删除 / 编辑</td><td>本接口只做「摘要 + 保留」，不动任何消息行</td></tr>
-      <tr><td class="id">撤销 / 回滚</td><td>v1 不做；压缩行可见可审计，回滚留后续版本</td></tr>
-      <tr><td class="id">HTML / 富文本 summary</td><td>只收纯文本，防注入与界面样式混乱</td></tr>
+      <tr><td class="id">replaceMessages / silent overwrite</td><td>Excluded by the product; a write-back must become a compaction record, be visible in the UI, and be auditable</td></tr>
+      <tr><td class="id">Deleting / editing messages</td><td>This interface only does "summary plus retain" and touches no message row</td></tr>
+      <tr><td class="id">Undo / rollback</td><td>Not in v1; the compaction row is visible and auditable, and rollback is left to a later version</td></tr>
+      <tr><td class="id">HTML / rich-text summary</td><td>Plain text only, to prevent injection and UI styling breakage</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <table>
-    <thead><tr><th>谁</th><th>关系</th><th>位置</th></tr></thead>
+    <thead><tr><th>who</th><th>relation</th><th>location</th></tr></thead>
     <tbody>
-      <tr><td class="id">session.getContext</td><td>读侧对端；<code>compactionCursor</code> 供 CONFLICT 乐观校验</td><td><code>runtime/session-context/</code></td></tr>
-      <tr><td class="id">session-lifecycle</td><td>before_compact 可否决宿主压缩，让插件接手</td><td><code>runtime/session-lifecycle/</code></td></tr>
-      <tr><td class="id">session.appendCompaction</td><td>宿主内部 RPC，本接口的写挂点（不直接对插件开放）</td><td><code>crates/host-core/src/sessions.rs</code></td></tr>
-      <tr><td class="id">session-model</td><td>同族契约：当前模型快照（N1）</td><td><code>runtime/session-model/</code></td></tr>
+      <tr><td class="id">session.getContext</td><td>The read-side counterpart; <code>compactionCursor</code> enables the optimistic CONFLICT check</td><td><code>runtime/session-context/</code></td></tr>
+      <tr><td class="id">session-lifecycle</td><td>before_compact can veto host compaction and let the plugin take over</td><td><code>runtime/session-lifecycle/</code></td></tr>
+      <tr><td class="id">session.appendCompaction</td><td>The host-internal RPC this interface hooks into for writes (not exposed to plugins directly)</td><td><code>crates/host-core/src/sessions.rs</code></td></tr>
+      <tr><td class="id">session-model</td><td>A sibling contract: the current model snapshot (N1)</td><td><code>runtime/session-model/</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">summary 长度上限的数值；retained ids 数量上限；压缩结果是否向插件广播事件（普通插件今天收不到任何压缩通知，需另架桥）。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">The numeric limit on summary length; the limit on the number of retained ids; whether compaction results are broadcast to plugins as events (ordinary plugins receive no compaction notifications today, so another bridge would be needed).</p>
 </section>
 
 </main>

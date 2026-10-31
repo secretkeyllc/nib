@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>net.websocket.connect · 数据流</title>
+<title>net.websocket.connect · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,85 +49,85 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">net.websocket.connect</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>net.websocket.connect · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>net.websocket.connect · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>Interface contract</h2>
   <pre class="sig">pi.net.websocket.connect(input: PluginWebSocketConnectInput): Promise&lt;{ socketId: string }&gt;</pre>
-  <p class="lead">连接 <code>ws://</code> / <code>wss://</code> 端点并返回套接字句柄（权限：<span class="pill perm">—</span>；域名约束与 <code>net.fetch</code> 同一套 <code>manifest.net.domains</code>）。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Connects to a <code>ws://</code> / <code>wss://</code> endpoint and returns a socket handle (permission: <span class="pill perm">—</span>; domain constraints share the same <code>manifest.net.domains</code> as <code>net.fetch</code>).</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">url</td><td class="id">string</td><td>是</td><td>绝对 <code>ws://</code> / <code>wss://</code> 地址；主机必须在 <code>manifest.net.domains</code>。</td></tr>
-      <tr><td class="id">headers</td><td class="id">Record&lt;string, string&gt;</td><td>否</td><td>握手请求头键值对。</td></tr>
-      <tr><td class="id">protocols</td><td class="id">string[]</td><td>否</td><td>WebSocket 子协议列表。</td></tr>
-      <tr><td class="id">timeoutMs</td><td class="id">number</td><td>否</td><td>握手超时毫秒数。</td></tr>
+      <tr><td class="id">url</td><td class="id">string</td><td>Yes</td><td>Absolute <code>ws://</code> / <code>wss://</code> address; the host must be in <code>manifest.net.domains</code>.</td></tr>
+      <tr><td class="id">headers</td><td class="id">Record&lt;string, string&gt;</td><td>No</td><td>Handshake request headers as key-value pairs.</td></tr>
+      <tr><td class="id">protocols</td><td class="id">string[]</td><td>No</td><td>WebSocket subprotocol list.</td></tr>
+      <tr><td class="id">timeoutMs</td><td class="id">number</td><td>No</td><td>Handshake timeout in milliseconds.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">socketId</td><td class="id">string</td><td>新连接的句柄；后续 <code>send</code> / <code>close</code> 与 open / message / close / error 事件都用它标识。</td></tr>
+      <tr><td class="id">socketId</td><td class="id">string</td><td>Handle for the new connection; later <code>send</code> / <code>close</code> calls and open / message / close / error events are identified by it.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{ "url": "wss://rt.example.com/feed", "protocols": ["v1.json"], "timeoutMs": 5000 }</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>{ "socketId": "ws-a1b2c3" }</pre>
-  <div class="callout"><b>一句话边界。</b>域外主机到不了传输层，不给原生 socket 句柄；每插件最多 4 个连接，帧封顶 1 MiB，插件卸载时宿主全部关闭。</div>
+  <div class="callout"><b>Boundary in one line.</b> Off-allowlist hosts never reach the transport layer and no native socket handles are given; at most 4 connections per plugin, frames capped at 1 MiB, and the host closes them all when the plugin unloads.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件进程传入 <code>{ url, headers?, protocols?, timeoutMs? }</code>。</li>
-    <li><b>校验：</b>仅接受 <code>ws://</code> / <code>wss://</code>，主机名必须命中 <code>manifest.net.domains</code>（与 <code>net.fetch</code> 同一 allowlist），否则 <code>PERMISSION_DENIED</code>；<code>ws://</code> 只是 http 的明文形态，不构成更宽松通道。</li>
-    <li><b>执行：</b>宿主建立并持有底层套接字（每插件上限 4 个），插件只拿到 <code>socketId</code>。</li>
-    <li><b>后续：</b>打开与消息经事件送达（<code>PluginWebSocketOpenEvent</code> / <code>PluginWebSocketMessageEvent</code>）；插件卸载 / 禁用 / 崩溃时宿主关闭其全部套接字。</li>
+    <li><b>Call:</b> the plugin process passes <code>{ url, headers?, protocols?, timeoutMs? }</code>.</li>
+    <li><b>Validate:</b> only <code>ws://</code> / <code>wss://</code> are accepted, and the hostname must match <code>manifest.net.domains</code> (the same allowlist as <code>net.fetch</code>), otherwise <code>PERMISSION_DENIED</code>; <code>ws://</code> is just the plaintext form of http and is not a looser channel.</li>
+    <li><b>Execute:</b> the host establishes and holds the underlying socket (max 4 per plugin); the plugin only gets a <code>socketId</code>.</li>
+    <li><b>Afterwards:</b> open and message arrive as events (<code>PluginWebSocketOpenEvent</code> / <code>PluginWebSocketMessageEvent</code>); when the plugin unloads / is disabled / crashes, the host closes all of its sockets.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>连接描述（<code>url</code>、握手头、子协议、超时）。</td></tr>
-      <tr><td>宿主 → 系统</td><td>向白名单主机发起 WebSocket 握手并持有连接。</td></tr>
-      <tr><td>宿主 → 插件</td><td><code>{ socketId }</code>；之后 open / message / close / error 事件。</td></tr>
+      <tr><td>plugin → host</td><td>Connection description (<code>url</code>, handshake headers, subprotocols, timeout).</td></tr>
+      <tr><td>host → system</td><td>Starts the WebSocket handshake with the allowlisted host and holds the connection.</td></tr>
+      <tr><td>host → plugin</td><td><code>{ socketId }</code>; afterwards open / message / close / error events.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>主机不在 <code>manifest.net.domains</code></td><td>Promise 拒绝，不发起连接</td><td class="id">PERMISSION_DENIED</td></tr>
-      <tr><td>已达每插件 4 个套接字上限</td><td>Promise 拒绝</td><td class="id">LIMIT_EXCEEDED</td></tr>
-      <tr><td>握手超时</td><td>Promise 拒绝</td><td class="id">TIMEOUT</td></tr>
-      <tr><td>连接建立失败</td><td>Promise 拒绝</td><td class="id">CONNECT_FAILED</td></tr>
-      <tr><td>宿主找不到对应套接字记录</td><td>Promise 拒绝</td><td class="id">NOT_FOUND</td></tr>
-      <tr><td>参数不合法（如 <code>url</code> 缺失或非 ws/wss）</td><td>Promise 拒绝</td><td class="id">INVALID_ARGUMENT</td></tr>
+      <tr><td>Host not in <code>manifest.net.domains</code></td><td>Promise rejects, no connection attempted</td><td class="id">PERMISSION_DENIED</td></tr>
+      <tr><td>Per-plugin limit of 4 sockets reached</td><td>Promise rejects</td><td class="id">LIMIT_EXCEEDED</td></tr>
+      <tr><td>Handshake timed out</td><td>Promise rejects</td><td class="id">TIMEOUT</td></tr>
+      <tr><td>Connection could not be established</td><td>Promise rejects</td><td class="id">CONNECT_FAILED</td></tr>
+      <tr><td>Host cannot find the matching socket record</td><td>Promise rejects</td><td class="id">NOT_FOUND</td></tr>
+      <tr><td>Invalid argument (e.g. <code>url</code> missing or not ws/wss)</td><td>Promise rejects</td><td class="id">INVALID_ARGUMENT</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">域外主机到不了传输层；不给原生 socket 句柄；帧封顶 1 MiB。</p>
-  <div class="callout"><b>宿主保证 / 已接受代价：</b>宿主保证：插件卸载时套接字必关。已接受代价：最多 4 个连接，帧 1 MiB 封顶。</div>
+  <h2><span class="n">4</span>Not provided</h2>
+  <p class="lead">Off-allowlist hosts never reach the transport layer; no native socket handles; frames capped at 1 MiB.</p>
+  <div class="callout"><b>Host guarantees / accepted costs:</b> Host guarantee: sockets are always closed when the plugin unloads. Accepted cost: at most 4 connections, frames capped at 1 MiB.</div>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/net.websocket.send</code></li>
     <li><code>host-api/net.websocket.close</code></li>
@@ -135,8 +135,8 @@
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

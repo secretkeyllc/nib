@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session.list · 数据流</title>
+<title>session.list · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,45 +49,45 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">session.list</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>session.list · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>session.list · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.session.list(input?: { limit?: number; cursor?: string; source?: string; updatedAfter?: string }): Promise&lt;PluginSessionListResult&gt;</pre>
-  <p class="lead">分页列出本插件导入的会话元数据，按 <code>source</code> 隔离。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
+  <p class="lead">List imported session metadata for this plugin, isolated by <code>source</code>. Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>field</th><th>type</th><th>required</th><th>notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">limit</td><td class="id">number</td><td>否</td><td>单页条数上限。</td></tr>
-      <tr><td class="id">cursor</td><td class="id">string</td><td>否</td><td>上一页返回的 <code>nextCursor</code>，用于取下一页。</td></tr>
-      <tr><td class="id">source</td><td class="id">string</td><td>否</td><td>按来源 namespace 过滤，只能是本插件声明过的 <code>sessionSources</code>。</td></tr>
-      <tr><td class="id">updatedAfter</td><td class="id">string</td><td>否</td><td>只返回该时间点之后更新的会话。</td></tr>
+      <tr><td class="id">limit</td><td class="id">number</td><td>No</td><td>The per-page item cap.</td></tr>
+      <tr><td class="id">cursor</td><td class="id">string</td><td>No</td><td>The <code>nextCursor</code> from the previous page, used to fetch the next one.</td></tr>
+      <tr><td class="id">source</td><td class="id">string</td><td>No</td><td>Filter by source namespace; only a <code>sessionSources</code> entry this plugin declared is allowed.</td></tr>
+      <tr><td class="id">updatedAfter</td><td class="id">string</td><td>No</td><td>Return only sessions updated after that instant.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>field</th><th>type</th><th>notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">items</td><td class="id">PluginSessionListItem[]</td><td>本页会话。数组元素结构：sessionId、title、source、externalId、projectId（number|null）、messageCount、originKind（"imported"|"created"）、bound.workspace、bound.model、createdAt、updatedAt。</td></tr>
-      <tr><td class="id">nextCursor</td><td class="id">string</td><td>还有下一页时出现，原样传回 <code>cursor</code> 续读；否则缺省。</td></tr>
+      <tr><td class="id">items</td><td class="id">PluginSessionListItem[]</td><td>The sessions on this page. Each element carries sessionId, title, source, externalId, projectId (number|null), messageCount, originKind ("imported"|"created"), bound.workspace, bound.model, createdAt, and updatedAt.</td></tr>
+      <tr><td class="id">nextCursor</td><td class="id">string</td><td>Present when another page exists; pass it back as <code>cursor</code> to continue, otherwise absent.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{ "limit": 20, "source": "wechat-export" }</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>{
   "items": [
     {
@@ -105,48 +105,48 @@
   ],
   "nextCursor": "eyJ1IjoiMjAyNi0wMi0xNCJ9"
 }</pre>
-  <div class="callout"><b>一句话边界。</b>只能列本插件 <code>source</code> 拥有的会话；宿主自建会话与其他插件会话不可见。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> It can only list sessions owned by this plugin's <code>source</code>; host-created sessions and other plugins' sessions are invisible.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件可带 <code>limit</code> / <code>cursor</code> / <code>source</code> / <code>updatedAfter</code>。</li>
-    <li><b>校验：</b>无 <code>session.read.own</code> 权限或 <code>source</code> 未在清单声明即拒绝。</li>
-    <li><b>执行：</b>宿主按本插件 <code>source</code> 过滤后分页取会话行。</li>
-    <li><b>返回：</b><code>items</code> + <code>nextCursor</code>；用游标循环直到缺省。</li>
+    <li><b>Call:</b> the plugin may pass <code>limit</code> / <code>cursor</code> / <code>source</code> / <code>updatedAfter</code>.</li>
+    <li><b>Validate:</b> rejected when the <code>session.read.own</code> permission is missing or <code>source</code> is not declared in the manifest.</li>
+    <li><b>Execute:</b> the host filters by this plugin's <code>source</code> and reads session rows page by page.</li>
+    <li><b>Return:</b> <code>items</code> plus <code>nextCursor</code>; loop on the cursor until it is absent.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>direction</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>过滤与分页参数（limit / cursor / source / updatedAfter）。</td></tr>
-      <tr><td>宿主 → 插件</td><td>会话元数据页 <code>{ items, nextCursor? }</code>。</td></tr>
+      <tr><td>plugin → host</td><td>The filter and paging parameters (limit / cursor / source / updatedAfter).</td></tr>
+      <tr><td>host → plugin</td><td>A page of session metadata, <code>{ items, nextCursor? }</code>.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>code</th></tr></thead>
     <tbody>
-      <tr><td>无 <code>session.read.own</code> 或 <code>source</code> 未声明</td><td>调用失败，无数据返回</td><td><code>PERMISSION_DENIED</code></td></tr>
+      <tr><td>No <code>session.read.own</code>, or <code>source</code> is undeclared</td><td>Call failed; no data returned</td><td><code>PERMISSION_DENIED</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不能列其他插件会话。</p>
-  <div class="callout"><b>宿主保证 / 已接受代价：</b>宿主保证：跨插件不可见。已接受代价：看不到宿主自建会话。</div>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Cannot list another plugin's sessions.</p>
+  <div class="callout"><b>Host guarantees / accepted costs:</b> Host guarantee: nothing is visible across plugins. Accepted cost: host-created sessions are not visible.</div>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/session.get</code></li>
     <li><code>host-api/session.listMessages</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

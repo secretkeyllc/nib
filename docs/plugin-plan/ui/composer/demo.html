@@ -1,11 +1,11 @@
-<!-- AI生成 -->
+<!-- AI-generated -->
  <!-- status: finalized -->
 <!DOCTYPE html>
 <html lang="zh-CN" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>输入区 · 演示</title>
+  <title>Composer · Demo</title>
   <style>
     :root {
       color-scheme: dark;
@@ -219,23 +219,23 @@
   </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">输入区</span>
+  <span class="here">Composer</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="demo.html" aria-current="page">演示</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="demo.html" aria-current="page">Demo</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
   <div class="shell">
     <header class="topbar">
-      <h1>输入区 · 演示</h1>
+      <h1>Composer · Demo</h1>
     </header>
 
     <div class="thread">
@@ -243,96 +243,96 @@
 
         <article class="message-row user">
           <div class="message-col">
-            <div class="message-bubble">帮我把上周的销售数据整理一下。</div>
+            <div class="message-bubble">Help me tidy up last week's sales data.</div>
           </div>
         </article>
 
         <article class="message-row assistant">
           <div class="assistant-col">
-            <p>好，我先看一下数据文件。</p>
+            <p>Sure, let me look at the data files first.</p>
           </div>
         </article>
 
-        <div class="stage" id="s1"><span class="no">1</span>固定件与空槽<span class="hint">只有固定件</span></div>
+        <div class="stage" id="s1"><span class="no">1</span>Fixed parts and empty slots<span class="hint">Fixed parts only</span></div>
 
         <div class="cshell">
           <div class="img-strip">
             <div class="img-thumb">screenshot<br />PNG</div>
           </div>
           <div class="cinput-wrap">
-            <div class="cinput is-empty">问点什么…</div>
+            <div class="cinput is-empty">Ask something...</div>
           </div>
           <div class="ctoolbar">
             <div class="cleft">
-              <button class="icon-btn sq" type="button" aria-label="添加文件"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+              <button class="icon-btn sq" type="button" aria-label="Add file"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
               <button class="icon-btn" type="button"><span class="face"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M12 8V4M8 4h8"/></svg><span>Agent</span></span></button>
-              <button class="icon-btn" type="button"><span class="face"><span>询问</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></button>
-              <span class="slot-box is-empty"><span class="slot-name">左控件</span></span>
+              <button class="icon-btn" type="button"><span class="face"><span>Ask</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></button>
+              <span class="slot-box is-empty"><span class="slot-name">Left control</span></span>
             </div>
             <div class="cright">
-              <span class="slot-box is-empty"><span class="slot-name">右控件</span></span>
+              <span class="slot-box is-empty"><span class="slot-name">Right control</span></span>
               <span class="ctx-trigger">
                 <span class="ctx-ring"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2.4"/><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="14.5 37.7" stroke-linecap="round" transform="rotate(-90 8 8)"/></svg></span>
                 38%
               </span>
               <button class="icon-btn" type="button"><span class="face"><span>GLM-4.7</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></button>
-              <button class="send-btn" type="button" aria-label="发送"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>
+              <button class="send-btn" type="button" aria-label="Send"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>
             </div>
           </div>
         </div>
 
-        <div class="stage" id="s2"><span class="no">2</span>左控件 · 知识库<span class="hint">插件按钮</span></div>
+        <div class="stage" id="s2"><span class="no">2</span>Left control - knowledge base<span class="hint">Plugin button</span></div>
 
         <div class="cshell">
           <div class="cinput-wrap">
-            <div class="cinput">这份资料里的退货流程和时效是什么？</div>
+            <div class="cinput">What is the returns process and timeframe in this material?</div>
           </div>
           <div class="ctoolbar">
             <div class="cleft">
-              <button class="icon-btn sq" type="button" aria-label="添加文件"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+              <button class="icon-btn sq" type="button" aria-label="Add file"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
               <button class="icon-btn" type="button"><span class="face"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M12 8V4M8 4h8"/></svg><span>Agent</span></span></button>
-              <button class="icon-btn" type="button"><span class="face"><span>询问</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></button>
+              <button class="icon-btn" type="button"><span class="face"><span>Ask</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></button>
               <span class="slot-box">
-                <span class="slot-name">左控件</span>
-                <button class="icon-btn plugin" type="button"><span class="face"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>知识库</span></span></button>
+                <span class="slot-name">Left control</span>
+                <button class="icon-btn plugin" type="button"><span class="face"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Knowledge base</span></span></button>
               </span>
             </div>
             <div class="cright">
-              <span class="slot-box is-empty"><span class="slot-name">右控件</span></span>
+              <span class="slot-box is-empty"><span class="slot-name">Right control</span></span>
               <span class="ctx-trigger">
                 <span class="ctx-ring"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2.4"/><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="14.5 37.7" stroke-linecap="round" transform="rotate(-90 8 8)"/></svg></span>
                 38%
               </span>
               <button class="icon-btn" type="button"><span class="face"><span>GLM-4.7</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></button>
-              <button class="send-btn" type="button" aria-label="发送"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>
+              <button class="send-btn" type="button" aria-label="Send"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>
             </div>
           </div>
         </div>
 
-        <div class="stage" id="s3"><span class="no">3</span>右控件 · 记号<span class="hint">选中后插入</span></div>
+        <div class="stage" id="s3"><span class="no">3</span>Right control - tokens<span class="hint">Inserted on selection</span></div>
 
         <div class="cshell">
           <div class="cinput-wrap">
-            <div class="cinput">对比一下<span class="composer-chip is-token"><span class="tok">#</span>数据1<span class="x"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></span></span>和<span class="composer-chip is-token"><span class="tok">#</span>数据2<span class="x"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></span></span>的销量</div>
+            <div class="cinput">Compare<span class="composer-chip is-token"><span class="tok">#</span>data set 1<span class="x"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></span></span> and <span class="composer-chip is-token"><span class="tok">#</span>data set 2<span class="x"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></span></span> sales</div>
           </div>
           <div class="ctoolbar">
             <div class="cleft">
-              <button class="icon-btn sq" type="button" aria-label="添加文件"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+              <button class="icon-btn sq" type="button" aria-label="Add file"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
               <button class="icon-btn" type="button"><span class="face"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="11" rx="2"/><path d="M12 8V4M8 4h8"/></svg><span>Agent</span></span></button>
-              <button class="icon-btn" type="button"><span class="face"><span>询问</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></button>
-              <span class="slot-box is-empty"><span class="slot-name">左控件</span></span>
+              <button class="icon-btn" type="button"><span class="face"><span>Ask</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></button>
+              <span class="slot-box is-empty"><span class="slot-name">Left control</span></span>
             </div>
             <div class="cright">
               <span class="slot-box">
-                <span class="slot-name">右控件</span>
-                <button class="icon-btn plugin" type="button" aria-label="草稿统计">1,284</button>
+                <span class="slot-name">Right control</span>
+                <button class="icon-btn plugin" type="button" aria-label="Draft statistics">1,284</button>
               </span>
               <span class="ctx-trigger">
                 <span class="ctx-ring"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2.4"/><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="14.5 37.7" stroke-linecap="round" transform="rotate(-90 8 8)"/></svg></span>
                 38%
               </span>
               <button class="icon-btn" type="button"><span class="face"><span>GLM-4.7</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span></button>
-              <button class="send-btn" type="button" aria-label="发送"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>
+              <button class="send-btn" type="button" aria-label="Send"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg></button>
             </div>
           </div>
         </div>

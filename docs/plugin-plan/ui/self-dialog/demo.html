@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>自理弹窗 · 演示</title>
+  <title>Self-managed overlay · Demo</title>
   <style>
     :root {
       color-scheme: dark;
@@ -230,121 +230,121 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">自理弹窗</span>
+  <span class="here">Self-managed overlay</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="demo.html" aria-current="page">演示</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="demo.html" aria-current="page">Demo</a>
 </nav>
 
   <div class="shell">
     <header class="topbar">
-      <h1>自理弹窗 · 演示</h1>
+      <h1>Self-managed overlay · Demo</h1>
     </header>
 
     <div class="thread">
       <div class="inner">
 
-        <div class="stage" id="s1"><span class="no">1</span>模态弹窗<span class="hint">关闭只走 ✕</span></div>
+        <div class="stage" id="s1"><span class="no">1</span>Modal dialog<span class="hint">Closing only through the close button</span></div>
 
         <div class="win has-scrim" style="min-height:360px">
           <div class="chat-bg">
-            <div class="u"><span>帮我把这段文档翻成英文。</span></div>
-            <div class="a">已经放进翻译队列了。</div>
+            <div class="u"><span>Translate this document into English for me.</span></div>
+            <div class="a">I have added it to the translation queue.</div>
           </div>
           <div class="layer center">
             <div style="position:relative">
-              <span class="slot-name" style="top:-16px">self-dialog · 插件自理</span>
+              <span class="slot-name" style="top:-16px">self-dialog · plugin-managed</span>
               <div class="p-dialog">
                 <div class="p-dialog-head">
-                  <span class="t">翻译助手</span>
-                  <span class="esc">Esc 不关安全层</span>
-                  <button class="btn" type="button" aria-label="关闭" style="width:28px;padding:0">✕</button>
+                  <span class="t">Translation assistant</span>
+                  <span class="esc">Esc never closes a security layer</span>
+                  <button class="btn" type="button" aria-label="Close" style="width:28px;padding:0">✕</button>
                 </div>
                 <div class="p-dialog-body">
                   <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-                    <span style="font-size:var(--text-xs-plus);color:var(--ds-text-muted)">术语表</span>
-                    <span style="font-family:var(--mono);font-size:var(--text-xs-plus);background:var(--ds-tile-deep);border-radius:6px;padding:2px 7px">发版 → release</span>
-                    <span style="font-family:var(--mono);font-size:var(--text-xs-plus);background:var(--ds-tile-deep);border-radius:6px;padding:2px 7px">插槽 → slot</span>
+                    <span style="font-size:var(--text-xs-plus);color:var(--ds-text-muted)">Glossary</span>
+                    <span style="font-family:var(--mono);font-size:var(--text-xs-plus);background:var(--ds-tile-deep);border-radius:6px;padding:2px 7px">release -> release</span>
+                    <span style="font-family:var(--mono);font-size:var(--text-xs-plus);background:var(--ds-tile-deep);border-radius:6px;padding:2px 7px">slot -> slot</span>
                   </div>
                   <div style="border-radius:var(--radius-sm);background:var(--ds-tile);padding:9px 11px;font-size:var(--text-sm);line-height:1.55">
-                    译文中…：The plugin slot boundary for the composer was agreed this week…
+                    Translating...: The plugin slot boundary for the composer was agreed this week...
                   </div>
                 </div>
                 <div class="p-dialog-foot">
-                  <button class="btn" type="button">暂停</button>
-                  <button class="btn primary" type="button">应用到原文</button>
+                  <button class="btn" type="button">Pause</button>
+                  <button class="btn primary" type="button">Apply to source</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="stage" id="s2"><span class="no">2</span>角落悬浮层<span class="hint">非阻塞</span></div>
+        <div class="stage" id="s2"><span class="no">2</span>Corner floating layer<span class="hint">Non-blocking</span></div>
 
         <div class="win" style="min-height:300px">
           <div class="chat-bg">
-            <div class="u"><span>继续翻下一篇。</span></div>
-            <div class="a">好，这篇是配置说明，我直接开始：</div>
-            <div class="u"><span>术语表里加一条「沙箱」。</span></div>
+            <div class="u"><span>Keep going with the next one.</span></div>
+            <div class="a">Sure - this one is the configuration guide, so I will start right away:</div>
+            <div class="u"><span>Add "sandbox" to the glossary.</span></div>
           </div>
           <div class="layer br">
             <div style="position:relative">
-              <span class="slot-name" style="top:-16px">self-dialog · 插件自理</span>
+              <span class="slot-name" style="top:-16px">self-dialog · plugin-managed</span>
               <div class="p-notice">
                 <span class="p-notice-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
                 </span>
                 <span>
-                  <span class="p-notice-title">翻译队列</span>
-                  <span class="p-notice-msg">进行中 2 / 5 · 已交付 14</span>
+                  <span class="p-notice-title">Translation queue</span>
+                  <span class="p-notice-msg">2 of 5 in progress - 14 delivered</span>
                 </span>
-                <button class="p-notice-dismiss" type="button" aria-label="收起">✕</button>
+                <button class="p-notice-dismiss" type="button" aria-label="Collapse">✕</button>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="stage" id="s3"><span class="no">3</span>z 序与关闭<span class="hint">安全层在上</span></div>
+        <div class="stage" id="s3"><span class="no">3</span>Z-order and closing<span class="hint">Security layers on top</span></div>
 
         <div class="minis">
           <div class="mini dim">
             <div class="chat-bg">
-              <div class="u"><span>继续。</span></div>
+              <div class="u"><span>Continue.</span></div>
             </div>
             <div class="p-dialog">
-              <div class="p-dialog-head"><span class="t">翻译助手</span></div>
-              <div class="p-dialog-body">译文中…</div>
+              <div class="p-dialog-head"><span class="t">Translation assistant</span></div>
+              <div class="p-dialog-body">Translating...</div>
               <div class="p-dialog-foot">
-                <button class="btn" type="button">暂停</button>
-                <button class="btn primary" type="button">应用</button>
+                <button class="btn" type="button">Pause</button>
+                <button class="btn primary" type="button">Apply</button>
               </div>
             </div>
             <div class="perm-bar">
               <div>
                 <div class="a-head">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ds-error);flex:none"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
-                  权限请求
+                  Permission request
                   <span class="risk">high</span>
                 </div>
                 <div class="a-sub">git push --force</div>
               </div>
               <div style="display:flex;gap:8px;margin-left:auto">
-                <button class="btn ghosty" type="button">拒绝</button>
-                <button class="btn safe" type="button">允许一次</button>
+                <button class="btn ghosty" type="button">Deny</button>
+                <button class="btn safe" type="button">Allow once</button>
               </div>
             </div>
-            <div class="cap">z 序 · 宿主安全层永远在自理层之上</div>
+            <div class="cap">Z-order - host security layers always sit above self-managed layers</div>
           </div>
 
           <div class="mini">
             <div class="chat-bg" style="opacity:.8">
-              <div class="u"><span>继续翻下一篇。</span></div>
-              <div class="a">好，这篇是配置说明，我直接开始…</div>
+              <div class="u"><span>Keep going with the next one.</span></div>
+              <div class="a">Sure - this one is the configuration guide, so I will start right away...</div>
             </div>
-            <div class="cap" style="color:var(--ds-text-secondary)">Esc 不关安全层 · 关闭只走 ✕</div>
+            <div class="cap" style="color:var(--ds-text-secondary)">Esc never closes a security layer - closing goes through the close button only</div>
           </div>
         </div>
 

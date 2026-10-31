@@ -108,7 +108,7 @@ node node_modules/vitest/vitest.mjs run
 cd ../..
 
 # Review-block and key parity (every locale must print reviewsBlock=1 sevenKeys=7)
-$root = 'C:\Code\ReactProjects\PI-Desktop\.slim\worktrees\plugin-reviews'
+$root = 'C:\Code\ReactProjects\Nib\.slim\worktrees\plugin-reviews'
 foreach ($l in 'de','en','es','fr','ko','pt-BR','tr','zh-CN','zh-TW') {
   $f = "$root\packages\i18n\src\locales\$l\index.ts"
   $block = (Select-String -Path $f -Pattern '^\s*reviews: \{' -CaseSensitive).Count

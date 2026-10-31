@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session.getContext · 需求描述</title>
+<title>session.getContext · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,44 +49,44 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a><span class="sep">/</span><a href="index.html">session-context</a>
+  <a href="../../index.html">Plugin slot catalog</a><span class="sep">/</span><a href="index.html">session-context</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
-  <h1>session.getContext · 需求描述</h1>
-  <div class="meta">status: <b>draft · 设计稿</b> · 会话数据契约 · 规划出处：能力清单审查 N3 · 权限 <code>session.context.read</code>（新增） · 尚无 SDK 实现</div>
+  <h1>session.getContext · Requirements</h1>
+  <div class="meta">status: <b>draft · design draft</b> · session data contract · planned from: capability inventory review N3 · permission <code>session.context.read</code> (new) · no SDK implementation yet</div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>用途与边界</h2>
-  <p class="lead">读当前话话的全量上下文工作集：system prompt、自上次压缩以来的消息与整体 token 估算，供 DIY 压缩器与上下文体检面板使用。</p>
+  <h2><span class="n">1</span>Purpose and scope</h2>
+  <p class="lead">Reads the full context working set of the current session: the system prompt, the messages since the last compaction, and an overall token estimate, for DIY compactors and context-inspection panels.</p>
   <pre class="sig">pi.session.getContext(input?: { sessionId?: string; scope?: "all" | "sinceCompaction"; maxCharsPerMessage?: number }): Promise&lt;PluginSessionContext&gt;</pre>
-  <p>权限：<code>session.context.read</code>（新增 · high · 装时确认——能读消息正文，比 <code>session.read</code> 宽）。</p>
+  <p>Permission: <code>session.context.read</code> (new · high · confirmed at install - it can read message bodies, so it is broader than <code>session.read</code>).</p>
 </section>
 <section>
-  <h2><span class="n">2</span>典型场景</h2>
-  <table><thead><tr><th>场景</th><th>插件做什么</th></tr></thead><tbody>
-<tr><td><b>DIY 压缩器（主场景）</b></td><td>读 <code>sinceCompaction</code> 工作集 → 自算摘要 → 交 <code>session.applyCompaction</code> 写回。</td></tr>
-<tr><td><b>上下文体检面板</b></td><td>读 <code>scope:"all"</code>，展示 token 构成、压缩水位、消息分布。</td></tr>
-<tr><td><b>压缩前检查</b></td><td>在 <code>before_compact</code> 拦截后重读工作集，决定放行还是自己接手。</td></tr>
+  <h2><span class="n">2</span>Typical scenarios</h2>
+  <table><thead><tr><th>scenario</th><th>what the plugin does</th></tr></thead><tbody>
+<tr><td><b>DIY compactor (primary scenario)</b></td><td>Reads the <code>sinceCompaction</code> working set → computes its own summary → submits it via <code>session.applyCompaction</code> for write-back.</td></tr>
+<tr><td><b>Context-inspection panel</b></td><td>Reads <code>scope:"all"</code> and shows token composition, the compaction watermark, and message distribution.</td></tr>
+<tr><td><b>Pre-compaction check</b></td><td>After intercepting in <code>before_compact</code>, re-reads the working set and decides whether to let it through or take over.</td></tr>
   </tbody></table>
 </section>
 <section>
-  <h2><span class="n">3</span>明确不做什么</h2>
-  <p class="lead">不提供消息写回与替换（写侧走 <code>session.applyCompaction</code>）；工具结果只给预览不吐全文；缺省只读当前话话，跨话话需显式 <code>sessionId</code>（同权限）。</p>
+  <h2><span class="n">3</span>Explicit non-goals</h2>
+  <p class="lead">No message write-back or replacement (the write side goes through <code>session.applyCompaction</code>); tool results are previews only, never the full text; by default it reads only the current session, and reading across sessions needs an explicit <code>sessionId</code> (same permission).</p>
 </section>
 <section>
-  <h2><span class="n">4</span>已拍板</h2>
+  <h2><span class="n">4</span>Decided</h2>
   <ul>
-    <li>权限开新域 <code>session.context.read</code>（high，装时确认），不借用 <code>session.read</code>。</li>
-    <li>缺省 scope 为 <code>sinceCompaction</code>，对齐压缩主场景；体检场景显式传 <code>"all"</code>。</li>
-    <li>使用前提：实现时须放开现有 <code>session.getLlmContext</code>「仅工具执行期可调」的时机限制，改为纯权限门控。</li>
+    <li>Open a new permission domain, <code>session.context.read</code> (high, confirmed at install); do not borrow <code>session.read</code>.</li>
+    <li>The default scope is <code>sinceCompaction</code>, matching the primary compaction scenario; inspection scenarios pass <code>"all"</code> explicitly.</li>
+    <li>Prerequisite: the implementation must lift the current timing restriction on <code>session.getLlmContext</code> ("callable only during tool execution") and switch to pure permission gating.</li>
   </ul>
 </section>
 

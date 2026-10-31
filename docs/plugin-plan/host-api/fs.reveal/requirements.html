@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>fs.reveal · 需求描述</title>
+<title>fs.reveal · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,39 +49,39 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">fs.reveal</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
-  <h1>fs.reveal · 需求描述</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>fs.reveal · Requirements</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>用途与边界</h2>
-  <p class="lead">在系统文件管理器里显示一个已有可读文件。</p>
+  <h2><span class="n">1</span>Purpose and boundaries</h2>
+  <p class="lead">Shows an existing readable file in the system file manager.</p>
   <pre class="sig">pi.fs.reveal(pathFromRoot: string): Promise&lt;void&gt;</pre>
-  <p>权限：<span class="pill perm">—</span></p>
+  <p>Permission: <span class="pill perm">—</span></p>
 </section>
 <section>
-  <h2><span class="n">2</span>典型场景</h2>
-  <table><thead><tr><th>场景</th><th>插件做什么</th></tr></thead><tbody>
-<tr><td><b>定位输出文件</b></td><td>生成报告后帮用户在文件夹里找到它。</td></tr>
+  <h2><span class="n">2</span>Typical use cases</h2>
+  <table><thead><tr><th>Scenario</th><th>What the plugin does</th></tr></thead><tbody>
+<tr><td><b>Locate an output file</b></td><td>After generating a report, helps the user find it in the folder.</td></tr>
   </tbody></table>
 </section>
 <section>
-  <h2><span class="n">3</span>明确不做什么</h2>
-  <p class="lead">不选中多个文件。</p>
+  <h2><span class="n">3</span>Explicit non-goals</h2>
+  <p class="lead">Does not multi-select files.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>已拍板</h2>
-  <ul><li>无额外拍板。</li></ul>
+  <h2><span class="n">4</span>Decided</h2>
+  <ul><li>No additional decisions.</li></ul>
 </section>
 
 </main>

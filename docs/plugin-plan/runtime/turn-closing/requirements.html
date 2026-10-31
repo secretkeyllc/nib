@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-closing · 轮末询问要不要续（续跑缺署名） · 需求</title>
+<title>turn-closing · Asks at turn end whether to continue (continuation lacks attribution) · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,104 +98,104 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-closing</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
-  <div class="crumb">docs/plugin-plan · runtime/turn-closing</div>
-  <h1>turn-closing · 需求</h1>
-  <p>轮末被动询问：插件可以建议再续几轮。续跑经 agent.steer({role:"user"}) 注入——无插件署名，这是缺陷，不得写成「署名可见」。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.closing</code> · 续跑走 agent.steer · <b>缺插件署名（缺陷）</b></div>
+  <div class="crumb">docs/plugin-plan · runtime · turn-closing</div>
+  <h1>turn-closing · Requirements</h1>
+  <p>A passive query at turn end: a plugin can suggest a few more rounds. The continuation is injected through agent.steer({role:"user"}) - with no plugin attribution. That is a defect and must not be written as "attribution visible".</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.closing</code> · continuation goes through agent.steer · <b>plugin attribution missing (defect)</b></div>
 </header>
 
 <main>
 <section>
-  <h2>范围 <span class="tag verified">已核实</span></h2>
+  <h2>Scope <span class="tag verified">Verified</span></h2>
     <ul>
-    <li>只管「轮末收束前的被动询问」：插件可建议续跑。</li>
-    <li>不谈：插件主动续跑（turn-continue）、实时观察（turn-watch）、中止（abort-turn）。</li>
-    <li>必须写明：续跑路径缺署名——这是缺陷，不是特性。</li>
+    <li>Only "the passive query before a turn closes": a plugin may suggest a continuation.</li>
+    <li>Out of scope: a plugin actively continuing (turn-continue), live observation (turn-watch), aborting (abort-turn).</li>
+    <li>It must be stated: the continuation path lacks attribution - this is a defect, not a feature.</li>
   </ul>
 </section>
 
 <section>
-  <h2>现状（代码核实） <span class="tag verified">已核实</span></h2>
+  <h2>Current state (code-verified) <span class="tag verified">Verified</span></h2>
     <ul>
-    <li><b>预算已在</b>：每次运行最多续若干轮（现值 4），续跑默认注入一条消息，经 <code>agent.steer({role:"user"})</code> 进循环。<br /><span class="cite">feat/528-plugin-slots@<sha> · packages/agent-runtime/src/extensions/turn-closing.ts · 续跑预算 / 默认注入</span><br /><span class="cite">feat/528-plugin-slots@<sha> · packages/agent-runtime/src/runtime.ts · agent.steer 续跑</span></li>
-    <li><b>续跑路径缺插件署名（缺陷）</b>：<code>agent.steer({role:"user"})</code> 注入的消息<b>不带 pluginId / pluginLabel</b>——用户看不出这是插件让跑的。对照：turn-continue → <code>queuePush</code> 会补署名。两者不一致。</li>
-    <li><b>已 emit、消费者少</b>：事件已接；SDK 类型化载荷仍薄。</li>
-    <li><b>沙箱缺口</b>：沙箱插件的接线通道（ADR 0300）未建——注册、预算、熔断都还没有。</li>
+    <li><b>The budget already exists</b>: at most a few continuation rounds per run (currently 4); a continuation injects one message by default and enters the loop through <code>agent.steer({role:"user"})</code>.<br /><span class="cite">feat/528-plugin-slots@<sha> · packages/agent-runtime/src/extensions/turn-closing.ts · continuation budget / default injection</span><br /><span class="cite">feat/528-plugin-slots@<sha> · packages/agent-runtime/src/runtime.ts · agent.steer continuation</span></li>
+    <li><b>The continuation path lacks plugin attribution (defect)</b>: the message injected by <code>agent.steer({role:"user"})</code> <b>carries no pluginId / pluginLabel</b> - the user cannot tell that a plugin caused the run. Compare: turn-continue → <code>queuePush</code> does add attribution. The two are inconsistent.</li>
+    <li><b>Already emitted, few consumers</b>: the event is wired up; the SDK's typed payload is still thin.</li>
+    <li><b>Sandbox gap</b>: the wiring channel for sandbox plugins (ADR 0300) does not exist yet - registration, budgets, and circuit breakers are all missing.</li>
   </ul>
-  <div class="callout error"><b>缺陷：续跑路径缺署名。</b>不是「署名可见」。steer 注入的 user 消息没有插件名；有署名的是 turn-continue 的 queuePush。收口方式见拍板。</div>
+  <div class="callout error"><b>Defect: the continuation path lacks attribution.</b> It is not "attribution visible". The user message injected by steer has no plugin name; what does have attribution is turn-continue's queuePush. How to close it is in the decisions.</div>
 </section>
 
 <section>
-  <h2>契约（建议） <span class="tag proposal">建议</span></h2>
+  <h2>Contract (proposal) <span class="tag proposal">Proposal</span></h2>
       <table>
-    <thead><tr><th>方面</th><th>内容</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td class="id">何时触发</td><td>一轮跑完、收束前</td></tr>
-      <tr><td class="id">插件可返回</td><td>建议继续（带一条建议注入的消息）/ 不续</td></tr>
-      <tr><td class="id">裁决</td><td>多个插件时第一个 continue 生效</td></tr>
-      <tr><td class="id">续跑路径</td><td><code>agent.steer({ role: "user" })</code> 注入一条消息并续跑</td></tr>
-      <tr><td class="id">署名</td><td><b>无插件署名（缺陷）</b>——对照 turn-continue 会补 pluginId / pluginLabel</td></tr>
-      <tr><td class="id">预算</td><td>每次运行最多续若干轮（现值 4）</td></tr>
-      <tr><td class="id">权限</td><td><code>runtime.turn.closing</code></td></tr>
+      <tr><td class="id">When it fires</td><td>After a turn finishes, before it closes</td></tr>
+      <tr><td class="id">What a plugin may return</td><td>Suggest continuing (with a suggested injected message) / do not continue</td></tr>
+      <tr><td class="id">Arbitration</td><td>With several plugins, the first continue wins</td></tr>
+      <tr><td class="id">Continuation path</td><td><code>agent.steer({ role: "user" })</code> injects one message and continues</td></tr>
+      <tr><td class="id">Attribution</td><td><b>No plugin attribution (defect)</b> - compare turn-continue, which adds pluginId / pluginLabel</td></tr>
+      <tr><td class="id">Budget</td><td>At most a few continuation rounds per run (currently 4)</td></tr>
+      <tr><td class="id">Permission</td><td><code>runtime.turn.closing</code></td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>插件场景 <span class="tag proposal">建议</span></h2>
+  <h2>Plugin scenarios <span class="tag proposal">Proposal</span></h2>
       <table>
-    <thead><tr><th>#</th><th>场景</th><th>动作</th></tr></thead>
+    <thead><tr><th>#</th><th>scenario</th><th>action</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td>收尾检查：轮末看还有没有未完成清单，有则建议再续</td><td>continue</td></tr>
-      <tr><td>2</td><td>格式补全：上一轮输出缺摘要段，建议再跑一轮补上</td><td>continue</td></tr>
-      <tr><td>3</td><td>只观察：轮末记一笔，不续</td><td>no-op</td></tr>
+      <tr><td>1</td><td>Wrap-up check: see at turn end whether any checklist items remain; if so, suggest continuing</td><td>continue</td></tr>
+      <tr><td>2</td><td>Format completion: the previous turn's output is missing a summary section, so suggest one more round</td><td>continue</td></tr>
+      <tr><td>3</td><td>Observation only: note something at turn end, do not continue</td><td>no-op</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>本轮拍板 <span class="tag open">待定</span></h2>
+  <h2>Decisions this round <span class="tag open">TBD</span></h2>
       <table>
-    <thead><tr><th>问题</th><th>选项</th></tr></thead>
+    <thead><tr><th>question</th><th>options</th></tr></thead>
     <tbody>
-      <tr><td>续跑署名（消缺陷）</td><td>A. 给 steer 路径补 pluginId / pluginLabel，对齐 queuePush　B. 维持无署名，并在对话里明示「由插件建议续跑」　C. 改走 queuePush 统一署名</td></tr>
-      <tr><td>预算值</td><td>A. 维持 4　B. 可配置 / 按插件声明</td></tr>
-      <tr><td>并发裁决</td><td>A. 维持「第一个 continue 生效」　B. 汇总投票</td></tr>
-      <tr><td>SDK 载荷</td><td>A. 维持薄载荷　B. 补类型化字段</td></tr>
+      <tr><td>Continuation attribution (closing the defect)</td><td>A. Add pluginId / pluginLabel to the steer path, aligning with queuePush; B. Keep it unattributed and state in the conversation that "a plugin suggested continuing"; C. Route it through queuePush for unified attribution</td></tr>
+      <tr><td>Budget value</td><td>A. Keep 4; B. Configurable / declared per plugin</td></tr>
+      <tr><td>Concurrent arbitration</td><td>A. Keep "the first continue wins"; B. Aggregate votes</td></tr>
+      <tr><td>SDK payload</td><td>A. Keep the thin payload; B. Add typed fields</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>明确不做 <span class="tag verified">已核实</span></h2>
+  <h2>Explicit non-goals <span class="tag verified">Verified</span></h2>
     <ul>
-    <li>不把无署名续跑写成「署名可见」——那是缺陷描述，不是能力描述。</li>
-    <li>不让插件改对话记录或伪造轮次——续跑经 <code>agent.steer</code> 走正常循环，行是宿主记的（但目前缺插件名）。</li>
-    <li>不做无限续跑——有预算。</li>
-    <li>不在轮末给插件写权限。</li>
+    <li>Do not describe an unattributed continuation as "attribution visible" - that is a defect description, not a capability description.</li>
+    <li>Plugins may not edit the conversation record or fabricate turns - a continuation goes through <code>agent.steer</code> into the normal loop, and the rows are recorded by the host (though currently without a plugin name).</li>
+    <li>No unbounded continuation - there is a budget.</li>
+    <li>No write permission for plugins at turn end.</li>
   </ul>
 </section>
 
 <section>
-  <h2>还没定的事 <span class="tag open">未定</span></h2>
+  <h2>Open questions <span class="tag open">Open</span></h2>
     <ul>
-    <li>续跑要不要补署名（如何消缺陷）、预算值、并发裁决、SDK 载荷形状。</li>
-    <li>沙箱插件的接线通道（ADR 0300）未建——注册、预算、熔断都还没有。</li>
+    <li>Whether continuation should gain attribution (and how to close the defect), the budget value, concurrent arbitration, the SDK payload shape.</li>
+    <li>The wiring channel for sandbox plugins (ADR 0300) does not exist yet - registration, budgets, and circuit breakers are all missing.</li>
   </ul>
 </section>
 
-<p class="omitted">省略：无界面</p>
-<p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+<p class="omitted">Omitted: no UI</p>
+<p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

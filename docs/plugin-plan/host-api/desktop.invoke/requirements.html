@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>desktop.invoke · 需求描述</title>
+<title>desktop.invoke · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,40 +49,40 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">desktop.invoke</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
-  <h1>desktop.invoke · 需求描述</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>desktop.invoke · Requirements</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>用途与边界</h2>
-  <p class="lead">执行一条受控桌面操作（宿主代办）。</p>
+  <h2><span class="n">1</span>Purpose and scope</h2>
+  <p class="lead">Performs one controlled desktop operation through the host.</p>
   <pre class="sig">pi.desktop.invoke(input: PluginDesktopInvokeInput): Promise&lt;unknown&gt;</pre>
-  <p>权限：<span class="pill perm">—</span></p>
+  <p>Permission: <span class="pill perm">—</span></p>
 </section>
 <section>
-  <h2><span class="n">2</span>典型场景</h2>
-  <table><thead><tr><th>场景</th><th>插件做什么</th></tr></thead><tbody>
-<tr><td><b>代办重命名</b></td><td>插件请求宿主改会话标题。</td></tr>
-<tr><td><b>危险删除</b></td><td>删除会话需两次确认：插件 <code>confirm: true</code> + 用户对话框点名操作 id。</td></tr>
+  <h2><span class="n">2</span>Typical scenarios</h2>
+  <table><thead><tr><th>Scenario</th><th>What the plugin does</th></tr></thead><tbody>
+<tr><td><b>Proxy a rename</b></td><td>The plugin asks the host to change a session title.</td></tr>
+<tr><td><b>Dangerous delete</b></td><td>Deleting a session needs two confirmations: the plugin's <code>confirm: true</code> plus a user dialog naming the operation id.</td></tr>
   </tbody></table>
 </section>
 <section>
-  <h2><span class="n">3</span>明确不做什么</h2>
-  <p class="lead">不开放任意 IPC；参数值不进审计正文。</p>
+  <h2><span class="n">3</span>Explicit non-goals</h2>
+  <p class="lead">No arbitrary IPC; argument values never enter the audit body.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>已拍板</h2>
-  <ul><li>dangerous 必须插件 confirm 且用户在原生对话框应答；对话框不显示插件/模型撰写的文本。</li></ul>
+  <h2><span class="n">4</span>Decided</h2>
+  <ul><li>dangerous requires the plugin's confirm and the user answering in a native dialog; the dialog does not show text written by the plugin or model.</li></ul>
 </section>
 
 </main>

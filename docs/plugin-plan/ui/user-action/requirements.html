@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>用户消息操作栏 · 需求</title>
+<title>User message action bar · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -53,89 +53,89 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">用户消息操作栏</span>
+  <span class="here">User message action bar</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
   <div class="crumb">docs/plugin-plan · ui/user-action</div>
-  <h1>用户消息操作栏 · 需求</h1>
-  <p>用户消息卡操作栏两侧的新增位。本页记录已拍板的边界。</p>
-   <div class="meta">status: finalized · 本轮拍板见文末</div>
+  <h1>User message action bar · Requirements</h1>
+  <p>Additive positions on both sides of the user message card's action bar. This page records the decided boundaries.</p>
+   <div class="meta">status: finalized · decisions this round at the end</div>
 </header>
 <main>
 
 <section>
-  <h2>范围 <span class="tag decided">已定</span></h2>
-  <p>只管<strong>用户消息卡</strong>操作栏的左右两侧。不碰消息正文，不碰 AI 回复，不碰工具卡。</p>
+  <h2>Scope <span class="tag decided">Decided</span></h2>
+  <p>It covers only the left and right sides of the <strong>user message card</strong> action bar. It does not touch the message body, AI replies, or tool cards.</p>
 </section>
 
 <section>
-  <h2>槽形状 <span class="tag decided">已定</span></h2>
-  <div class="callout ok"><b>固定布局：</b><code>【左插槽】宿主键【右插槽】</code>。宿主键（复制 / 编辑 / 删除）永远在中间，只许插件<strong>新增</strong>。</div>
+  <h2>Slot shape <span class="tag decided">Decided</span></h2>
+  <div class="callout ok"><b>Fixed layout:</b> <code>[left slot] host keys [right slot]</code>. The host keys (copy / edit / delete) always sit in the middle, and plugins may only <strong>add</strong>.</div>
   <table>
-    <thead><tr><th>位置</th><th>语义</th></tr></thead>
+    <thead><tr><th>position</th><th>meaning</th></tr></thead>
     <tbody>
-      <tr><td>左插槽</td><td>宿主键左侧的新增区，可放 0..n 个插件内容</td></tr>
-      <tr><td>右插槽</td><td>宿主键右侧的新增区，可放 0..n 个插件内容</td></tr>
+      <tr><td>left slot</td><td>The additive area left of the host keys; holds 0..n plugin items</td></tr>
+      <tr><td>right slot</td><td>The additive area right of the host keys; holds 0..n plugin items</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2>插件能拿到什么 <span class="tag decided">已定</span></h2>
+  <h2>What the plugin gets <span class="tag decided">Decided</span></h2>
   <ul>
-    <li><strong>message</strong> — 这条用户消息的数据（文本等）</li>
-    <li><strong>各种 id</strong> — 消息 id、会话 id 等标识</li>
+    <li><strong>message</strong> - the data for this user message (text and so on)</li>
+    <li><strong>the various ids</strong> - message id, session id, and similar identifiers</li>
     <li><strong>position</strong> — <code>"left"</code> | <code>"right"</code></li>
-    <li><strong>不提供</strong>任何宿主函数（没有 copy / edit / delete 之类回调）</li>
-    <li><strong>不提供</strong>额外数据</li>
+    <li><strong>No</strong> host functions are provided (there are no copy / edit / delete callbacks)</li>
+    <li><strong>No</strong> extra data is provided</li>
   </ul>
 </section>
 
 <section>
-  <h2>插件场景 <span class="tag decided">已定</span></h2>
+  <h2>Plugin scenarios <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>场景</th><th>装上插件之后</th></tr></thead>
+    <thead><tr><th>Scenario</th><th>With the plugin installed</th></tr></thead>
     <tbody>
-      <tr><td>转工单</td><td>右插槽多一颗按钮，点击后走插件自己的逻辑（宿主不代管）</td></tr>
-      <tr><td>标星</td><td>左插槽一个状态点，数据由插件自存</td></tr>
+      <tr><td>Create ticket</td><td>One extra button in the right slot whose click runs the plugin's own logic (the host does not manage it)</td></tr>
+      <tr><td>Star</td><td>A status dot in the left slot, with the data stored by the plugin</td></tr>
     </tbody>
   </table>
-  <p>插件若自己实现了删除、转发等能力，<strong>宿主不额外处理</strong>（不拦、不代管、也不提供函数）。</p>
+  <p>If a plugin implements delete, forward, or similar capabilities itself, the <strong>host does nothing extra</strong> (it does not block, does not manage, and provides no functions).</p>
 </section>
 
 <section>
-  <h2>明确不做 <span class="tag decided">已定</span></h2>
+  <h2>Explicit non-goals <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>不改 / 不藏 / 不删宿主键</li>
-    <li>不改消息正文（entry 正文不开放、无整卡替换）</li>
-    <li>用户卡<strong>没有</strong> entryExtra（只有 AI 回复区有）</li>
-    <li>不提供宿主函数与额外数据</li>
-    <li>不做多插件对宿主键的覆盖或抢注</li>
-    <li>markdown transformer <strong>不做</strong></li>
+    <li>No editing, hiding, or removing host keys</li>
+    <li>No changing the message body (the entry body is closed and there is no whole-card replacement)</li>
+    <li>The user card has <strong>no</strong> entryExtra (only AI replies do)</li>
+    <li>No host functions and no extra data</li>
+    <li>No plugin may override or claim a host key</li>
+    <li>markdown transformer is <strong>not provided</strong></li>
   </ul>
 </section>
 
 <section>
-  <h2>本轮拍板 <span class="tag decided">已定</span></h2>
+  <h2>Decisions this round <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>问题</th><th>决定</th></tr></thead>
+    <thead><tr><th>Question</th><th>Decision</th></tr></thead>
     <tbody>
-      <tr><td>槽形状</td><td><code>【左插槽】宿主键【右插槽】</code>，只许新增；不提供函数与额外数据</td></tr>
-      <tr><td>props</td><td>只有 message + 各种 id + position</td></tr>
-      <tr><td>宿主键可否被插件改 / 藏 / 删</td><td>不可</td></tr>
-      <tr><td>整卡替换 / 正文开放</td><td>不做</td></tr>
-      <tr><td>用户卡 entryExtra</td><td>没有；仅 AI 回复区有</td></tr>
-      <tr><td>插件自实现功能（含删除）</td><td>宿主不额外处理</td></tr>
+      <tr><td>Slot shape</td><td><code>[left slot] host keys [right slot]</code>, additions only; no functions or extra data</td></tr>
+      <tr><td>props</td><td>Only message, the various ids, and position</td></tr>
+      <tr><td>Can a plugin edit / hide / remove host keys</td><td>No</td></tr>
+      <tr><td>Whole-card replacement / open body</td><td>Not done</td></tr>
+      <tr><td>entryExtra on the user card</td><td>None; only AI replies have it</td></tr>
+      <tr><td>Capabilities a plugin implements itself (including delete)</td><td>The host does nothing extra</td></tr>
     </tbody>
   </table>
-   <div class="callout ok"><b>定稿：</b>SDK 槽名 <code>userAction</code>（注册形状 <code>positions?: ["left","right"]</code>，省略即两侧；props 类型共用 <code>PluginActionSlotProps</code>）；每侧最多 3 个可见项，第 4 个起进宿主「⋯」折叠菜单，宿主键永不折叠，装/卸插件时重算。</div>
+   <div class="callout ok"><b>Finalized:</b> the SDK slot name is <code>userAction</code> (registered as <code>positions?: ["left","right"]</code>; omitting it means both sides; the props type is the shared <code>PluginActionSlotProps</code>). Each side shows at most three items; the fourth and later move into the host's "..." overflow menu, host keys never collapse, and the layout is recomputed when a plugin is installed or removed.</div>
 </section>
 
 </main>

@@ -1,10 +1,10 @@
 <!-- status: proposal -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session-model · 需求描述</title>
+<title>session-model · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,44 +49,44 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a><span class="sep">/</span><a href="index.html">session-model</a>
+  <a href="../../index.html">Plugin slot catalog</a><span class="sep">/</span><a href="index.html">session-model</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
-  <h1>session-model · 需求描述</h1>
-  <div class="meta">status: <b>proposal</b> · 会话数据契约 · 出处：能力清单审查 N1 · 权限 <code>session.read</code>（沿用） · 尚无 SDK 实现</div>
+  <h1>session-model · Requirements</h1>
+  <div class="meta">status: <b>proposal</b> · session data contract · planned from: capability inventory review N1 · permission <code>session.read</code> (reused) · no SDK implementation yet</div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>用途与边界</h2>
-  <p class="lead">查当前会话绑定的模型快照。事件 <code>session:modelChanged</code> 只推「变更」，插件冷启动/重载后没有初始值——本方法补上拉取侧，与事件成对（事件推增量、方法取全量）。</p>
+  <h2><span class="n">1</span>Purpose and scope</h2>
+  <p class="lead">Reads the model snapshot bound to the current session. The <code>session:modelChanged</code> event only pushes "changes", so a plugin that cold-starts or reloads has no initial value - this method supplies the pull side and pairs with the event (the event pushes deltas, the method fetches the full value).</p>
   <pre class="sig">pi.session.getModel(): Promise&lt;{ sessionId: string; modelKey: string | null; thinkingLevel: string | null; providerId?: string; modelId?: string }&gt;</pre>
-  <p>权限：<code>session.read</code>（沿用，只读不抬权）。</p>
+  <p>Permission: <code>session.read</code> (reused; read-only, does not raise the privilege).</p>
 </section>
 <section>
-  <h2><span class="n">2</span>典型场景</h2>
-  <table><thead><tr><th>场景</th><th>插件做什么</th></tr></thead><tbody>
-<tr><td><b>当前模型徽章</b></td><td>状态栏渲染 <code>provider/model · thinking</code>；启动取快照，之后监听 <code>session:modelChanged</code> 刷新。</td></tr>
-<tr><td><b>补全前对齐</b></td><td>调 <code>agent.complete</code> 做自家摘要/改写前读当前模型，保持与主对话风格一致（也可直接省略 modelKey 走宿主默认）。</td></tr>
-<tr><td><b>用量归因展示</b></td><td>用量面板把每轮 <code>providerId/modelId</code> 与当前模型徽章联动展示。</td></tr>
+  <h2><span class="n">2</span>Typical scenarios</h2>
+  <table><thead><tr><th>scenario</th><th>what the plugin does</th></tr></thead><tbody>
+<tr><td><b>Current-model badge</b></td><td>Renders <code>provider/model · thinking</code> in the status bar; fetches the snapshot at startup, then listens to <code>session:modelChanged</code> to refresh.</td></tr>
+<tr><td><b>Aligning before completion</b></td><td>Reads the current model before calling <code>agent.complete</code> for its own summaries or rewrites, to stay consistent with the main conversation (it may also simply omit modelKey and use the host default).</td></tr>
+<tr><td><b>Usage attribution display</b></td><td>The usage panel shows each turn's <code>providerId/modelId</code> alongside the current-model badge.</td></tr>
   </tbody></table>
 </section>
 <section>
-  <h2><span class="n">3</span>明确不做什么</h2>
-  <p class="lead">不提供改模型（改模型走会话绑定 / 受信 <code>setModel</code>）；无活动会话不报错（返回 null 字段）；只读快照，无订阅语义（订阅用既有事件）。</p>
+  <h2><span class="n">3</span>Explicit non-goals</h2>
+  <p class="lead">It does not change the model (changing it goes through session binding / trusted <code>setModel</code>); no active session is not an error (null fields are returned); it is a read-only snapshot with no subscription semantics (subscriptions use the existing event).</p>
 </section>
 <section>
-  <h2><span class="n">4</span>已拍板</h2>
+  <h2><span class="n">4</span>Decided</h2>
   <ul>
-    <li>权限沿用 <code>session.read</code>，不开新域——模型绑定不是敏感面。</li>
-    <li>返回 <code>sessionId</code>，与 <code>session:modelChanged</code> 事件配对时可直接对齐。</li>
-    <li>providerId / modelId 是 <code>modelKey</code>（<code>provider/model</code>）的拆解便利字段，宿主保证一致。</li>
+    <li>Reuse the <code>session.read</code> permission rather than opening a new domain - the model binding is not a sensitive surface.</li>
+    <li>Return <code>sessionId</code> so it lines up directly when paired with the <code>session:modelChanged</code> event.</li>
+    <li>providerId / modelId are convenience fields split out of <code>modelKey</code> (<code>provider/model</code>); the host keeps them consistent.</li>
   </ul>
 </section>
 

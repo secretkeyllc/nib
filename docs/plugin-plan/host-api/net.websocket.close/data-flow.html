@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>net.websocket.close · 数据流</title>
+<title>net.websocket.close · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,87 +49,87 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">net.websocket.close</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>net.websocket.close · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>net.websocket.close · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.net.websocket.close(input: { socketId: string; code?: number; reason?: string }): Promise&lt;void&gt;</pre>
-  <p class="lead">主动关闭一个已连接的套接字（权限：<span class="pill perm">—</span>；不携带业务数据，业务数据走 <code>net.websocket.send</code>）。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Actively closes a connected socket (permission: <span class="pill perm">—</span>; carries no business data - business data goes through <code>net.websocket.send</code>).</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">socketId</td><td class="id">string</td><td>是</td><td><code>net.websocket.connect</code> 返回的连接句柄。</td></tr>
-      <tr><td class="id">code</td><td class="id">number</td><td>否</td><td>WebSocket 关闭码。</td></tr>
-      <tr><td class="id">reason</td><td class="id">string</td><td>否</td><td>关闭原因文本。</td></tr>
+      <tr><td class="id">socketId</td><td class="id">string</td><td>Yes</td><td>Connection handle returned by <code>net.websocket.connect</code>.</td></tr>
+      <tr><td class="id">code</td><td class="id">number</td><td>No</td><td>WebSocket close code.</td></tr>
+      <tr><td class="id">reason</td><td class="id">string</td><td>No</td><td>Close reason text.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">void</td><td>无返回数据，成功即 resolve。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">void</td><td>No return data; resolves on success.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{ "socketId": "ws-a1b2c3", "code": 1000, "reason": "面板已关闭" }</pre>
-  <p><b>输出样例</b></p>
-  <pre>// void —— 成功即 resolve，无输出</pre>
-  <div class="callout"><b>一句话边界。</b>只做关闭握手，没有 <code>data</code> 字段；插件卸载时未关的套接字由宿主代关。</div>
+  <p><b>Output example</b></p>
+  <pre>// void - resolves on success, no output</pre>
+  <div class="callout"><b>Boundary in one sentence.</b> Close handshake only, with no <code>data</code> field; sockets left open when the plugin unloads are closed by the host.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件进程传入 <code>{ socketId, code?, reason? }</code>。</li>
-    <li><b>校验：</b><code>socketId</code> 必须是本插件仍持有的连接。</li>
-    <li><b>执行：</b>宿主立即发起关闭并释放连接；关闭结果经 close 事件回告（<code>PluginWebSocketCloseEvent</code>：<code>socketId / code / reason / wasClean</code>）。</li>
-    <li><b>返回：</b>无回执值。</li>
+    <li><b>Call:</b> the plugin process passes <code>{ socketId, code?, reason? }</code>.</li>
+    <li><b>Validate:</b> <code>socketId</code> must be a connection this plugin still holds.</li>
+    <li><b>Execute:</b> the host initiates the close immediately and releases the connection; the close result is reported back through the close event (<code>PluginWebSocketCloseEvent</code>: <code>socketId / code / reason / wasClean</code>).</li>
+    <li><b>Return:</b> no receipt value.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td><code>socketId</code> + 可选关闭码 / 原因。</td></tr>
-      <tr><td>宿主 → 系统</td><td>向对端发出 WebSocket 关闭握手。</td></tr>
-      <tr><td>宿主 → 插件</td><td><code>PluginWebSocketCloseEvent</code>（<code>socketId / code / reason / wasClean</code>）。</td></tr>
+      <tr><td>plugin → host</td><td><code>socketId</code> + optional close code / reason.</td></tr>
+      <tr><td>host → system</td><td>Sends a WebSocket close handshake to the peer.</td></tr>
+      <tr><td>host → plugin</td><td><code>PluginWebSocketCloseEvent</code> (<code>socketId / code / reason / wasClean</code>).</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Case</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td><code>socketId</code> 不存在或已关闭</td><td>Promise 拒绝，连接保持原状</td><td class="id">NOT_FOUND</td></tr>
-      <tr><td>参数不合法（如 <code>code</code> / <code>reason</code> 类型错误）</td><td>Promise 拒绝</td><td class="id">INVALID_ARGUMENT</td></tr>
+      <tr><td><code>socketId</code> does not exist or is already closed</td><td>Promise rejects, the connection is left as is</td><td class="id">NOT_FOUND</td></tr>
+      <tr><td>Invalid arguments (e.g. wrong type for <code>code</code> / <code>reason</code>)</td><td>Promise rejects</td><td class="id">INVALID_ARGUMENT</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不发送业务数据（业务数据走 <code>send</code>）。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Does not send business data (business data goes through <code>send</code>).</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/net.websocket.connect</code></li>
     <li><code>host-api/net.websocket.send</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无.</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

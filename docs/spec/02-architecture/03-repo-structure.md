@@ -7,7 +7,7 @@ Two workspaces share one repository: pnpm owns every JavaScript package
 `package.json` scripts fan out to both.
 
 ```text
-PI-Desktop/
+Nib/
 ├── apps/
 │ └── desktop/                # Electron product shell
 │   ├── electron/

@@ -12,7 +12,7 @@ do not claim acceptance for the multi-backend extension.
 ## Multi-backend session-targeting extension candidate (2026-09-30)
 
 - Worktree: `feat/live-voice-all-sessions` at
-  `/Users/lan/Project/AI/PI-Desktop-worktrees/live-voice-all-sessions-20260930`,
+  `/Users/lan/Project/AI/Nib-worktrees/live-voice-all-sessions-20260930`,
   based on `e93295ad9`; changes remain uncommitted.
 - The current Composer session is the default target. Main revalidates it against
   Desktop/Native Pi/Remote catalogs. Voice switching uses opaque references;
@@ -32,7 +32,7 @@ do not claim acceptance for the multi-backend extension.
 ## Historical v2.1 candidate snapshot
 
 - Branch/worktree: `codex/live-voice-v21-reliability` at
-  `/Users/lan/.codex/worktrees/live-voice-v21-refresh/PI-Desktop`.
+  `/Users/lan/.codex/worktrees/live-voice-v21-refresh/Nib`.
 - Candidate commit: `61aaa6eb64441c0534c0e3118f941a2ba33fc301`.
 - Base: `b360e04eb11edb8256b85ad314a8fdda7dc54e30`; `pnpm check:pr-base`
   confirms the base is an ancestor of the candidate.
@@ -132,7 +132,7 @@ state.
 ## Candidate and base
 
 - Request branch: `codex/live-voice-v1`; dedicated worktree:
-  `/Users/lan/.codex/worktrees/live-voice-v1/PI-Desktop`.
+  `/Users/lan/.codex/worktrees/live-voice-v1/Nib`.
 - Phase-2 implementation base: `1ec74701f` (the v1 implementation commit).
 - Latest fetched `origin/main`: `8fcca3d25c98d66c46d0f9cddab76167b6ddb294`;
   it is included in the request candidate through merge commit
@@ -143,7 +143,7 @@ state.
   work-bridge or concrete provider transport adapters.
 - Existing pull request: [#1161](https://github.com/vastsa/PI-Desktop/pull/1161),
   open on `codex/live-voice-v1`. This task updates that PR and does not merge it.
-- The worktree has an untracked `PI-Desktop-Live-Voice-v1-Spec.md`; it is not a
+- The worktree has an untracked `Nib-Live-Voice-v1-Spec.md`; it is not a
   task deliverable and is excluded from the change.
 
 ## Implemented paths

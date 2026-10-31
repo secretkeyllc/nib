@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>用户消息操作栏 · 数据流</title>
+<title>User message action bar · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -59,95 +59,95 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">用户消息操作栏</span>
+  <span class="here">User message action bar</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>用户消息操作栏 · 数据流</h1>
-  <p>插件能拿到什么、自己画什么、出错时发生什么。</p>
-   <div class="meta">status: finalized · 槽名与 props 字段名已定稿（见 slot-contract.html §6）；SDK 与宿主已实现，示例见 examples/plugins/ui-slots-lab</div>
+  <h1>User message action bar · Data flow</h1>
+  <p>What a plugin receives, what it draws itself, and what happens on failure.</p>
+   <div class="meta">status: finalized · slot names and props field names are final (see slot-contract.html §6); SDK and host are implemented, example in examples/plugins/ui-slots-lab</div>
 </header>
 <main>
 
 <section>
-   <h2><span class="n">1</span>接口约定 <span class="tag decided">已定</span></h2>
-  <p>插件注册左右两个组件槽。只渲染，不提供宿主函数。</p>
+   <h2><span class="n">1</span>API contract <span class="tag decided">Decided</span></h2>
+  <p>A plugin registers two component slots, left and right. They render only and provide no host functions.</p>
   <table>
-    <thead><tr><th>props</th><th>含义</th></tr></thead>
+    <thead><tr><th>props</th><th>Meaning</th></tr></thead>
     <tbody>
-      <tr><td><code>message</code></td><td>这条用户消息的数据（文本等）</td></tr>
-      <tr><td><code>messageId</code> / <code>sessionId</code></td><td>各种 id</td></tr>
+      <tr><td><code>message</code></td><td>The data for this user message (text and so on)</td></tr>
+      <tr><td><code>messageId</code> / <code>sessionId</code></td><td>various ids</td></tr>
       <tr><td><code>position</code></td><td><code>"left"</code> | <code>"right"</code></td></tr>
     </tbody>
   </table>
-  <p>权限：随 <code>renderer.extension</code>（纯展示）。副作用走插件自己的 <code>plugin.call</code>。</p>
+  <p>Permission: covered by <code>renderer.extension</code> (pure display). Side effects go through the plugin's own <code>plugin.call</code>.</p>
 </section>
 
 <section>
-   <h2><span class="n">2</span>数据怎么走 <span class="tag decided">已定</span></h2>
+   <h2><span class="n">2</span>How data flows <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>宿主 → 插件</td><td>props 一次给全（message + id + position）；消息重渲染时整份重推</td></tr>
-      <tr><td>插件 → 宿主</td><td><strong>无</strong>。不回调宿主，不改宿主状态</td></tr>
-      <tr><td>插件 → 自己</td><td>点击等交互由插件自理（可走 <code>plugin.call</code>）</td></tr>
+      <tr><td>host → plugin</td><td>Props are delivered whole (message + id + position) and pushed in full whenever the message re-renders</td></tr>
+      <tr><td>plugin → host</td><td><strong>None</strong>. It never calls back into the host or changes host state</td></tr>
+      <tr><td>plugin → itself</td><td>Interactions such as clicks are the plugin's own business (it may use <code>plugin.call</code>)</td></tr>
     </tbody>
   </table>
-  <p>递交模型：<strong>props-push</strong>（宿主每次变化推整份，插件不订阅）。</p>
+  <p>Delivery model: <strong>props-push</strong> (the host pushes the whole payload on every change; the plugin does not subscribe).</p>
 </section>
 
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th></tr></thead>
+    <thead><tr><th>Case</th><th>Result</th></tr></thead>
     <tbody>
-      <tr><td>插件组件抛错</td><td>只塌掉本插件那一侧新增区；宿主键与正文不受影响</td></tr>
-      <tr><td>插件未加载 / 已卸载</td><td>新增区消失，位置释放</td></tr>
-      <tr><td>插件自己按钮的逻辑失败</td><td>插件自理；宿主不介入</td></tr>
+      <tr><td>A plugin component throws</td><td>Only that plugin's additive area on its side collapses; the host keys and the body are unaffected</td></tr>
+      <tr><td>Plugin not loaded / already unloaded</td><td>The additive area disappears and the position is released</td></tr>
+      <tr><td>A plugin's own button logic fails</td><td>The plugin handles it; the host does not step in</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>不提供 copy / edit / delete 或任何宿主函数</li>
-    <li>不提供改正文、整卡替换、entryExtra</li>
-    <li>不允许改 / 藏 / 删宿主键</li>
-    <li>不提供额外数据</li>
+    <li>No copy / edit / delete or any host function</li>
+    <li>No body editing, whole-card replacement, or entryExtra</li>
+    <li>No editing, hiding, or removing host keys</li>
+    <li>No extra data</li>
   </ul>
   <div class="duo">
     <div class="guarantee">
-      <h4>宿主保证</h4>
-      出错隔离；卸载时摘掉注册与注入样式。
+      <h4>Host guarantees</h4>
+      Failure isolation; registration and injected styles are removed on unload.
     </div>
     <div class="cost">
-      <h4>已接受代价</h4>
-      同 realm 可碰全局；样式重写可被绕过。
+      <h4>Accepted costs</h4>
+      Shares the realm, so globals are reachable; style overrides can be bypassed.
     </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="n">5</span>相关条目 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">5</span>Related entries <span class="tag decided">Decided</span></h2>
   <ul>
-    <li><code>ui/assistant-action/</code> — AI 回复卡操作栏左右（同形）</li>
-    <li><code>ui/entry-extra/</code> — AI 回复正文下方追加位</li>
-    <li><a href="../../slot-contract.html">slot-contract.html</a> — 公共契约</li>
+    <li><code>ui/assistant-action/</code> - left and right of the AI reply card's action bar (same shape)</li>
+    <li><code>ui/entry-extra/</code> - the append position below the AI reply body</li>
+    <li><a href="../../slot-contract.html">slot-contract.html</a> — shared contract</li>
   </ul>
 </section>
 
 <section>
-   <h2><span class="n">6</span>定稿记录 <span class="tag decided">已定</span></h2>
+   <h2><span class="n">6</span>Finalization record <span class="tag decided">Decided</span></h2>
   <ul>
-     <li>SDK 槽名 <code>userAction</code>；注册形状 <code>positions?: ["left","right"]</code>（省略即两侧）；props 仍带 <code>position?</code> 由宿主告知挂载侧</li>
-     <li>每侧最多 3 个可见项，第 4 个起进宿主「⋯」折叠菜单（左槽 ⋯ 置宿主键前、右槽置末尾）；宿主键永不折叠，装/卸插件时重算</li>
+     <li>The SDK slot name is <code>userAction</code>; registration uses <code>positions?: ["left","right"]</code> (omitting it means both sides); props still carry <code>position?</code> so the host can tell the component which side it is on</li>
+     <li>Each side shows at most three items; the fourth and later move into the host's "..." overflow menu (before the host keys on the left, at the end on the right); host keys never collapse and the layout is recomputed when a plugin is installed or removed</li>
   </ul>
 </section>
 

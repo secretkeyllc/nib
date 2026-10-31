@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>fs.reveal · 数据流</title>
+<title>fs.reveal · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,84 +49,84 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">fs.reveal</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>fs.reveal · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>fs.reveal · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>Interface contract</h2>
   <pre class="sig">pi.fs.reveal(pathFromRoot: string): Promise&lt;void&gt;</pre>
-  <p class="lead">在操作系统的文件管理器中显示一个已有可读文件。权限：<span class="pill perm">—</span></p>
-  <p><b>入参</b></p>
+  <p class="lead">Reveals an existing readable file in the operating system's file manager. Permission: <span class="pill perm">—</span></p>
+  <p><b>Inputs</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">pathFromRoot</td><td class="id">string</td><td>是</td><td>根相对路径，须指向已存在的可读文件；受读范围与拒绝列表约束。</td></tr>
+      <tr><td class="id">pathFromRoot</td><td class="id">string</td><td>Yes</td><td>Root-relative path, must point to an existing readable file; constrained by the read scope and deny list.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Outputs</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">void</td><td>无返回数据；resolve 即已交给文件管理器。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">void</td><td>No return data; on resolve the file has been handed to the file manager.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>await pi.fs.reveal("reports/周报.pdf");</pre>
-  <p><b>输出样例</b></p>
-  <pre>// 无返回（void）；resolve 即已在文件管理器中定位</pre>
-  <div class="callout"><b>一句话边界。</b>只显示单个文件，不选中多个文件。</div>
+  <p><b>Output example</b></p>
+  <pre>// no return (void); resolving means the file is revealed in the file manager</pre>
+  <div class="callout"><b>Boundary in one sentence.</b>Reveals a single file only; no multi-file selection.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件传根相对路径。</li>
-    <li><b>校验：</b>文件须已存在且可读；读范围与拒绝列表照常生效。</li>
-    <li><b>执行：</b>宿主调用系统文件管理器，定位并选中该文件。</li>
-    <li><b>返回：</b>resolve 即完成，无数据。</li>
+    <li><b>Call:</b> the plugin passes a root-relative path.</li>
+    <li><b>Validation:</b> the file must already exist and be readable; the read scope and deny list apply as usual.</li>
+    <li><b>Execution:</b> the host invokes the system file manager, which locates and selects the file.</li>
+    <li><b>Return:</b> resolves when done, with no data.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>根相对路径。</td></tr>
-      <tr><td>宿主 → 插件</td><td>无数据（仅成功/失败）。</td></tr>
-      <tr><td>宿主 → 系统</td><td>打开文件管理器并定位该文件。</td></tr>
+      <tr><td>plugin → host</td><td>Root-relative path.</td></tr>
+      <tr><td>host → plugin</td><td>No data (success/failure only).</td></tr>
+      <tr><td>host → system</td><td>Opens the file manager and locates the file.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>缺少 fs.read，或路径不在读范围</td><td>拒绝</td><td><code>PERMISSION_DENIED</code></td></tr>
-      <tr><td>文件不存在</td><td>拒绝</td><td><code>NOT_FOUND</code></td></tr>
+      <tr><td>Missing fs.read, or the path is outside the read scope</td><td>Rejected</td><td><code>PERMISSION_DENIED</code></td></tr>
+      <tr><td>File does not exist</td><td>Rejected</td><td><code>NOT_FOUND</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不选中多个文件。</p>
+  <h2><span class="n">4</span>What it does not provide</h2>
+  <p class="lead">No multi-file selection.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/fs.openDefault</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

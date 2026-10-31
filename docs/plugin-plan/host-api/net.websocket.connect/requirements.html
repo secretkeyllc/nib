@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>net.websocket.connect · 需求描述</title>
+<title>net.websocket.connect · Requirements</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,39 +49,39 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">net.websocket.connect</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html" aria-current="page">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html" aria-current="page">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
-  <h1>net.websocket.connect · 需求描述</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>net.websocket.connect · Requirements</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>用途与边界</h2>
-  <p class="lead">连接 <code>ws://</code> / <code>wss://</code> 端点，返回套接字 id。</p>
+  <h2><span class="n">1</span>Purpose and scope</h2>
+  <p class="lead">Connect to a <code>ws://</code> / <code>wss://</code> endpoint and return a socket id.</p>
   <pre class="sig">pi.net.websocket.connect(input: PluginWebSocketConnectInput): Promise&lt;{ socketId: string }&gt;</pre>
-  <p>权限：<span class="pill perm">—</span></p>
+  <p>Permission: <span class="pill perm">—</span></p>
 </section>
 <section>
-  <h2><span class="n">2</span>典型场景</h2>
-  <table><thead><tr><th>场景</th><th>插件做什么</th></tr></thead><tbody>
-<tr><td><b>开实时通道</b></td><td>连上自己的实时消息流。</td></tr>
+  <h2><span class="n">2</span>Typical scenarios</h2>
+  <table><thead><tr><th>scenario</th><th>what the plugin does</th></tr></thead><tbody>
+<tr><td><b>Open a realtime channel</b></td><td>Connect to its own realtime message stream.</td></tr>
   </tbody></table>
 </section>
 <section>
-  <h2><span class="n">3</span>明确不做什么</h2>
-  <p class="lead">域外主机到不了传输层；不给原生 socket 句柄；帧封顶 1 MiB。</p>
+  <h2><span class="n">3</span>Explicit non-goals</h2>
+  <p class="lead">Out-of-scope hosts never reach the transport layer; no native socket handle is exposed; frames cap at 1 MiB.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>已拍板</h2>
-  <ul><li>与 fetch 同一套 <code>net.domains</code> 约束。</li></ul>
+  <h2><span class="n">4</span>Decided</h2>
+  <ul><li>It shares the same <code>net.domains</code> constraints as fetch.</li></ul>
 </section>
 
 </main>

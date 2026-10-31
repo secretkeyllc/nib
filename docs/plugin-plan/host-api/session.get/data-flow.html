@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>session.get · 数据流</title>
+<title>session.get · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,53 +49,53 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">session.get</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>session.get · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>session.get · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>Interface contract</h2>
   <pre class="sig">pi.session.get(input: { sessionId: string }): Promise&lt;PluginSessionGetResult&gt;</pre>
-  <p class="lead">读取一条本插件会话的元数据（标题、来源、项目/模型绑定、消息数），不含消息正文。权限：<span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Reads the metadata of one of this plugin's sessions (title, source, project/model bindings, message count); message bodies are not included. Permission: <span class="pill perm">—</span>.</p>
+  <p><b>Inputs</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">sessionId</td><td class="id">string</td><td>是</td><td>本插件拥有的会话 id。</td></tr>
+      <tr><td class="id">sessionId</td><td class="id">string</td><td>Yes</td><td>A session id owned by this plugin.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Outputs</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td class="id">sessionId</td><td class="id">string</td><td>会话 id。</td></tr>
-      <tr><td class="id">title</td><td class="id">string</td><td>当前标题。</td></tr>
-      <tr><td class="id">source</td><td class="id">string</td><td>导入来源 namespace。</td></tr>
-      <tr><td class="id">externalId</td><td class="id">string</td><td>来源系统内的原始 id。</td></tr>
-      <tr><td class="id">originKind</td><td class="id">"imported" | "created"</td><td>导入会话或宿主内创建。</td></tr>
-      <tr><td class="id">projectId</td><td class="id">number | null</td><td>绑定的宿主项目 id，未绑定为 null。</td></tr>
-      <tr><td class="id">projectPath</td><td class="id">string | null</td><td>绑定的项目路径，未绑定为 null。</td></tr>
-      <tr><td class="id">modelId</td><td class="id">string | null</td><td>当前绑定模型 id。</td></tr>
-      <tr><td class="id">providerId</td><td class="id">string | null</td><td>当前绑定提供商 id。</td></tr>
-      <tr><td class="id">history</td><td class="id">对象</td><td>导入时的绑定快照：history.projectPath / history.modelId / history.providerId，均可为 null。</td></tr>
-      <tr><td class="id">messageCount</td><td class="id">number</td><td>会话内消息条数。</td></tr>
-      <tr><td class="id">createdAt</td><td class="id">string</td><td>会话创建时间（ISO）。</td></tr>
-      <tr><td class="id">updatedAt</td><td class="id">string</td><td>最近更新时间（ISO）。</td></tr>
+      <tr><td class="id">sessionId</td><td class="id">string</td><td>Session id.</td></tr>
+      <tr><td class="id">title</td><td class="id">string</td><td>Current title.</td></tr>
+      <tr><td class="id">source</td><td class="id">string</td><td>Import source namespace.</td></tr>
+      <tr><td class="id">externalId</td><td class="id">string</td><td>Original id in the source system.</td></tr>
+      <tr><td class="id">originKind</td><td class="id">"imported" | "created"</td><td>Imported session or created within the host.</td></tr>
+      <tr><td class="id">projectId</td><td class="id">number | null</td><td>Bound host project id, null if unbound.</td></tr>
+      <tr><td class="id">projectPath</td><td class="id">string | null</td><td>Bound project path, null if unbound.</td></tr>
+      <tr><td class="id">modelId</td><td class="id">string | null</td><td>Currently bound model id.</td></tr>
+      <tr><td class="id">providerId</td><td class="id">string | null</td><td>Currently bound provider id.</td></tr>
+      <tr><td class="id">history</td><td class="id">object</td><td>Binding snapshot at import time: history.projectPath / history.modelId / history.providerId, each may be null.</td></tr>
+      <tr><td class="id">messageCount</td><td class="id">number</td><td>Number of messages in the session.</td></tr>
+      <tr><td class="id">createdAt</td><td class="id">string</td><td>Session creation time (ISO).</td></tr>
+      <tr><td class="id">updatedAt</td><td class="id">string</td><td>Last update time (ISO).</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>{ "sessionId": "imp_9f3a2c" }</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>{
   "sessionId": "imp_9f3a2c",
   "title": "React 迁移讨论",
@@ -111,47 +111,47 @@
   "createdAt": "2026-02-12T08:30:00.000Z",
   "updatedAt": "2026-02-14T21:05:00.000Z"
 }</pre>
-  <div class="callout"><b>一句话边界。</b>只给元数据，不返回消息正文；要读消息用 session.listMessages。</div>
+  <div class="callout"><b>Boundary in one sentence.</b>Metadata only, no message bodies; use session.listMessages to read messages.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件带着 <code>sessionId</code> 发起请求。</li>
-    <li><b>校验：</b>宿主做归属检查——会话必须属于本插件声明的 <code>sessionSources</code>，否则拒绝。</li>
-    <li><b>读取：</b>宿主取会话行、绑定历史快照与消息计数。</li>
-    <li><b>返回：</b>一次性返回 <code>PluginSessionGetResult</code>，不含消息正文。</li>
+    <li><b>Call:</b> the plugin makes the request with <code>sessionId</code>.</li>
+    <li><b>Validation:</b> the host checks ownership — the session must belong to the <code>sessionSources</code> declared by this plugin, otherwise the call is rejected.</li>
+    <li><b>Read:</b> the host fetches the session row, the binding-history snapshot, and the message count.</li>
+    <li><b>Return:</b> <code>PluginSessionGetResult</code> is returned in one shot, without message bodies.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td><code>{ sessionId }</code> 查询请求。</td></tr>
-      <tr><td>宿主 → 插件</td><td>会话元数据 <code>PluginSessionGetResult</code>。</td></tr>
+      <tr><td>plugin → host</td><td><code>{ sessionId }</code> query request.</td></tr>
+      <tr><td>host → plugin</td><td>Session metadata <code>PluginSessionGetResult</code>.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>会话不属于本插件（source 隔离）</td><td>调用失败，无数据返回</td><td><code>PERMISSION_DENIED</code></td></tr>
-      <tr><td>sessionId 不存在</td><td>调用失败</td><td><code>NOT_FOUND</code></td></tr>
+      <tr><td>Session does not belong to this plugin (source isolation)</td><td>Call fails, no data returned</td><td><code>PERMISSION_DENIED</code></td></tr>
+      <tr><td>sessionId does not exist</td><td>Call fails</td><td><code>NOT_FOUND</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不返回消息正文（用 listMessages）。</p>
+  <h2><span class="n">4</span>What it does not provide</h2>
+  <p class="lead">No message bodies (use listMessages).</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/session.listMessages</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

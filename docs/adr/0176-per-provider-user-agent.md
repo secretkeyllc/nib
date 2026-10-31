@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-09-07
-- Deciders: PI-Desktop core
+- Deciders: Nib core
 - Amends ADR 0095 / ADR 0156
 
 ## Context

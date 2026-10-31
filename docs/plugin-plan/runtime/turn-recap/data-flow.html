@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-recap · 读这一轮 / 这一会话的回顾 · 数据流</title>
+<title>turn-recap · Read a recap of this turn / this session · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,142 +98,142 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-recap</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime/turn-recap</div>
-  <h1>turn-recap · 数据流</h1>
-  <p>一次拉取从插件到宿主再回来的路径。六节固定：接口约定 / 数据怎么走 / 出错怎么办 / 不提供什么 / 相关条目 / 还没定的事。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.recap</code> · 会话范围另需 runtime.session.read</div>
+  <h1>turn-recap · Data flow</h1>
+  <p>The path of one pull from the plugin to the host and back. Six fixed sections: API contract / How data flows / Error handling / What is not provided / Related entries / Open questions.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.recap</code> · the session scope also needs runtime.session.read</div>
 </header>
 
 <main>
-<!-- ============ 1 接口约定 ============ -->
+<!-- ============ 1 API contract ============ -->
 <section>
-  <h2><span class="n">1</span>接口约定 <span class="tag proposal">建议</span></h2>
-    <p class="lead">无界面接口，<code>runtime.turn.recap</code>（high）。拉取式：插件调、宿主答、无推送。</p>
+  <h2><span class="n">1</span>API contract <span class="tag proposal">Proposal</span></h2>
+    <p class="lead">A headless interface, <code>runtime.turn.recap</code> (high). Pull-style: the plugin asks, the host answers, nothing is pushed.</p>
 <pre><span class="c">// 只读这一轮的事实（无正文）</span>
 <span class="k">const</span> r = <span class="k">await</span> pi.recap({ scope: <span class="c">"turn"</span> });
 
 <span class="c">// 会话范围：最近消息行（需另授 runtime.session.read）</span>
 <span class="k">const</span> s = <span class="k">await</span> pi.recap({ scope: <span class="c">"session"</span> });</pre>
     <table>
-    <thead><tr><th>方面</th><th>内容</th><th>权限</th></tr></thead>
+    <thead><tr><th>aspect</th><th>content</th><th>permission</th></tr></thead>
     <tbody>
-      <tr><td class="id">turn</td><td>该轮事实：状态、token、provider/model、工具计数、动过的文件；<b>正文 = null</b></td><td><code>runtime.turn.recap</code></td></tr>
-      <tr><td class="id">session</td><td>最近消息行（默认 200，封顶 500）+ <code>truncated</code></td><td>+ <code>runtime.session.read</code></td></tr>
+      <tr><td class="id">turn</td><td>The turn's facts: status, tokens, provider/model, tool counts, files touched; <b>body = null</b></td><td><code>runtime.turn.recap</code></td></tr>
+      <tr><td class="id">session</td><td>Recent message rows (200 by default, capped at 500) + <code>truncated</code></td><td>+ <code>runtime.session.read</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 2 数据怎么走 ============ -->
+<!-- ============ 2 How data flows ============ -->
 <section>
-  <h2><span class="n">2</span>数据怎么走 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">2</span>How data flows <span class="tag verified">Verified</span></h2>
     <div class="legend">
-    <span><span class="chip host">host</span> 宿主 / 内核</span>
-    <span><span class="chip slot">slot</span> 钩子边界</span>
-    <span><span class="chip plugin">plugin</span> 插件</span>
+    <span><span class="chip host">host</span> host / core</span>
+    <span><span class="chip slot">slot</span> hook boundary</span>
+    <span><span class="chip plugin">plugin</span> plugin</span>
   </div>
   <div class="flow">
     <div class="flow-head">
-      <div class="h">宿主</div>
-      <div class="s">钩子边界</div>
-      <div class="p">插件</div>
+      <div class="h">host</div>
+      <div class="s">hook boundary</div>
+      <div class="p">plugin</div>
     </div>
     <div class="flow-body">
       <div class="lane"><ul>
-          <li><span class="what">收到 recap 调用</span><span class="why">按 scope 分支</span></li>
-          <li><span class="what">turn → 事实</span><span class="why">messages 强制 null</span></li>
-          <li><span class="what">session → 最近行</span><span class="why">需第二权限</span></li>
-          <li><span class="what">截断时打标</span><span class="why">truncated</span></li>
+          <li><span class="what">A recap call arrives</span><span class="why">branches on scope</span></li>
+          <li><span class="what">turn → facts</span><span class="why">messages forced to null</span></li>
+          <li><span class="what">session → recent rows</span><span class="why">needs the second permission</span></li>
+          <li><span class="what">Marks truncation</span><span class="why">truncated</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">runtime.turn.recap</span><span class="why">主权限</span></li>
-          <li><span class="what">runtime.session.read</span><span class="why">会话范围附加</span></li>
-          <li><span class="what">拉取式</span><span class="why">无推送</span></li>
-          <li><span class="what">沙箱缺口</span><span class="why">未接（ADR 0300）</span></li>
+          <li><span class="what">runtime.turn.recap</span><span class="why">the primary permission</span></li>
+          <li><span class="what">runtime.session.read</span><span class="why">extra for the session scope</span></li>
+          <li><span class="what">Pull-style</span><span class="why">no push</span></li>
+          <li><span class="what">Sandbox gap</span><span class="why">Not wired (ADR 0300)</span></li>
       </ul></div>
       <div class="lane"><ul>
-          <li><span class="what">选 scope</span><span class="why">turn / session</span></li>
-          <li><span class="what">等返回</span><span class="why">事实或消息行</span></li>
-          <li><span class="what">处理截断</span><span class="why">看 truncated</span></li>
+          <li><span class="what">Picks a scope</span><span class="why">turn / session</span></li>
+          <li><span class="what">Waits for the return</span><span class="why">facts or message rows</span></li>
+          <li><span class="what">Handles truncation</span><span class="why">checks truncated</span></li>
       </ul></div>
     </div>
     <div class="arrow-row">
-      <div class="x">→ recap 请求</div>
-      <div class="x">权限门控 →</div>
-      <div class="y">← 事实 / 消息行</div>
+      <div class="x">→ recap request</div>
+      <div class="x">permission gating →</div>
+      <div class="y">← facts / message rows</div>
     </div>
   </div>
-  <h3>一次拉取的一生</h3>
+  <h3>Life of one pull</h3>
     <table>
-    <thead><tr><th>时刻</th><th>发生什么</th></tr></thead>
+    <thead><tr><th>moment</th><th>what happens</th></tr></thead>
     <tbody>
-      <tr><td class="id">调用</td><td>插件指定 scope</td></tr>
-      <tr><td class="id">门控</td><td>turn 只需主权限；session 需要双权限</td></tr>
-      <tr><td class="id">组装</td><td>turn → 事实；session → 最近 N 行，超封顶打 truncated</td></tr>
-      <tr><td class="id">返回</td><td>结构化结果回到插件</td></tr>
+      <tr><td class="id">Call</td><td>The plugin names the scope</td></tr>
+      <tr><td class="id">Gating</td><td>turn needs only the primary permission; session needs both</td></tr>
+      <tr><td class="id">Assembly</td><td>turn → facts; session → the most recent N rows, with truncated set when over the cap</td></tr>
+      <tr><td class="id">Return</td><td>The structured result goes back to the plugin</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 3 出错怎么办 ============ -->
+<!-- ============ 3 Error handling ============ -->
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>情况</th><th>结果</th><th>靠什么保证</th></tr></thead>
+    <thead><tr><th>case</th><th>result</th><th>guaranteed by</th></tr></thead>
     <tbody>
-      <tr><td class="id">session 范围缺第二权限</td><td>拒绝 + 诊断</td><td>双权限门控</td></tr>
-      <tr><td class="id">超过封顶</td><td>截断 + <code>truncated: true</code></td><td>封顶 500</td></tr>
-      <tr><td class="id">会话不存在</td><td>明确错误</td><td>宿主校验</td></tr>
-      <tr><td class="id">沙箱插件</td><td>目前调不通</td><td>ADR 0300</td></tr>
+      <tr><td class="id">The session scope lacks the second permission</td><td>Refused plus a diagnostic</td><td>Double-permission gating</td></tr>
+      <tr><td class="id">Over the cap</td><td>Truncated + <code>truncated: true</code></td><td>The 500 cap</td></tr>
+      <tr><td class="id">The session does not exist</td><td>An explicit error</td><td>Host validation</td></tr>
+      <tr><td class="id">Sandbox plugin</td><td>Cannot reach it today</td><td>ADR 0300</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 4 不提供什么 ============ -->
+<!-- ============ 4 What is not provided ============ -->
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag verified">已核实</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag verified">Verified</span></h2>
       <table>
-    <thead><tr><th>不给</th><th>为什么</th></tr></thead>
+    <thead><tr><th>not provided</th><th>why</th></tr></thead>
     <tbody>
-      <tr><td class="id">turn 范围的正文</td><td><code>messages: null</code>——防止越权读全文</td></tr>
-      <tr><td class="id">附件内容</td><td>另走附件接口</td></tr>
-      <tr><td class="id">全文无界导出</td><td>有封顶；要更多走截断后的下一页（未定）</td></tr>
-      <tr><td class="id">推送</td><td>拉取式</td></tr>
-      <tr><td class="id">写 / 改</td><td>只读</td></tr>
+      <tr><td class="id">Bodies in the turn scope</td><td><code>messages: null</code> - it prevents reading the full text beyond the grant</td></tr>
+      <tr><td class="id">Attachment contents</td><td>They go through the attachment interfaces instead</td></tr>
+      <tr><td class="id">Unbounded full-text export</td><td>There is a cap; for more, page past the truncation (open)</td></tr>
+      <tr><td class="id">Push</td><td>Pull-style</td></tr>
+      <tr><td class="id">Write / change</td><td>Read-only</td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 5 相关条目 ============ -->
+<!-- ============ 5 Related entries ============ -->
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
       <table>
-    <thead><tr><th>谁</th><th>关系</th><th>位置</th></tr></thead>
+    <thead><tr><th>who</th><th>relation</th><th>location</th></tr></thead>
     <tbody>
-      <tr><td class="id">turn-facts</td><td>更结构化的一轮事实，单独权限</td><td><code>runtime/turn-facts/</code></td></tr>
-      <tr><td class="id">turn-watch</td><td>实时只读事件；这里是事后拉取</td><td><code>runtime/turn-watch/</code></td></tr>
-      <tr><td class="id">session-lifecycle</td><td>压缩前可否决；压缩会改变 recap 能看到的行</td><td><code>runtime/session-lifecycle/</code></td></tr>
-      <tr><td class="id">ADR 0301</td><td>消息行存储模型</td><td><code>docs/adr/0301</code></td></tr>
+      <tr><td class="id">turn-facts</td><td>More structured turn facts, under a separate permission</td><td><code>runtime/turn-facts/</code></td></tr>
+      <tr><td class="id">turn-watch</td><td>Live read-only events; here it is a pull after the fact</td><td><code>runtime/turn-watch/</code></td></tr>
+      <tr><td class="id">session-lifecycle</td><td>It can veto before compaction; compaction changes the rows a recap can see</td><td><code>runtime/session-lifecycle/</code></td></tr>
+      <tr><td class="id">ADR 0301</td><td>The message-row storage model</td><td><code>docs/adr/0301</code></td></tr>
     </tbody>
   </table>
 </section>
 
-<!-- ============ 6 还没定的事 ============ -->
+<!-- ============ 6 Open questions ============ -->
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-    <p style="color:var(--text-2)">封顶条数、截断游标——见 requirements.html 的「本轮拍板」。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+    <p style="color:var(--text-2)">The cap, the truncation cursor - see "Decisions this round" in requirements.html.</p>
 </section>
 
-<p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+<p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

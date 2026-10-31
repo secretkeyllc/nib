@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>events.on · 数据流</title>
+<title>events.on · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,79 +49,79 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">events.on</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>events.on · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>events.on · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.events.on(event: string, handler: (...args: unknown[]) =&gt; void): void</pre>
-  <p class="lead">订阅宿主推送事件，事件到达时调用处理函数（权限：<span class="pill perm">—</span>；绑定持续到 <code>events.off</code> 或插件卸载）。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Subscribe to a host-pushed event and call the handler when it arrives (permission: <span class="pill perm">—</span>; the binding lasts until <code>events.off</code> or plugin unload).</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>field</th><th>type</th><th>required</th><th>notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">event</td><td class="id">string</td><td>是</td><td>事件名；今天已交付：<code>bus.message</code>、<code>workspace:changed</code>、<code>plugin:settingsChanged</code>、<code>appearance:changed</code>、<code>session:modelChanged</code>、<code>session:turnEnded</code>。</td></tr>
-      <tr><td class="id">handler</td><td class="id">(...args: unknown[]) =&gt; void</td><td>是</td><td>处理函数；参数个数与含义随事件而定，统一按 unknown 传入。</td></tr>
+      <tr><td class="id">event</td><td class="id">string</td><td>Yes</td><td>The event name; shipped today: <code>bus.message</code>, <code>workspace:changed</code>, <code>plugin:settingsChanged</code>, <code>appearance:changed</code>, <code>session:modelChanged</code>, <code>session:turnEnded</code>.</td></tr>
+      <tr><td class="id">handler</td><td class="id">(...args: unknown[]) =&gt; void</td><td>Yes</td><td>The handler; the number and meaning of its arguments depend on the event and every argument arrives typed as unknown.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>field</th><th>type</th><th>notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">void</td><td>同步注册，立即返回，无数据；解绑用 <code>events.off</code> 传同一函数引用。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">void</td><td>Registers synchronously and returns immediately with no data; unbind with <code>events.off</code> passing the same function reference.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>pi.events.on("session:turnEnded", (...args) =&gt; { turnCount += 1; });</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Output example</b></p>
   <pre>// 无返回值</pre>
-  <div class="callout"><b>一句话边界。</b>订阅即收：无回执、无重放，注册之前发生的事件不补发。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> Subscribe and receive: no receipt and no replay, and events that happened before registration are never resent.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件进程传入事件名与处理函数。</li>
-    <li><b>校验：</b>订阅未知事件名不报错，只是永远等不到派发。</li>
-    <li><b>执行：</b>宿主在事件发生时调用 handler，参数按事件定义展开（<code>...args: unknown[]</code>）；handler 抛错只记宿主日志，不影响宿主。</li>
-    <li><b>结束：</b>直到 <code>events.off</code> 传同一函数引用，或插件卸载。</li>
+    <li><b>Call:</b> the plugin process passes the event name and a handler.</li>
+    <li><b>Validate:</b> subscribing to an unknown event name does not error; the handler simply never fires.</li>
+    <li><b>Execute:</b> the host calls the handler when the event fires, spreading arguments as that event defines them (<code>...args: unknown[]</code>); a throwing handler is only logged and never affects the host.</li>
+    <li><b>End:</b> when <code>events.off</code> receives the same function reference, or when the plugin unloads.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>direction</th><th>content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>事件名 + 处理函数（注册 / 解绑）。</td></tr>
-      <tr><td>宿主 → 插件</td><td>事件参数（<code>...args: unknown[]</code>），随事件类型而定。</td></tr>
+      <tr><td>plugin → host</td><td>The event name plus a handler (subscribe / unbind).</td></tr>
+      <tr><td>host → plugin</td><td>The event arguments (<code>...args: unknown[]</code>), depending on the event type.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
-  <p class="lead">无错误码：订阅未知事件名不报错，一般不失败。</p>
+  <h2><span class="n">3</span>Error handling</h2>
+  <p class="lead">No error codes: subscribing to an unknown event name does not error, and it generally does not fail.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">无回执、无重放。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">No receipt and no replay.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/events.off</code></li>
-    <li><code>host-api/usage.listTurns</code> — 与本事件配合：turnEnded 作信号、listTurns 游标增量拉取（官方姿势见其数据流第 2 节）</li>
+    <li><code>host-api/usage.listTurns</code> - pairs with this event: turnEnded as the signal and listTurns for cursor-based incremental pulls (see section 2 of its data flow for the official pattern)</li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">计划中事件的载荷以后续 ADR 为准。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">The payloads of planned events are governed by later ADRs.</p>
 </section>
 
 </main>

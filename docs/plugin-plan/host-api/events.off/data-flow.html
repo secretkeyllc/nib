@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>events.off · 数据流</title>
+<title>events.off · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,78 +49,78 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">events.off</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>events.off · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>events.off · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.events.off(event: string, handler: (...args: unknown[]) =&gt; void): void</pre>
-  <p class="lead">解绑 <code>events.on</code> 注册的处理函数（权限：<span class="pill perm">—</span>；必须传注册时的同一函数引用）。</p>
-  <p><b>入参</b></p>
+  <p class="lead">Unbinds a handler registered with <code>events.on</code> (permission: <span class="pill perm">—</span>; you must pass the same function reference used at registration).</p>
+  <p><b>Input</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">event</td><td class="id">string</td><td>是</td><td>要解绑的事件名，与 <code>on</code> 时一致。</td></tr>
-      <tr><td class="id">handler</td><td class="id">(...args: unknown[]) =&gt; void</td><td>是</td><td>与 <code>on</code> 时相同的函数引用；换一个新函数不会解绑任何东西。</td></tr>
+      <tr><td class="id">event</td><td class="id">string</td><td>Yes</td><td>Name of the event to unbind, the same as when calling <code>on</code>.</td></tr>
+      <tr><td class="id">handler</td><td class="id">(...args: unknown[]) =&gt; void</td><td>Yes</td><td>The same function reference used with <code>on</code>; passing a new function unbinds nothing.</td></tr>
     </tbody>
   </table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">（返回值）</td><td class="id">void</td><td>同步生效，立即返回，无数据。</td></tr>
+      <tr><td class="id">(return value)</td><td class="id">void</td><td>Takes effect synchronously, returns immediately, no data.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>pi.events.off("session:turnEnded", onTurnEnded);</pre>
-  <p><b>输出样例</b></p>
-  <pre>// 无返回值</pre>
-  <div class="callout"><b>一句话边界。</b>只解绑精确的（事件名, 函数引用）对，不提供按事件名清空全部。</div>
+  <p><b>Output example</b></p>
+  <pre>// no return value</pre>
+  <div class="callout"><b>Boundary in one sentence.</b> Unbinds only the exact (event name, function reference) pair; there is no clear-all-by-event-name.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b>插件进程传入事件名与当初注册的函数引用。</li>
-    <li><b>校验：</b>宿主按（事件名, 同一函数引用）精确匹配。</li>
-    <li><b>执行：</b>解绑立即生效，之后该事件不再派发给这个 handler。</li>
-    <li><b>容错：</b>解绑不存在的订阅静默返回，不报错。</li>
+    <li><b>Call:</b> The plugin process passes the event name and the function reference registered earlier.</li>
+    <li><b>Validation:</b> The host matches exactly on (event name, same function reference).</li>
+    <li><b>Execution:</b> The unbind takes effect immediately; the event is no longer dispatched to this handler afterwards.</li>
+    <li><b>Fault tolerance:</b> unbinding a subscription that does not exist returns silently without an error.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>事件名 + 处理函数引用。</td></tr>
-      <tr><td>宿主 → 插件</td><td>无数据返回；仅停止后续派发。</td></tr>
+      <tr><td>plugin → host</td><td>Event name + handler function reference.</td></tr>
+      <tr><td>host → plugin</td><td>No data returned; only subsequent dispatch stops.</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
-  <p class="lead">无错误码：未知订阅静默返回，一般不失败。</p>
+  <h2><span class="n">3</span>Error handling</h2>
+  <p class="lead">No error codes: unknown subscriptions return silently; it generally does not fail.</p>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不按事件名清空全部。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">No clearing everything by event name.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/events.on</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

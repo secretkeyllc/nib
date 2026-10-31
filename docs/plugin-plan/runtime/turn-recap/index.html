@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-recap · 读这一轮 / 这一会话的回顾 · 目录</title>
+<title>turn-recap · Read a recap of this turn / this session · Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,48 +98,48 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-recap</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime · turn-recap</div>
-  <h1>turn-recap · 目录</h1>
-  <p>拉取式：插件调、宿主答。turn 范围只有事实；session 范围才有最近消息行，而且要多一个权限。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.recap</code> · 会话范围另需 runtime.session.read</div>
+  <h1>turn-recap · Index</h1>
+  <p>Pull-style: the plugin calls, the host answers. The turn scope has facts only; only the session scope has recent message rows, and that needs one more permission.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.recap</code> · the session scope also needs runtime.session.read</div>
 </header>
 
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：两种范围、双权限、截断规则、不做。</p>
-      <p class="files">范围 / 现状 / 契约 / 场景 / 拍板 / 不做 / 未定</p>
+      <p class="what">What it needs: the two scopes, the double permission, the truncation rule, non-goals.</p>
+      <p class="files">Scope / current state / contract / scenarios / decisions / non-goals / open questions</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：一次拉取的路径、两种范围各返回什么。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: the path of one pull, and what each of the two scopes returns.</p>
+      <p class="files">API contract · How data flows · Error handling · What is not provided · Related entries · Open questions</p>
     </a>
   </div>
-  <div class="omitted"><b>页表省略：无界面</b>——运行时钩子在 agent 侧无界面调用，本目录不设演示页。省略：无界面</div>
+  <div class="omitted"><b>Omitted from the page table: no UI</b> - runtime hooks are called headlessly on the agent side, so this folder has no demo page. Omitted: no UI</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><b>现状已核实</b>：<code>pi.recap()</code> 已实现，权限 <code>runtime.turn.recap</code>。</li>
-    <li><b>两种范围</b>：<code>scope:"turn"</code> → 只有事实，正文返回 <code>messages: null</code>；<code>scope:"session"</code> → 最近消息行（默认 200，封顶 500）+ 截断标记，另需 <code>runtime.session.read</code>。</li>
-    <li><b>双权限</b>：会话范围 = <code>runtime.turn.recap</code> + <code>runtime.session.read</code>。</li>
+    <li><b>Current state verified</b>: <code>pi.recap()</code> is implemented, permission <code>runtime.turn.recap</code>.</li>
+    <li><b>Two scopes</b>: <code>scope:"turn"</code> → facts only, the body comes back as <code>messages: null</code>; <code>scope:"session"</code> → recent message rows (200 by default, capped at 500) plus a truncation marker, and it also needs <code>runtime.session.read</code>.</li>
+    <li><b>Double permission</b>: the session scope = <code>runtime.turn.recap</code> + <code>runtime.session.read</code>.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">封顶条数要不要可配、截断时要不要给游标——见 requirements.html 的「本轮拍板」。</p>
-  <p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">Whether the cap should be configurable, and whether truncation should hand back a cursor - see "Decisions this round" in requirements.html.</p>
+  <p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

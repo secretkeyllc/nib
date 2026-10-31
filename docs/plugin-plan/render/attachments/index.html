@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>附件 · 目录</title>
+<title>Attachments - Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,52 +49,52 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <a href="index.html">附件</a>
+  <a href="index.html">Attachments</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · render · attachments</div>
-  <h1>附件 · 目录</h1>
-  <p>附件区三动作：<code>attachments.add</code> / <code>attachments.list</code> / <code>attachments.remove</code>。只收内容或凭证，不收地址；宿主落暂存区；各自只看得见、动得了自己的。这是 render 相关接口，不是 UI 槽。</p>
-  <div class="meta">status: draft · issue #545 · #561 · S1 红线：禁 path / file:// / URL 引用</div>
+  <h1>Attachments - Index</h1>
+  <p>Three attachment-area actions: <code>attachments.add</code> / <code>attachments.list</code> / <code>attachments.remove</code>. They accept content or a token, never an address; the host moves the content into a staging area; each plugin sees and touches only its own. This is a render interface, not a UI slot.</p>
+  <div class="meta">status: draft - issue #545 - #561 - S1 red line: no path / file:// / URL references</div>
 </header>
 
 <main>
 
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：三动作、入参形状、暂存区、可见性边界、S1 红线、本轮拍板。</p>
-      <p class="files">范围 · 契约形状 · 谁能用 · 场景 · 明确不做 · 本轮拍板</p>
+      <p class="what">What it covers: the three actions, the input shape, the staging area, visibility boundaries, the S1 red line, decisions this round.</p>
+      <p class="files">Scope - contract shape - who can use it - scenarios - explicit non-goals - decisions this round</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：内容怎么进暂存区、列表怎么裁、移除怎么限、出错怎么办。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: how content reaches the staging area, how the list is trimmed, how removal is limited, error handling.</p>
+      <p class="files">API contract - how data flows - error handling - what is not provided - related entries - open questions</p>
     </a>
   </div>
 
-  <h2>为什么没有 demo</h2>
-  <div class="callout warn"><b>接口类，省略 demo。</b>本目录钉的是入参与边界，没有可挂载的界面槽。附件区长什么样见 <code>ui/composer/demo.html</code>（场景 6 的加 / 列 / 移）；这里不重复界面。</div>
+  <h2>Why there is no demo</h2>
+  <div class="callout warn"><b>Interface-only, so the demo is omitted.</b> This folder pins the input and the boundaries; there is no mountable UI slot. For what the attachment area looks like, see <code>ui/composer/demo.html</code> (scenario 6: add / list / remove); the UI is not repeated here.</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li>入参只有三样：<code>{ name, mimeType, content|token }</code>——名字、类型、内容本体或取内容的凭证。</li>
-    <li class=""><b>S1 红线：禁 path / file:// / URL 引用。</b>不许只交一个地址让宿主去读盘或上网；裸路径附件直接拒绝。</li>
-    <li>内容由宿主落进<b>暂存区</b>，插件不再自己保管地址。</li>
-    <li><code>list</code> 只见自己加的；<code>remove</code> 只能动自己加的。用户和别家的碰不到。</li>
-    <li>出站分层：<code>attachments.add</code> 核心 H；<code>list</code> / <code>remove</code> 可选 H；裸路径附件拒绝。</li>
+    <li>There are only three inputs: <code>{ name, mimeType, content|token }</code> - a name, a type, and either the content itself or a token that fetches it.</li>
+    <li class=""><b>S1 red line: no path / file:// / URL references.</b> A plugin may not hand over an address and let the host read the disk or the network; a bare-path attachment is rejected outright.</li>
+    <li>The host moves the content into the <b>staging area</b>; the plugin no longer keeps an address of its own.</li>
+    <li><code>list</code> shows only what this plugin added; <code>remove</code> touches only what this plugin added. Neither the user's nor another plugin's entries are reachable.</li>
+    <li>Outbound layering: <code>attachments.add</code> is core H; <code>list</code> / <code>remove</code> are optional H; bare-path attachments are rejected.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">token 的具体形态（一次性凭证还是宿主句柄）、暂存区大小上限——见 data-flow.html「还没定的事」。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">The exact form of the token (a one-time credential or a host handle) and the staging-area size cap are open - see "Open questions" in data-flow.html.</p>
 
 </main>
 </body>

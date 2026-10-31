@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-continue · 插件入队续跑（有署名） · 目录</title>
+<title>turn-continue · A plugin enqueues a continuation (attributed) · Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,48 +98,48 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-continue</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime · turn-continue</div>
-  <h1>turn-continue · 目录</h1>
-  <p>插件往宿主队列推一条消息，让宿主接着跑一轮。消息以插件署名出现在对话里——这是它区别于无声注入的立身之本。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.continue</code> · 走 queuePush · 插件署名可见</div>
+  <h1>turn-continue · Index</h1>
+  <p>A plugin pushes a message into the host's queue so the host runs another turn. The message appears in the conversation attributed to the plugin - that is what sets it apart from silent injection.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.continue</code> · goes through queuePush · plugin attribution visible</div>
 </header>
 
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：现状（已实现 + e2e）、署名与可见性、无配额、不做。</p>
-      <p class="files">范围 / 现状 / 契约 / 场景 / 拍板 / 不做 / 未定</p>
+      <p class="what">What it needs: current state (implemented + e2e), attribution and visibility, no quota, non-goals.</p>
+      <p class="files">Scope / current state / contract / scenarios / decisions / non-goals / open questions</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：一条消息进宿主队列、署名怎么落库、与 closing 的分工。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: a message entering the host queue, how attribution is stored, and the split from closing.</p>
+      <p class="files">API contract · How data flows · Error handling · What is not provided · Related entries · Open questions</p>
     </a>
   </div>
-  <div class="omitted"><b>页表省略：无界面</b>——运行时钩子在 agent 侧无界面调用，本目录不设演示页。省略：无界面</div>
+  <div class="omitted"><b>Omitted from the page table: no UI</b> - runtime hooks are called headlessly on the agent side, so this folder has no demo page. Omitted: no UI</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><b>现状已核实</b>：<code>pi.continueTurn()</code> 经宿主队列 <code>session.queuePush</code> 入列，<b>带插件署名</b>；返回 <code>{ queuedTurnId }</code>。有 e2e。</li>
-    <li><b>署名是底线</b>：续跑永远是插件署名的可见行——不允许无署名、不允许隐藏。有署名的是本路径（queuePush）；turn-closing 的续跑路径目前缺署名，是缺陷。</li>
-    <li><b>无配额</b>：现状没有上限；闸门是「用户看得见、随时能停」。要不要加可选上限待拍板。</li>
+    <li><b>Current state verified</b>: <code>pi.continueTurn()</code> enqueues through the host queue <code>session.queuePush</code>, <b>with plugin attribution</b>; it returns <code>{ queuedTurnId }</code>. There is an e2e test.</li>
+    <li><b>Attribution is the baseline</b>: a continuation is always a visible row attributed to the plugin - no unattributed, no hidden. This path (queuePush) has attribution; turn-closing's continuation path currently lacks it, which is a defect.</li>
+    <li><b>No quota</b>: there is no upper limit today; the gate is "the user can see it and stop it at any time". Whether to add an optional cap is TBD.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">署名展示形态、要不要可选上限——见 requirements.html 的「本轮拍板」。</p>
-  <p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">How attribution is displayed, and whether to add an optional cap - see "Decisions this round" in requirements.html.</p>
+  <p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

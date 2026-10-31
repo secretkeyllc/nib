@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>用户消息操作栏 · 目录</title>
+<title>User message action bar · Index</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -50,48 +50,48 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">用户消息操作栏</span>
+  <span class="here">User message action bar</span>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
   <div class="crumb">docs/plugin-plan · ui/user-action</div>
-  <h1>用户消息操作栏 · 目录</h1>
-  <p>用户消息卡操作栏左右两侧的新增位。固定形状是 <code>【左插槽】宿主键【右插槽】</code>：插件只许往左右新增，宿主键不可被改、被藏、被删。</p>
+  <h1>User message action bar · Index</h1>
+  <p>Additive positions on the left and right of the user message card's action bar. The fixed shape is <code>[left slot] host keys [right slot]</code>: a plugin may only add to the sides, and the host keys cannot be edited, hidden, or removed.</p>
    <div class="meta">status: finalized · folder id <code>user-action</code></div>
 </header>
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">范围、槽形状、插件能拿到什么、插件场景、明确不做、本轮拍板。</p>
-      <p class="files">六段固定</p>
+      <p class="what">Scope, slot shape, what the plugin gets, plugin scenarios, explicit non-goals, decisions this round.</p>
+      <p class="files">Six fixed sections</p>
     </a>
     <a class="card" href="demo.html">
       <div class="name">demo.html</div>
-      <p class="what">对话流里长什么样：默认三键、左右新增、三键不可动。</p>
-      <p class="files">只有界面，无解说段落</p>
+      <p class="what">What it looks like in the transcript: three default keys, additions on the sides, and the three keys untouchable.</p>
+      <p class="files">UI only, no explanatory sections</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-       <p class="what">接口约定、数据怎么走、出错怎么办、不提供什么、相关条目、定稿记录。</p>
-      <p class="files">六节固定</p>
+       <p class="what">API contract, how data flows, error handling, what is not provided, related entries, finalization record.</p>
+      <p class="files">Six fixed sections</p>
     </a>
   </div>
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li>形状：<code>【左插槽】宿主键【右插槽】</code>，只许新增。</li>
-    <li>props 只有 message + 各种 id + position，不提供函数、不提供额外数据。</li>
-    <li>宿主键不可被改 / 藏 / 删；插件自实现的功能（含删除）宿主不额外处理。</li>
-    <li>用户卡没有 entryExtra；只有 AI 回复区有（见 <code>ui/entry-extra/</code>）。</li>
+    <li>Shape: <code>[left slot] host keys [right slot]</code>, additions only.</li>
+    <li>Props carry only message, the various ids, and position; no functions and no extra data.</li>
+    <li>Host keys cannot be edited, hidden, or removed; the host does nothing extra for capabilities a plugin implements itself (including delete).</li>
+    <li>The user card has no entryExtra; only AI replies do (see <code>ui/entry-extra/</code>).</li>
   </ul>
-  <div class="callout ok"><b>公共词表与规则</b>见 <a href="../../slot-contract.html">slot-contract.html</a>。</div>
+  <div class="callout ok"><b>Shared vocabulary and rules</b>: see <a href="../../slot-contract.html">slot-contract.html</a>.</div>
 </main>
 </body>
 </html>

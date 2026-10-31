@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>turn-watch · 一轮运行的只读事件流 · 目录</title>
+<title>turn-watch · The read-only event stream of one run · Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -98,48 +98,48 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
   <a href="index.html">turn-watch</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · runtime · turn-watch</div>
-  <h1>turn-watch · 目录</h1>
-  <p>一轮运行从开始到收束的只读事件流。插件只能听，不能改。共 12 个事件——不是 11 个。</p>
-  <div class="meta">status: draft · issue #561 · 权限 <code>runtime.turn.watch</code> · 风险 medium · 12 个内核事件</div>
+  <h1>turn-watch · Index</h1>
+  <p>The read-only event stream of one run from start to settlement. A plugin can only listen, never change anything. 12 events in total - not 11.</p>
+  <div class="meta">status: draft · issue #561 · permission <code>runtime.turn.watch</code> · risk medium · 12 core events</div>
 </header>
 
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：12 个事件清单、只读契约、不做的事。</p>
-      <p class="files">范围 / 现状 / 契约 / 场景 / 拍板 / 不做 / 未定</p>
+      <p class="what">What it needs: the list of 12 events, the read-only contract, and what it does not do.</p>
+      <p class="files">Scope / current state / contract / scenarios / decisions / non-goals / open questions</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：事件怎么到插件、丢了怎么办、听不到什么。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: how events reach the plugin, what happens when one is lost, and what it cannot hear.</p>
+      <p class="files">API contract · How data flows · Error handling · What is not provided · Related entries · Open questions</p>
     </a>
   </div>
-  <div class="omitted"><b>页表省略：无界面</b>——运行时钩子在 agent 侧无界面调用，本目录不设演示页。省略：无界面</div>
+  <div class="omitted"><b>Omitted from the page table: no UI</b> - runtime hooks are called headlessly on the agent side, so this folder has no demo page. Omitted: no UI</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li><b>12 个事件，不是 11 个</b>：<code>agent_start, agent_end, agent_settled, turn_start, turn_end, message_start, message_update, message_end, tool_execution_start, tool_execution_update, tool_execution_end, after_provider_response</code>。</li>
-    <li><b>已对普通插件开放</b>：权限 <code>runtime.turn.watch</code>，风险 medium。</li>
-    <li><b>只读</b>：听得到，改不了。fire-and-forget——丢一条就丢了，不补。</li>
+    <li><b>12 events, not 11</b>: <code>agent_start, agent_end, agent_settled, turn_start, turn_end, message_start, message_update, message_end, tool_execution_start, tool_execution_update, tool_execution_end, after_provider_response</code>.</li>
+    <li><b>Already open to ordinary plugins</b>: permission <code>runtime.turn.watch</code>, risk medium.</li>
+    <li><b>Read-only</b>: it can hear, but cannot change anything. fire-and-forget - lose one and it is gone, never re-sent.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">要不要给事件流加序号便于去重、要不要标出「本轮已结束」——见 requirements.html 的「本轮拍板」。</p>
-  <p style="color:var(--faint);font-size:12px">引用中的 <sha> 为占位，合并前用 feat/528-plugin-slots 当时的提交号重戳。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">Whether to add sequence numbers to the event stream for deduplication, and whether to mark "this turn has ended" - see "Decisions this round" in requirements.html.</p>
+  <p style="color:var(--faint);font-size:12px">The <sha> in citations is a placeholder; before merging, re-stamp it with the feat/528-plugin-slots commit id from that time.</p>
 </main>
 </body>
 </html>

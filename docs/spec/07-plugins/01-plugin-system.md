@@ -24,7 +24,7 @@ sandbox (ADR 0211).
 
 ## 1. Goals
 
-Give PI-Desktop extensibility similar to established desktop plugin ecosystems (e.g. VS Code extensions):
+Give Nib extensibility similar to established desktop plugin ecosystems (e.g. VS Code extensions):
 
 - Users can install / enable / disable / uninstall plugins
 - Developers can build custom plugins
@@ -33,7 +33,7 @@ Give PI-Desktop extensibility similar to established desktop plugin ecosystems (
 
 In one sentence:
 
-> **PI-Desktop is the host; plugins are capability packs.**
+> **Nib is the host; plugins are capability packs.**
 
 ## 2. Design goals
 
@@ -194,7 +194,7 @@ Developer mode can load a local path directly, without copying it into `installe
 Uses **three-layer isolation**:
 
 ```text
-Host Main (PI-Desktop)
+Host Main (Nib)
  ├─ PluginManager
  ├─ PluginPermissionGateway
  ├─ Plugin Sandbox / Worker
@@ -242,7 +242,7 @@ are reachable there) and CPU/memory limits.
   "zh-CN": string }` object for the native window identity and launcher
   metadata, but the host does not render that title inside the panel.
 - The capsule follows the loaded plugin page's computed background and text
-  colors. The active PI-Desktop theme (`light` / `dark`, including a plugin
+  colors. The active Nib theme (`light` / `dark`, including a plugin
   theme's base palette) is the fallback while the page is transparent.
 - Expose the drag-band height as `--pi-plugin-titlebar-height: 46px`;
   normal-flow content is offset automatically, while fixed/sticky plugin UI
@@ -595,7 +595,7 @@ Local development flow:
 cd plugins/hello
 pnpm dev
 
-# in PI-Desktop
+# in Nib
 Plugins → Load Development Plugin → choose directory
 ```
 

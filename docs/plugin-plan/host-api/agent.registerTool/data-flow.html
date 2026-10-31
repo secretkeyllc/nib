@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>agent.registerTool · 数据流</title>
+<title>agent.registerTool · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,41 +49,41 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">agent.registerTool</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>agent.registerTool · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>agent.registerTool · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.agent.registerTool(tool: PluginTool): Promise&lt;void&gt;</pre>
-  <p class="lead">把一个插件自有工具注册进会话工具目录，模型可对其发起调用；权限 <span class="pill perm">—</span>。</p>
-  <p><b>入参</b></p>
-  <p class="lead">入参为整个 <code>PluginTool</code> 对象：</p>
+  <p class="lead">Registers a plugin-owned tool into the session tool catalog so the model can call it; permission <span class="pill perm">—</span>.</p>
+  <p><b>Input</b></p>
+  <p class="lead">The input is the whole <code>PluginTool</code> object:</p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead><tbody>
-      <tr><td class="id">name</td><td class="id">string</td><td>是</td><td>工具名，也是 <code>agent.unregisterTool</code> 的注销键。</td></tr>
-      <tr><td class="id">description</td><td class="id">string</td><td>是</td><td>给模型看的用途说明，模型据此决定是否调用。</td></tr>
-      <tr><td class="id">risk</td><td class="id">"low" | "medium" | "high"</td><td>否</td><td>自报风险级。</td></tr>
-      <tr><td class="id">planSafeActions</td><td class="id">string[]</td><td>否</td><td>允许在 Plan/Goal 模式执行的动作名；仅当 schema 含 <code>action</code> 枚举时有意义，缺省或为空则该工具在这些模式下对模型隐藏（ADR 0211）。</td></tr>
-      <tr><td class="id">schema</td><td class="id">unknown</td><td>否</td><td>描述工具入参的 schema。</td></tr>
-      <tr><td class="id">execute</td><td class="id">function</td><td>是</td><td>执行体 <code>(args, ctx)</code>：模型调用工具时被宿主回调；<code>ctx</code> 提供 <code>sessionId</code>、<code>mode</code>、<code>signal</code>（中止令牌）等。</td></tr>
+    <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="id">name</td><td class="id">string</td><td>Yes</td><td>Tool name; also the unregistration key for <code>agent.unregisterTool</code>.</td></tr>
+      <tr><td class="id">description</td><td class="id">string</td><td>Yes</td><td>Purpose description shown to the model; the model uses it to decide whether to call.</td></tr>
+      <tr><td class="id">risk</td><td class="id">"low" | "medium" | "high"</td><td>No</td><td>Self-declared risk level.</td></tr>
+      <tr><td class="id">planSafeActions</td><td class="id">string[]</td><td>No</td><td>Action names allowed to run in Plan/Goal mode; only meaningful when the schema contains an <code>action</code> enum. If omitted or empty, the tool is hidden from the model in those modes (ADR 0211).</td></tr>
+      <tr><td class="id">schema</td><td class="id">unknown</td><td>No</td><td>Schema describing the tool's input.</td></tr>
+      <tr><td class="id">execute</td><td class="id">function</td><td>Yes</td><td>Executor <code>(args, ctx)</code>: called back by the host when the model invokes the tool; <code>ctx</code> provides <code>sessionId</code>, <code>mode</code>, <code>signal</code> (abort token), etc.</td></tr>
     </tbody></table>
-  <p><b>出参</b></p>
+  <p><b>Output</b></p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
-      <tr><td class="id">（返回值）</td><td class="id">void</td><td>无返回载荷；注册成功即 resolve。</td></tr>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+      <tr><td class="id">(return value)</td><td class="id">void</td><td>No return payload; resolves once registration succeeds.</td></tr>
     </tbody></table>
-  <p><b>输入样例</b></p>
+  <p><b>Input example</b></p>
   <pre>pi.agent.registerTool({
   name: "warehouse_stock_lookup",
   description: "按 SKU 查询仓库库存。",
@@ -91,49 +91,49 @@
   schema: { type: "object", properties: { sku: { type: "string" } }, required: ["sku"] },
   execute: async (args) =&gt; ({ text: "SKU " + args.sku + " 当前库存 128 件" }),
 })</pre>
-  <p><b>输出样例</b></p>
-  <pre>// 注册成功，无返回值（Promise&lt;void&gt;）</pre>
-  <div class="callout"><b>一句话边界。</b>只能注册插件自己的工具，不改宿主工具、不动其他插件工具；Plan/Goal 模式下未声明 <code>planSafeActions</code> 的动作对模型隐藏。</div>
+  <p><b>Output example</b></p>
+  <pre>// registered; no return value (Promise&lt;void&gt;)</pre>
+  <div class="callout"><b>Boundary in one sentence.</b> Only the plugin's own tools can be registered — host tools and other plugins' tools are untouched; in Plan/Goal mode, actions without a declared <code>planSafeActions</code> are hidden from the model.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用。</b>插件把整个 <code>PluginTool</code> 对象交给宿主。</li>
-    <li><b>校验。</b>宿主检查必填字段（<code>name</code>、<code>description</code>、<code>execute</code> 等）与授权，缺漏即 <code>INVALID_ARGUMENT</code>，未授权即 <code>PERMISSION_DENIED</code>。</li>
-    <li><b>生效。</b>工具进入模型工具目录，模型按 <code>description</code> 与 <code>schema</code> 决定是否调用。</li>
-    <li><b>执行。</b>模型调用时宿主回调插件 <code>execute(args, ctx)</code>，<code>ctx.signal</code> 随用户停止回合中止；工具执行单独审计。</li>
-    <li><b>模式约束。</b>Plan/Goal 模式下宿主按 <code>planSafeActions</code> 控制可见性，越界执行以 <code>PLUGIN_DISABLED_IN_PLAN</code> 拒绝（ADR 0211）。</li>
+    <li><b>Call.</b> The plugin hands the whole <code>PluginTool</code> object to the host.</li>
+    <li><b>Validation.</b> The host checks the required fields (<code>name</code>, <code>description</code>, <code>execute</code>, etc.) and authorization; missing fields fail with <code>INVALID_ARGUMENT</code>, missing authorization with <code>PERMISSION_DENIED</code>.</li>
+    <li><b>Activation.</b> The tool enters the model's tool catalog; the model decides whether to call it based on <code>description</code> and <code>schema</code>.</li>
+    <li><b>Execution.</b> On invocation the host calls back the plugin's <code>execute(args, ctx)</code>; <code>ctx.signal</code> aborts when the user stops the turn; tool executions are audited separately.</li>
+    <li><b>Mode constraint.</b> In Plan/Goal mode the host controls visibility via <code>planSafeActions</code>; out-of-bounds execution is rejected with <code>PLUGIN_DISABLED_IN_PLAN</code> (ADR 0211).</li>
   </ol>
-  <p class="lead">插件卸载时，其注册的工具一并删除。</p>
+  <p class="lead">When the plugin unloads, its registered tools are removed with it.</p>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead><tbody>
-      <tr><td>插件 → 宿主</td><td>整个 <code>PluginTool</code> 对象（name、description、schema、execute）。</td></tr>
-      <tr><td>宿主 → 插件</td><td>模型调用工具时的 <code>execute(args, ctx)</code> 回调。</td></tr>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead><tbody>
+      <tr><td>Plugin → host</td><td>The whole <code>PluginTool</code> object (name, description, schema, execute).</td></tr>
+      <tr><td>Host → plugin</td><td>The <code>execute(args, ctx)</code> callback when the model invokes the tool.</td></tr>
     </tbody></table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead><tbody>
-      <tr><td>插件未获注册工具的授权</td><td>注册被拒</td><td class="id">PERMISSION_DENIED</td></tr>
-      <tr><td><code>PluginTool</code> 缺必填字段或形态不合法</td><td>注册被拒</td><td class="id">INVALID_ARGUMENT</td></tr>
-      <tr><td>Plan/Goal 模式下调用了未列入 <code>planSafeActions</code> 的动作</td><td>该次执行被拒</td><td class="id">PLUGIN_DISABLED_IN_PLAN</td></tr>
+    <thead><tr><th>Condition</th><th>Result</th><th>Code</th></tr></thead><tbody>
+      <tr><td>Plugin is not authorized to register tools</td><td>Registration rejected</td><td class="id">PERMISSION_DENIED</td></tr>
+      <tr><td><code>PluginTool</code> missing required fields or malformed</td><td>Registration rejected</td><td class="id">INVALID_ARGUMENT</td></tr>
+      <tr><td>In Plan/Goal mode, an action not listed in <code>planSafeActions</code> was invoked</td><td>That execution is rejected</td><td class="id">PLUGIN_DISABLED_IN_PLAN</td></tr>
     </tbody></table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不改宿主工具；Plan/Goal 模式下未声明 <code>planSafeActions</code> 的动作对模型隐藏。</p>
-  <div class="callout"><b>宿主保证 / 已接受代价：</b>宿主保证：Plan/Goal 模式下未声明 `planSafeActions` 的动作隐藏，执行期以 `PLUGIN_DISABLED_IN_PLAN` 拒绝。已接受代价：计划模式工具面更窄。</div>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">Does not modify host tools; in Plan/Goal mode, actions without a declared <code>planSafeActions</code> are hidden from the model.</p>
+  <div class="callout"><b>Host guarantees / accepted costs:</b> Host guarantee: in Plan/Goal mode, actions without a declared `planSafeActions` are hidden and rejected at execution time with `PLUGIN_DISABLED_IN_PLAN`. Accepted cost: a narrower tool surface in plan mode.</div>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/agent.unregisterTool</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">无。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">None.</p>
 </section>
 
 </main>

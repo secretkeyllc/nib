@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AI 回复追加区 · 目录</title>
+<title>AI reply append area · Index</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -50,47 +50,47 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">AI 回复追加区</span>
+  <span class="here">AI reply append area</span>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 <header class="top">
   <div class="crumb">docs/plugin-plan · ui/entry-extra</div>
-  <h1>AI 回复追加区 · 目录</h1>
-  <p>AI 回复正文下方的追加位。additive 可叠加；用户消息没有本槽。</p>
+  <h1>AI reply append area · Index</h1>
+  <p>The append position below an AI reply's body. It is additive and can stack; user messages never get this slot.</p>
    <div class="meta">status: finalized · folder id <code>entry-extra</code></div>
 </header>
 <main>
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">范围、槽形状、插件能拿到什么、插件场景、明确不做、本轮拍板。</p>
-      <p class="files">六段固定</p>
+      <p class="what">Scope, slot shape, what the plugin gets, plugin scenarios, explicit non-goals, decisions this round.</p>
+      <p class="files">Six fixed sections</p>
     </a>
     <a class="card" href="demo.html">
       <div class="name">demo.html</div>
-      <p class="what">回复正文下方多一块、两插件叠放、用户卡无此槽。</p>
-      <p class="files">只有界面，无解说段落</p>
+      <p class="what">One more block below the reply body, two plugins stacked, and no such slot on the user card.</p>
+      <p class="files">UI only, no explanatory sections</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-       <p class="what">接口约定、数据怎么走、出错怎么办、不提供什么、相关条目、定稿记录。</p>
-      <p class="files">六节固定</p>
+       <p class="what">API contract, how data flows, error handling, what is not provided, related entries, finalization record.</p>
+      <p class="files">Six fixed sections</p>
     </a>
   </div>
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li>只出现在 AI 回复正文<strong>下方</strong>的追加位，additive 可叠加。</li>
-    <li>用户消息没有本槽；entry 正文不开放、无整卡替换。</li>
-    <li>props 只有 message + 各种 id，不提供宿主函数。</li>
+    <li>It appears only <strong>below</strong> the AI reply body and is additive, so blocks can stack.</li>
+    <li>User messages do not get this slot; the entry body is closed and there is no whole-card replacement.</li>
+    <li>Props carry only message and the various ids; no host functions are provided.</li>
   </ul>
-  <div class="callout ok"><b>公共词表与规则</b>见 <a href="../../slot-contract.html">slot-contract.html</a>。</div>
+  <div class="callout ok"><b>Shared vocabulary and rules</b>: see <a href="../../slot-contract.html">slot-contract.html</a>.</div>
 </main>
 </body>
 </html>

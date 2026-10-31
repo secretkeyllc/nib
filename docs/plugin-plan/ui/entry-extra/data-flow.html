@@ -1,10 +1,10 @@
  <!-- status: finalized -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AI 回复追加区 · 数据流</title>
+<title>AI reply append area · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e;--surface:#161616;--surface-2:#1b1b1b;--line:#2a2a2a;--line-2:#353535;
@@ -58,92 +58,92 @@
 </head>
 <body>
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <span class="here">AI 回复追加区</span>
+  <span class="here">AI reply append area</span>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="demo.html">演示</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="demo.html">Demo</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>AI 回复追加区 · 数据流</h1>
-  <p>宿主把这条 AI 回复的数据推给追加块；插件只渲染，不回调宿主。</p>
-   <div class="meta">status: finalized · 槽名与 props 字段名已定稿（见 slot-contract.html §6）；SDK 与宿主已实现，示例见 examples/plugins/ui-slots-lab</div>
+  <h1>AI reply append area · Data flow</h1>
+  <p>The host pushes this AI reply's data to the append block; the plugin only renders and never calls back into the host.</p>
+   <div class="meta">status: finalized · slot names and props field names are final (see slot-contract.html §6); SDK and host are implemented, example in examples/plugins/ui-slots-lab</div>
 </header>
 <main>
 
 <section>
-   <h2><span class="n">1</span>接口约定 <span class="tag decided">已定</span></h2>
-  <p>插件注册一个追加组件。additive，可叠加。</p>
+   <h2><span class="n">1</span>API contract <span class="tag decided">Decided</span></h2>
+  <p>A plugin registers one append component. It is additive and can stack.</p>
   <table>
-    <thead><tr><th>props</th><th>含义</th></tr></thead>
+    <thead><tr><th>props</th><th>Meaning</th></tr></thead>
     <tbody>
-      <tr><td><code>message</code></td><td>这条 AI 回复的数据</td></tr>
-      <tr><td><code>messageId</code> / <code>sessionId</code></td><td>各种 id</td></tr>
+      <tr><td><code>message</code></td><td>Data for this AI reply</td></tr>
+      <tr><td><code>messageId</code> / <code>sessionId</code></td><td>various ids</td></tr>
     </tbody>
   </table>
-  <p>权限：随 <code>renderer.extension</code>。副作用走插件自己的 <code>plugin.call</code>。</p>
+  <p>Permission: covered by <code>renderer.extension</code>. Side effects go through the plugin's own <code>plugin.call</code>.</p>
 </section>
 
 <section>
-   <h2><span class="n">2</span>数据怎么走 <span class="tag decided">已定</span></h2>
+   <h2><span class="n">2</span>How data flows <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>宿主 → 插件</td><td>props 一次给全；消息重渲染时整份重推</td></tr>
-      <tr><td>插件 → 宿主</td><td><strong>无</strong></td></tr>
-      <tr><td>插件 → 自己</td><td>交互由插件自理</td></tr>
+      <tr><td>Host → plugin</td><td>props are supplied in full up front; the whole set is re-pushed when the message re-renders</td></tr>
+      <tr><td>Plugin → host</td><td><strong>None</strong></td></tr>
+      <tr><td>plugin → itself</td><td>Interactions are the plugin's own business</td></tr>
     </tbody>
   </table>
-  <p>递交模型：<strong>props-push</strong>。多插件按注册顺序叠放。</p>
+  <p>Delivery model: <strong>props-push</strong>. Multiple plugins stack in registration order.</p>
 </section>
 
 <section>
-  <h2><span class="n">3</span>出错怎么办 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">3</span>Error handling <span class="tag decided">Decided</span></h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th></tr></thead>
+    <thead><tr><th>Case</th><th>Result</th></tr></thead>
     <tbody>
-      <tr><td>插件组件抛错</td><td>只塌掉自己那一块</td></tr>
-      <tr><td>插件未加载 / 已卸载</td><td>那一块消失，位置释放</td></tr>
+      <tr><td>A plugin component throws</td><td>Only its own block collapses</td></tr>
+      <tr><td>Plugin not loaded / already unloaded</td><td>That block disappears and the position is released</td></tr>
     </tbody>
   </table>
 </section>
 
 <section>
-  <h2><span class="n">4</span>不提供什么 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">4</span>What is not provided <span class="tag decided">Decided</span></h2>
   <ul>
-    <li>不提供宿主函数</li>
-    <li>不提供改正文、整卡替换</li>
-    <li>用户消息没有本槽</li>
+    <li>No host functions</li>
+    <li>No body editing or whole-card replacement</li>
+    <li>User messages do not get this slot</li>
   </ul>
   <div class="duo">
     <div class="guarantee">
-      <h4>宿主保证</h4>
-      出错隔离；卸载时摘掉注册与注入样式。
+      <h4>Host guarantees</h4>
+      Failure isolation; registration and injected styles are removed on unload.
     </div>
     <div class="cost">
-      <h4>已接受代价</h4>
-      同 realm 可碰全局；样式重写可被绕过。
+      <h4>Accepted costs</h4>
+      Shares the realm, so globals are reachable; style overrides can be bypassed.
     </div>
   </div>
 </section>
 
 <section>
-  <h2><span class="n">5</span>相关条目 <span class="tag decided">已定</span></h2>
+  <h2><span class="n">5</span>Related entries <span class="tag decided">Decided</span></h2>
   <ul>
-    <li><code>ui/assistant-action/</code> — AI 回复操作栏</li>
-    <li><code>ui/user-action/</code> — 用户消息操作栏</li>
-    <li><a href="../../slot-contract.html">slot-contract.html</a> — 公共契约</li>
+    <li><code>ui/assistant-action/</code> - the AI reply action bar</li>
+    <li><code>ui/user-action/</code> - the user message action bar</li>
+    <li><a href="../../slot-contract.html">slot-contract.html</a> — shared contract</li>
   </ul>
 </section>
 
 <section>
-   <h2><span class="n">6</span>定稿记录 <span class="tag decided">已定</span></h2>
+   <h2><span class="n">6</span>Finalization record <span class="tag decided">Decided</span></h2>
   <ul>
-     <li>SDK 槽名 <code>entryExtra</code>；「仅挂 AI 回复」写死进类型：props 只收 assistant 消息变体、无 <code>position</code> 字段</li>
-     <li>单块折叠态宿主钳制 320px（超出 8% 渐隐 + 宿主「展开」钮），展开态 600px 内部滚动；多块按注册顺序叠放</li>
+     <li>The SDK slot name is <code>entryExtra</code>; "AI replies only" is hard-coded in the type: props accept the assistant message variant only and carry no <code>position</code> field</li>
+     <li>A collapsed block is clamped by the host at 320px (with an 8% fade and a host "Expand" button), an expanded block is 600px and scrolls internally, and multiple blocks stack in registration order</li>
   </ul>
 </section>
 

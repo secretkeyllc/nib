@@ -5,7 +5,7 @@ import HomeHeroVisual from './components/HomeHeroVisual.vue'
 import HomeModules from './components/HomeModules.vue'
 
 const { Layout } = DefaultTheme
-const { frontmatter, localeIndex } = useData()
+const { frontmatter } = useData()
 </script>
 
 <template>
@@ -14,10 +14,7 @@ const { frontmatter, localeIndex } = useData()
       <HomeHeroVisual v-if="frontmatter.layout === 'home'" />
     </template>
     <template #home-features-after>
-      <HomeModules
-        v-if="frontmatter.layout === 'home'"
-        :locale="localeIndex"
-      />
+      <HomeModules v-if="frontmatter.layout === 'home'" />
     </template>
   </Layout>
 </template>

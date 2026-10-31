@@ -1,10 +1,10 @@
 <!-- status: draft -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>插件转发 · 目录</title>
+<title>Plugin forwarding - Index</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,53 +49,53 @@
 <body>
 
 <nav class="plan-nav">
-  <a href="../../index.html">插件插槽目录</a>
+  <a href="../../index.html">Plugin slot catalog</a>
   <span class="sep">/</span>
-  <a href="index.html">插件转发</a>
+  <a href="index.html">Plugin forwarding</a>
   <span class="spacer"></span>
-  <a href="index.html" aria-current="page">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html">数据流</a>
+  <a href="index.html" aria-current="page">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html">Data flow</a>
 </nav>
 
 <header class="top">
   <div class="crumb">docs/plugin-plan · render · plugin-call</div>
-  <h1>插件转发 · 目录</h1>
-  <p>渲染侧组件要取自己插件的私有数据：<code>dispatch("plugin.call")</code>。链路是 dispatch → 校验声明 → 跨进程转发 → 本插件应答 → JSON 回来。一问一答，不能推流。这是 render 相关接口，不是 UI 槽。</p>
-  <div class="meta">status: draft · issue #545 · #561 · 出站分层：核心 P</div>
+  <h1>Plugin forwarding - Index</h1>
+  <p>When a renderer component needs its own plugin's private data: <code>dispatch("plugin.call")</code>. The chain is dispatch -> validate the declaration -> forward across processes -> the plugin answers -> JSON comes back. One question, one answer; no streaming. This is a render interface, not a UI slot.</p>
+  <div class="meta">status: draft - issue #545 - #561 - outbound layering: core P</div>
 </header>
 
 <main>
 
-  <h2>这个目录里有什么</h2>
+  <h2>What is in this folder</h2>
   <div class="cards">
     <a class="card" href="requirements.html">
       <div class="name">requirements.html</div>
-      <p class="what">要什么：链路、载荷、白名单与限额、熔断、失败码、明确不做、本轮拍板。</p>
-      <p class="files">范围 · 契约形状 · 谁能用 · 场景 · 明确不做 · 本轮拍板</p>
+      <p class="what">What it covers: the chain, the payload, the allowlist and limits, the circuit breaker, failure codes, explicit non-goals, decisions this round.</p>
+      <p class="files">Scope - contract shape - who can use it - scenarios - explicit non-goals - decisions this round</p>
     </a>
     <a class="card" href="data-flow.html">
       <div class="name">data-flow.html</div>
-      <p class="what">数据怎么走：五步链路、JSON 应答、超时与熔断、出错怎么办。</p>
-      <p class="files">接口约定 · 数据怎么走 · 出错怎么办 · 不提供什么 · 相关条目 · 还没定的事</p>
+      <p class="what">How data flows: the five-step chain, the JSON answer, timeouts and the circuit breaker, error handling.</p>
+      <p class="files">API contract - how data flows - error handling - what is not provided - related entries - open questions</p>
     </a>
   </div>
 
-  <h2>为什么没有 demo</h2>
-  <div class="callout warn"><b>接口类，省略 demo。</b>本目录钉的是转发契约与失败码，没有可挂载的界面槽。槽组件取数后怎么画，各 UI 槽自己的 demo 已覆盖；这里只保证「怎么取到数」。</div>
+  <h2>Why there is no demo</h2>
+  <div class="callout warn"><b>Interface-only, so the demo is omitted.</b> This folder pins the forwarding contract and the failure codes; there is no mountable UI slot. How a slot component draws the data it fetched is covered by that slot's own demo; this folder only guarantees how the data is fetched.</div>
 
-  <h2>一句话回顾</h2>
+  <h2>Summary</h2>
   <ul>
-    <li>链路：组件 <code>dispatch("plugin.call")</code> → 校验声明 → 跨进程 <code>plugin/renderer/call</code>（<code>{pluginId, method, args}</code>）→ 本插件 <code>onRendererCall</code> → <b>JSON 应答</b>。</li>
-    <li><code>pluginId</code> 由宿主注入，<b>不可自填</b>——只能调自己，不能冒充别家。</li>
-    <li>约束五件套：method <b>白名单</b>、载荷 <b>≤64KB</b>、<b>QPS</b> 限速、<b>2s</b> 超时、连续失败熔断 <code>PLUGIN_CALL_DISABLED</code>。</li>
-    <li>失败码：<code>PLUGIN_CALL_NO_HANDLER</code> · <code>UNSERIALIZABLE</code> · <code>TIMEOUT</code> · …</li>
-    <li><b>不能推流</b>——一问一答，返回值必须能变成 JSON。</li>
-    <li>出站分层：核心 P。</li>
+    <li>Chain: the component calls <code>dispatch("plugin.call")</code> -> the declaration is validated -> the cross-process <code>plugin/renderer/call</code> (<code>{pluginId, method, args}</code>) -> the plugin's own <code>onRendererCall</code> -> a <b>JSON answer</b>.</li>
+    <li><code>pluginId</code> is injected by the host and <b>cannot be self-supplied</b> - a plugin can only call itself and cannot impersonate another.</li>
+    <li>Five constraints: a method <b>allowlist</b>, a payload cap of <b>64KB</b>, a <b>QPS</b> rate limit, a <b>2s</b> timeout, and a circuit breaker on consecutive failures, <code>PLUGIN_CALL_DISABLED</code>.</li>
+    <li>Failure codes: <code>PLUGIN_CALL_NO_HANDLER</code> - <code>UNSERIALIZABLE</code> - <code>TIMEOUT</code> - ...</li>
+    <li><b>No streaming</b> - one question yields one answer, and the return value must be JSON-serializable.</li>
+    <li>Outbound layering: core P.</li>
   </ul>
 
-  <h2>还没定的事</h2>
-  <p style="color:var(--muted);font-size:13px">QPS 具体数值、熔断连续失败次数——见 data-flow.html「还没定的事」。</p>
+  <h2>Open questions</h2>
+  <p style="color:var(--muted);font-size:13px">The exact QPS value and the consecutive-failure threshold for the circuit breaker are open - see "Open questions" in data-flow.html.</p>
 
 </main>
 </body>

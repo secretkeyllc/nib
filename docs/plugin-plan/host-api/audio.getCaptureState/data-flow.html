@@ -1,10 +1,10 @@
 <!-- status: implemented -->
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>audio.getCaptureState · 数据流</title>
+<title>audio.getCaptureState · Data flow</title>
 <style>
   :root{
     --bg:#0e0e0e; --surface:#161616; --surface-2:#1b1b1b; --line:#2a2a2a; --line-2:#353535;
@@ -49,86 +49,86 @@
 </style>
 </head>
 <body>
-<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI生成</p>
+<p data-aigc-mark="1" style="margin:0 0 8px;font-size:10px;line-height:1.3;color:#6b6560;font-weight:400;">AI-generated</p>
 <nav class="plan-nav">
   <a href="../index.html">host-api</a><span class="sep">/</span><a href="index.html">audio.getCaptureState</a>
   <span class="spacer"></span>
-  <a href="index.html">目录</a>
-  <a href="requirements.html">需求</a>
-  <a href="data-flow.html" aria-current="page">数据流</a>
+  <a href="index.html">Index</a>
+  <a href="requirements.html">Requirements</a>
+  <a href="data-flow.html" aria-current="page">Data flow</a>
 </nav>
 <header class="top">
-  <h1>audio.getCaptureState · 数据流</h1>
-  <div class="meta">status: <b>implemented</b> · 事实源 <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
+  <h1>audio.getCaptureState · Data flow</h1>
+  <div class="meta">status: <b>implemented</b> · source of truth <code>packages/plugin-sdk/src/index.ts</code> · <code>PluginHostApi</code></div>
 </header>
 <main>
 
 <section>
-  <h2><span class="n">1</span>接口约定</h2>
+  <h2><span class="n">1</span>API contract</h2>
   <pre class="sig">pi.audio.getCaptureState(): Promise&lt;PluginAudioCaptureState&gt;</pre>
-  <p class="lead">查询本插件当前持有的输入采集状态与丢帧计数（权限：<span class="pill perm">—</span>）。</p>
-  <p><b>入参</b></p>
-  <p class="lead">无入参。</p>
-  <p><b>出参</b></p>
-  <p class="lead">返回 <code>PluginAudioCaptureState</code> 快照：</p>
+  <p class="lead">Reports the input capture state and dropped-frame count this plugin currently holds (permission: <span class="pill perm">—</span>).</p>
+  <p><b>Input</b></p>
+  <p class="lead">No input.</p>
+  <p><b>Output</b></p>
+  <p class="lead">Returns a <code>PluginAudioCaptureState</code> snapshot:</p>
   <table>
-    <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+    <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td class="id">active</td><td>boolean</td><td>当前是否持有输入采集。</td></tr>
-      <tr><td class="id">streamId</td><td>string</td><td>可选；活动流的 id。</td></tr>
-      <tr><td class="id">deviceId</td><td>string</td><td>可选；活动设备 id。</td></tr>
-      <tr><td class="id">label</td><td>string</td><td>可选；活动设备显示名。</td></tr>
-      <tr><td class="id">sampleRate</td><td>number</td><td>可选；活动流采样率。</td></tr>
-      <tr><td class="id">channels</td><td>number</td><td>可选；活动流声道数。</td></tr>
-      <tr><td class="id">startedAtMs</td><td>number</td><td>可选；采集开始的毫秒时刻。</td></tr>
-      <tr><td class="id">droppedFrames</td><td>number</td><td>宿主因插件未及时消费队列而丢弃的帧数。</td></tr>
+      <tr><td class="id">active</td><td>boolean</td><td>Whether input capture is currently held.</td></tr>
+      <tr><td class="id">streamId</td><td>string</td><td>Optional; id of the active stream.</td></tr>
+      <tr><td class="id">deviceId</td><td>string</td><td>Optional; id of the active device.</td></tr>
+      <tr><td class="id">label</td><td>string</td><td>Optional; display name of the active device.</td></tr>
+      <tr><td class="id">sampleRate</td><td>number</td><td>Optional; sample rate of the active stream.</td></tr>
+      <tr><td class="id">channels</td><td>number</td><td>Optional; channel count of the active stream.</td></tr>
+      <tr><td class="id">startedAtMs</td><td>number</td><td>Optional; capture start time in milliseconds.</td></tr>
+      <tr><td class="id">droppedFrames</td><td>number</td><td>Number of frames the host dropped because the plugin did not drain the queue in time.</td></tr>
     </tbody>
   </table>
-  <p><b>输入样例</b></p>
-  <pre>// 无入参</pre>
-  <p><b>输出样例</b></p>
+  <p><b>Input example</b></p>
+  <pre>// no input</pre>
+  <p><b>Output example</b></p>
   <pre>{ "active": true, "streamId": "in-3f9a2c", "label": "默认 - 麦克风 (Realtek Audio)", "sampleRate": 16000, "channels": 1, "droppedFrames": 0 }</pre>
-  <div class="callout"><b>一句话边界。</b>返回的是状态快照与丢帧计数；不给波形或电平表。</div>
+  <div class="callout"><b>Boundary in one sentence.</b> Returns a state snapshot and dropped-frame counts; provides no waveform or level meter.</div>
 </section>
 <section>
-  <h2><span class="n">2</span>数据怎么走</h2>
+  <h2><span class="n">2</span>How data flows</h2>
   <ol>
-    <li><b>调用：</b><code>pi.audio.getCaptureState()</code>，无参数。</li>
-    <li><b>校验：</b>宿主核对插件身份与权限，未授权以 <code>PERMISSION_DENIED</code> 拒绝。</li>
-    <li><b>执行：</b>宿主读取本插件的采集持有状态与丢帧计数；未采集时 <code>active</code> 为 <code>false</code>，其余字段按可选项缺省。</li>
-    <li><b>返回：</b>resolve 状态快照；可轮询 <code>droppedFrames</code> 判断消费是否跟得上采集节奏。</li>
+    <li><b>Call:</b> <code>pi.audio.getCaptureState()</code>, with no arguments.</li>
+    <li><b>Validate:</b> the host checks the plugin identity and permission; unauthorized calls are rejected with <code>PERMISSION_DENIED</code>.</li>
+    <li><b>Execute:</b> the host reads this plugin's capture-hold state and dropped-frame count; when not capturing, <code>active</code> is <code>false</code> and the remaining fields fall back to their optional defaults.</li>
+    <li><b>Return:</b> resolves with the state snapshot; poll <code>droppedFrames</code> to tell whether consumption keeps up with the capture rate.</li>
   </ol>
   <table>
-    <thead><tr><th>方向</th><th>内容</th></tr></thead>
+    <thead><tr><th>Direction</th><th>Content</th></tr></thead>
     <tbody>
-      <tr><td>插件 → 宿主</td><td>无参状态查询。</td></tr>
-      <tr><td>宿主 → 插件</td><td>采集状态快照（<code>active</code>、设备 / 格式明细、<code>droppedFrames</code>）。</td></tr>
+      <tr><td>plugin → host</td><td>State query with no parameters.</td></tr>
+      <tr><td>host → plugin</td><td>Capture state snapshot (<code>active</code>, device / format details, <code>droppedFrames</code>).</td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">3</span>出错怎么办</h2>
+  <h2><span class="n">3</span>Error handling</h2>
   <table>
-    <thead><tr><th>情况</th><th>结果</th><th>码</th></tr></thead>
+    <thead><tr><th>Case</th><th>Result</th><th>Code</th></tr></thead>
     <tbody>
-      <tr><td>插件未获音频采集权限</td><td>调用失败（reject）</td><td><code>PERMISSION_DENIED</code></td></tr>
-      <tr><td>宿主无音频后端</td><td>调用失败（reject）</td><td><code>UNSUPPORTED</code></td></tr>
+      <tr><td>Plugin lacks audio capture permission</td><td>Call fails (reject)</td><td><code>PERMISSION_DENIED</code></td></tr>
+      <tr><td>Host has no audio backend</td><td>Call fails (reject)</td><td><code>UNSUPPORTED</code></td></tr>
     </tbody>
   </table>
 </section>
 <section>
-  <h2><span class="n">4</span>不提供什么</h2>
-  <p class="lead">不给波形或电平表。</p>
+  <h2><span class="n">4</span>What is not provided</h2>
+  <p class="lead">No waveform or level meter.</p>
 </section>
 <section>
-  <h2><span class="n">5</span>相关条目</h2>
+  <h2><span class="n">5</span>Related entries</h2>
   <ul>
     <li><code>host-api/audio.onInputFrame</code></li>
   </ul>
 </section>
 <section>
-  <h2><span class="n">6</span>还没定的事</h2>
-  <p class="lead">设备后端落地时间未定。</p>
+  <h2><span class="n">6</span>Open questions</h2>
+  <p class="lead">Timing for landing the device backend is undecided.</p>
 </section>
 
 </main>
