@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.15",
+    date: "2026-10-31",
+    highlights: [
+      "O controlador web ganha o básico do espaço de trabalho: sessões agrupadas por projeto (grupos recolhíveis), seletor de modelo e troca de modo no compositor, leituras de transcrição limitadas e títulos de sessão em uma linha.",
+    ],
+  },
+
+{
     version: "0.22.14",
     date: "2026-10-31",
     highlights: [

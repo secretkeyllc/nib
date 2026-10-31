@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.15",
+    date: "2026-10-31",
+    highlights: [
+      "網頁控制端補齊工作區基礎能力：會話按專案分組（可摺疊）、輸入框可選模型與切換模式、會話記錄讀取限制頁長、會話標題單行顯示。",
+    ],
+  },
+
+{
     version: "0.22.14",
     date: "2026-10-31",
     highlights: [

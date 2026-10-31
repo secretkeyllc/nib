@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.15",
+    date: "2026-10-31",
+    highlights: [
+      "The web controller grows the workspace basics: sessions grouped by project with collapsible groups, a model picker and permission-mode switch on the composer, bounded transcript reads, and session titles that stay on one line.",
+    ],
+  },
+
+{
     version: "0.22.14",
     date: "2026-10-31",
     highlights: [

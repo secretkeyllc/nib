@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.15",
+    date: "2026-10-31",
+    highlights: [
+      "웹 컨트롤러에 워크스페이스 기본 기능이 추가되었습니다: 프로젝트별 세션 그룹(접기 가능), 컴포저의 모델 선택 및 모드 전환, 제한된 대화 읽기, 한 줄 세션 제목.",
+    ],
+  },
+
+{
     version: "0.22.14",
     date: "2026-10-31",
     highlights: [

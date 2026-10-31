@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.15",
+    date: "2026-10-31",
+    highlights: [
+      "El controlador web suma lo básico del espacio de trabajo: sesiones agrupadas por proyecto (grupos plegables), selector de modelo y cambio de modo en el compositor, lecturas de transcripción acotadas y títulos de sesión en una sola línea.",
+    ],
+  },
+
+{
     version: "0.22.14",
     date: "2026-10-31",
     highlights: [

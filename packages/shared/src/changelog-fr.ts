@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.15",
+    date: "2026-10-31",
+    highlights: [
+      "La télécommande web gagne les bases de l'espace de travail : sessions groupées par projet (groupes repliables), choix du modèle et changement de mode sur le composeur, lectures de transcription bornées et titres de session sur une ligne.",
+    ],
+  },
+
+{
     version: "0.22.14",
     date: "2026-10-31",
     highlights: [

@@ -320,8 +320,12 @@ class RemoteControlSession {
         const target = requested || String(sessions[0]?.id ?? "");
         // sessionGet addresses the session as `{ id }` (the only channel that
         // does — see backend-router's sessionIdForCall note).
+        // Bound the transcript read: an unbounded session.get on a long
+        // session can outlast the controller's timeout.
         const detail = target
-          ? await this.invokeIpc<Record<string, unknown>>(IPC.invoke.sessionGet, [{ id: target }])
+          ? await this.invokeIpc<Record<string, unknown>>(IPC.invoke.sessionGet, [
+              { id: target, messageLimit: 60 },
+            ])
           : null;
         return { sessions, detail };
       }
@@ -353,6 +357,40 @@ class RemoteControlSession {
         const created = await this.invokeIpc(IPC.invoke.sessionCreate, [{}]);
         void this.pushSessions();
         return created;
+      }
+      case "status": {
+        // What the picker needs: the session's current model/mode and the
+        // model options the Nib provider offers on this desktop.
+        const requested = typeof cmd.p.sessionId === "string" ? cmd.p.sessionId : "";
+        let status: Record<string, unknown> = {};
+        if (requested) {
+          status = await this.invokeIpc(IPC.invoke.agentGetStatus, [requested]);
+        }
+        let models: Array<{ id: string; label?: string }> = [];
+        try {
+          const row = await this.invokeIpc<{ models?: Array<{ id?: unknown; name?: unknown }> }>(
+            IPC.invoke.providersListModels,
+            [{ providerId: "plugin:nib.provider:nib" }],
+          );
+          models = (row?.models ?? [])
+            .map((m) => ({ id: String(m.id ?? ""), label: m.name ? String(m.name) : undefined }))
+            .filter((m) => m.id.length > 0);
+        } catch {
+          models = [];
+        }
+        return {
+          modelId: status.modelId ?? null,
+          permissionMode: status.permissionMode ?? null,
+          models,
+        };
+      }
+      case "configure": {
+        const sessionId = String(cmd.p.sessionId ?? "");
+        if (!sessionId) throw new Error("sessionId required");
+        const patch: Record<string, unknown> = { sessionId };
+        if (typeof cmd.p.modelId === "string") patch.modelId = cmd.p.modelId;
+        if (typeof cmd.p.permissionMode === "string") patch.permissionMode = cmd.p.permissionMode;
+        return this.invokeIpc(IPC.invoke.sessionConfigure, [patch]);
       }
       default:
         throw new Error(`unknown command: ${cmd.c}`);

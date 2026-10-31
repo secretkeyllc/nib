@@ -123,7 +123,19 @@ export function registerNibIpc({
         headers: { accept: "application/json", authorization: `Bearer ${token}` },
         signal: controller.signal,
       });
-      if (response.status === 401) return { signedIn: false, sessionExpired: true };
+      if (response.status === 401) {
+        // An expired/revoked session must stop spending the account's plan:
+        // retire the stored gateway credential so the Nib provider stops
+        // being usable until the next sign-in. Third-party providers the
+        // user added with their own keys are untouched. Fire-and-forget —
+        // the entitlement answer must not wait on secret-store I/O.
+        void forgetProviderCredential(providerId).catch((error) => {
+          logger.app("provider", "warn", "nib session expiry could not forget the gateway credential", {
+            data: { error: error instanceof Error ? error.message : String(error) },
+          });
+        });
+        return { signedIn: false, sessionExpired: true };
+      }
       if (!response.ok) {
         logger.app("provider", "warn", "nib entitlement failed", {
           data: { status: response.status },

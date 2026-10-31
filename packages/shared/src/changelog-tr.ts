@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.15",
+    date: "2026-10-31",
+    highlights: [
+      "Web denetleyicisi çalışma alanı temellerini kazandı: proje bazlı gruplanabilir oturumlar, besteci üzerinde model seçimi ve mod geçişi, sınırlı transkript okumaları ve tek satır oturum başlıkları.",
+    ],
+  },
+
+{
     version: "0.22.14",
     date: "2026-10-31",
     highlights: [

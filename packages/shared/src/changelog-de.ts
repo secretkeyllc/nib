@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.15",
+    date: "2026-10-31",
+    highlights: [
+      "Der Web-Controller erhält die Arbeitsbereich-Grundlagen: Sitzungen nach Projekt gruppiert (einklappbar), Modellwahl und Modusumschaltung am Eingabefeld, begrenzte Verlaufslesevorgänge und Sitzungstitel in einer Zeile.",
+    ],
+  },
+
+{
     version: "0.22.14",
     date: "2026-10-31",
     highlights: [
