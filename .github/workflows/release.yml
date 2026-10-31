@@ -524,7 +524,7 @@ jobs:
         run: |
           TAG_VERSION="${GITHUB_REF_NAME#v}"
           for pkg in apps/desktop/package.json apps/nib-host/package.json; do
-            APP_VERSION="$(node -p "require('./'$pkg).version")"
+            APP_VERSION="$(sed -n 's/.*"version": "\([^"]*\)".*/\1/p' "$pkg" | head -1)"
             if [ "$TAG_VERSION" != "$APP_VERSION" ]; then
               echo "::error::Tag v$TAG_VERSION does not match $pkg version $APP_VERSION."
               exit 1
