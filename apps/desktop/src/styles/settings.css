@@ -4291,3 +4291,21 @@
   color: var(--ds-text-danger, #e05252);
   font-size: var(--text-sm-plus);
 }
+
+
+.remote-autostart {
+  border: 1px solid var(--ds-border-subtle);
+  background: none;
+  color: var(--ds-text-muted);
+  border-radius: var(--radius-full);
+  padding: 3px 12px;
+  font: inherit;
+  font-size: var(--text-sm-plus);
+  cursor: pointer;
+  min-width: 48px;
+}
+
+.remote-autostart.is-on {
+  color: var(--ds-text-success, #3fbf7f);
+  border-color: color-mix(in srgb, currentColor 45%, transparent);
+}

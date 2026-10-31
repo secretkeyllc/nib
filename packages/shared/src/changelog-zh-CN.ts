@@ -3,6 +3,18 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhCNEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.11",
+    date: "2026-10-31",
+    highlights: [
+      "配对链接改为每台电脑固定：扫一次码，停止/重启配对甚至重启客户端后手机依然可用。",
+      "新增「更换链接」：链接外泄时一键更换，之前所有二维码立即失效。",
+      "账号浮窗里就有配对入口：点一下直接展开二维码。",
+      "支持随客户端自动开启配对，手机随时可以连接。",
+    ],
+  },
+
+
+  {
     version: "0.22.10",
     date: "2026-10-31",
     highlights: [

@@ -116,6 +116,11 @@ export const remotePairingEn = {
   pairingCopyLink: "Copy link",
   pairingCopied: "Copied",
   pairingErrorTitle: "Error",
+  pairingRegenTitle: "Rotate link",
+  pairingRegenDesc: "If a link ever leaks, rotate it: every previously scanned QR stops working and a new one is minted.",
+  pairingRegenAction: "Rotate & refresh QR",
+  pairingAutoTitle: "Start with the app",
+  pairingAutoDesc: "Keep the pairing alive whenever Nib runs, so your phone can attach anytime.",
 };
 
 export const remotePairingZh = {
@@ -135,6 +140,11 @@ export const remotePairingZh = {
   pairingCopyLink: "复制链接",
   pairingCopied: "已复制",
   pairingErrorTitle: "错误",
+  pairingRegenTitle: "更换链接",
+  pairingRegenDesc: "如果链接外泄可在此更换：之前所有二维码立即失效，并生成新链接。",
+  pairingRegenAction: "更换并刷新二维码",
+  pairingAutoTitle: "随客户端自动开启",
+  pairingAutoDesc: "Nib 运行期间保持配对有效，手机随时可以连接。",
 };
 
 // Account popover pairing row (flat keys, remote namespace).
@@ -143,10 +153,12 @@ export const remotePairingPopoverEn = {
   pairingPopoverStart: "Start",
   pairingPhaseWaitingShort: "Waiting…",
   pairingPhaseConnectedShort: "Connected",
+  pairingPopoverRegen: "Rotate",
 };
 export const remotePairingPopoverZh = {
   pairingPopoverTitle: "手机远程控制",
   pairingPopoverStart: "开始",
   pairingPhaseWaitingShort: "等待手机…",
   pairingPhaseConnectedShort: "已连接",
+  pairingPopoverRegen: "更换链接",
 };

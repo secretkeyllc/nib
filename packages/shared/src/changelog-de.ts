@@ -3,6 +3,18 @@ import type { ChangelogEntry } from "./changelog.js";
 export const deEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.11",
+    date: "2026-10-31",
+    highlights: [
+      "Der Kopplungslink ist jetzt pro Rechner stabil: einmal scannen, und das Telefon funktioniert über Stop/Start-Zyklen und App-Neustarts hinweg.",
+      "Eine Aktion „Link rotieren“ erzeugt bei Bedarf einen neuen Link und macht alle bisherigen QR-Codes ungültig.",
+      "Das Kontomenü enthält die Kopplung: ein Tipp klappt den QR-Code direkt auf.",
+      "Kopplungen können automatisch mit der App starten, damit das Telefon jederzeit verbinden kann.",
+    ],
+  },
+
+
+  {
     version: "0.22.10",
     date: "2026-10-31",
     highlights: [

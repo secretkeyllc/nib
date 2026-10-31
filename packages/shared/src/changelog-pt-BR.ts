@@ -3,6 +3,18 @@ import type { ChangelogEntry } from "./changelog.js";
 export const ptBREntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.11",
+    date: "2026-10-31",
+    highlights: [
+      "O link de pareamento agora é estável por máquina: escaneie uma vez e o celular continua funcionando ao parar, reiniciar ou reabrir o app.",
+      "Uma ação de rotação gera um link novo quando necessário e aposenta todos os QR escaneados antes.",
+      "O menu da conta também traz o pareamento: um toque desdobra o QR code ali mesmo.",
+      "Os pareamentos podem iniciar automaticamente com o app, para conectar o celular a qualquer momento.",
+    ],
+  },
+
+
+  {
     version: "0.22.10",
     date: "2026-10-31",
     highlights: [

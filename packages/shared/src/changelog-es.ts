@@ -3,6 +3,18 @@ import type { ChangelogEntry } from "./changelog.js";
 export const esEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.11",
+    date: "2026-10-31",
+    highlights: [
+      "El enlace de emparejamiento ahora es estable por equipo: escanea una vez y el móvil sigue funcionando al detener, reiniciar o reabrir la app.",
+      "Una acción de rotación genera un enlace nuevo cuando haga falta y retira todos los QR escaneados antes.",
+      "El menú de cuenta también incluye el emparejamiento: un toque despliega el código QR ahí mismo.",
+      "Los emparejamientos pueden iniciarse automáticamente con la app, para conectar el móvil en cualquier momento.",
+    ],
+  },
+
+
+  {
     version: "0.22.10",
     date: "2026-10-31",
     highlights: [

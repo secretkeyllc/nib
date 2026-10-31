@@ -3,6 +3,18 @@ import type { ChangelogEntry } from "./changelog.js";
 export const trEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.11",
+    date: "2026-10-31",
+    highlights: [
+      "Eşleştirme bağlantısı artık makine başına sabit: bir kez tarayın, durdurma/başlatma ve uygulama yeniden başlatmalarında telefon çalışmaya devam eder.",
+      "Bağlantıyı döndürme eylemi, bir sızma durumunda yeni bağlantı üretir ve önceki tüm QR'ları geçersiz kılar.",
+      "Hesap menüsünde de eşleştirme var: tek dokunuşla QR kodu açılır.",
+      "Eşleştirmeler uygulamayla birlikte otomatik başlayabilir; telefon her an bağlanabilir.",
+    ],
+  },
+
+
+  {
     version: "0.22.10",
     date: "2026-10-31",
     highlights: [

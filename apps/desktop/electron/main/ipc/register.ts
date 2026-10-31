@@ -573,6 +573,7 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
     sendToRenderer,
   });
   registerRemoteControlIpc(registrar, remoteControl);
+  void remoteControl.maybeAutoStart?.();
   setRemoteExecutor({
     invoke: async (channel: string, args: readonly unknown[] = []) => {
       const handler = ipcHandlers.get(channel);

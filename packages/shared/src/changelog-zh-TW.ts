@@ -3,6 +3,18 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhTWEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.11",
+    date: "2026-10-31",
+    highlights: [
+      "配對連結改為每台電腦固定：掃一次碼，停止/重啟配對甚至重啟用戶端後手機依然可用。",
+      "新增「更換連結」：連結外洩時一鍵更換，之前所有 QR 碼立即失效。",
+      "帳號浮窗裡就有配對入口：點一下直接展開 QR 碼。",
+      "支援隨用戶端自動開啟配對，手機隨時可以連接。",
+    ],
+  },
+
+
+  {
     version: "0.22.10",
     date: "2026-10-31",
     highlights: [

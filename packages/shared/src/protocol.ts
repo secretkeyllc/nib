@@ -2,7 +2,7 @@ export const PROTOCOL_VERSION = 11 as const;
 export const SCHEMA_VERSION = 16 as const;
 export const APP_ID = "com.secretkeyllc.nib";
 export const APP_NAME = "Nib";
-export const APP_VERSION = "0.22.10";
+export const APP_VERSION = "0.22.11";
 
 export const APP_MENU_COMMANDS = [
   "newTask",
@@ -339,6 +339,10 @@ export const IPC = {
     remoteControlGetState: "pi-desktop/remoteControl/getState",
     remoteControlStart: "pi-desktop/remoteControl/start",
     remoteControlStop: "pi-desktop/remoteControl/stop",
+    /** Rotate the stable pairing link; previously scanned QRs stop working. */
+    remoteControlRegenerate: "pi-desktop/remoteControl/regenerate",
+    /** Persist the start-with-app preference for the pairing. */
+    remoteControlSetAutoStart: "pi-desktop/remoteControl/setAutoStart",
     /**
      * Look one model id up in the local models.dev snapshot.
      *
@@ -582,6 +586,8 @@ export const IPC_WHITELIST = new Set<string>([
 export type RemoteControlState = {
   /** A pairing session exists (the desktop leg is running). */
   active: boolean;
+  /** Start the pairing automatically when the app launches. */
+  autoStart: boolean;
   phase: "idle" | "connecting" | "waiting" | "connected" | "error";
   error?: string;
   /** The pairing URL — the QR code encodes exactly this. */
@@ -589,4 +595,6 @@ export type RemoteControlState = {
   /** QR rendering of url, as a data: URL ready for <img src>. */
   qrDataUrl?: string;
   machineName?: string;
+  /** First-class copy of the stable pairing token (diagnostics display). */
+  sid?: string;
 };

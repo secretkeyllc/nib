@@ -3,6 +3,18 @@ import type { ChangelogEntry } from "./changelog.js";
 export const frEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.11",
+    date: "2026-10-31",
+    highlights: [
+      "Le lien de jumelage est désormais stable par machine : scannez une fois, et le téléphone continue de fonctionner après arrêt, redémarrage ou relance de l'app.",
+      "Une action de rotation génère un nouveau lien en cas de fuite et invalide tous les QR précédemment scannés.",
+      "Le menu du compte abrite aussi le jumelage : un appui déploie le code QR sur place.",
+      "Les jumelages peuvent démarrer automatiquement avec l'app, pour connecter le téléphone à tout moment.",
+    ],
+  },
+
+
+  {
     version: "0.22.10",
     date: "2026-10-31",
     highlights: [

@@ -19,6 +19,7 @@ export function RemoteControlSection() {
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const signedIn = state?.error !== "NOT_SIGNED_IN";
 
   useEffect(() => {
     let mounted = true;
@@ -45,6 +46,18 @@ export function RemoteControlSection() {
         ? await api.remoteControlStop()
         : await api.remoteControlStart();
       setState(next);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function regenerate() {
+    setBusy(true);
+    setError(null);
+    try {
+      setState(await api.remoteControlRegenerate());
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -85,17 +98,47 @@ export function RemoteControlSection() {
           {state?.active ? t("pairingStop") : t("pairingStart")}
         </Button>
       </SettingsRow>
-      {state?.active && state.url && (
-        <SettingsRow title={t("pairingLinkTitle")} description={t("pairingLinkDesc")}>
-          <div className="remote-pairing">
-            {state.qrDataUrl && (
-              <img className="remote-pairing-qr" src={state.qrDataUrl} alt={t("pairingQrAlt")} />
-            )}
-            <button type="button" className="remote-pairing-copy" onClick={() => void copyLink()}>
-              {copied ? t("pairingCopied") : t("pairingCopyLink")}
-            </button>
-          </div>
+      {signedIn && (
+        <SettingsRow title={t("pairingAutoTitle")} description={t("pairingAutoDesc")}>
+          <button
+            type="button"
+            className={`remote-autostart${state?.autoStart ? " is-on" : ""}`}
+            disabled={busy}
+            aria-pressed={state?.autoStart === true}
+            onClick={() => {
+              setBusy(true);
+              api.remoteControlSetAutoStart(!(state?.autoStart === true))
+                .then((next) => setState(next))
+                .catch((err) => setError(err instanceof Error ? err.message : String(err)))
+                .finally(() => setBusy(false));
+            }}
+          >
+            {state?.autoStart ? "ON" : "OFF"}
+          </button>
         </SettingsRow>
+      )}
+      {state?.active && state.url && (
+        <>
+          <SettingsRow title={t("pairingLinkTitle")} description={t("pairingLinkDesc")}>
+            <div className="remote-pairing">
+              {state.qrDataUrl && (
+                <img className="remote-pairing-qr" src={state.qrDataUrl} alt={t("pairingQrAlt")} />
+              )}
+              <button type="button" className="remote-pairing-copy" onClick={() => void copyLink()}>
+                {copied ? t("pairingCopied") : t("pairingCopyLink")}
+              </button>
+            </div>
+          </SettingsRow>
+          <SettingsRow title={t("pairingRegenTitle")} description={t("pairingRegenDesc")}>
+            <Button
+              variant="secondary"
+              disabled={busy}
+              onClick={() => void regenerate()}
+            >
+              {t("pairingRegenAction")}
+            </Button>
+          </SettingsRow>
+        </>
       )}
       {error && (
         <SettingsRow title={t("pairingErrorTitle")}>

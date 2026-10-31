@@ -698,6 +698,9 @@ export const api = {
   remoteControlGetState: () => invoke<RemoteControlState>(IPC.invoke.remoteControlGetState),
   remoteControlStart: () => invoke<RemoteControlState>(IPC.invoke.remoteControlStart),
   remoteControlStop: () => invoke<RemoteControlState>(IPC.invoke.remoteControlStop),
+  remoteControlRegenerate: () => invoke<RemoteControlState>(IPC.invoke.remoteControlRegenerate),
+  remoteControlSetAutoStart: (enabled: boolean) =>
+    invoke<RemoteControlState>(IPC.invoke.remoteControlSetAutoStart, enabled),
   listNotifications: (input?: { unreadOnly?: boolean; limit?: number }) =>
     invoke<NotificationListResult>(IPC.invoke.notificationList, input ?? {}),
   markNotificationRead: (id: string) =>

@@ -22,7 +22,7 @@ import { randomUUID, randomBytes } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import WebSocket from "ws";
 import QRCode from "qrcode";
-import { APP_VERSION, IPC } from "@pi-desktop/shared";
+import { APP_VERSION, IPC, type RemoteControlState } from "@pi-desktop/shared";
 import type { AgentPromptRequest, AgentStopRequest, AskToolResolution } from "@pi-desktop/shared";
 
 const RELAY_URL = "wss://nib.am/api/v1/remote/ws";
@@ -42,16 +42,6 @@ const RECONNECT_MIN_MS = 2_000;
 const RECONNECT_MAX_MS = 30_000;
 
 export type RemoteControlPhase = "idle" | "connecting" | "waiting" | "connected" | "error";
-
-export type RemoteControlState = {
-  active: boolean;
-  phase: RemoteControlPhase;
-  error?: string;
-  url?: string;
-  qrDataUrl?: string;
-  machineName?: string;
-  sid?: string;
-};
 
 /**
  * The remote command executor: the SAME local dispatch the renderer's IPC
@@ -333,20 +323,33 @@ type RemoteControlInternalState = {
   qrDataUrl?: string;
   machineName?: string;
   sid?: string;
+  autoStart: boolean;
 };
 
 export type RemoteControl = {
   getState(): RemoteControlState;
   start(): Promise<RemoteControlState>;
   stop(): RemoteControlState;
+  /** Rotate the stable pairing link; any previously scanned QR stops working. */
+  regenerate(): Promise<RemoteControlState>;
   /** Wire into the central sendToRenderer so mirrored events flow. */
   observeEvent(channel: string, payload: unknown): void;
 };
 
-export function createRemoteControl(deps: Deps): RemoteControl {
+/** The maintenance surface register.ts needs beyond the plain control. */
+export type RemoteControlWithMaintenance = RemoteControl & {
+  setAutoStartEnabled: (enabled: boolean) => Promise<void>;
+  maybeAutoStart: () => Promise<void>;
+};
+
+/** Mirrors the relay's handshake minimum for stored sids. */
+const REMOTE_SID_MIN_LEN = 32;
+
+export function createRemoteControl(deps: Deps): RemoteControlWithMaintenance {
   const state: RemoteControlInternalState = {
     session: null,
     phase: "idle",
+    autoStart: false,
   };
 
   const broadcast = () => {
@@ -370,6 +373,38 @@ export function createRemoteControl(deps: Deps): RemoteControl {
     return { mid, name: hostname() };
   }
 
+  /**
+   * The pairing sid is STABLE per machine: it is generated once, stored beside
+   * the machine id, and reused by every later start. A phone that scanned the
+   * QR once keeps working across stop/start cycles and app restarts — the
+   * link only dies while the pairing is not running, because the relay only
+   * routes while the host leg is attached. "Regenerate" is an explicit action
+   * (a leaked link is rotated deliberately), not a side effect of restarting.
+   */
+  async function pairingSid(): Promise<string> {
+    const dir = deps.dataDir();
+    const file = join(dir, "remote-pairing-sid");
+    let sid = "";
+    try {
+      sid = (await readFile(file, "utf8")).trim();
+    } catch {
+      sid = "";
+    }
+    if (sid.length >= REMOTE_SID_MIN_LEN) return sid;
+    sid = randomBytes(32).toString("hex");
+    await mkdir(dir, { recursive: true });
+    await writeFile(file, sid, { mode: 0o600 });
+    return sid;
+  }
+
+  async function regenerateSid(): Promise<string> {
+    const dir = deps.dataDir();
+    const sid = randomBytes(32).toString("hex");
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, "remote-pairing-sid"), sid, { mode: 0o600 });
+    return sid;
+  }
+
   async function readToken(): Promise<string> {
     // Same store the entitlements flow reads: the desktop's own nib.am session.
     const file = join(deps.dataDir(), "plugins", "data", "nib.provider", "settings.json");
@@ -385,6 +420,7 @@ export function createRemoteControl(deps: Deps): RemoteControl {
     return {
       active: state.session !== null,
       phase: state.phase,
+      autoStart: state.autoStart,
       error: state.error,
       url: state.url,
       qrDataUrl: state.qrDataUrl,
@@ -405,7 +441,7 @@ export function createRemoteControl(deps: Deps): RemoteControl {
       });
     }
     const identity = await machineIdentity();
-    const sid = randomBytes(32).toString("hex");
+    const sid = await pairingSid();
     const url = `${PAGE_BASE_URL}?sid=${sid}&mid=${encodeURIComponent(identity.mid)}&name=${encodeURIComponent(identity.name)}`;
     const qrDataUrl = await QRCode.toDataURL(url, { margin: 1, width: 320 });
 
@@ -436,25 +472,71 @@ export function createRemoteControl(deps: Deps): RemoteControl {
     return getState();
   }
 
+  async function readAutoStart(): Promise<boolean> {
+    try {
+      return (await readFile(join(deps.dataDir(), "remote-autostart"), "utf8")).trim() === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  async function setAutoStart(enabled: boolean): Promise<void> {
+    const dir = deps.dataDir();
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, "remote-autostart"), enabled ? "1" : "0", { mode: 0o600 });
+    state.autoStart = enabled;
+  }
+
+  /** Called once at startup: honours the persisted start-with-app choice. */
+  async function maybeAutoStart(): Promise<void> {
+    if (!await readAutoStart()) return;
+    try {
+      await start();
+      deps.logger.app("remote-control", "info", "pairing auto-started with the app");
+    } catch (error) {
+      deps.logger.app("remote-control", "warn", "pairing auto-start skipped", {
+        reason: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  async function regenerate(): Promise<RemoteControlState> {
+    const wasRunning = state.session !== null;
+    if (wasRunning) stop();
+    await regenerateSid();
+    if (wasRunning) await start();
+    return getState();
+  }
+
   const control: RemoteControl = {
     getState,
     start,
     stop,
+    regenerate,
     observeEvent(channel, payload) {
       state.session?.observeEvent(channel, payload);
     },
   };
 
   activeControl = control;
-  return control;
+  void (async () => {
+    state.autoStart = await readAutoStart();
+  })();
+
+  return { ...control, setAutoStartEnabled: setAutoStart, maybeAutoStart };
 }
 
 /** IPC surface for the renderer's Settings card. */
 export function registerRemoteControlIpc(
   registrar: { handle(channel: string, fn: (...args: unknown[]) => Promise<unknown>): void },
-  control: RemoteControl,
+  control: RemoteControlWithMaintenance,
 ): void {
   registrar.handle(IPC.invoke.remoteControlGetState, async () => control.getState());
   registrar.handle(IPC.invoke.remoteControlStart, async () => control.start());
   registrar.handle(IPC.invoke.remoteControlStop, async () => control.stop());
+  registrar.handle(IPC.invoke.remoteControlRegenerate, async () => control.regenerate());
+  registrar.handle(IPC.invoke.remoteControlSetAutoStart, async (enabled: unknown) => {
+    await control.setAutoStartEnabled?.(enabled === true);
+    return control.getState();
+  });
 }

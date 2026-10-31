@@ -3,6 +3,18 @@ import type { ChangelogEntry } from "./changelog.js";
 export const koEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.11",
+    date: "2026-10-31",
+    highlights: [
+      "페어링 링크가 이제 머신별로 고정됩니다: 한 번만 스캔하면 중지/재시작, 앱 재시작 후에도 계속 사용할 수 있습니다.",
+      "링크 교체 기능이 추가되었습니다. 유출 시 한 번에 교체하며 기존 QR은 모두 무효가 됩니다.",
+      "계정 메뉴에도 페어링이 있습니다: 한 번 누르면 QR 코드가 바로 펼쳐집니다.",
+      "앱 실행 시 페어링을 자동으로 시작할 수 있어, 언제든 휴대폰에서 연결할 수 있습니다.",
+    ],
+  },
+
+
+  {
     version: "0.22.10",
     date: "2026-10-31",
     highlights: [

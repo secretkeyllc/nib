@@ -119,6 +119,20 @@ export function NibRemotePairingRow({ onWorkspaceOpened }: { onWorkspaceOpened?:
             </button>
             <button
               type="button"
+              className="nib-remote-chip"
+              disabled={busy}
+              onClick={() => {
+                setBusy(true);
+                api.remoteControlRegenerate()
+                  .then((next) => setState(next))
+                  .catch(() => undefined)
+                  .finally(() => setBusy(false));
+              }}
+            >
+              {t("pairingPopoverRegen")}
+            </button>
+            <button
+              type="button"
               className="nib-remote-chip is-stop"
               disabled={busy}
               onClick={() => {

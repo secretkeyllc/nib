@@ -3,6 +3,18 @@ import type { ChangelogEntry } from "./changelog.js";
 export const enEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.11",
+    date: "2026-10-31",
+    highlights: [
+      "The pairing link is now stable per machine: scan once, and the phone keeps working across stop/start cycles and app restarts.",
+      "A rotate action mints a fresh link when one ever leaks, retiring every previously scanned QR.",
+      "The account popover carries the pairing: one tap unfolds the QR right there.",
+      "Pairings can start automatically with the app, so the phone can attach anytime.",
+    ],
+  },
+
+
+  {
     version: "0.22.10",
     date: "2026-10-31",
     highlights: [
