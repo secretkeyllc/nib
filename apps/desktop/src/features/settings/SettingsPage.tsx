@@ -62,6 +62,7 @@ import {
 } from "./primitives";
 import { AgentInstructionsSection, UpdatesRow } from "./agent-sections";
 import { CloseBehaviorSection, DeveloperSection } from "./developer-sections";
+import { RemoteControlSection } from "./RemoteControlSection";
 import { PluginScenicThemesDestination } from "../../components/settings/PluginScenicThemesDestination";
 import { ConfigSyncPage } from "../../components/settings/ConfigSyncPage";
 import { StorageSettingsSection } from "./StorageSettingsSection";
@@ -669,6 +670,7 @@ export function SettingsPage() {
                 settings={settings ?? null}
                 saveSettings={saveSettings}
               />
+              <RemoteControlSection />
               <SettingsCard>
                 <SettingsRow title={t("settings.logs")}>
                   <Button variant="secondary" onClick={() => void api.openLogs()}>

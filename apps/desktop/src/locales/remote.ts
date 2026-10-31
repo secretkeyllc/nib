@@ -98,3 +98,41 @@ export const remoteZh: typeof remoteEn = {
   REMOTE_PROJECT_REQUIRED: "请选择远程项目或输入远程绝对路径。",
   REMOTE_SYNC_CONSENT_REQUIRED: "请先选择可同步的配置，并明确同意向 SSH 主机复制凭据。",
 };
+
+export const remotePairingEn = {
+  title: "Mobile remote control",
+  status: "Pairing",
+  start: "Start pairing",
+  stop: "Stop pairing",
+  phaseIdle: "Off. Nothing can reach this workspace.",
+  phaseConnecting: "Connecting to the relay…",
+  phaseWaiting: "Waiting for your phone — scan the code or open the link.",
+  phaseConnected: "A controller is attached.",
+  phaseError: "Pairing failed.",
+  notSignedIn: "Sign in to Nib (Settings → Account) before pairing.",
+  linkTitle: "Pairing link",
+  linkDesc: "Scan with a phone, or open the link in any browser and sign in with the SAME account.",
+  qrAlt: "Pairing QR code",
+  copyLink: "Copy link",
+  copied: "Copied",
+  errorTitle: "Error",
+};
+
+export const remotePairingZh = {
+  title: "手机远程控制",
+  status: "配对状态",
+  start: "开始配对",
+  stop: "停止配对",
+  phaseIdle: "未开启，任何人都无法连接这个工作区。",
+  phaseConnecting: "正在连接中继…",
+  phaseWaiting: "等待手机连接——扫码或打开链接。",
+  phaseConnected: "已连接，可以在手机上操作了。",
+  phaseError: "配对失败。",
+  notSignedIn: "请先在客户端登录 Nib 账号，再开始配对。",
+  linkTitle: "配对链接",
+  linkDesc: "用手机扫码，或在任意浏览器打开链接，并用【同一账号】登录。",
+  qrAlt: "配对二维码",
+  copyLink: "复制链接",
+  copied: "已复制",
+  errorTitle: "错误",
+};

@@ -22,6 +22,7 @@ import { registerProviderIpc } from "./provider-ipc";
 import { registerNibIpc, NIB_PROVIDER_ROW_ID } from "./nib-ipc";
 import { registerScheduledIpc } from "./scheduled-ipc";
 import { registerSessionIpc } from "./session-ipc";
+import { createRemoteControl, registerRemoteControlIpc, setRemoteExecutor } from "../remote-control/index";
 import { registerSettingsIpc } from "./settings-ipc";
 import { registerStorageIpc } from "../storage/ipc";
 import { registerConfigSyncIpc } from "./config-sync-ipc";
@@ -562,6 +563,23 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
     getMainWindow,
   });
 
+
+  // Mobile remote control. The pairing is created on demand from Settings and
+  // lives only while it runs; the executor reuses this module's handler map so
+  // a remote prompt runs through the identical code path as a local one.
+  const remoteControl = createRemoteControl({
+    dataDir: () => dataDir,
+    logger,
+    sendToRenderer,
+  });
+  registerRemoteControlIpc(registrar, remoteControl);
+  setRemoteExecutor({
+    invoke: async (channel: string, args: readonly unknown[] = []) => {
+      const handler = ipcHandlers.get(channel);
+      if (!handler) throw new Error(`IPC channel unavailable: ${channel}`);
+      return handler(...args);
+    },
+  });
 
   return async (channel: string, args: readonly unknown[] = []) => {
     const handler = ipcHandlers.get(channel);

@@ -331,6 +331,15 @@ export const IPC = {
      */
     nibAnnouncementRead: "pi-desktop/nib/announcement-read",
     /**
+     * Mobile remote control. The desktop owns the pairing: start produces the
+     * one link (and QR) for this run, stop tears it down. The web half lives
+     * at nib.am/remote and only attaches after signing in with the SAME
+     * account; the control-plane relay enforces that match.
+     */
+    remoteControlGetState: "pi-desktop/remoteControl/getState",
+    remoteControlStart: "pi-desktop/remoteControl/start",
+    remoteControlStop: "pi-desktop/remoteControl/stop",
+    /**
      * Look one model id up in the local models.dev snapshot.
      *
      * `providersListModels` cannot answer this: it describes a saved or
@@ -544,6 +553,8 @@ export const IPC = {
     notificationChanged: "pi-desktop/notification/event/changed",
     sessionsChanged: "pi-desktop/session/event/changed",
     remoteInteractions: "pi-desktop/remote/event/interactions",
+    /** Mobile remote-control pairing state; payload is RemoteControlState. */
+    remoteControlChanged: "pi-desktop/remoteControl/event/changed",
     notificationActivated: "pi-desktop/notification/event/activated",
     notificationSound: "pi-desktop/notification/event/sound",
     plansChanged: "pi-desktop/plans/event/changed",
@@ -566,3 +577,16 @@ export const IPC_WHITELIST = new Set<string>([
   ...Object.values(IPC.invoke),
   ...Object.values(IPC.event),
 ]);
+
+/** State of the mobile remote-control pairing, mirrored to the renderer. */
+export type RemoteControlState = {
+  /** A pairing session exists (the desktop leg is running). */
+  active: boolean;
+  phase: "idle" | "connecting" | "waiting" | "connected" | "error";
+  error?: string;
+  /** The pairing URL — the QR code encodes exactly this. */
+  url?: string;
+  /** QR rendering of url, as a data: URL ready for <img src>. */
+  qrDataUrl?: string;
+  machineName?: string;
+};

@@ -56,6 +56,7 @@ import { MicrophoneLeaseRegistry } from "./live-voice/microphone-lease";
 import { createLiveCallService } from "./live-voice/runtime";
 import { createLiveVoiceWidget } from "./live-voice/widget-window";
 import { getActiveRemoteHostsBoot } from "./bootstrap/remote-hosts";
+import { remoteControlMirror } from "./remote-control/index";
 import { installLiveMicrophonePermissionHandlers } from "./live-voice/microphone-permissions";
 import { MainProcessState } from "./bootstrap/main-state";
 import { registerApplicationActivation } from "./bootstrap/app-activation";
@@ -469,6 +470,7 @@ function setCurrentWorkspacePath(path: string | null): void {
 
 /** Pull the user's MCP server records from host-core into the local runtime. */
 function sendToRenderer(channel: string, payload: unknown) {
+  remoteControlMirror(channel, payload);
   applicationLifecycle?.traySessions.observeEvent(channel, payload);
   applicationLifecycle?.taskbarUnreadBadge.observeEvent(channel, payload);
   if (channel === IPC.event.pluginChanged) {

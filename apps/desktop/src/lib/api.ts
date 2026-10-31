@@ -2,6 +2,7 @@ import { projectPlanHistory } from "./plan-history";
 import { guardRemoteInvocation } from "./remote-ipc-safety";
 import { isRemoteSession, safeSessionSummary } from "./remote-session-safety";
 import type {
+  RemoteControlState,
   NibAnnouncement,
   NibEntitlement,
   ConfigSyncTestInput,
@@ -694,6 +695,9 @@ export const api = {
   updatesOpenReleases: () => invoke(IPC.invoke.updatesOpenReleases),
   updatesDismiss: () => invoke(IPC.invoke.updatesDismiss),
   openFeedback: () => invoke(IPC.invoke.appOpenFeedback),
+  remoteControlGetState: () => invoke<RemoteControlState>(IPC.invoke.remoteControlGetState),
+  remoteControlStart: () => invoke<RemoteControlState>(IPC.invoke.remoteControlStart),
+  remoteControlStop: () => invoke<RemoteControlState>(IPC.invoke.remoteControlStop),
   listNotifications: (input?: { unreadOnly?: boolean; limit?: number }) =>
     invoke<NotificationListResult>(IPC.invoke.notificationList, input ?? {}),
   markNotificationRead: (id: string) =>

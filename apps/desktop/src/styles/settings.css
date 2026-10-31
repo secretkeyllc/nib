@@ -4257,3 +4257,37 @@
 .sklm-page-jump::placeholder {
   color: var(--ds-text-muted);
 }
+
+/* Mobile remote control pairing card */
+.remote-pairing {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.remote-pairing-qr {
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  object-fit: contain;
+}
+
+.remote-pairing-copy {
+  border: 1px solid var(--ds-border-subtle);
+  background: none;
+  color: var(--ds-text-primary);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.remote-pairing-copy:hover {
+  border-color: var(--ds-border-strong, var(--ds-border-subtle));
+}
+
+.remote-pairing-error {
+  color: var(--ds-text-danger, #e05252);
+  font-size: var(--text-sm-plus);
+}
