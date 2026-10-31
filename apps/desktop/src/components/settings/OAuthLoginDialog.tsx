@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { OAuthPromptRequest, OAuthVendor } from "@pi-desktop/shared";
+import { notifyAuthChanged } from "../../lib/auth-events";
 import type { OAuthLoginSession } from "../../lib/oauth-login-session";
 import { canSubmitOAuthPrompt } from "../../lib/oauth-login-prompt";
 import { Button, Input, TooltipButton, cx, portalOverlay } from "../ui";
@@ -88,6 +89,10 @@ export function OAuthLoginDialog({
         case "done":
           if (settled.current) break;
           settled.current = true;
+          // Any completed login can change the Nib account state (the flow may
+          // have been started from Settings, not the account menu), so readers
+          // of the entitlement hear about it here for every vendor.
+          notifyAuthChanged();
           handlers.current.onDone(event.accountLabel, event.providerId);
           break;
         case "error":

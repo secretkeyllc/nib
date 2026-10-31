@@ -20,6 +20,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { NibEntitlement } from "@pi-desktop/shared";
 import { api } from "../../../lib/api";
+import { onAuthChanged } from "../../../lib/auth-events";
 import {
   placeContextInspector,
   type ContextInspectorPlacement,
@@ -59,6 +60,8 @@ export function NibCreditsChip() {
   useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    /** Which read is current; superseded ones must not schedule or set state. */
+    let run = 0;
     /*
      * The entitlement read is a display refresh, not a state change: a failed
      * or thin read must never clobber the last good numbers, or the chip
@@ -67,10 +70,11 @@ export function NibCreditsChip() {
      * recovery after a network blip is quick.
      */
     const load = () => {
+      const thisRun = ++run;
       void api
         .nibEntitlement()
         .then((next) => {
-          if (cancelled) return;
+          if (cancelled || thisRun !== run) return;
           const thin =
             next.signedIn &&
             next.creditsTotal === undefined &&
@@ -82,16 +86,28 @@ export function NibCreditsChip() {
           timer = setTimeout(load, thin ? RETRY_MS : REFRESH_MS);
         })
         .catch(() => {
-          if (cancelled) return;
+          if (cancelled || thisRun !== run) return;
           // Same contract on a thrown read: what we had still stands.
           setEnt((previous) => previous);
           timer = setTimeout(load, RETRY_MS);
         });
     };
     load();
+    /*
+     * Sign-in and sign-out happen in the account surfaces; they announce it on
+     * the auth bus so the chip appears (or empties) the moment the account
+     * changes instead of waiting out the settled poll — the "logged in but the
+     * balance never showed" report.
+     */
+    const offAuthChanged = onAuthChanged(() => {
+      if (cancelled) return;
+      if (timer) clearTimeout(timer);
+      load();
+    });
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
+      offAuthChanged();
     };
   }, []);
 

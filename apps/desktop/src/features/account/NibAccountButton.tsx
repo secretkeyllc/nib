@@ -19,6 +19,7 @@ import type {
   ThemePreference,
 } from "@pi-desktop/shared";
 import { api } from "../../lib/api";
+import { notifyAuthChanged } from "../../lib/auth-events";
 import {
   placeContextInspector,
   type ContextInspectorPlacement,
@@ -199,6 +200,9 @@ export function NibAccountButton() {
       setSigningOut(false);
       setOpen(false);
       load();
+      // Readers elsewhere (the credits chip) must drop the balance now, not on
+      // their next poll.
+      notifyAuthChanged();
     }
   };
 
