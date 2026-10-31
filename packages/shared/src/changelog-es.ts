@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.14",
+    date: "2026-10-31",
+    highlights: [
+      "El controlador web ahora carga el espacio de trabajo en escritorios 0.22.13 (la lectura del detalle de sesión usaba un nombre de argumento incorrecto) y lo recarga automáticamente cuando el escritorio se reconecta.",
+    ],
+  },
+
+{
     version: "0.22.13",
     date: "2026-10-31",
     highlights: [

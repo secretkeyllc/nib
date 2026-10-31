@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.14",
+    date: "2026-10-31",
+    highlights: [
+      "O controlador web agora carrega o espaço de trabalho em desktops 0.22.13 (a leitura do detalhe de sessão usava o nome de argumento errado) e o recarrega automaticamente quando o desktop reconecta.",
+    ],
+  },
+
+{
     version: "0.22.13",
     date: "2026-10-31",
     highlights: [

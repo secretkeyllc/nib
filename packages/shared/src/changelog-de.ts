@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.14",
+    date: "2026-10-31",
+    highlights: [
+      "Der Web-Controller lädt den Arbeitsbereich auf 0.22.13-Desktops jetzt (das Sitzungsdetail-Lesen verwendete den falschen Argumentnamen) und lädt ihn automatisch neu, sobald sich der Desktop neu verbindet.",
+    ],
+  },
+
+{
     version: "0.22.13",
     date: "2026-10-31",
     highlights: [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.14",
+    date: "2026-10-31",
+    highlights: [
+      "修复网页控制端在 0.22.13 桌面端上无法加载工作区的问题（读取会话详情用错了参数名），桌面端重连后工作区也会自动刷新。",
+    ],
+  },
+
+{
     version: "0.22.13",
     date: "2026-10-31",
     highlights: [

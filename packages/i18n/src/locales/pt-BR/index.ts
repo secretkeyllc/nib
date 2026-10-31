@@ -1004,6 +1004,7 @@ export const ptBR = {
       projects: "Projetos",
       sync: "Sincronização",
       remoteHosts: "Hosts remotos",
+      remoteControl: "Controle remoto",
       info: "Sobre",
       voice: "Voz"
     },
@@ -1234,6 +1235,13 @@ export const ptBR = {
     subagentSaved: "Salvo {{name}}",
     projectArchive: "Arquivo de projeto",
     remoteHosts: {
+    remoteControl: {
+      title: "Controle remoto pelo celular",
+      experimental: "Experimental",
+      statusTitle: "Pareamento",
+      startPairing: "Iniciar pareamento",
+      stopPairing: "Parar pareamento",
+    },
       title: "Hosts remotos",
       listError: "Falha ao carregar hosts",
       loading: "Carregando…",

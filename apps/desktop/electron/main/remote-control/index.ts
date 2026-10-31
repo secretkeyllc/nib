@@ -247,6 +247,10 @@ class RemoteControlSession {
       return;
     }
     if (type === "cmd") {
+      this.deps.logger.app("remote-control", "info", "command received from the controller", {
+        c: String(frame.c ?? ""),
+        id: String(frame.id ?? ""),
+      });
       void this.runCommand({
         id: String(frame.id ?? ""),
         c: String(frame.c ?? ""),
@@ -308,12 +312,16 @@ class RemoteControlSession {
           IPC.invoke.sessionList,
           [],
         );
+        this.deps.logger.app("remote-control", "info", "sessionList returned", {
+          shape: Object.keys(list ?? {}),
+          count: Array.isArray(list?.sessions) ? list.sessions.length : -1,
+        });
         const sessions = list.sessions ?? [];
         const target = requested || String(sessions[0]?.id ?? "");
+        // sessionGet addresses the session as `{ id }` (the only channel that
+        // does — see backend-router's sessionIdForCall note).
         const detail = target
-          ? await this.invokeIpc<Record<string, unknown>>(IPC.invoke.sessionGet, [
-              { sessionId: target },
-            ])
+          ? await this.invokeIpc<Record<string, unknown>>(IPC.invoke.sessionGet, [{ id: target }])
           : null;
         return { sessions, detail };
       }

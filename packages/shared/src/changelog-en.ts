@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.14",
+    date: "2026-10-31",
+    highlights: [
+      "The web controller now loads the workspace on 0.22.13 desktops (the session-detail read used the wrong argument name) and reloads it automatically whenever the desktop reconnects.",
+    ],
+  },
+
+{
     version: "0.22.13",
     date: "2026-10-31",
     highlights: [

@@ -1026,6 +1026,7 @@ sklm: {
       projects: "Projeler",
       sync: "Bulut senkronizasyonu",
       remoteHosts: "Uzak ana bilgisayarlar",
+      remoteControl: "Uzaktan kontrol",
       info: "Bilgi",
       voice: "Ses",
     },
@@ -1416,6 +1417,13 @@ sklm: {
     subagentSaved: "{{name}} kaydedildi",
     projectArchive: "Proje arşivi",
     remoteHosts: {
+    remoteControl: {
+      title: "Telefondan uzaktan kontrol",
+      experimental: "Deneysel",
+      statusTitle: "Eşleştirme",
+      startPairing: "Eşleştirmeyi başlat",
+      stopPairing: "Eşleştirmeyi durdur",
+    },
       title: "Uzak ana bilgisayarlar",
       listError: "Ana bilgisayarlar yüklenemedi",
       loading: "Yükleniyor…",

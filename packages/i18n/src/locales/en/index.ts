@@ -1030,6 +1030,7 @@ sklm: {
       projects: "Projects",
       sync: "Cloud sync",
       remoteHosts: "Remote hosts",
+      remoteControl: "Remote control",
       info: "Info",
       voice: "Voice",
     },
@@ -1314,6 +1315,13 @@ sklm: {
       sshFailed: "Install failed: {{message}}",
       transportSsh: "SSH",
       experimental: "Experimental",
+    remoteControl: {
+      title: "Phone remote control",
+      experimental: "Experimental",
+      statusTitle: "Pairing",
+      startPairing: "Start pairing",
+      stopPairing: "Stop pairing",
+    },
     },
     configSync: {
       title: "Cloud sync",

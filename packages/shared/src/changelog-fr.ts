@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.14",
+    date: "2026-10-31",
+    highlights: [
+      "La télécommande web charge maintenant l'espace de travail sur les bureaux 0.22.13 (la lecture du détail de session utilisait un nom d'argument erroné) et le recharge automatiquement dès que le bureau se reconnecte.",
+    ],
+  },
+
+{
     version: "0.22.13",
     date: "2026-10-31",
     highlights: [

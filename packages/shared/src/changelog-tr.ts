@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.14",
+    date: "2026-10-31",
+    highlights: [
+      "Web denetleyicisi artık 0.22.13 masaüstlerinde çalışma alanını yüklüyor (oturum ayrıntısı okuması yanlış bağımsız değişken adını kullanıyordu); masaüstü yeniden bağlandığında otomatik olarak yenileniyor.",
+    ],
+  },
+
+{
     version: "0.22.13",
     date: "2026-10-31",
     highlights: [

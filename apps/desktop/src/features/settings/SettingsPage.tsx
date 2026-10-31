@@ -22,6 +22,7 @@ import {
   IconChevronLeft,
   IconFileText,
   IconGlobe,
+  IconSmartphone,
   IconInfo,
   IconKeyboard,
   IconPalette,
@@ -246,6 +247,7 @@ export function SettingsPage() {
       projects: <IconArchive size={14} />,
       sync: <IconCloudDown size={14} />,
       remoteHosts: <IconGlobe size={14} />,
+      remoteControl: <IconSmartphone size={14} />,
       voice: <IconMic size={14} />,
       about: <IconInfo size={14} />,
     };
@@ -648,6 +650,8 @@ export function SettingsPage() {
 
           {tab === "remoteHosts" && !tabHidden && <RemoteHostsPage />}
 
+          {tab === "remoteControl" && !tabHidden && <RemoteControlSection />}
+
           {tab === "about" && (
             <div className="settings-stack">
               <div className="settings-about-hero">
@@ -670,7 +674,6 @@ export function SettingsPage() {
                 settings={settings ?? null}
                 saveSettings={saveSettings}
               />
-              <RemoteControlSection />
               <SettingsCard>
                 <SettingsRow title={t("settings.logs")}>
                   <Button variant="secondary" onClick={() => void api.openLogs()}>

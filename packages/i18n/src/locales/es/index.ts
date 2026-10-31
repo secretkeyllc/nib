@@ -1018,6 +1018,7 @@ sklm: {
       "projects": "Proyectos",
       "sync": "Sincronización en la nube",
       "remoteHosts": "Hosts remotos",
+      remoteControl: "Control remoto",
       "info": "Información",
       "voice": "Voz"
     },
@@ -1414,6 +1415,13 @@ sklm: {
     "subagentSaved": "Guardado {{name}}",
     "projectArchive": "Archivo de proyecto",
     "remoteHosts": {
+    remoteControl: {
+      title: "Control remoto desde el móvil",
+      experimental: "Experimental",
+      statusTitle: "Emparejamiento",
+      startPairing: "Iniciar emparejamiento",
+      stopPairing: "Detener emparejamiento",
+    },
       "title": "Hosts remotos",
       "listError": "No se pudieron cargar los hosts",
       "loading": "Cargando…",

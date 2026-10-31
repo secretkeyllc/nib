@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.14",
+    date: "2026-10-31",
+    highlights: [
+      "웹 컨트롤러가 0.22.13 데스크톱에서도 워크스페이스를 불러옵니다(세션 상세 조회의 잘못된 인자 이름 수정). 데스크톱이 재연결되면 자동으로 새로고침합니다.",
+    ],
+  },
+
+{
     version: "0.22.13",
     date: "2026-10-31",
     highlights: [

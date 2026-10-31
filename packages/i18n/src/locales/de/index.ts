@@ -1018,6 +1018,7 @@ sklm: {
       "projects": "Projekte",
       "sync": "Cloud-Synchronisierung",
       "remoteHosts": "Remote-Hosts",
+      remoteControl: "Fernsteuerung",
       "info": "Informationen",
       "voice": "Sprache"
     },
@@ -1414,6 +1415,13 @@ sklm: {
     "subagentSaved": "Gespeichert {{name}}",
     "projectArchive": "Projektarchiv",
     "remoteHosts": {
+    remoteControl: {
+      title: "Fernsteuerung vom Handy",
+      experimental: "Experimentell",
+      statusTitle: "Kopplung",
+      startPairing: "Koppeln starten",
+      stopPairing: "Koppeln beenden",
+    },
       "title": "Remote-Hosts",
       "listError": "Hosts konnten nicht geladen werden",
       "loading": "Wird geladen…",

@@ -1018,6 +1018,7 @@ sklm: {
       "projects": "Projets",
       "sync": "Synchronisation cloud",
       "remoteHosts": "Hôtes distants",
+      remoteControl: "Télécommande",
       "info": "Informations",
       "voice": "Voix"
     },
@@ -1414,6 +1415,13 @@ sklm: {
     "subagentSaved": "Enregistré {{name}}",
     "projectArchive": "Archive du projet",
     "remoteHosts": {
+    remoteControl: {
+      title: "Contrôle à distance depuis le téléphone",
+      experimental: "Expérimental",
+      statusTitle: "Jumelage",
+      startPairing: "Démarrer le jumelage",
+      stopPairing: "Arrêter le jumelage",
+    },
       "title": "Hôtes distants",
       "listError": "Impossible de charger les hôtes",
       "loading": "Chargement…",

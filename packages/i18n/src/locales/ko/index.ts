@@ -1026,6 +1026,7 @@ sklm: {
       projects: "프로젝트",
       sync: "클라우드 동기화",
       remoteHosts: "원격 호스트",
+      remoteControl: "원격 제어",
       info: "정보",
       voice: "음성",
     },
@@ -1422,6 +1423,13 @@ sklm: {
     subagentSaved: "{{name}} 저장됨",
     projectArchive: "프로젝트 보관함",
     remoteHosts: {
+    remoteControl: {
+      title: "휴대폰 원격 제어",
+      experimental: "실험적",
+      statusTitle: "페어링",
+      startPairing: "페어링 시작",
+      stopPairing: "페어링 중지",
+    },
       title: "원격 호스트",
       listError: "호스트를 불러오지 못했습니다",
       loading: "로드 중…",
