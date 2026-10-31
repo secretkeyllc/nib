@@ -26,12 +26,16 @@ test("composer model chip uses the existing single-line height token", () => {
   assert.equal(declaration(rule(tokens, "@theme"), "--leading-none"), "1");
 });
 
-test("light model menu token preserves its opaque surface and original shadow", () => {
-  const menu = rule(menus, ':root[data-theme="light"] .composer-model-menu');
+test("the model menu is opaque in both themes; light keeps its stronger shadow", () => {
+  // Dark mode shipped the mirror-image bug of the old light one: the 82% glass
+  // let the transcript smear through the list until rows were unreadable. The
+  // opaque surface is therefore the base rule for both themes, and the light
+  // override narrows to its shadow.
+  const menu = rule(menus, ".composer-model-menu");
   assert.equal(declaration(menu, "background"), "var(--ds-bg-elevated-opaque)");
-  assert.equal(declaration(menu, "backdrop-filter"), "none");
-  assert.equal(declaration(menu, "-webkit-backdrop-filter"), "none");
-  assert.equal(declaration(menu, "box-shadow"), "var(--ds-shadow-model-menu)");
+  assert.ok(!/backdrop-filter/.test(menu), "the opaque surface must not rely on backdrop blur");
+  const light = rule(menus, ':root[data-theme="light"] .composer-model-menu');
+  assert.equal(declaration(light, "box-shadow"), "var(--ds-shadow-model-menu)");
   assert.equal(
     declaration(rule(tokens, ':root[data-theme="light"]'), "--ds-shadow-model-menu"),
     "0 0 0 0.5px color-mix(in oklab, #1a1c1f 10%, transparent), " +
