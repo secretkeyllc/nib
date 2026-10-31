@@ -10,8 +10,6 @@ Under **Agent**, open **MCP**, then **Market**. This is the MCP server list, sep
 from the plugin marketplace. **My servers** returns to the servers you have saved.
 The sidebar footer shows the app version. The steps below match v0.15.2 and later; the last section describes v0.15.1.
 
-[中文版本](/zh-CN/guide/mcp-market)
-
 ## Three lists
 
 **Market** merges three lists. Built-in rows stay on screen when a remote source fails.

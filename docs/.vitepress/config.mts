@@ -5,24 +5,21 @@ import { defineConfig, type DefaultTheme } from 'vitepress'
 
 const docsRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
-type Locale = 'en' | 'zh-CN'
-
 type SpecSection = {
   directory: string
   en: string
-  zh: string
   collapsed?: boolean
 }
 
 const specSections: SpecSection[] = [
-  { directory: '01-product', en: 'Product', zh: '产品' },
-  { directory: '02-architecture', en: 'Architecture', zh: '架构' },
-  { directory: '03-runtime', en: 'Runtime', zh: '运行时', collapsed: true },
-  { directory: '04-ux', en: 'Experience', zh: '用户体验', collapsed: true },
-  { directory: '05-security', en: 'Security', zh: '安全', collapsed: true },
-  { directory: '06-delivery', en: 'Delivery', zh: '交付', collapsed: true },
-  { directory: '07-plugins', en: 'Plugins', zh: '插件', collapsed: true },
-  { directory: '08-meta', en: 'Decisions & metadata', zh: '决策与元数据', collapsed: true },
+  { directory: '01-product', en: 'Product' },
+  { directory: '02-architecture', en: 'Architecture' },
+  { directory: '03-runtime', en: 'Runtime', collapsed: true },
+  { directory: '04-ux', en: 'Experience', collapsed: true },
+  { directory: '05-security', en: 'Security', collapsed: true },
+  { directory: '06-delivery', en: 'Delivery', collapsed: true },
+  { directory: '07-plugins', en: 'Plugins', collapsed: true },
+  { directory: '08-meta', en: 'Decisions & metadata', collapsed: true },
 ]
 
 const preferredRootFiles = ['README.md', '00-baseline.md', 'NAV.md']
@@ -34,9 +31,9 @@ function titleFromMarkdown(filePath: string): string {
   return source.match(/^#\s+(.+)$/m)?.[1]?.replace(/`/g, '') ?? path.basename(filePath, '.md')
 }
 
-function specItems(directory: string, locale: Locale): DefaultTheme.SidebarItem[] {
-  const sourceDirectory = path.join(docsRoot, locale === 'en' ? 'spec' : 'zh-CN/spec', directory)
-  const routePrefix = locale === 'en' ? '/spec' : '/zh-CN/spec'
+function specItems(directory: string): DefaultTheme.SidebarItem[] {
+  const sourceDirectory = path.join(docsRoot, 'spec', directory)
+  const routePrefix = '/spec'
   if (!fs.existsSync(sourceDirectory)) return []
   return fs.readdirSync(sourceDirectory)
     .filter((file) => file.endsWith('.md'))
@@ -77,9 +74,9 @@ function projectItems(): DefaultTheme.SidebarItem[] {
     }))
 }
 
-function specSidebar(locale: Locale): DefaultTheme.SidebarItem[] {
-  const localizedRoot = path.join(docsRoot, locale === 'en' ? 'spec' : 'zh-CN/spec')
-  const routePrefix = locale === 'en' ? '/spec' : '/zh-CN/spec'
+function specSidebar(): DefaultTheme.SidebarItem[] {
+  const localizedRoot = path.join(docsRoot, 'spec')
+  const routePrefix = '/spec'
   const rootFiles = fs.readdirSync(localizedRoot)
     .filter((file) => file.endsWith('.md'))
   const startItems = preferredRootFiles
@@ -97,14 +94,14 @@ function specSidebar(locale: Locale): DefaultTheme.SidebarItem[] {
     }))
 
   return [
-    { text: locale === 'en' ? 'Start here' : '从这里开始', items: startItems },
+    { text: 'Start here', items: startItems },
     ...specSections.map((section) => ({
-      text: locale === 'en' ? section.en : section.zh,
+      text: section.en,
       collapsed: section.collapsed,
-      items: specItems(section.directory, locale),
+      items: specItems(section.directory),
     })),
     ...(referenceItems.length ? [{
-      text: locale === 'en' ? 'Compatibility references' : '兼容性参考',
+      text: 'Compatibility references',
       collapsed: true,
       items: referenceItems,
     }] : []),
@@ -113,9 +110,9 @@ function specSidebar(locale: Locale): DefaultTheme.SidebarItem[] {
 
 const enSidebar: DefaultTheme.Sidebar = {
   '/guide/': [{ text: 'Guide', items: [{ text: 'Start here', link: '/guide/' }, { text: 'Screens', link: '/guide/screenshots' }, { text: 'MCP market', link: '/guide/mcp-market' }] }],
-  '/plugin-development': [{ text: 'Plugin authoring', items: [{ text: 'Zero to one', link: '/plugin-development' }, ...specItems('07-plugins', 'en')] }],
+  '/plugin-development': [{ text: 'Plugin authoring', items: [{ text: 'Zero to one', link: '/plugin-development' }, ...specItems('07-plugins')] }],
   '/project/': [{ text: 'Project records', items: projectItems() }],
-  '/spec/': specSidebar('en'),
+  '/spec/': specSidebar(),
   '/adr/': [
     {
       text: 'Architecture decisions',
@@ -129,38 +126,12 @@ const enSidebar: DefaultTheme.Sidebar = {
   ],
 }
 
-const zhSidebar: DefaultTheme.Sidebar = {
-  '/zh-CN/guide/': [{ text: '指南', items: [{ text: '快速开始', link: '/zh-CN/guide/' }, { text: '界面截图', link: '/zh-CN/guide/screenshots' }, { text: 'MCP 市场', link: '/zh-CN/guide/mcp-market' }] }],
-  '/zh-CN/plugin-development': [{ text: '插件开发', items: [{ text: '从零到一', link: '/zh-CN/plugin-development' }, ...specItems('07-plugins', 'zh-CN')] }],
-  '/zh-CN/spec/': specSidebar('zh-CN'),
-  '/zh-CN/adr/': [
-    {
-      text: '架构决策记录',
-      items: [
-        { text: 'ADR 索引', link: '/zh-CN/adr/' },
-        { text: '文档站决策', link: '/adr/0079-vitepress-documentation-site' },
-        { text: '最新决策', link: '/zh-CN/spec/08-meta/decisions-log' },
-      ],
-    },
-    { text: '全部英文决策', collapsed: true, items: adrItems() },
-  ],
-}
-
 const enNav: DefaultTheme.NavItem[] = [
   { text: 'Guide', link: '/guide/' },
   { text: 'Specs', link: '/spec/README' },
   { text: 'ADRs', link: '/adr/README' },
   { text: 'Plugin guide', link: '/plugin-development' },
   { text: 'Privacy policy', link: '/privacy-policy' },
-  { text: 'GitHub', link: 'https://github.com/vastsa/PI-Desktop' },
-]
-
-const zhNav: DefaultTheme.NavItem[] = [
-  { text: '快速开始', link: '/zh-CN/guide/' },
-  { text: '规格', link: '/zh-CN/spec/README' },
-  { text: 'ADR', link: '/zh-CN/adr/' },
-  { text: '插件开发', link: '/zh-CN/plugin-development' },
-  { text: '隐私政策（英文）', link: '/privacy-policy' },
   { text: 'GitHub', link: 'https://github.com/vastsa/PI-Desktop' },
 ]
 
@@ -177,26 +148,6 @@ export default defineConfig({
   ],
   locales: {
     root: { label: 'English', lang: 'en' },
-    'zh-CN': {
-      label: '简体中文',
-      lang: 'zh-CN',
-      title: 'PI-Desktop 文档',
-      description: '面向 AI 智能体的模块化桌面工作区',
-      themeConfig: {
-        nav: zhNav,
-        sidebar: zhSidebar,
-        search: { provider: 'local', options: { translations: { button: { buttonText: '搜索文档', buttonAriaLabel: '搜索文档' }, modal: { noResultsText: '没有找到相关结果', resetButtonTitle: '清除查询', footer: { selectText: '选择', navigateText: '切换', closeText: '关闭' } } } } },
-        outline: { level: 'deep', label: '本页目录' },
-        docFooter: { prev: '上一页', next: '下一页' },
-        lastUpdated: { text: '最后更新于' },
-        returnToTopLabel: '返回顶部',
-        sidebarMenuLabel: '目录',
-        darkModeSwitchLabel: '外观',
-        langMenuLabel: '切换语言',
-        editLink: { pattern: 'https://github.com/vastsa/PI-Desktop/edit/main/docs/:path', text: '在 GitHub 上编辑此页' },
-        footer: { message: '本地优先 · 模型可替换 · 插件可扩展。 <a href="https://aiuo.net" target="_blank" rel="noreferrer">AIUO.NET</a>', copyright: 'Copyright © 2026 PI-Desktop 贡献者' },
-      },
-    },
   },
   markdown: {
     html: false,

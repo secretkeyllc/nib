@@ -4,11 +4,10 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(path, import.meta.url), "utf8");
 
-const [registry, dispatch, specEn, specZh] = await Promise.all([
+const [registry, dispatch, specEn] = await Promise.all([
   read("../electron/main/builtin-commands.ts"),
   read("../src/lib/commands.ts"),
   read("../../../docs/spec/04-ux/04-builtin-commands.md"),
-  read("../../../docs/zh-CN/spec/04-ux/04-builtin-commands.md"),
 ]);
 
 const coreIds = [
@@ -50,17 +49,14 @@ test("builtin registry exposes exactly the six core commands and aliases", () =>
   for (const id of coreIds) {
     const pattern = new RegExp("`" + id + "`");
     assert.match(specEn, pattern);
-    assert.match(specZh, pattern);
   }
   for (const alias of coreAliases) {
     const pattern = new RegExp("`/" + alias + "`");
     assert.match(specEn, pattern);
-    assert.match(specZh, pattern);
   }
   for (const id of removedIds) {
     const pattern = new RegExp("`" + id + "`");
     assert.doesNotMatch(specEn, pattern);
-    assert.doesNotMatch(specZh, pattern);
   }
 });
 

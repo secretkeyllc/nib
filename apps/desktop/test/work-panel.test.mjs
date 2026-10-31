@@ -173,8 +173,10 @@ test("a viewport-fixed toggle is the sole pointer collapse control", () => {
   assert.match(mainSource, /querySelector\('\.work-panel-new-tab'\)/);
   assert.doesNotMatch(mainSource, /work-panel-switcher-trigger/);
   assert.match(mainSource, /probe\.gap < 24/);
-  assert.match(mainSource, /pi-panel-new/);
-  assert.match(mainSource, /pi-panel-new-dark/);
+  // The rebrand renamed the e2e shot artifacts pi-* -> nib-*.
+  assert.match(mainSource, /nib-panel-new/);
+  assert.match(mainSource, /nib-panel-new-dark/);
+  assert.doesNotMatch(mainSource, /pi-panel-new/);
   assert.match(mainSource, /WORK_PANEL_NEW_PAGE_PROBE/);
   assert.match(mainSource, /data-work-panel-launcher-item/);
   assert.doesNotMatch(mainSource, /WORK_PANEL_MENU_PROBE|pi-panel-browser-menu|pi-panel-menu/);

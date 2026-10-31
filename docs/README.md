@@ -15,8 +15,7 @@ pnpm docs:check
 
 ## Layout notes
 
-- `spec/` and `adr/` are the English source of truth; `zh-CN/` mirrors
-  `spec/` and `guide/` path for path and is checked by `pnpm docs:check`.
+- `spec/` and `adr/` are the English source of truth.
 - `image/` holds pictures embedded by the repository READMEs. `public/` holds
   assets served by the site itself (brand mark, screenshots).
 - `project/` keeps historical planning records; current status lives in the
@@ -25,7 +24,6 @@ pnpm docs:check
 ## Entry points
 
 - [English documentation site](index.md)
-- [中文入口](zh-CN/index.md)
 - [Quick guide](guide/index.md)
 - [Specification index](spec/README.md)
 - [ADR index](adr/README.md)

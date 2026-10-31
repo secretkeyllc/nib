@@ -6,11 +6,9 @@ The rig in ``apps/desktop/electron/main/index.ts`` writes 2400x1600 PNGs to
 frames are the source of truth for every screenshot the project ships, so the
 docs never drift from the shell the e2e UI scenarios describe.
 
-Run the rig once per locale (append ``--lang=zh-CN`` to the electron command for
-the Chinese pass), then publish each pass:
+Run the rig, then publish the pass:
 
-    python3 scripts/publish-screenshots.py --source /tmp/shots-en --locale en
-    python3 scripts/publish-screenshots.py --source /tmp/shots-zh --locale zh
+    python3 scripts/publish-screenshots.py --source /tmp/codex-screens --locale en
 
 Scenes land in ``docs/public/screenshots/app/<locale>/`` for the gallery page and
 the README subset lands in ``docs/image/readme/``. Scenes the rig produces but
@@ -34,9 +32,9 @@ README_ROOT = ROOT / "docs" / "image" / "readme"
 TARGET_WIDTH = 1600
 QUALITY = 82
 
-LOCALES = ("en", "zh")
+LOCALES = ("en",)
 
-# Scene id (the rig's shot() name without the "pi-" prefix) in gallery order.
+# Scene id (the rig's shot() name without the "nib-" prefix) in gallery order.
 SCENES = (
     # Home and conversation
     "home-light",
@@ -50,10 +48,9 @@ SCENES = (
     "panel-review",
     "panel-browser",
     "panel-files",
-    "panel-menu",
+    "panel-new",
+    "panel-new-dark",
     # Destinations
-    "pulls-live",
-    "dark-pulls",
     "project-archive-live",
     "dark-project-archive",
     "scheduled-live",
@@ -91,7 +88,7 @@ SCENES = (
     "dark-settings",
     "settings-models",
     "settings-extensions",
-    "settings-extensions-custom",
+    "settings-provider-dialog",
     # Dark home is grouped with the home scenes on the page.
     "dark-home",
 )
@@ -111,21 +108,20 @@ def publish(source: Path, locale: str) -> int:
     gallery.mkdir(parents=True, exist_ok=True)
     README_ROOT.mkdir(parents=True, exist_ok=True)
 
-    missing = [scene for scene in SCENES if not (source / f"pi-{scene}.png").exists()]
+    missing = [scene for scene in SCENES if not (source / f"nib-{scene}.png").exists()]
     if missing:
         print(f"missing {len(missing)} scene(s) in {source}: {', '.join(missing)}")
         return 1
 
     for scene in SCENES:
-        frame = Image.open(source / f"pi-{scene}.png").convert("RGB")
+        frame = Image.open(source / f"nib-{scene}.png").convert("RGB")
         height = round(frame.height * TARGET_WIDTH / frame.width)
         frame = frame.resize((TARGET_WIDTH, height), Image.LANCZOS)
         frame.save(gallery / f"{scene}.webp", "WEBP", quality=QUALITY, method=6)
         stem = README_SHOTS.get(scene)
         if stem:
-            suffix = "" if locale == "en" else f".{locale}"
             frame.save(
-                README_ROOT / f"{stem}{suffix}.webp", "WEBP", quality=QUALITY, method=6
+                README_ROOT / f"{stem}.webp", "WEBP", quality=QUALITY, method=6
             )
 
     published = sorted(gallery.glob("*.webp"))

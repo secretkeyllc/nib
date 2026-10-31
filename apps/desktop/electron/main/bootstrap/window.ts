@@ -1336,7 +1336,7 @@ export async function createWindow({
             // Composer visibility probe (empty draft must not collapse)
             const composerProbe = await windowState.mainWindow!.webContents.executeJavaScript(`(() => { const ta=document.querySelector("textarea.composer-input"); if(!ta) return null; const r=ta.getBoundingClientRect(); return {value:ta.value, ph:ta.placeholder, h:ta.offsetHeight, y:Math.round(r.y)}; })()`);
             console.log("COMPOSER_PROBE", composerProbe);
-            await shot("pi-final");
+            await shot("nib-final");
             // Work panel scenes are opened by simulated artifacts; production
             // exposes no empty/manual panel entry point (D119). The panels need
             // an active workspace, so switch to a project-scoped session first —
@@ -1358,10 +1358,10 @@ export async function createWindow({
               `window.__PI_DESKTOP__?.openWorkPanel()`,
             );
             await new Promise((r) => setTimeout(r, 500));
-            await shot("pi-panel-empty");
+            await shot("nib-panel-empty");
             await setTheme("dark");
             await new Promise((r) => setTimeout(r, 300));
-            await shot("pi-panel-empty-dark");
+            await shot("nib-panel-empty-dark");
             await setTheme("light");
             await new Promise((r) => setTimeout(r, 300));
             const openPanelArtifact = (kind: string, resource?: string) =>
@@ -1375,7 +1375,7 @@ export async function createWindow({
               `void window.__PI_DESKTOP__?.seedReviewChanges?.(4)`,
             );
             await new Promise((r) => setTimeout(r, 500));
-            await shot("pi-panel-review");
+            await shot("nib-panel-review");
             // Same rows in the transcript: tool activity is collapsed by
             // default, so open every group, then expand one row's diff.
             await windowState.mainWindow!.webContents.executeJavaScript(`
@@ -1399,12 +1399,12 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 450));
-            await shot("pi-review-rows");
+            await shot("nib-review-rows");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `window.__PI_DESKTOP__?.setThemeAttr("dark")`,
             );
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-review-rows-dark");
+            await shot("nib-review-rows-dark");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `window.__PI_DESKTOP__?.setThemeAttr("light")`,
             );
@@ -1426,13 +1426,13 @@ export async function createWindow({
               await new Promise((r) => setTimeout(r, 250));
               await shot(name);
             };
-            await shootTurnChanges(3, "pi-turn-changes");
-            await shootTurnChanges(15, "pi-turn-changes-dense");
+            await shootTurnChanges(3, "nib-turn-changes");
+            await shootTurnChanges(15, "nib-turn-changes-dense");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `window.__PI_DESKTOP__?.setThemeAttr("dark")`,
             );
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-turn-changes-dense-dark");
+            await shot("nib-turn-changes-dense-dark");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `window.__PI_DESKTOP__?.setThemeAttr("light")`,
             );
@@ -1441,7 +1441,7 @@ export async function createWindow({
               `document.querySelectorAll(".turn-changes-row")[1]?.click()`,
             );
             await new Promise((r) => setTimeout(r, 600));
-            await shot("pi-turn-changes-open-review");
+            await shot("nib-turn-changes-open-review");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `void window.__PI_DESKTOP__?.seedTurnChanges?.(0)`,
             );
@@ -1477,12 +1477,12 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 450));
-            await shot("pi-run-rows");
+            await shot("nib-run-rows");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `window.__PI_DESKTOP__?.setThemeAttr("dark")`,
             );
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-run-rows-dark");
+            await shot("nib-run-rows-dark");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `window.__PI_DESKTOP__?.setThemeAttr("light")`,
             );
@@ -1510,12 +1510,12 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 450));
-            await shot("pi-delegation-cards");
+            await shot("nib-delegation-cards");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `window.__PI_DESKTOP__?.setThemeAttr("dark")`,
             );
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-delegation-cards-dark");
+            await shot("nib-delegation-cards-dark");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `window.__PI_DESKTOP__?.setThemeAttr("light")`,
             );
@@ -1526,7 +1526,7 @@ export async function createWindow({
             await new Promise((r) => setTimeout(r, 250));
             await openPanelArtifact("browser");
             await new Promise((r) => setTimeout(r, 400));
-            await shot("pi-panel-browser");
+            await shot("nib-panel-browser");
             const probeWorkPanelNewPage = async (scene: string) => {
               const probe = await windowState.mainWindow!.webContents.executeJavaScript(`(() => {
                 const blank = document.querySelector('[data-testid="work-panel-empty"]');
@@ -1549,11 +1549,11 @@ export async function createWindow({
               `window.__PI_DESKTOP__?.openNewWorkPanelTab?.()`,
             );
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-panel-new");
+            await shot("nib-panel-new");
             await probeWorkPanelNewPage("new-page");
             await setTheme("dark");
             await new Promise((r) => setTimeout(r, 300));
-            await shot("pi-panel-new-dark");
+            await shot("nib-panel-new-dark");
             await probeWorkPanelNewPage("new-page-dark");
             await setTheme("light");
             await new Promise((r) => setTimeout(r, 250));
@@ -1563,13 +1563,13 @@ export async function createWindow({
               )
             `);
             await new Promise((r) => setTimeout(r, 500));
-            await shot("pi-panel-browser-from-new");
+            await shot("nib-panel-browser-from-new");
             await openPanelArtifact("file", "apps/desktop/src/App.tsx");
             await new Promise((r) => setTimeout(r, 500));
-            await shot("pi-panel-files");
+            await shot("nib-panel-files");
             await setTheme("dark");
             await new Promise((r) => setTimeout(r, 300));
-            await shot("pi-panel-files-dark");
+            await shot("nib-panel-files-dark");
             await setTheme("light");
             await new Promise((r) => setTimeout(r, 250));
             const probeWorkPanelHeader = async (scene: string) => {
@@ -1624,7 +1624,7 @@ export async function createWindow({
               windowState.mainWindow!.setSize(windowMinWidth, windowMinHeight, false);
               await new Promise((r) => setTimeout(r, 350));
               await probeWorkPanelHeader("minimum-supported");
-              await shot("pi-panel-minimum-supported");
+              await shot("nib-panel-minimum-supported");
             } finally {
               windowState.mainWindow!.setSize(CODEX_BOUNDS.width, CODEX_BOUNDS.height, false);
               const restoredMinimum = clampMinimumSizeToWorkArea(
@@ -1650,7 +1650,7 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 250));
-            await shot("pi-model-menu");
+            await shot("nib-model-menu");
             await windowState.mainWindow!.webContents.executeJavaScript(`
               document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
             `);
@@ -1678,14 +1678,14 @@ export async function createWindow({
               `(() => { const m = document.querySelector(".composer-autocomplete"); return m ? { rows: m.querySelectorAll(".composer-ac-item").length, groups: [...m.querySelectorAll(".composer-model-group-label")].map((g) => g.textContent) } : null; })()`,
             );
             console.log("COMPOSER_AC_SLASH", slashProbe);
-            await shot("pi-composer-slash");
+            await shot("nib-composer-slash");
             await setComposerDraft("@");
             await new Promise((r) => setTimeout(r, 450));
             const atProbe = await windowState.mainWindow!.webContents.executeJavaScript(
               `(() => { const m = document.querySelector(".composer-autocomplete"); return m ? { rows: m.querySelectorAll(".composer-ac-item").length, empty: m.querySelector(".composer-model-empty")?.textContent || "" } : null; })()`,
             );
             console.log("COMPOSER_AC_AT", atProbe);
-            await shot("pi-composer-at");
+            await shot("nib-composer-at");
             await setComposerDraft("");
             await new Promise((r) => setTimeout(r, 200));
             // Conversation minimap: seed a capture-only transcript, magnify
@@ -1694,7 +1694,7 @@ export async function createWindow({
               `void window.__PI_DESKTOP__?.seedTranscript?.()`,
             );
             await new Promise((r) => setTimeout(r, 600));
-            await shot("pi-minimap");
+            await shot("nib-minimap");
             const minimapProbe = await windowState.mainWindow!.webContents.executeJavaScript(`
               (() => {
                 const rail = document.querySelector(".minimap-rail");
@@ -1710,7 +1710,7 @@ export async function createWindow({
             `);
             console.log("MINIMAP_PROBE", minimapProbe);
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-minimap-hover");
+            await shot("nib-minimap-hover");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `void window.__PI_DESKTOP__?.seedTranscript?.(0)`,
             );
@@ -1768,14 +1768,14 @@ export async function createWindow({
             await setPage("chat");
             await openNotificationFixture();
             await probeNotificationFixture("light");
-            await shot("pi-notifications-light");
+            await shot("nib-notifications-light");
             await windowState.mainWindow!.webContents.executeJavaScript(`
               document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
             `);
             await setTheme("dark");
             await openNotificationFixture();
             await probeNotificationFixture("dark");
-            await shot("pi-notifications-dark");
+            await shot("nib-notifications-dark");
             await windowState.mainWindow!.webContents.executeJavaScript(`
               document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
             `);
@@ -1787,7 +1787,7 @@ export async function createWindow({
               await setTheme("light");
               await openNotificationFixture();
               await probeNotificationFixture("narrow");
-              await shot("pi-notifications-narrow");
+              await shot("nib-notifications-narrow");
               await windowState.mainWindow!.webContents.executeJavaScript(`
                 document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
                 window.__PI_DESKTOP__?.seedNotifications?.(0);
@@ -1809,24 +1809,24 @@ export async function createWindow({
             await setTheme("dark");
             await setPage("chat");
             await new Promise((r) => setTimeout(r, 250));
-            await shot("pi-dark-home");
+            await shot("nib-dark-home");
             // Destinations are lazy route chunks; the first visit needs long
             // enough for the chunk to resolve or the shot catches a spinner.
             await setPage("settings");
             await setSettingsTab("projects");
             await new Promise((r) => setTimeout(r, 800));
-            await shot("pi-dark-project-archive");
+            await shot("nib-dark-project-archive");
             await setPage("settings");
             await setSettingsTab("general");
             await new Promise((r) => setTimeout(r, 800));
-            await shot("pi-dark-settings");
+            await shot("nib-dark-settings");
             await setTheme("light");
             await setSettingsTab("projects");
             await new Promise((r) => setTimeout(r, 500));
-            await shot("pi-project-archive-live");
+            await shot("nib-project-archive-live");
             await setPage("scheduled");
             await new Promise((r) => setTimeout(r, 700));
-            await shot("pi-scheduled-live");
+            await shot("nib-scheduled-live");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `window.__PI_DESKTOP__?.seedPlugins?.(4);
                window.__PI_DESKTOP__?.seedExtensions?.(3)`,
@@ -1840,7 +1840,7 @@ export async function createWindow({
               `window.__PI_DESKTOP__?.seedPlugins?.(4)`,
             );
             await new Promise((r) => setTimeout(r, 250));
-            await shot("pi-plugins-live");
+            await shot("nib-plugins-live");
             // Disclosed row details: capability, service and permission chips
             // inside the raised detail block (D296).
             await windowState.mainWindow!.webContents.executeJavaScript(`
@@ -1850,7 +1850,7 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 250));
-            await shot("pi-plugins-row-details");
+            await shot("nib-plugins-row-details");
             await windowState.mainWindow!.webContents.executeJavaScript(`
               (() => {
                 const details = document.querySelector('.plugins-row-details');
@@ -1869,7 +1869,7 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 250));
-            await shot("pi-plugins-row-menu");
+            await shot("nib-plugins-row-menu");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`,
             );
@@ -1889,7 +1889,7 @@ export async function createWindow({
             // MCP tab: one row per connection state and per activation state, so
             // the glyph colours and the scope chip are all on screen at once.
             await extTab(1);
-            await shot("pi-extensions-mcp");
+            await shot("nib-extensions-mcp");
             // The scope popover has to escape the panel's rounded-corner clip,
             // so it is opened on the last row where a clip would show.
             await windowState.mainWindow!.webContents.executeJavaScript(`
@@ -1903,7 +1903,7 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 300));
-            await shot("pi-extensions-scope");
+            await shot("nib-extensions-scope");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`,
             );
@@ -1917,7 +1917,7 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 300));
-            await shot("pi-extensions-mcp-editor");
+            await shot("nib-extensions-mcp-editor");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`,
             );
@@ -1925,12 +1925,12 @@ export async function createWindow({
             // Skills tab: the byte counter and the disabled row read differently
             // from the MCP rows, so it gets its own scene.
             await extTab(2);
-            await shot("pi-extensions-skills");
+            await shot("nib-extensions-skills");
             // Subagents tab: the writable registry list, whose rows carry the
             // Task handle, the tinted mutating grants and the shadow/inactive
             // tags, above the read-only effective catalog.
             await extTab(3);
-            await shot("pi-extensions-subagents");
+            await shot("nib-extensions-subagents");
             // The read-only half sits below the fold: builtin and project rows,
             // which carry a source tag and a copy action instead of a scope.
             await windowState.mainWindow!.webContents.executeJavaScript(`
@@ -1940,7 +1940,7 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 300));
-            await shot("pi-extensions-subagents-provided");
+            await shot("nib-extensions-subagents-provided");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `document.querySelector('.plugins-page')?.scrollTo(0, 0)`,
             );
@@ -1954,26 +1954,26 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-extensions-subagent-editor");
+            await shot("nib-extensions-subagent-editor");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`,
             );
             await new Promise((r) => setTimeout(r, 200));
             await setTheme("dark");
             await new Promise((r) => setTimeout(r, 300));
-            await shot("pi-extensions-subagents-dark");
+            await shot("nib-extensions-subagents-dark");
             await setTheme("light");
             await new Promise((r) => setTimeout(r, 250));
             await extTab(1, 250);
             await setTheme("dark");
             await new Promise((r) => setTimeout(r, 300));
-            await shot("pi-extensions-mcp-dark");
+            await shot("nib-extensions-mcp-dark");
             await setTheme("light");
             await new Promise((r) => setTimeout(r, 250));
             // Marketplace tab of the same page (D169 segmented control, fifth
             // since D202).
             await extTab(1, 900);
-            await shot("pi-plugins-market");
+            await shot("nib-plugins-market");
             // Detail sheet opened from the first card: head, install CTA and
             // the section stack without rules between them (D296).
             await windowState.mainWindow!.webContents.executeJavaScript(`
@@ -1981,7 +1981,7 @@ export async function createWindow({
                 ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
             `);
             await new Promise((r) => setTimeout(r, 500));
-            await shot("pi-plugins-sheet");
+            await shot("nib-plugins-sheet");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`,
             );
@@ -1995,7 +1995,7 @@ export async function createWindow({
                 ?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
             `);
             await new Promise((r) => setTimeout(r, 250));
-            await shot("pi-plugins-menu");
+            await shot("nib-plugins-menu");
             await windowState.mainWindow!.webContents.executeJavaScript(`
               (() => {
                 const items = [...document.querySelectorAll('.plugins-menu [role="menuitem"]')];
@@ -2003,7 +2003,7 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 300));
-            await shot("pi-plugins-template");
+            await shot("nib-plugins-template");
             await windowState.mainWindow!.webContents.executeJavaScript(`
               (() => {
                 const cancel = document.querySelector('.plugins-modal-actions button');
@@ -2024,7 +2024,7 @@ export async function createWindow({
             // shell dark; the settings tabs are documented in light.
             await setTheme("light");
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-settings-live");
+            await shot("nib-settings-live");
             await windowState.mainWindow!.webContents.executeJavaScript(
               `window.__PI_DESKTOP__?.seedPluginThemes?.(0)`,
             );
@@ -2038,7 +2038,7 @@ export async function createWindow({
             // has been reordered since this scene was written.
             await setSettingsTab("agent");
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-settings-models");
+            await shot("nib-settings-models");
             await windowState.mainWindow!.webContents.executeJavaScript(`
               (() => {
                 const edit = document.querySelector('.model-provider-row.is-openable');
@@ -2047,7 +2047,7 @@ export async function createWindow({
               })()
             `);
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-settings-provider-dialog");
+            await shot("nib-settings-provider-dialog");
             await windowState.mainWindow!.webContents.executeJavaScript(`
               document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
             `);
@@ -2058,7 +2058,7 @@ export async function createWindow({
               `document.querySelector('#plugins-tab-market')?.dispatchEvent(new MouseEvent('click',{bubbles:true}))`,
             );
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-settings-extensions");
+            await shot("nib-settings-extensions");
             await setPage("chat");
             await setTheme("light");
             await new Promise((r) => setTimeout(r, 250));
@@ -2087,23 +2087,23 @@ export async function createWindow({
               `);
             await openSearch();
             await new Promise((r) => setTimeout(r, 450));
-            await shot("pi-search");
+            await shot("nib-search");
             await typeSearch("设计");
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-search-query");
+            await shot("nib-search-query");
             // Settings hits: "主题" resolves to 通用 tab's theme row.
             await typeSearch("主题");
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-search-settings");
+            await shot("nib-search-settings");
             await setTheme("dark");
             await new Promise((r) => setTimeout(r, 250));
-            await shot("pi-search-dark");
+            await shot("nib-search-dark");
             await setTheme("light");
             await new Promise((r) => setTimeout(r, 250));
             // Page hits: "插件" surfaces the plugins page entry.
             await typeSearch("插件");
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-search-pages");
+            await shot("nib-search-pages");
             // Anchor flash: Enter on the 主题 settings hit lands on 基础 and
             // flashes the theme row.
             await typeSearch("主题");
@@ -2111,7 +2111,7 @@ export async function createWindow({
             await searchKey("ArrowDown");
             await searchKey("Enter");
             await new Promise((r) => setTimeout(r, 400));
-            await shot("pi-search-anchor");
+            await shot("nib-search-anchor");
             // The anchor scene leaves the ⌘K dialog open; dismiss it so the
             // home hero below is unobstructed. The dialog only listens on its
             // own subtree, so close it the way a user does — click the overlay.
@@ -2139,10 +2139,10 @@ export async function createWindow({
               `);
             await clearToasts();
             await new Promise((r) => setTimeout(r, 400));
-            await shot("pi-home-light");
+            await shot("nib-home-light");
             await setTheme("dark");
             await new Promise((r) => setTimeout(r, 350));
-            await shot("pi-home-dark");
+            await shot("nib-home-dark");
             await setTheme("light");
             await new Promise((r) => setTimeout(r, 250));
             // Toast stack proof (ToastHost variants) in both themes.
@@ -2154,11 +2154,11 @@ export async function createWindow({
               `);
             await raiseToasts();
             await new Promise((r) => setTimeout(r, 400));
-            await shot("pi-toasts-light");
+            await shot("nib-toasts-light");
             await setTheme("dark");
             await raiseToasts();
             await new Promise((r) => setTimeout(r, 400));
-            await shot("pi-toasts-dark");
+            await shot("nib-toasts-dark");
             await setTheme("light");
             console.log("CAPTURE_DONE");
             await windowState.mainWindow!.webContents.executeJavaScript(`

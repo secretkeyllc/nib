@@ -17,9 +17,6 @@
  *  4. ADR citations anywhere under `docs/`: `ADR 0249`, `ADR 0249 §5`,
  *     `ADRs 0062 / 0063`, and slug citations like `ADR session-content-search`
  *     must resolve to a record. Retired ids stay citable by design.
- *  5. Chinese pages: every page under `docs/zh-CN` must mirror an English page,
- *     so a translation never outlives the page it translates. `index.md` and
- *     `README.md` are the same page in both trees.
  *
  * Dead links are deliberately not re-implemented here: the VitePress build
  * fails on them for every page, and `docs-check.yml` runs that build right
@@ -324,51 +321,6 @@ function pageKey(relativePath) {
   return relativePath.replace(/(^|\/)README\.md$/, '$1index.md')
 }
 
-export function verifyChineseMirrors(relativePaths) {
-  const failures = []
-  const english = new Set(
-    relativePaths.filter((relativePath) => !relativePath.startsWith('zh-CN/')).map(pageKey),
-  )
-
-  for (const relativePath of relativePaths) {
-    if (!relativePath.startsWith('zh-CN/')) continue
-    const counterpart = pageKey(relativePath.slice('zh-CN/'.length))
-    if (!english.has(counterpart)) {
-      failures.push(`${relativePath}: no English page at docs/${counterpart}`)
-    }
-  }
-
-  return failures
-}
-
-/**
- * `docs/spec` is the numbered domain tree and `docs/zh-CN/spec` mirrors it
- * path-for-path, so both must hold the same section directories.
- */
-export function verifySpecTreeSymmetry(root = docsRoot) {
-  const failures = []
-  const sections = (localeRoot) => fs.readdirSync(path.join(root, localeRoot), { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort()
-
-  const english = sections('spec')
-  const chinese = sections('zh-CN/spec')
-
-  for (const [localeRoot, names] of [['spec', english], ['zh-CN/spec', chinese]]) {
-    for (const name of names) {
-      if (!/^\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name)) {
-        failures.push(`docs/${localeRoot}/${name}: a spec section directory must be numbered, like 01-product`)
-      }
-    }
-  }
-  for (const name of chinese.filter((entry) => !english.includes(entry))) {
-    failures.push(`docs/zh-CN/spec/${name}: no English section directory at docs/spec/${name}`)
-  }
-
-  return failures
-}
-
 /**
  * `NAV.md` is the specification index for its own tree, so every page in that
  * tree must be listed. Dead NAV links are caught by the VitePress build.
@@ -379,9 +331,8 @@ export function verifySpecIndex(localeRoot, root = docsRoot) {
   const navPath = path.join(specRoot, 'NAV.md')
   if (!fs.existsSync(navPath)) return failures
 
-  // The English tree links files relatively; the Chinese tree links routed
-  // paths (`/zh-CN/spec/01-product/00-overview`), which resolve to a `.md` file
-  // under this tree.
+  // The tree links files relatively and via routed paths (`/spec/01-product/
+  // 00-overview`), which resolve to a `.md` file under this tree.
   const prefixes = [`/${localeRoot}/`, '/spec/']
   const listed = new Set()
   for (const match of fs.readFileSync(navPath, 'utf8').matchAll(/\]\(([^)\s]+)\)/g)) {
@@ -414,9 +365,7 @@ export function verifyDocumentation() {
     adrNotes: catalog.notes,
     adrIndex: verifyAdrIndex(readAdrIndex(), records),
     adrCitations: verifyAdrCitations(collectAdrCitations(pages), records),
-    mirrors: verifyChineseMirrors(pages),
-    specTree: verifySpecTreeSymmetry(),
-    specIndex: [...verifySpecIndex('spec'), ...verifySpecIndex('zh-CN/spec')],
+    specIndex: verifySpecIndex('spec'),
   }
 }
 
@@ -427,8 +376,6 @@ function main() {
     ['ADR catalog', result.adrCatalog],
     ['ADR index', result.adrIndex],
     ['ADR citations', result.adrCitations],
-    ['Chinese mirrors', result.mirrors],
-    ['Spec tree', result.specTree],
     ['Spec index', result.specIndex],
   ]
   const failures = groups.flatMap(([, group]) => group)

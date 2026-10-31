@@ -21,8 +21,7 @@ Windows · macOS · Linux
 **[Download](https://nib.am/download.html)** ·
 [Documentation](https://nib.am/docs/) ·
 [Pricing](https://nib.am/pricing.html) ·
-[Changelog](https://nib.am/changelog.html) ·
-[简体中文](README.zh-CN.md)
+[Changelog](https://nib.am/changelog.html)
 
 <br />
 

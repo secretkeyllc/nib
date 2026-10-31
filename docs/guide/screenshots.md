@@ -13,8 +13,7 @@ for this page. The screenshots therefore show the shipped shell rather than a
 mockup, including the empty states a fresh install starts from.
 
 Session titles and transcripts come from the capture fixture, so the chrome is
-English while the sample conversation is Chinese. The
-[中文版本](/zh-CN/guide/screenshots) shows the same surfaces with Chinese chrome.
+English while the sample conversation is Chinese.
 
 ## Home and conversation
 
@@ -57,7 +56,7 @@ state a conversation starts in.
 
 ![The file browser panel](../public/screenshots/app/en/panel-files.webp)
 
-![The work panel switcher menu](../public/screenshots/app/en/panel-menu.webp)
+![The work panel's new-tab menu](../public/screenshots/app/en/panel-new.webp)
 
 ## Destinations
 
@@ -151,7 +150,7 @@ Settings is a full-page destination with a searchable tab rail.
 
 ![Extensions marketplace with the catalog source picker](../public/screenshots/app/en/settings-extensions.webp)
 
-![Extensions marketplace with a custom catalog URL](../public/screenshots/app/en/settings-extensions-custom.webp)
+![The add-provider dialog](../public/screenshots/app/en/settings-provider-dialog.webp)
 
 ## Regenerating these frames
 
@@ -162,7 +161,6 @@ Build the renderer, make sure `target/debug/nib-host-core` exists, create
 pnpm --filter @pi-desktop/desktop build
 mkdir -p /tmp/codex-screens
 
-# English pass; append --lang=zh-CN for the Chinese pass.
 cd apps/desktop && PI_DESKTOP_CAPTURE=1 PI_DESKTOP_DATA_DIR=$(mktemp -d) \
   ELECTRON_RENDERER_URL= ./node_modules/.bin/electron .
 
