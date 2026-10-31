@@ -3,6 +3,17 @@ import type { ChangelogEntry } from "./changelog.js";
 export const trEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.10",
+    date: "2026-10-31",
+    highlights: [
+      "Bu masaüstünü telefondan veya herhangi bir tarayıcıdan yönetin: Ayarlar → Hakkında'dan başlayan eşleştirmeyi yalnızca kendi hesabınız açabilir.",
+      "Web görünümü oturum listesini ve canlı transkripti yansıtır; komut gönderir ve onay kartlarını yanıtlar.",
+      "Eşleştirme yalnızca çalıştığı sürece yaşar — bağlantı her başlangıçta yenilenir ve durduğunda sona erer.",
+    ],
+  },
+
+
+  {
     version: "0.22.9",
     date: "2026-10-30",
     highlights: [

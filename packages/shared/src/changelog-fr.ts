@@ -3,6 +3,17 @@ import type { ChangelogEntry } from "./changelog.js";
 export const frEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.10",
+    date: "2026-10-31",
+    highlights: [
+      "Contrôlez ce bureau depuis un téléphone ou n'importe quel navigateur : Paramètres → À propos lance un jumelage que seul votre propre compte peut ouvrir.",
+      "La vue web reflète la liste des sessions et la transcription en direct, envoie des messages et répond aux cartes d'approbation.",
+      "Le jumelage ne vit que pendant son exécution : le lien change à chaque démarrage et expire à l'arrêt.",
+    ],
+  },
+
+
+  {
     version: "0.22.9",
     date: "2026-10-30",
     highlights: [

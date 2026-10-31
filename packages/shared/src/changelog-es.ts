@@ -3,6 +3,17 @@ import type { ChangelogEntry } from "./changelog.js";
 export const esEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.10",
+    date: "2026-10-31",
+    highlights: [
+      "Controla este escritorio desde el móvil o cualquier navegador: Ajustes → Acerca de inicia un emparejamiento que solo tu propia cuenta puede abrir.",
+      "La vista web refleja la lista de sesiones y la transcripción en vivo, envía mensajes y responde a las tarjetas de aprobación.",
+      "El emparejamiento solo vive mientras se ejecuta: el enlace cambia en cada inicio y caduca al detenerse.",
+    ],
+  },
+
+
+  {
     version: "0.22.9",
     date: "2026-10-30",
     highlights: [

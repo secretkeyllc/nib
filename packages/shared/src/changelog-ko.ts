@@ -3,6 +3,17 @@ import type { ChangelogEntry } from "./changelog.js";
 export const koEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.10",
+    date: "2026-10-31",
+    highlights: [
+      "휴대폰이나 브라우저에서 이 데스크톱을 조종하세요: 설정 → 정보에서 페어링을 시작하면 본인 계정만 열 수 있습니다.",
+      "웹 화면에 세션 목록과 실시간 대화가 표시되며, 프롬프트 전송과 승인 카드 처리도 가능합니다.",
+      "페어링은 실행 중에만 유효합니다. 링크는 시작할 때마다 바뀌고 중지하면 만료됩니다.",
+    ],
+  },
+
+
+  {
     version: "0.22.9",
     date: "2026-10-30",
     highlights: [

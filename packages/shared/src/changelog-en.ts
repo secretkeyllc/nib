@@ -3,6 +3,17 @@ import type { ChangelogEntry } from "./changelog.js";
 export const enEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.10",
+    date: "2026-10-31",
+    highlights: [
+      "Control this desktop from a phone or any browser: Settings -> About starts a pairing that only your own account can open.",
+      "The web view mirrors the session list and the live transcript, sends prompts, and answers approval cards.",
+      "A pairing lives only while it runs — the link rotates on every start and dies with the connection.",
+    ],
+  },
+
+
+  {
     version: "0.22.9",
     date: "2026-10-30",
     highlights: [

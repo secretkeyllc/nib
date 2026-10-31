@@ -3,6 +3,17 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhCNEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.10",
+    date: "2026-10-31",
+    highlights: [
+      "用手机或任意浏览器控制这台电脑：设置 → 关于 开始配对，只有你自己的账号能打开。",
+      "网页端同步会话列表与实时对话，可以发送消息、新建会话并处理审批卡片。",
+      "配对只在运行期间有效——链接每次开始都会更换，停止即失效。",
+    ],
+  },
+
+
+  {
     version: "0.22.9",
     date: "2026-10-30",
     highlights: [

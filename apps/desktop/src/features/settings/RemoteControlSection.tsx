@@ -66,39 +66,39 @@ export function RemoteControlSection() {
   const phaseLabel = () => {
     switch (state?.phase) {
       case "connecting":
-        return t("pairing.phaseConnecting");
+        return t("pairingPhaseConnecting");
       case "waiting":
-        return t("pairing.phaseWaiting");
+        return t("pairingPhaseWaiting");
       case "connected":
-        return t("pairing.phaseConnected");
+        return t("pairingPhaseConnected");
       case "error":
-        return state.error === "NOT_SIGNED_IN" ? t("pairing.notSignedIn") : t("pairing.phaseError");
+        return state.error === "NOT_SIGNED_IN" ? t("pairingNotSignedIn") : t("pairingPhaseError");
       default:
-        return t("pairing.phaseIdle");
+        return t("pairingPhaseIdle");
     }
   };
 
   return (
-    <SettingsCard title={t("pairing.title")}>
-      <SettingsRow title={t("pairing.status")} description={phaseLabel()}>
+    <SettingsCard title={t("pairingTitle")}>
+      <SettingsRow title={t("pairingStatus")} description={phaseLabel()}>
         <Button variant="secondary" disabled={busy} onClick={() => void toggle()}>
-          {state?.active ? t("pairing.stop") : t("pairing.start")}
+          {state?.active ? t("pairingStop") : t("pairingStart")}
         </Button>
       </SettingsRow>
       {state?.active && state.url && (
-        <SettingsRow title={t("pairing.linkTitle")} description={t("pairing.linkDesc")}>
+        <SettingsRow title={t("pairingLinkTitle")} description={t("pairingLinkDesc")}>
           <div className="remote-pairing">
             {state.qrDataUrl && (
-              <img className="remote-pairing-qr" src={state.qrDataUrl} alt={t("pairing.qrAlt")} />
+              <img className="remote-pairing-qr" src={state.qrDataUrl} alt={t("pairingQrAlt")} />
             )}
             <button type="button" className="remote-pairing-copy" onClick={() => void copyLink()}>
-              {copied ? t("pairing.copied") : t("pairing.copyLink")}
+              {copied ? t("pairingCopied") : t("pairingCopyLink")}
             </button>
           </div>
         </SettingsRow>
       )}
       {error && (
-        <SettingsRow title={t("pairing.errorTitle")}>
+        <SettingsRow title={t("pairingErrorTitle")}>
           <span className="remote-pairing-error">{error}</span>
         </SettingsRow>
       )}

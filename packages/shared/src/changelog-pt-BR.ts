@@ -3,6 +3,17 @@ import type { ChangelogEntry } from "./changelog.js";
 export const ptBREntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.10",
+    date: "2026-10-31",
+    highlights: [
+      "Controle este desktop pelo celular ou qualquer navegador: Ajustes → Sobre inicia um pareamento que só a sua própria conta pode abrir.",
+      "A visualização web espelha a lista de sessões e a transcrição ao vivo, envia prompts e responde aos cartões de aprovação.",
+      "O pareamento só existe enquanto estiver em execução — o link muda a cada início e expira ao parar.",
+    ],
+  },
+
+
+  {
     version: "0.22.9",
     date: "2026-10-30",
     highlights: [
