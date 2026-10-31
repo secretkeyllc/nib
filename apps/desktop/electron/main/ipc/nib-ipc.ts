@@ -123,7 +123,7 @@ export function registerNibIpc({
         headers: { accept: "application/json", authorization: `Bearer ${token}` },
         signal: controller.signal,
       });
-      if (response.status === 401) return { signedIn: false };
+      if (response.status === 401) return { signedIn: false, sessionExpired: true };
       if (!response.ok) {
         logger.app("provider", "warn", "nib entitlement failed", {
           data: { status: response.status },

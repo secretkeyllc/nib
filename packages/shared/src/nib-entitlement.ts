@@ -9,6 +9,10 @@
  */
 export type NibEntitlement = {
   signedIn: boolean;
+  /** The session token exists but the control plane rejected it (expired or
+   * revoked). Distinct from signed-out: the provider credential may still be
+   * live, so the account surfaces "登录已过期" instead of a plain sign-out. */
+  sessionExpired?: boolean;
   planName?: string;
   /** Address of the signed-in account, for the account menu heading. */
   accountEmail?: string;

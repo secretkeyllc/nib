@@ -170,11 +170,17 @@ export function NibAccountButton() {
 
   // The heading names the account, not the plan: "who am I signed in as" is
   // the question this menu answers, and the plan is its own line below.
+  // An expired session is not the same as signed out: the provider credential
+  // (the account's own gateway key) stays live, so the model may still work —
+  // the heading must say the session ended, not pretend no account exists.
+  const sessionExpired = ent?.sessionExpired === true;
   const accountLabel = signedIn
     ? (ent?.accountName?.trim() ||
        ent?.accountEmail?.trim() ||
        t("nib.accountSignedIn"))
-    : t("nib.accountSignedOut");
+    : sessionExpired
+      ? t("nib.accountSessionExpired")
+      : t("nib.accountSignedOut");
   const accountSecondary = signedIn ? ent?.accountEmail?.trim() || null : null;
 
   const patchSettings = (patch: Partial<AppSettings>) => {

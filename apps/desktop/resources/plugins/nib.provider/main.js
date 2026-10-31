@@ -93,13 +93,29 @@ async function notify(loginId, event) {
 }
 
 async function deviceLogin(loginId, context) {
-  const started = await postJson(
-    AUTHORIZE_PATH,
-    { client: "nib-desktop", scope: "gateway entitlement" },
-    context?.signal,
-  );
-  if (!started.ok || !started.payload) {
-    throw new Error(`Nib sign-in could not start (HTTP ${started.status}).`);
+  // The very first request sits on the public internet like everything else:
+  // a timeout or a 5xx here must not kill the sign-in before the code even
+  // appears. Retry a couple of times, then report honestly.
+  let started = null;
+  let startError = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    if (attempt > 0) await sleep(2000, context?.signal);
+    try {
+      started = await postJson(
+        AUTHORIZE_PATH,
+        { client: "nib-desktop", scope: "gateway entitlement" },
+        context?.signal,
+      );
+      startError = null;
+      if (started.ok && started.payload) break;
+      startError = `HTTP ${started.status}`;
+    } catch (error) {
+      if (String(error) === "cancelled") throw error;
+      startError = error instanceof Error ? error.message : String(error);
+    }
+  }
+  if (!started || !started.ok || !started.payload) {
+    throw new Error(`Nib sign-in could not start (${startError ?? "unknown error"}).`);
   }
 
   const deviceCode = field(started.payload, "device_code");
@@ -126,11 +142,25 @@ async function deviceLogin(loginId, context) {
   while (Date.now() < deadline) {
     await sleep(currentInterval * 1000, context?.signal);
 
-    const polled = await postJson(
-      TOKEN_PATH,
-      { device_code: deviceCode, grant_type: "urn:ietf:params:oauth:grant-type:device_code" },
-      context?.signal,
-    );
+    // A dropped poll (timeout, reset, 5xx, 429) is transient: the device
+    // code stays valid for the whole deadline, so keep polling instead of
+    // failing a sign-in that was one flaky request away from finishing.
+    let polled;
+    try {
+      polled = await postJson(
+        TOKEN_PATH,
+        { device_code: deviceCode, grant_type: "urn:ietf:params:oauth:grant-type:device_code" },
+        context?.signal,
+      );
+    } catch (error) {
+      if (String(error) === "cancelled") throw error;
+      continue;
+    }
+    if (!polled.ok && polled.status >= 500) continue;
+    if (polled.status === 429) {
+      currentInterval += 5;
+      continue;
+    }
 
     const accessToken = field(polled.payload, "access_token");
     if (polled.ok && accessToken) {
