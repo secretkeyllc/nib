@@ -822,6 +822,7 @@ export const ko = {
     "creditsAria": "{{plan}}: {{left}} of {{total}} credits left",
     "accountTitle": "Account",
     "accountSignedOut": "Not signed in",
+    accountSessionExpired: "세션이 만료되었습니다. 다시 로그인하세요",
     "accountPlanUsage": "{{left}} of {{total}} credits left",
     "accountLanguageMore": "More languages…",
     "accountSignIn": "Sign in to Nib",

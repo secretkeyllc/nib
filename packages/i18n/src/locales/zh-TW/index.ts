@@ -818,6 +818,7 @@ export const zhTW = {
     "creditsAria": "{{plan}}：剩餘 {{left}} / {{total}}",
     "accountTitle": "帳號",
     "accountSignedOut": "未登入",
+    accountSessionExpired: "登入已過期，請重新登入",
     "accountPlanUsage": "{{left}} / {{total}} 額度",
     "accountLanguageMore": "更多語言…",
     "accountSignIn": "登入 Nib",

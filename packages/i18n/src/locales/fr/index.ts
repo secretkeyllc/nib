@@ -813,6 +813,7 @@ export const fr = {
     "creditsAria": "{{plan}}: {{left}} of {{total}} credits left",
     "accountTitle": "Account",
     "accountSignedOut": "Not signed in",
+    accountSessionExpired: "Session expirée — reconnectez-vous",
     "accountPlanUsage": "{{left}} of {{total}} credits left",
     "accountLanguageMore": "More languages…",
     "accountSignIn": "Sign in to Nib",

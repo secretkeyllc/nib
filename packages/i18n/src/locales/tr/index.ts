@@ -822,6 +822,7 @@ export const tr = {
     "creditsAria": "{{plan}}: {{left}} of {{total}} credits left",
     "accountTitle": "Account",
     "accountSignedOut": "Not signed in",
+    accountSessionExpired: "Oturum süresi doldu — yeniden giriş yapın",
     "accountPlanUsage": "{{left}} of {{total}} credits left",
     "accountLanguageMore": "More languages…",
     "accountSignIn": "Sign in to Nib",

@@ -818,6 +818,7 @@ export const zhCN = {
     creditsAria: "{{plan}}：剩余 {{left}} / {{total}}",
     accountTitle: "账号",
     accountSignedOut: "未登录",
+    accountSessionExpired: "登录已过期，请重新登录",
     accountPlanUsage: "{{left}} / {{total}} 额度",
     accountLanguageMore: "更多语言…",
     accountSignIn: "登录 Nib",

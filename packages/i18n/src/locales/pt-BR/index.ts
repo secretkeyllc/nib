@@ -812,6 +812,7 @@ export const ptBR = {
     "creditsAria": "{{plan}}: {{left}} of {{total}} credits left",
     "accountTitle": "Account",
     "accountSignedOut": "Not signed in",
+    accountSessionExpired: "Sessão expirada — faça login novamente",
     "accountPlanUsage": "{{left}} of {{total}} credits left",
     "accountLanguageMore": "More languages…",
     "accountSignIn": "Sign in to Nib",
