@@ -85,7 +85,7 @@
   <p><b>Input example</b></p>
   <pre>await pi.fs.writeText("reports/周报.md", "# 周报\n\n本周完成插件沙箱梳理。");</pre>
   <p><b>Output example</b></p>
-  <pre>// 无返回（void）；resolve 即写入成功</pre>
+  <pre>// no return (void); resolving means the write succeeded</pre>
   <div class="callout"><b>Boundary in one sentence.</b> No append mode, so a large file is rewritten whole; no binary writes; a whole-tree write scope never passes validation.</div>
 </section>
 <section>

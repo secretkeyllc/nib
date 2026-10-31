@@ -65,7 +65,7 @@
 
 <section>
   <h2><span class="n">1</span>API contract</h2>
-  <pre class="sig">onLoad?: () =&gt; Promise&lt;void&gt; | void  // PluginModule 可选钩子</pre>
+  <pre class="sig">onLoad?: () =&gt; Promise&lt;void&gt; | void  // optional PluginModule hook</pre>
   <p class="lead">An initialization hook the host calls once when the plugin is loaded or enabled; no permission needs declaring. <span class="pill perm">—</span></p>
   <p class="lead">No input. Host APIs are not passed as arguments: before loading a module the plugin process attaches them to <code>globalThis.pi</code>, so a hook just uses <code>pi.*</code>.</p>
   <p><b>Output</b></p>
@@ -76,15 +76,15 @@
     </tbody>
   </table>
   <p><b>Input example</b></p>
-  <pre>// 宿主调用（无参数）
+  <pre>// called by the host (no arguments)
 module.onLoad()
 
-// 插件侧最小实现（pi 来自 globalThis）
+// minimal plugin-side implementation (pi comes from globalThis)
 async onLoad() {
   await pi.commands.register({ id: "greet", title: "打招呼", run: () =&gt; pi.ui.showToast("你好", "info") })
 }</pre>
   <p><b>Output example</b></p>
-  <pre>// 无返回值</pre>
+  <pre>// no return value</pre>
   <div class="callout"><b>Boundary in one sentence.</b> Only onLoad / onUnload are implemented today; other lifecycle hooks may never fire.</div>
 </section>
 <section>

@@ -119,9 +119,9 @@
 <section>
   <h2><span class="n">1</span>API contract <span class="tag proposal">Proposal</span></h2>
     <p class="lead">A headless event listener, permission <code>runtime.turn.watch</code> (medium). Fire and forget.</p>
-<pre><span class="c">// 插件只读订阅</span>
+<pre><span class="c">// plugin read-only subscription</span>
 pi.on(<span class="k">"agent_settled"</span>, (ev) =&gt; {
-  <span class="c">// 12 个事件之一；只读，无返回值影响宿主</span>
+  <span class="c">// one of 12 events; read-only, and nothing it returns affects the host</span>
   log(ev);
 })</pre>
     <table>

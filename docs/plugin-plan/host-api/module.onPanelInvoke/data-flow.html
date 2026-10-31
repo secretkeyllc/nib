@@ -65,7 +65,7 @@
 
 <section>
   <h2><span class="n">1</span>API contract</h2>
-  <pre class="sig">onPanelInvoke?: (channel: string, payload: unknown) =&gt; Promise&lt;unknown&gt; | unknown  // PluginModule 可选钩子</pre>
+  <pre class="sig">onPanelInvoke?: (channel: string, payload: unknown) =&gt; Promise&lt;unknown&gt; | unknown  // optional PluginModule hook</pre>
   <p class="lead">The fixed-channel call entry point isolating a panel page from its plugin; panel capabilities do not grow through this hook, and no permission needs declaring. <span class="pill perm">—</span></p>
   <p><b>Input</b></p>
   <table>
@@ -83,16 +83,16 @@
     </tbody>
   </table>
   <p><b>Input example</b></p>
-  <pre>// 宿主调用：转发面板页的固定通道调用
+  <pre>// called by the host: forwards a fixed-channel call from the panel page
 module.onPanelInvoke("submit", { title: "周报", count: 3 })
 
-// 插件侧最小实现
+// minimal plugin-side implementation
 onPanelInvoke(channel, payload) {
   if (channel === "submit") return { ok: true, saved: payload.title }
   throw new Error("未知通道: " + channel)
 }</pre>
   <p><b>Output example</b></p>
-  <pre>// 返回类型为 unknown，结构由插件实现自定义
+  <pre>// return type is unknown; the plugin implementation defines the shape
 { "ok": true, "saved": "周报" }</pre>
   <div class="callout"><b>Boundary in one sentence.</b> It is not general-purpose IPC: the plugin defines the channel semantics, and the host never uses it to expose plugin.setSettings, fs.remove, or arbitrary Electron IPC.</div>
 </section>

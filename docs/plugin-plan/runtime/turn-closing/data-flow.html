@@ -119,12 +119,12 @@
 <section>
   <h2><span class="n">1</span>API contract <span class="tag proposal">Proposal</span></h2>
     <p class="lead">A headless hook, <code>runtime.turn.closing</code>. A passive query at turn end.</p>
-<pre><span class="c">// 轮末：宿主问要不要续</span>
+<pre><span class="c">// end of turn: the host asks whether to continue</span>
 pi.on(<span class="k">"turn_closing"</span>, <span class="k">async</span> () =&gt; {
   <span class="k">if</span> (needMore()) <span class="k">return</span> { <span class="k">continue</span>: <span class="k">true</span>, <span class="k">message</span>: <span class="c">"还有两项未完成，请继续"</span> };
   <span class="k">return</span> { <span class="k">continue</span>: <span class="k">false</span> };
 });
-<span class="c">// 续跑：agent.steer({ role: "user" }) 注入——无插件署名（缺陷）</span></pre>
+<span class="c">// continuation: injected via agent.steer({ role: "user" }) - no plugin attribution (defect)</span></pre>
     <table>
     <thead><tr><th>aspect</th><th>content</th></tr></thead>
     <tbody>

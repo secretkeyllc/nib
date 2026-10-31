@@ -119,14 +119,14 @@
 <section>
   <h2><span class="n">1</span>API contract <span class="tag proposal">Proposal</span></h2>
     <p class="lead">Headless event listening, <code>runtime.session.lifecycle</code>. Everything except <code>before_compact</code> is notification-style.</p>
-<pre><span class="c">// 仅压缩前可否决</span>
+<pre><span class="c">// veto allowed before compaction only</span>
 pi.on(<span class="k">"session_before_compact"</span>, (payload) =&gt; {
   <span class="c">// payload: { type, reason, retentionMode,</span>
   <span class="c">//           segment: { messages, messageCount, tokensBefore, retained } }</span>
   <span class="k">if</span> (needMoreTime(payload.segment)) {
     <span class="k">return</span> { <span class="k">cancel</span>: <span class="k">true</span> };
   }
-  <span class="k">return</span> {}; <span class="c">// 或 { cancel: false } / 不返回</span>
+  <span class="k">return</span> {}; <span class="c">// or { cancel: false } / no return</span>
 });</pre>
     <table>
     <thead><tr><th>aspect</th><th>content</th></tr></thead>

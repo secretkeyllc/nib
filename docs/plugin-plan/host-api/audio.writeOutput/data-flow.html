@@ -83,10 +83,10 @@
     </tbody>
   </table>
   <p><b>Input example</b></p>
-  <pre>// data 为 Uint8Array（PCM16 小端，多声道交错）
+  <pre>// data is a Uint8Array (PCM16 little-endian, channels interleaved)
 pi.audio.writeOutput({ streamId: "out-8c11d0", data: pcm16Bytes });</pre>
   <p><b>Output example</b></p>
-  <pre>// 无返回值</pre>
+  <pre>// no return value</pre>
   <div class="callout"><b>Boundary in one sentence.</b> Only interleaved PCM16 bytes are accepted; a full queue rejects with <code>LIMIT_EXCEEDED</code> and nothing is silently discarded.</div>
 </section>
 <section>

@@ -87,10 +87,10 @@
   <pre>pi.services.register({
   id: "sync-daemon",
   start: async (ctx) =&gt; { ctx.log("sync-daemon started"); },
-  stop: async () =&gt; { /* 释放句柄 */ },
+  stop: async () =&gt; { /* release the handle */ },
 });</pre>
   <p><b>Output example</b></p>
-  <pre>// 无返回值（同步 void）</pre>
+  <pre>// no return value (synchronous void)</pre>
   <div class="callout"><b>Boundary in one sentence.</b> Registration is not automatic startup - the host decides when to <code>start</code>; services are subject to backoff supervision, and an abnormal process exit restarts per the manifest's <code>autoRestart</code> (true by default).</div>
 </section>
 <section>

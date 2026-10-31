@@ -119,10 +119,10 @@
 <section>
   <h2><span class="n">1</span>API contract <span class="tag proposal">Proposal</span></h2>
     <p class="lead">A headless interface, <code>runtime.turn.recap</code> (high). Pull-style: the plugin asks, the host answers, nothing is pushed.</p>
-<pre><span class="c">// 只读这一轮的事实（无正文）</span>
+<pre><span class="c">// read this turn's facts only (no message bodies)</span>
 <span class="k">const</span> r = <span class="k">await</span> pi.recap({ scope: <span class="c">"turn"</span> });
 
-<span class="c">// 会话范围：最近消息行（需另授 runtime.session.read）</span>
+<span class="c">// session scope: recent message rows (requires runtime.session.read)</span>
 <span class="k">const</span> s = <span class="k">await</span> pi.recap({ scope: <span class="c">"session"</span> });</pre>
     <table>
     <thead><tr><th>aspect</th><th>content</th><th>permission</th></tr></thead>
