@@ -9,6 +9,7 @@ export const esEntries: ChangelogEntry[] = [
       "Controla este escritorio desde el móvil o cualquier navegador: Ajustes → Acerca de inicia un emparejamiento que solo tu propia cuenta puede abrir.",
       "La vista web refleja la lista de sesiones y la transcripción en vivo, envía mensajes y responde a las tarjetas de aprobación.",
       "El emparejamiento solo vive mientras se ejecuta: el enlace cambia en cada inicio y caduca al detenerse.",
+      "El menú de cuenta también incluye el emparejamiento: un toque despliega el código QR ahí mismo.",
     ],
   },
 

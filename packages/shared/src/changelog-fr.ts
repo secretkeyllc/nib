@@ -9,6 +9,7 @@ export const frEntries: ChangelogEntry[] = [
       "Contrôlez ce bureau depuis un téléphone ou n'importe quel navigateur : Paramètres → À propos lance un jumelage que seul votre propre compte peut ouvrir.",
       "La vue web reflète la liste des sessions et la transcription en direct, envoie des messages et répond aux cartes d'approbation.",
       "Le jumelage ne vit que pendant son exécution : le lien change à chaque démarrage et expire à l'arrêt.",
+      "Le menu du compte abrite aussi le jumelage : un appui déploie le code QR sur place.",
     ],
   },
 

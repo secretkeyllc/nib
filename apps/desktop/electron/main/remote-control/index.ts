@@ -175,6 +175,9 @@ class RemoteControlSession {
     this.ws = ws;
 
     ws.on("open", () => {
+      this.deps.logger.app("remote-control", "info", "relay socket open, sending hello", {
+        sid: this.sid.slice(0, 8),
+      });
       ws.send(
         JSON.stringify({
           t: "hello",
@@ -199,11 +202,19 @@ class RemoteControlSession {
       this.handleFrame(frame);
     });
 
-    ws.on("error", () => {
+    ws.on("error", (error) => {
+      this.deps.logger.app("remote-control", "warn", "relay socket error", {
+        message: error instanceof Error ? error.message : String(error),
+      });
       /* onclose follows; the reconnect logic owns recovery */
     });
 
-    ws.on("close", () => {
+    ws.on("close", (code, reason) => {
+      this.deps.logger.app("remote-control", "warn", "relay socket closed", {
+        code,
+        reason: reason.toString(),
+        sid: this.sid.slice(0, 8),
+      });
       if (this.pingTimer) clearInterval(this.pingTimer);
       this.pingTimer = null;
       this.ws = null;
@@ -220,6 +231,9 @@ class RemoteControlSession {
     const type = String(frame.t ?? "");
     if (type === "hello-ack") {
       this.reconnectDelay = RECONNECT_MIN_MS;
+      this.deps.logger.app("remote-control", "info", "relay accepted the pairing", {
+        sid: this.sid.slice(0, 8),
+      });
       this.onPhase("waiting");
       // Prime the web page as soon as the relay accepts us; when a controller
       // attaches it re-requests everything it needs anyway.
@@ -228,6 +242,12 @@ class RemoteControlSession {
     }
     if (type === "ev" && frame.c === "remote/pairing") {
       const attached = (frame.p as { attached?: boolean } | undefined)?.attached === true;
+      this.deps.logger.app(
+        "remote-control",
+        "info",
+        attached ? "a controller attached" : "the controller detached",
+        { sid: this.sid.slice(0, 8) },
+      );
       this.onPhase(attached ? "connected" : "waiting");
       return;
     }

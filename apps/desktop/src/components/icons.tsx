@@ -92,6 +92,8 @@ import {
   Target,
   Terminal,
   TextSelect,
+  QrCode,
+  Smartphone,
   Trash2,
   TriangleAlert,
   UserRound,
@@ -169,6 +171,8 @@ export const IconNewProject = icon(FolderPlus);
 export const IconGripVertical = icon(GripVertical);
 export const IconFileText = icon(FileText);
 export const IconGlobe = icon(Globe2);
+export const IconSmartphone = icon(Smartphone);
+export const IconQrCode = icon(QrCode);
 export const IconBranch = icon(GitFork);
 export const IconTerminal = icon(Terminal);
 export const IconPencil = icon(PencilLine);

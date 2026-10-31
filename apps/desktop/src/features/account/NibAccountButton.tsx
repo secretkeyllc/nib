@@ -19,6 +19,7 @@ import type {
   ThemePreference,
 } from "@pi-desktop/shared";
 import { api } from "../../lib/api";
+import { NibRemotePairingRow } from "./NibRemotePairingRow";
 import { notifyAuthChanged } from "../../lib/auth-events";
 import {
   placeContextInspector,
@@ -275,6 +276,10 @@ export function NibAccountButton() {
       <div className="nib-account-actions">
         {signedIn ? (
           <>
+            {/* The remote pairing is this menu's highlight feature: one tap
+                unfolds the QR right here instead of sending the user three
+                levels into Settings. */}
+            <NibRemotePairingRow />
             <button
               type="button"
               className="nib-account-action"

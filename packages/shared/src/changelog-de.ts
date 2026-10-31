@@ -9,6 +9,7 @@ export const deEntries: ChangelogEntry[] = [
       "Steuere diesen Desktop vom Handy oder einem beliebigen Browser: Einstellungen → Über startet eine Kopplung, die nur dein eigenes Konto öffnen kann.",
       "Die Webansicht spiegelt Sitzungsliste und Live-Verlauf, sendet Prompts und beantwortet Freigabe-Karten.",
       "Eine Kopplung lebt nur, während sie läuft — der Link rotiert bei jedem Start und endet mit der Verbindung.",
+      "Auch das Kontomenü enthält die Kopplung: ein Tipp klappt den QR-Code direkt auf.",
     ],
   },
 

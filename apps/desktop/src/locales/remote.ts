@@ -136,3 +136,17 @@ export const remotePairingZh = {
   pairingCopied: "已复制",
   pairingErrorTitle: "错误",
 };
+
+// Account popover pairing row (flat keys, remote namespace).
+export const remotePairingPopoverEn = {
+  pairingPopoverTitle: "Phone remote control",
+  pairingPopoverStart: "Start",
+  pairingPhaseWaitingShort: "Waiting…",
+  pairingPhaseConnectedShort: "Connected",
+};
+export const remotePairingPopoverZh = {
+  pairingPopoverTitle: "手机远程控制",
+  pairingPopoverStart: "开始",
+  pairingPhaseWaitingShort: "等待手机…",
+  pairingPhaseConnectedShort: "已连接",
+};

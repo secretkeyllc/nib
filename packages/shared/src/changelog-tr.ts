@@ -9,6 +9,7 @@ export const trEntries: ChangelogEntry[] = [
       "Bu masaüstünü telefondan veya herhangi bir tarayıcıdan yönetin: Ayarlar → Hakkında'dan başlayan eşleştirmeyi yalnızca kendi hesabınız açabilir.",
       "Web görünümü oturum listesini ve canlı transkripti yansıtır; komut gönderir ve onay kartlarını yanıtlar.",
       "Eşleştirme yalnızca çalıştığı sürece yaşar — bağlantı her başlangıçta yenilenir ve durduğunda sona erer.",
+      "Hesap menüsünde de eşleştirme var: tek dokunuşla QR kodu açılır.",
     ],
   },
 

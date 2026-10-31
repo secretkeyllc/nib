@@ -1836,3 +1836,69 @@
   color: var(--ds-text-primary);
   font-weight: var(--font-weight-strong);
 }
+
+/* Phone remote-control row inside the account popover. The toggle reads like
+   any other account action; the unfolded panel is a QR you can scan from the
+   phone in your other hand, so the whole flow stays inside this popover. */
+.nib-remote-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.nib-remote-toggle .nib-remote-phase {
+  margin-left: auto;
+  color: var(--ds-text-muted);
+  font-size: var(--text-sm);
+}
+
+.nib-remote-toggle.is-live .nib-remote-phase {
+  color: var(--ds-text-success, #3fbf7f);
+}
+
+.nib-remote-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--ds-border-subtle);
+}
+
+.nib-remote-qr {
+  width: 168px;
+  height: 168px;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  object-fit: contain;
+}
+
+.nib-remote-hint {
+  color: var(--ds-text-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.nib-remote-panel-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.nib-remote-chip {
+  border: 1px solid var(--ds-border-subtle);
+  background: none;
+  color: var(--ds-text-primary);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.nib-remote-chip:hover {
+  border-color: var(--ds-border-strong, var(--ds-border-subtle));
+}
+
+.nib-remote-chip.is-stop {
+  color: var(--ds-text-danger, #e05252);
+  border-color: color-mix(in srgb, currentColor 45%, transparent);
+}
