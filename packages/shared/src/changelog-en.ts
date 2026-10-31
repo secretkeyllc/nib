@@ -1,6 +1,14 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
+{
+    version: "0.22.13",
+    date: "2026-10-31",
+    highlights: [
+      "The web controller loads the real workspace now: remote commands unwrap the same result envelope the renderer uses, so sessions, transcripts and prompts stop arriving empty.",
+    ],
+  },
+
 
   {
     version: "0.22.12",

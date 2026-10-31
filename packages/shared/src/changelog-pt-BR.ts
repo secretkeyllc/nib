@@ -1,6 +1,14 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
+{
+    version: "0.22.13",
+    date: "2026-10-31",
+    highlights: [
+      "O controlador web agora carrega o espaço de trabalho real: comandos remotos desembrulham o mesmo resultado do renderer, então sessões, transcrições e envios não chegam mais vazios.",
+    ],
+  },
+
 
   {
     version: "0.22.12",

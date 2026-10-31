@@ -1,6 +1,14 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
+{
+    version: "0.22.13",
+    date: "2026-10-31",
+    highlights: [
+      "Der Web-Controller lädt jetzt den echten Arbeitsbereich: Remote-Befehle entpacken denselben Ergebnisumschlag wie der Renderer, sodass Sitzungen, Verläufe und Prompts nicht mehr leer ankommen.",
+    ],
+  },
+
 
   {
     version: "0.22.12",

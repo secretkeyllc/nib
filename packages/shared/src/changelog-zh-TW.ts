@@ -1,6 +1,14 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
+{
+    version: "0.22.13",
+    date: "2026-10-31",
+    highlights: [
+      "網頁控制端現在能真正載入工作區：遠端命令按渲染層同樣的方式解包結果，會話清單、對話記錄與發送不再空白。",
+    ],
+  },
+
 
   {
     version: "0.22.12",

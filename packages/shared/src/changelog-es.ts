@@ -1,6 +1,14 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
+{
+    version: "0.22.13",
+    date: "2026-10-31",
+    highlights: [
+      "El controlador web ya carga el espacio de trabajo real: los comandos remotos desenvuelven el mismo resultado que el renderizador, así que las sesiones, transcripciones y envíos ya no llegan vacíos.",
+    ],
+  },
+
 
   {
     version: "0.22.12",

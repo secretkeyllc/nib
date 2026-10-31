@@ -1,6 +1,14 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
+{
+    version: "0.22.13",
+    date: "2026-10-31",
+    highlights: [
+      "웹 컨트롤러가 실제 워크스페이스를 불러옵니다: 원격 명령이 렌더러와 같은 방식으로 결과를 언랩하여, 세션 목록·대화·전송이 더 이상 비어 있지 않습니다.",
+    ],
+  },
+
 
   {
     version: "0.22.12",

@@ -139,9 +139,10 @@ class RemoteControlSession {
   private async pushSessions(): Promise<void> {
     if (!executor) return;
     try {
-      const list = (await executor.invoke(IPC.invoke.sessionList, [])) as {
-        sessions?: Array<Record<string, unknown>>;
-      };
+      const list = await this.invokeIpc<{ sessions?: Array<Record<string, unknown>> }>(
+        IPC.invoke.sessionList,
+        [],
+      );
       this.sendEvent("remote/sessions", list.sessions ?? []);
     } catch (error) {
       this.deps.logger.app("remote-control", "warn", "session list refresh failed", { error: String(error) });
@@ -269,6 +270,33 @@ class RemoteControlSession {
     }
   }
 
+  /**
+   * Registrar handlers run inside `wrap`, so every result arrives as
+   * {ok:true,data} | {ok:false,error} — the exact envelope the renderer's
+   * invoke unwraps. Remote commands unwrap it the same way; handing the
+   * envelope to callers raw made every list read `undefined` and the web page
+   * sat on an empty workspace.
+   */
+  private async invokeIpc<T>(channel: string, args: readonly unknown[]): Promise<T> {
+    if (!executor) throw new Error("executor unavailable");
+    const raw = (await executor.invoke(channel, args)) as
+      | { ok?: boolean; data?: T; error?: { message?: string } }
+      | T;
+    if (
+      raw &&
+      typeof raw === "object" &&
+      "ok" in raw &&
+      (raw as { ok: unknown }).ok !== undefined
+    ) {
+      const envelope = raw as { ok: boolean; data?: T; error?: { message?: string } };
+      if (!envelope.ok) {
+        throw new Error(envelope.error?.message || "command failed");
+      }
+      return envelope.data as T;
+    }
+    return raw as T;
+  }
+
   private async execute(cmd: RelayCommand): Promise<unknown> {
     if (!executor) throw new Error("executor unavailable");
     // Allowlist on purpose: a frame can only reach these six channels, never
@@ -276,13 +304,16 @@ class RemoteControlSession {
     switch (cmd.c) {
       case "snapshot": {
         const requested = typeof cmd.p.sessionId === "string" ? cmd.p.sessionId : "";
-        const list = (await executor.invoke(IPC.invoke.sessionList, [])) as {
-          sessions?: Array<Record<string, unknown>>;
-        };
+        const list = await this.invokeIpc<{ sessions?: Array<Record<string, unknown>> }>(
+          IPC.invoke.sessionList,
+          [],
+        );
         const sessions = list.sessions ?? [];
         const target = requested || String(sessions[0]?.id ?? "");
         const detail = target
-          ? await executor.invoke(IPC.invoke.sessionGet, [{ sessionId: target }])
+          ? await this.invokeIpc<Record<string, unknown>>(IPC.invoke.sessionGet, [
+              { sessionId: target },
+            ])
           : null;
         return { sessions, detail };
       }
@@ -290,17 +321,19 @@ class RemoteControlSession {
         const sessionId = String(cmd.p.sessionId ?? "");
         const content = String(cmd.p.content ?? "");
         if (!sessionId || !content.trim()) throw new Error("sessionId and content required");
-        return executor.invoke(IPC.invoke.agentPrompt, [{ sessionId, content } satisfies AgentPromptRequest]);
+        return this.invokeIpc(IPC.invoke.agentPrompt, [
+          { sessionId, content } satisfies AgentPromptRequest,
+        ]);
       }
       case "stop": {
         const sessionId = String(cmd.p.sessionId ?? "");
         if (!sessionId) throw new Error("sessionId required");
-        return executor.invoke(IPC.invoke.agentStop, [{ sessionId } satisfies AgentStopRequest]);
+        return this.invokeIpc(IPC.invoke.agentStop, [{ sessionId } satisfies AgentStopRequest]);
       }
       case "ask-resolve": {
         const p = cmd.p as { requestId?: string; sessionId?: string; answers?: unknown };
         if (!p.requestId || !p.sessionId) throw new Error("requestId and sessionId required");
-        return executor.invoke(IPC.invoke.askToolResolve, [
+        return this.invokeIpc(IPC.invoke.askToolResolve, [
           {
             requestId: p.requestId,
             sessionId: p.sessionId,
@@ -309,7 +342,7 @@ class RemoteControlSession {
         ]);
       }
       case "new-session": {
-        const created = await executor.invoke(IPC.invoke.sessionCreate, [{}]);
+        const created = await this.invokeIpc(IPC.invoke.sessionCreate, [{}]);
         void this.pushSessions();
         return created;
       }

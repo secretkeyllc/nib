@@ -1,6 +1,14 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
+{
+    version: "0.22.13",
+    date: "2026-10-31",
+    highlights: [
+      "Web denetleyicisi artık gerçek çalışma alanını yüklüyor: uzak komutlar sonuçları renderer ile aynı şekilde açıyor; oturumlar, transkriptler ve gönderimler artık boş gelmiyor.",
+    ],
+  },
+
 
   {
     version: "0.22.12",

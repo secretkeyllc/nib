@@ -1,6 +1,14 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
+{
+    version: "0.22.13",
+    date: "2026-10-31",
+    highlights: [
+      "La télécommande web charge le véritable espace de travail : les commandes distantes déballestent le même résultat que le renderer, si bien que sessions, transcriptions et envois ne sont plus vides.",
+    ],
+  },
+
 
   {
     version: "0.22.12",
