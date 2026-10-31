@@ -3,6 +3,15 @@ import type { ChangelogEntry } from "./changelog.js";
 export const ptBREntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.12",
+    date: "2026-10-31",
+    highlights: [
+      "O pareamento do controle remoto agora realmente conecta: o desktop se registrava com um sid aleatório em vez do codificado no QR, então toda tentativa do celular era rejeitada como pareamento desconhecido.",
+    ],
+  },
+
+
+  {
     version: "0.22.11",
     date: "2026-10-31",
     highlights: [

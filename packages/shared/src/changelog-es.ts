@@ -3,6 +3,15 @@ import type { ChangelogEntry } from "./changelog.js";
 export const esEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.12",
+    date: "2026-10-31",
+    highlights: [
+      "El emparejamiento del control remoto ahora sí se conecta: el escritorio se registraba con un sid aleatorio en lugar del que codifica el QR, así que cada intento del móvil se rechazaba como emparejamiento desconocido.",
+    ],
+  },
+
+
+  {
     version: "0.22.11",
     date: "2026-10-31",
     highlights: [

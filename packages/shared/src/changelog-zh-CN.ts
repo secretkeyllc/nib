@@ -3,6 +3,15 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhCNEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.12",
+    date: "2026-10-31",
+    highlights: [
+      "修复远程配对始终连不上的问题：桌面端此前用一个随机 sid 注册，而二维码里是另一个，手机每次连接都被判为未知配对。",
+    ],
+  },
+
+
+  {
     version: "0.22.11",
     date: "2026-10-31",
     highlights: [

@@ -83,7 +83,6 @@ class RemoteControlSession {
   private reconnectDelay = RECONNECT_MIN_MS;
   private closedByUser = false;
 
-  readonly sid = randomBytes(32).toString("hex");
   private lastSessionRefresh = 0;
   private sessionRefreshTimer: NodeJS.Timeout | null = null;
 
@@ -91,6 +90,11 @@ class RemoteControlSession {
     private readonly deps: Deps,
     private readonly identity: { mid: string; name: string },
     private readonly token: string,
+    /** The stored pairing sid — the exact one the QR encodes. The session
+     * used to mint its own random sid here, so the relay knew the desktop
+     * under a sid no scanned link would ever carry and every phone attach
+     * was rejected as "配对不存在". */
+    readonly sid: string,
     private readonly onPhase: (phase: RemoteControlPhase, error?: string) => void,
   ) {}
 
@@ -451,7 +455,7 @@ export function createRemoteControl(deps: Deps): RemoteControlWithMaintenance {
     state.machineName = identity.name;
     state.error = undefined;
 
-    state.session = new RemoteControlSession(deps, identity, token, (phase, error) => {
+    state.session = new RemoteControlSession(deps, identity, token, sid, (phase, error) => {
       state.phase = phase;
       state.error = error;
       broadcast();

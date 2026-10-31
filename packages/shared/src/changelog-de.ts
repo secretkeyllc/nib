@@ -3,6 +3,15 @@ import type { ChangelogEntry } from "./changelog.js";
 export const deEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.12",
+    date: "2026-10-31",
+    highlights: [
+      "Die Fernsteuerungs-Kopplung verbindet sich jetzt tatsächlich: Der Desktop registrierte sich unter einer zufälligen sid statt der im QR-Code, sodass jeder Telefon-Versuch als unbekannte Kopplung abgelehnt wurde.",
+    ],
+  },
+
+
+  {
     version: "0.22.11",
     date: "2026-10-31",
     highlights: [

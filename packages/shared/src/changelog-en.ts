@@ -3,6 +3,15 @@ import type { ChangelogEntry } from "./changelog.js";
 export const enEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.12",
+    date: "2026-10-31",
+    highlights: [
+      "The remote control pairing actually attaches now: the desktop used to register under a random sid instead of the one the QR encodes, so every phone attach was rejected as an unknown pairing.",
+    ],
+  },
+
+
+  {
     version: "0.22.11",
     date: "2026-10-31",
     highlights: [

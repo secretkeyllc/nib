@@ -3,6 +3,15 @@ import type { ChangelogEntry } from "./changelog.js";
 export const zhTWEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.12",
+    date: "2026-10-31",
+    highlights: [
+      "修復遠端配對始終連不上的問題：桌面端此前用一個隨機 sid 註冊，而 QR 碼裡是另一個，手機每次連接都被判為未知配對。",
+    ],
+  },
+
+
+  {
     version: "0.22.11",
     date: "2026-10-31",
     highlights: [

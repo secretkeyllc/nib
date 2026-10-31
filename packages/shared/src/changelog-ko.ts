@@ -3,6 +3,15 @@ import type { ChangelogEntry } from "./changelog.js";
 export const koEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.12",
+    date: "2026-10-31",
+    highlights: [
+      "원격 제어 페어링이 실제로 연결됩니다: 데스크톱이 QR에 담긴 sid가 아닌 무작위 sid로 등록하여, 휴대폰의 모든 연결이 알 수 없는 페어링으로 거부되었습니다.",
+    ],
+  },
+
+
+  {
     version: "0.22.11",
     date: "2026-10-31",
     highlights: [

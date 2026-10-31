@@ -3,6 +3,15 @@ import type { ChangelogEntry } from "./changelog.js";
 export const frEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.12",
+    date: "2026-10-31",
+    highlights: [
+      "Le jumelage de la télécommande se connecte enfin : le bureau s'enregistrait sous une sid aléatoire au lieu de celle du QR, donc chaque tentative du téléphone était rejetée comme jumelage inconnu.",
+    ],
+  },
+
+
+  {
     version: "0.22.11",
     date: "2026-10-31",
     highlights: [

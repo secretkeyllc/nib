@@ -3,6 +3,15 @@ import type { ChangelogEntry } from "./changelog.js";
 export const trEntries: ChangelogEntry[] = [
 
   {
+    version: "0.22.12",
+    date: "2026-10-31",
+    highlights: [
+      "Uzaktan kontrol eşleştirmesi artık gerçekten bağlanıyor: masaüstü, QR içindeki yerine rastgele bir sid ile kaydoluyordu; telefonun her denemesi bilinmeyen eşleştirme olarak reddediliyordu.",
+    ],
+  },
+
+
+  {
     version: "0.22.11",
     date: "2026-10-31",
     highlights: [
