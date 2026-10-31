@@ -61,6 +61,7 @@ test("app chrome uses the shared brand asset without branding the composer input
     () => access(new URL("../src/assets/home-mascot-groups.png", import.meta.url)),
   );
   assert.match(chatSurface, /<HomeMascotLogo \/>/);
+  assert.match(chatSurface, /home-hero-brand">I am Nib, <\/span>/);
   assert.match(mascotLogo, /import mascotMotionDarkUrl from\s*"\.\.\/assets\/home-mascot-dark\.gif"/);
   assert.match(mascotLogo, /import mascotMotionLightUrl from\s*"\.\.\/assets\/home-mascot-light\.gif"/);
   assert.match(mascotLogo, /import mascotStillDarkUrl from\s*"\.\.\/assets\/home-mascot-still-dark\.png"/);
@@ -83,7 +84,11 @@ test("app chrome uses the shared brand asset without branding the composer input
   assert.match(styles, /\.empty-hero-icon\s*\{[\s\S]*?height:\s*100px;[\s\S]*?width:\s*100px;/);
   assert.match(
     styles,
-    /\.home-mascot-logo\s*\{[\s\S]*?display:\s*block;[\s\S]*?width:\s*100px;[\s\S]*?height:\s*100px;/,
+    /\.home-mascot-logo\s*\{[\s\S]*?display:\s*block;[\s\S]*?width:\s*160px;[\s\S]*?height:\s*90px;/,
+  );
+  assert.match(
+    styles,
+    /\.home-mascot-logo img\s*\{[\s\S]*?width:\s*100%;[\s\S]*?height:\s*100%;[\s\S]*?object-fit:\s*contain;/,
   );
   assert.match(
     styles,

@@ -14,32 +14,32 @@ export function HomeMascotLogo() {
         className="home-mascot-motion home-mascot-dark"
         src={mascotMotionDarkUrl}
         alt=""
-        width={100}
-        height={100}
+        width={160}
+        height={90}
         draggable={false}
       />
       <img
         className="home-mascot-motion home-mascot-light"
         src={mascotMotionLightUrl}
         alt=""
-        width={100}
-        height={100}
+        width={160}
+        height={90}
         draggable={false}
       />
       <img
         className="home-mascot-still home-mascot-dark"
         src={mascotStillDarkUrl}
         alt=""
-        width={100}
-        height={100}
+        width={160}
+        height={90}
         draggable={false}
       />
       <img
         className="home-mascot-still home-mascot-light"
         src={mascotStillLightUrl}
         alt=""
-        width={100}
-        height={100}
+        width={160}
+        height={90}
         draggable={false}
       />
     </span>

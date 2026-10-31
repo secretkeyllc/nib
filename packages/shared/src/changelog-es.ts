@@ -10,6 +10,7 @@ export const esEntries: ChangelogEntry[] = [
       "Una acción de rotación genera un enlace nuevo cuando haga falta y retira todos los QR escaneados antes.",
       "El menú de cuenta también incluye el emparejamiento: un toque despliega el código QR ahí mismo.",
       "Los emparejamientos pueden iniciarse automáticamente con la app, para conectar el móvil en cualquier momento.",
+      "La mascota del espacio de trabajo estrena el arte 16:9 en ambos temas, y cada saludo del espacio vacío abre con la frase distintiva: \"I am Nib, …\".",
     ],
   },
 

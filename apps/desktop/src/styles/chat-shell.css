@@ -728,16 +728,18 @@
 .home-mascot-logo {
   display: block;
   position: relative;
-  width: 100px;
-  height: 100px;
+  /* The new mascot art is a 16:9 stage (400x225), not the old square: 160x90
+     keeps the ball at the same visual size the 100px square gave the cloud. */
+  width: 160px;
+  height: 90px;
   flex: 0 0 auto;
   overflow: hidden;
 }
 
 .home-mascot-logo img {
   display: none;
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   pointer-events: none;
   -webkit-user-drag: none;
@@ -770,6 +772,12 @@
   line-height: var(--leading-tighter);
   color: var(--ds-text-primary);
   white-space: pre-wrap;
+}
+
+/* The signature line leads the greeting in every language, English by design
+   (same words the site footer signs with) — only the weight marks it out. */
+.empty-hero h1 .home-hero-brand {
+  font-weight: var(--font-weight-strong);
 }
 
 .empty-hero .home-project-switcher {

@@ -10,6 +10,7 @@ export const frEntries: ChangelogEntry[] = [
       "Une action de rotation génère un nouveau lien en cas de fuite et invalide tous les QR précédemment scannés.",
       "Le menu du compte abrite aussi le jumelage : un appui déploie le code QR sur place.",
       "Les jumelages peuvent démarrer automatiquement avec l'app, pour connecter le téléphone à tout moment.",
+      "La mascotte de l'espace de travail adopte le nouveau visuel 16:9 dans les deux thèmes, et chaque message d'accueil à vide ouvre sur la signature : « I am Nib, … ».",
     ],
   },
 

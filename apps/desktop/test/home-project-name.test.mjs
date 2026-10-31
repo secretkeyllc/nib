@@ -85,7 +85,12 @@ test("the empty home names the project even before its first session exists", as
     activeProjectPath: "/work/demo-app",
   });
   assert.equal(opened.kind, "project");
-  assert.match(opened.title, /^What can we build in /);
+  // The signature line leads every greeting in every locale, English by
+  // design — the localized title follows it.
+  assert.match(
+    opened.title,
+    /^<span class="home-hero-brand">I am Nib, <\/span>What can we build in /,
+  );
   assert.match(opened.title, /switch project: Demo App/i);
   assert.match(opened.title, /title="\/work\/demo-app"/);
   assert.doesNotMatch(opened.title, /What can I help you build\?/);
@@ -106,12 +111,17 @@ test("the empty home names the project even before its first session exists", as
   assert.equal(temporary.kind, "temporary");
   assert.equal(
     temporary.title,
-    catalogs.en.chat.emptyTitleTemporary,
+    '<span class="home-hero-brand">I am Nib, </span>' +
+      catalogs.en.chat.emptyTitleTemporary,
     "a temporary session must not inherit the open project's name",
   );
 
   // With no project and no session the generic home title is still correct.
   const bare = render({});
   assert.equal(bare.kind, "empty");
-  assert.equal(bare.title, catalogs.en.chat.emptyTitle);
+  assert.equal(
+    bare.title,
+    '<span class="home-hero-brand">I am Nib, </span>' +
+      catalogs.en.chat.emptyTitle,
+  );
 });

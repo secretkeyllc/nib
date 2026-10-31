@@ -10,6 +10,7 @@ export const ptBREntries: ChangelogEntry[] = [
       "Uma ação de rotação gera um link novo quando necessário e aposenta todos os QR escaneados antes.",
       "O menu da conta também traz o pareamento: um toque desdobra o QR code ali mesmo.",
       "Os pareamentos podem iniciar automaticamente com o app, para conectar o celular a qualquer momento.",
+      "O mascote do espaço de trabalho ganha a nova arte 16:9 nos dois temas, e toda saudação com o espaço vazio abre com a assinatura: \"I am Nib, …\".",
     ],
   },
 

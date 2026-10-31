@@ -180,6 +180,13 @@ export const ChatSurface = memo(function ChatSurface({
                   <HomeMascotLogo />
                 </div>
                 <h1>
+                  {/*
+                    The catchphrase leads in English in every locale: it is the
+                    product's signature line (same words the site footer uses),
+                    not a translated string. It flows straight into whatever
+                    greeting the active language provides.
+                  */}
+                  <span className="home-hero-brand">I am Nib, </span>
                   {heroProject ? (
                     <>
                       {emptyTitleParts.before}

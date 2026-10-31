@@ -10,6 +10,7 @@ export const enEntries: ChangelogEntry[] = [
       "A rotate action mints a fresh link when one ever leaks, retiring every previously scanned QR.",
       "The account popover carries the pairing: one tap unfolds the QR right there.",
       "Pairings can start automatically with the app, so the phone can attach anytime.",
+      "The workspace mascot gets the new 16:9 art in both themes, and every empty-workspace greeting now opens with the signature line: \"I am Nib, …\".",
     ],
   },
 

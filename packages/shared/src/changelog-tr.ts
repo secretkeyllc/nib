@@ -10,6 +10,7 @@ export const trEntries: ChangelogEntry[] = [
       "Bağlantıyı döndürme eylemi, bir sızma durumunda yeni bağlantı üretir ve önceki tüm QR'ları geçersiz kılar.",
       "Hesap menüsünde de eşleştirme var: tek dokunuşla QR kodu açılır.",
       "Eşleştirmeler uygulamayla birlikte otomatik başlayabilir; telefon her an bağlanabilir.",
+      "Çalışma alanı maskotu her iki temada yeni 16:9 görseline kavuştu ve boş çalışma alanı karşılaması artık imza satırıyla başlıyor: \"I am Nib, …\".",
     ],
   },
 

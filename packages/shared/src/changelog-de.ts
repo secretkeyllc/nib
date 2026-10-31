@@ -10,6 +10,7 @@ export const deEntries: ChangelogEntry[] = [
       "Eine Aktion „Link rotieren“ erzeugt bei Bedarf einen neuen Link und macht alle bisherigen QR-Codes ungültig.",
       "Das Kontomenü enthält die Kopplung: ein Tipp klappt den QR-Code direkt auf.",
       "Kopplungen können automatisch mit der App starten, damit das Telefon jederzeit verbinden kann.",
+      "Das Arbeitsbereich-Maskottchen erhält die neue 16:9-Grafik für beide Themes, und jede Begrüßung im leeren Arbeitsbereich beginnt mit der Signaturzeile „I am Nib, …“.",
     ],
   },
 
