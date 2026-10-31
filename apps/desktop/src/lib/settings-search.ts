@@ -17,6 +17,7 @@ export type SettingsTabId =
   | "projects"
   | "sync"
   | "remoteHosts"
+  | "remoteControl"
   | "voice"
   | "about";
 
@@ -319,6 +320,20 @@ export const SETTINGS_NAV: SettingsNavEntry[] = [
       "settings.remoteHosts.statusOnline",
       "settings.remoteHosts.statusOffline",
       "settings.remoteHosts.experimental",
+    ],
+  },
+  {
+    id: "remoteControl",
+    labelKey: "settings.nav.remoteControl",
+    titleKey: "settings.remoteControl.title",
+    group: "system",
+    experimentalBadgeKey: "settings.remoteControl.experimental",
+    keywordKeys: [
+      "settings.remoteControl.title",
+      "settings.remoteControl.experimental",
+      "settings.remoteControl.statusTitle",
+      "settings.remoteControl.startPairing",
+      "settings.remoteControl.stopPairing",
     ],
   },
   {
