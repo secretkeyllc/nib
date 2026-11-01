@@ -1,0 +1,197 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { register } from "node:module";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { createInstance } from "i18next";
+import { I18nextProvider } from "react-i18next";
+import { createServer } from "vite";
+
+register(new URL("./helpers/ts-import-hooks.mjs", import.meta.url));
+const { VendorOAuth, secretRefForProviderOauth } = await import("../electron/main/oauth.ts");
+const { ModelsDevCatalog, catalogModelConfigFor } = await import("../electron/main/models-dev-catalog.ts");
+const { createProviderCatalogRuntime } = await import("../electron/main/runtime/provider-catalog.ts");
+const { registerProviderIpc } = await import("../electron/main/ipc/provider-ipc.ts");
+const { bindingForCustomModel, IPC } = await import("@pi-desktop/shared");
+const { composerModelsForProvider } = await import("../src/lib/composer-models.ts");
+
+const manifest = JSON.parse(await readFile(new URL("../resources/plugins/nib.provider/manifest.json", import.meta.url), "utf8"));
+const declaration = manifest.contributes.providers[0];
+const providerId = "plugin:nib.provider:nib";
+const served = ["claude-haiku-4-5-20251001", "claude-sonnet-5", "gpt-6-astra", "gpt-6.1-sol", "gemini-4-argon", "grok-4.7", "unpublished-fixture-model"];
+
+async function fixture({ models = structuredClone(declaration.models), fetchModels } = {}) {
+  let row = {
+    ...declaration, id: providerId, ownerPluginId: manifest.id,
+    enabled: true, defaultModelId: models[0]?.id, models,
+  };
+  const secrets = new Map();
+  let cache = [];
+  const host = { call: async (method, input = {}) => {
+    switch (method) {
+      case "providers.list": return { providers: [{ ...row, hasOauth: secrets.has(secretRefForProviderOauth(providerId)) }] };
+      case "providers.get": return { provider: row };
+      case "providers.update": row = { ...row, ...input }; return { provider: row };
+      case "providers.listModels": return { models: cache };
+      case "providers.cacheModels": cache = input.models; return { models: cache };
+      case "secrets.getForRuntime": return { value: secrets.get(input.secretRef) ?? null };
+      case "secrets.set": secrets.set(input.secretRef, input.value); return { ok: true };
+      case "secrets.delete": secrets.delete(input.secretRef); return { ok: true };
+      default: throw new Error(`Unexpected fixture RPC: ${method}`);
+    }
+  } };
+  const catalog = new ModelsDevCatalog({
+    catalogPath: fileURLToPath(new URL("../resources/models.dev/api.json", import.meta.url)),
+  });
+  await catalog.loadLocal();
+  const runtime = createProviderCatalogRuntime({ getHost: () => host, modelsDevCatalog: catalog });
+  catalog.configureAccount(row);
+  const plugin = {
+    pluginId: manifest.id, contributionId: declaration.id, providerId,
+    runtimeId: "fixture-runtime", name: "Nib", isSubscription: true,
+    models: structuredClone(declaration.models),
+  };
+  const requests = [];
+  const http = async (url, init) => {
+    requests.push(String(url));
+    assert.equal(String(url), "https://api.nib.am/v1/models");
+    if (fetchModels) return fetchModels(init);
+    return new Response(JSON.stringify({ data: served.map((id) => ({ id })) }), {
+      headers: { "content-type": "application/json" },
+    });
+  };
+  const events = [];
+  let finishLogin;
+  const oauth = new VendorOAuth({
+    call: host.call, fetch: http, openExternal: async () => {},
+    emit: (event) => {
+      events.push(event);
+      if (["done", "error", "cancelled"].includes(event.kind)) finishLogin?.(event);
+    },
+    getPluginOAuthBridge: () => ({
+      listOAuthProviders: () => [plugin],
+      invokeProviderOAuth: async () => ({ accessToken: "fixture-gateway-token", accountLabel: "Fixture account" }),
+    }),
+    onAccountRemoved: (id) => catalog.deleteAccount(id),
+    onAccountRestored: (id) => catalog.restoreAccount(id),
+    modelConfigFor: async ({ providerId, vendorKey, option }) => {
+      await catalog.ensureLoaded();
+      return catalogModelConfigFor(catalog, {
+        providerId, vendorKey, modelId: option.modelId, baseUrl: option.baseUrl, apiStyle: option.apiStyle,
+      });
+    },
+  });
+  const handlers = new Map();
+  registerProviderIpc({
+    registrar: { handle: (name, handler) => handlers.set(name, handler) },
+    getHost: () => host, modelsDevCatalog: catalog, vendorOAuth: oauth, logger: { app() {} },
+    ...runtime,
+  });
+  return {
+    get row() { return row; }, catalog, runtime, oauth, handlers, requests, events,
+    login: async () => {
+      const outcome = new Promise((resolve) => { finishLogin = resolve; });
+      await oauth.start(providerId);
+      assert.equal((await outcome).kind, "done", "a successful sign-in reaches done");
+    },
+  };
+}
+
+test("a fresh Nib login selects the gateway models with published per-model limits", async () => {
+  const h = await fixture();
+  await h.login();
+  assert.deepEqual(h.row.models.map((model) => model.id), served,
+    "the account is initialized before the login reports done, without opening Settings");
+  for (const id of served.slice(0, -1)) {
+    const published = h.catalog.findModel({ modelId: id, vendorKey: "nib", baseUrl: declaration.baseUrl });
+    const binding = h.row.models.find((model) => model.id === id);
+    assert.equal(binding.contextWindow, published.limit.context, id);
+    assert.equal(binding.maxTokens, published.limit.output, id);
+    assert.equal(binding.contextWindowSource, "catalog");
+    assert.equal(binding.maxTokensSource, "catalog");
+  }
+  assert.equal(h.row.models.at(-1).contextWindowSource, "catalog", "a generic safety budget is not a user override");
+  const discovered = await h.handlers.get(IPC.invoke.providersListModels)({ providerId, source: "cache" });
+  const composer = composerModelsForProvider(h.runtime.enrichProvider(h.row), discovered.models);
+  assert.equal(composer.find((model) => model.modelId === "gpt-6-astra").contextWindow, 1_050_000);
+  assert.equal(discovered.models.find((model) => model.modelId === "claude-sonnet-5").limit.context, 1_000_000);
+  assert.equal(discovered.models.find((model) => model.modelId === "gemini-4-argon").limit.output, 32_768);
+});
+
+test("Nib sign-in refreshes inherited limits while preserving a saved selection and explicit overrides", async () => {
+  const h = await fixture({ models: [
+    bindingForCustomModel("gpt-6-astra"),
+    { ...bindingForCustomModel("claude-sonnet-5"), contextWindow: 256_000, contextWindowSource: "user", maxTokens: 4_096, maxTokensSource: "user", alias: "My Claude" },
+  ] });
+  await h.login();
+  assert.deepEqual(h.row.models.map((model) => model.id), ["gpt-6-astra", "claude-sonnet-5"]);
+  assert.equal(h.row.models[0].contextWindow, 1_050_000);
+  assert.equal(h.row.models[0].maxTokens, 128_000);
+  assert.equal(h.row.models[1].contextWindow, 256_000);
+  assert.equal(h.row.models[1].maxTokens, 4_096);
+  assert.equal(h.row.models[1].alias, "My Claude");
+});
+
+test("unavailable gateway discovery preserves the saved Nib selection and a successful login", async () => {
+  const h = await fixture({
+    models: [bindingForCustomModel("gpt-6-astra")],
+    fetchModels: () => new Response(null, { status: 503 }),
+  });
+  await h.login();
+  assert.deepEqual(h.row.models.map((model) => model.id), ["gpt-6-astra"]);
+  assert.equal(h.events.some((event) => event.kind === "error"), false);
+});
+
+test("an inherited saved Nib limit cannot override its published runtime limit", async () => {
+  const h = await fixture({ models: [bindingForCustomModel("gpt-6-astra")] });
+  const binding = await h.oauth.bindingFor(providerId, "gpt-6-astra");
+  assert.equal(binding.modelConfig.contextWindow, 1_050_000);
+  assert.equal(binding.modelConfig.maxTokens, 128_000);
+});
+
+test("the fixed Nib provider id resumes catalog lookups after sign-out", async () => {
+  const h = await fixture();
+  h.catalog.deleteAccount(providerId);
+  await h.login();
+  assert.equal(h.row.models.find((model) => model.id === "gpt-6-astra").contextWindow, 1_050_000);
+  assert.equal(h.row.models.find((model) => model.id === "claude-sonnet-5").maxTokens, 128_000);
+});
+
+test("sign-out followed by sign-in restores Nib model metadata", async () => {
+  const h = await fixture();
+  await h.login();
+  await h.oauth.deleteAccount(providerId);
+  await h.login();
+  const discovered = await h.handlers.get(IPC.invoke.providersListModels)({ providerId, source: "cache" });
+  assert.equal(discovered.models.find((model) => model.modelId === "gpt-6-astra").limit.context, 1_050_000);
+  assert.equal(discovered.models.find((model) => model.modelId === "claude-sonnet-5").limit.output, 128_000);
+});
+
+test("Nib Settings renders each published context and output limit", async (t) => {
+  const h = await fixture();
+  await h.login();
+  const result = await h.handlers.get(IPC.invoke.providersListModels)({ providerId, source: "refresh" });
+  const discovery = { status: "ready", ...result };
+  const server = await createServer({
+    root: fileURLToPath(new URL("..", import.meta.url)), configFile: false, logLevel: "silent",
+    server: { middlewareMode: true, hmr: false, ws: false },
+    esbuild: { jsx: "automatic" }, appType: "custom",
+    optimizeDeps: { noDiscovery: true, include: [] },
+  });
+  t.after(() => server.close());
+  const { ModelSelectionPanes, useModelSelection } = await server.ssrLoadModule(
+    "/src/components/settings/ModelSelectionPanes.tsx",
+  );
+  const i18n = createInstance();
+  await i18n.init({ lng: "en", resources: { en: { translation: {} } } });
+  function SettingsModels() {
+    const selection = useModelSelection(discovery, h.row.models, () => {});
+    return createElement(ModelSelectionPanes, { discovery, selection, listTitle: "Nib models" });
+  }
+  const html = renderToStaticMarkup(createElement(I18nextProvider, { i18n }, createElement(SettingsModels)));
+  assert.match(html, /value="1050000"/);
+  assert.match(html, /value="1000000"/);
+  assert.match(html, /value="32768"/);
+});

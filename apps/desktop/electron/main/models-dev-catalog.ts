@@ -1448,6 +1448,11 @@ export class ModelsDevCatalog {
     this.accountRows.delete(providerId);
   }
 
+  /** A reauthenticated fixed-id account is active again after sign-out. */
+  restoreAccount(providerId: string): void {
+    this.removedAccounts.delete(providerId);
+  }
+
   /** Persisted per-model limits remain user-owned overrides over catalog data. */
   configureAccount(row: CatalogAccount): void {
     if (this.removedAccounts.has(row.id)) return;

@@ -290,6 +290,7 @@ const vendorOAuth = new VendorOAuth({
   log: (level, message, data) => logger.app("provider", level, message, { data }),
   onAccountModels: (id, models) => modelsDevCatalog.setAccountModels(id, models),
   onAccountRemoved: (id) => modelsDevCatalog.deleteAccount(id),
+  onAccountRestored: (id) => modelsDevCatalog.restoreAccount(id),
   modelConfigFor: async ({ providerId, vendorKey, option }) => {
     await modelsDevCatalog.ensureLoaded();
     return catalogModelConfigFor(modelsDevCatalog, {

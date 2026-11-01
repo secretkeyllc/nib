@@ -18,6 +18,7 @@
 
 import { randomUUID } from "node:crypto";
 import { createInstallationIdentity } from "./installation-identity.ts";
+import { isPluginModelSelectionUnconfigured, pluginModelBinding } from "./oauth-model-bindings.ts";
 
 import { InMemoryModelsStore } from "@earendil-works/pi-ai";
 import type {
@@ -37,6 +38,7 @@ import type {
   PluginProviderOAuthEvent,
   PluginProviderOAuthPrompt,
   PluginProviderOAuthRequest,
+  PluginProviderModelContrib,
 } from "@pi-desktop/plugin-sdk";
 import { registerBunOAuthFlows } from "@earendil-works/pi-ai/bun-oauth";
 import { builtinModels } from "@earendil-works/pi-ai/providers/all";
@@ -60,6 +62,7 @@ import {
 import type { ThinkingLevel } from "@pi-desktop/shared";
 import {
   OAUTH_AUTH_KIND,
+  resolveBindingLimits,
   type OAuthLoginEvent,
   type OAuthPromptRequest,
   type OAuthRespondInput,
@@ -161,6 +164,7 @@ export type PluginOAuthProvider = {
   name: string;
   loginLabel?: string;
   isSubscription: boolean;
+  models?: readonly PluginProviderModelContrib[];
 };
 
 export type PluginOAuthBridge = {
@@ -200,11 +204,12 @@ export type VendorOAuthDeps = {
   /** Share account-owned Models with the catalog without duplicating credentials. */
   onAccountModels?: (providerId: string, models: MutableModels) => void;
   onAccountRemoved?: (providerId: string) => void;
+  onAccountRestored?: (providerId: string) => void;
   /** Test seam: build the pi-ai collection without touching the real flows. */
   createModels?: (credentials: CredentialStore) => MutableModels;
   /** Model configuration is supplied by the main-process models.dev catalog. */
   modelConfigFor?: (input: {
-    providerId: string;
+    providerId?: string;
     vendorKey: string;
     option: OAuthModelOption;
   }) => Promise<ModelConfig | undefined>;
@@ -785,6 +790,7 @@ export class VendorOAuth {
     row: OAuthProviderRow,
     baseUrl: string,
     apiStyle: string,
+    signal?: AbortSignal,
   ): Promise<OAuthModelOption[]> {
     // The provider row's credential is the normal source. When the host's
     // encrypted secret cannot be read (a row created before the credential
@@ -800,10 +806,13 @@ export class VendorOAuth {
     const url = `${baseUrl.replace(/\/+$/, "")}/models`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8_000);
+    const requestSignal = signal
+      ? AbortSignal.any([controller.signal, signal])
+      : controller.signal;
     try {
-      const response = await fetch(url, {
+      const response = await (this.deps.fetch ?? globalThis.fetch)(url, {
         headers: { accept: "application/json", authorization: `Bearer ${token}` },
-        signal: controller.signal,
+        signal: requestSignal,
       });
       if (!response.ok) {
         this.log("warn", "nib model discovery: non-200", { providerId: row.id, status: response.status, url });
@@ -921,11 +930,8 @@ export class VendorOAuth {
       const baseline = withMappedThinkingLevels(
         published ?? genericModelConfig(option.modelId, option.baseUrl),
       );
-      const model = modelConfigWithBinding(baseline, {
-        ...declared,
-        contextWindow: declared.contextWindow > 0 ? declared.contextWindow : baseline.contextWindow,
-        maxTokens: declared.maxTokens > 0 ? declared.maxTokens : baseline.maxTokens,
-      });
+      const limits = resolveBindingLimits(baseline, declared);
+      const model = modelConfigWithBinding(limits.catalogConfig, limits.binding);
       const modelConfig = declared.thinkingLevels.length > 0
         ? withMappedThinkingLevels(model)
         : { ...model, reasoning: false, supportedThinkingLevels: [] };
@@ -1137,11 +1143,16 @@ export class VendorOAuth {
           throw new Error("plugin provider changed during OAuth sign-in");
         }
         await this.writePluginCredential(session.providerId, credential);
+        if (row && currentProvider) {
+          this.deps.onAccountRestored?.(session.providerId);
+          await this.completePluginRow(session, row, currentProvider);
+        }
         const savedRow = (await this.rows()).find((candidate) => candidate.id === session.providerId);
         const savedProvider = this.deps.getPluginOAuthBridge?.()
           ?.listOAuthProviders()
           .find((candidate) => candidate.providerId === session.providerId);
         if (
+          session.cancelled ||
           savedRow?.ownerPluginId !== session.pluginId ||
           savedRow.authKind !== OAUTH_AUTH_KIND ||
           savedRow.enabled === false ||
@@ -1364,6 +1375,61 @@ export class VendorOAuth {
     this.accountModels.delete(providerId);
     this.liveModelCache.delete(providerId);
     this.liveModelLoads.delete(providerId);
+  }
+
+  /** Populate the account's model configuration before reporting login success. */
+  private async completePluginRow(
+    session: PluginLoginSession,
+    row: OAuthProviderRow,
+    provider: PluginOAuthProvider,
+  ): Promise<void> {
+    const baseUrl = row.baseUrl;
+    const lookup = this.deps.modelConfigFor;
+    if (!baseUrl || !lookup || !provider.isSubscription || !provider.models || session.cancelled) return;
+    try {
+      const selected = row.models ?? [];
+      const initializeAll = isPluginModelSelectionUnconfigured(selected, provider.models);
+      const offered = await this.discoverPluginModels(
+        row, baseUrl, row.apiStyle ?? "chat_completions", session.controller.signal,
+      );
+      if (session.cancelled) return;
+      const options = initializeAll && offered.length > 0
+        ? offered
+        : selected.map((model) => ({
+            modelId: model.id,
+            baseUrl,
+            apiStyle: row.apiStyle ?? "chat_completions",
+          }));
+      if (options.length === 0) return;
+      const models = await Promise.all(options.map(async (option) => {
+        const config = await lookup({
+          providerId: initializeAll ? undefined : row.id,
+          vendorKey: row.vendorKey ?? "custom",
+          option,
+        });
+        return pluginModelBinding(option.modelId, config,
+          initializeAll ? undefined : selected.find((model) => model.id === option.modelId));
+      }));
+      const current = (await this.rows()).find((candidate) => candidate.id === row.id);
+      const currentProvider = this.deps.getPluginOAuthBridge?.()?.listOAuthProviders()
+        .find((candidate) => candidate.providerId === row.id);
+      // A late model-list response must not undo an edit or a plugin reload.
+      if (session.cancelled || !current || current.enabled === false ||
+          current.ownerPluginId !== session.pluginId || current.authKind !== OAUTH_AUTH_KIND ||
+          current.baseUrl !== row.baseUrl || current.apiStyle !== row.apiStyle ||
+          currentProvider?.runtimeId !== session.runtimeId ||
+          JSON.stringify(current.models) !== JSON.stringify(row.models)) return;
+      if (JSON.stringify(models) === JSON.stringify(selected)) return;
+      await this.deps.call("providers.update", {
+        id: row.id,
+        models,
+        defaultModelId: models.some((model) => model.id === current.defaultModelId)
+          ? current.defaultModelId : models[0].id,
+      });
+    } catch {
+      // Metadata failure must not turn a valid credential into a failed login.
+      this.log("warn", "plugin provider model initialization failed", { providerId: row.id });
+    }
   }
 
   /** Point the row at a usable model now that the catalog can be read. */

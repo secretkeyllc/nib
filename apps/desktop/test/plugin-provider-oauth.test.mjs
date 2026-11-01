@@ -115,6 +115,7 @@ const testOAuthProviderHooks = async (t) => {
   assert.equal(provider.pluginId, "demo.oauth");
   assert.equal(provider.providerId, "plugin:demo.oauth:gateway");
   assert.ok(provider.runtimeId);
+  assert.deepEqual(provider.models, [{ id: "fixture-model" }]);
 
   const callback = runtime.invokeProviderOAuth("demo.oauth", "gateway", {
     operation: "login",

@@ -451,6 +451,14 @@ collection and one `CredentialStore` scope per row, mapping the vendor id to
 contains every local row as an account, including disconnected/orphaned rows so
 the user can remove them explicitly.
 
+For a subscription plugin provider, the first successful sign-in replaces an
+untouched manifest seed with every chat model returned by that account's
+endpoint. Each binding follows its published models.dev limits; generic limits
+remain conservative. A later sign-in preserves the user's model selection and
+manual limits while refreshing catalog-sourced values. A fixed provider ID
+removed from the metadata catalog on sign-out is restored before reauthentication
+lookups.
+
 Request auth is resolved **per request**, not at launch:
 
 ```text

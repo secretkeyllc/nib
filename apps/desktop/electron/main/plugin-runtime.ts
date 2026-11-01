@@ -70,6 +70,7 @@ import {
   type PluginProviderOAuthPrompt,
   type PluginProviderOAuthRequest,
   type PluginProviderContrib,
+  type PluginProviderModelContrib,
   type PluginRevealViewInput,
   type PluginServiceContrib,
   type PluginSettingContrib,
@@ -555,6 +556,7 @@ export type PluginOAuthProvider = {
   name: string;
   loginLabel?: string;
   isSubscription: boolean;
+  models?: readonly PluginProviderModelContrib[];
 };
 
 /** Host APIs a plugin process may reach. Anything else does not exist (spec 04 §2). */
@@ -1841,6 +1843,7 @@ export class PluginRuntime {
           name: provider.name,
           loginLabel: provider.oauth?.loginLabel,
           isSubscription: provider.oauth?.isSubscription === true,
+          models: structuredClone(provider.models),
         });
       }
     }

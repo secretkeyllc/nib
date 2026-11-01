@@ -44,6 +44,21 @@
   the actual settings panes and verifies saved bindings remain editable.
 
 
+### E2E Nib subscription model metadata
+
+- **Entry:** `node --test apps/desktop/test/nib-model-metadata.test.mjs`.
+- **Environment:** Bundled models.dev snapshot and production OAuth/model
+  configuration code; simulated Nib `/models` and Host storage, no credentials
+  or live service.
+- **Sequence:** Sign in from the three-model manifest seed, query available
+  models, render the model settings pane, remove the fixed account from the
+  catalog, and sign in again. Repeat with user-selected models, manual limit
+  overrides, and an unavailable `/models` response.
+- **Expected:** First sign-in selects every returned model before reporting
+  success; published context/output limits appear in Settings and Composer.
+  Reauthentication restores catalog lookup, keeps manual choices, and does not
+  fail sign-in when model discovery is unavailable.
+
 ### E2E-PI-130-kernel-upgrade
 
 - **Preconditions:** Exact Pi 1.3.0 pins and migrated patches in a dedicated
