@@ -30,6 +30,17 @@ const NIB_GATEWAY_API_STYLES: readonly CatalogApiStyle[] = [
   "chat_completions",
   "responses",
 ];
+
+/**
+ * The model ids the bundled gateway's manifest declares. They seed the row on
+ * first sync; a row still carrying exactly these is one the user has never
+ * saved a model choice for.
+ */
+const NIB_DECLARED_MODEL_IDS = [
+  "claude-haiku-4-5-20251001",
+  "claude-sonnet-5",
+  "gpt-6-astra",
+];
 import { api } from "../../lib/api";
 import { useAppStore } from "../../stores/app-store";
 import { pairsToRecord, recordToPairs } from "../extensions/KeyValueRows";
@@ -217,7 +228,11 @@ export function ProviderSetupDialog({
   */
   const endpointDraft = resolveEndpointDraft(
     resolvedBaseUrl,
-    namedPreset?.apiStyle ?? apiStyle,
+    // On a named preset the preset's declared format seeds the answer, but
+    // the value the form holds is what the resolver receives: the gateway
+    // preset lets the user re-pick the wire style, and feeding the preset
+    // default here would silently overwrite that pick on every save.
+    named && !apiStyleTouched ? namedPreset.apiStyle : apiStyle,
     named || editing || Boolean(initialDraft) || apiStyleTouched,
   );
   const resolvedApiStyle: CatalogApiStyle = endpointDraft.apiStyle;
@@ -264,7 +279,9 @@ export function ProviderSetupDialog({
     setModels,
     namedService: named,
     // The product's own gateway: the plan is the entitlement, so the whole
-    // catalogue the account can call starts selected.
+    // catalogue the account can call starts selected. Every user arrives as
+    // a new user — the row this preselects is the one the sign-in just
+    // seeded — and any later open shows their own saved choices.
     selectAll: service === "nib",
   });
   // Every edit made through the picker or the summary ends preselection.

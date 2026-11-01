@@ -170,13 +170,20 @@ export function ServiceList({
       {reorder.providers.map((provider) => {
         const kind = serviceRowKind(provider);
         const rowBusy = reorder.saving || isRowBusy(provider.id);
+        // The product's own row: signed in, a click opens the editor like any
+        // service; signed out, a click signs in — the row's primary action
+        // follows its state, exactly like the overflow menu's first item.
+        const nibGateway = isBundledProvider(provider);
+        const nibSignedIn = nibGateway && provider.hasOauth;
         const onOpen =
-          kind === "account" && provider.ownerPluginId && !isBundledProvider(provider)
+          kind === "account" && provider.ownerPluginId && !nibGateway
             ? undefined
-            : isBundledProvider(provider)
-            ? // The product's own gateway row opens the editor on click, the
-              // same way every service the user added does.
-              () => onEdit(provider)
+            : nibGateway
+            ? nibSignedIn
+              ? () => onEdit(provider)
+              : onSignIn
+                ? () => onSignIn(provider)
+                : undefined
             : kind !== "plugin"
             ? () => onEdit(provider)
             : provider.authKind === "api_key"

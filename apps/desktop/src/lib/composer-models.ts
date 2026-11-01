@@ -38,11 +38,14 @@ export function composerModelsForProvider(
   discovered: readonly ModelInfo[] | undefined,
   imageGeneration?: ImageGenerationBindings | null,
 ): ModelInfo[] {
-  // Upstream only offers ids the user explicitly enabled in provider settings,
-  // because for most vendors discovery returning hundreds of catalogue rows
-  // would flood the picker. A gateway the user signed in to is the exception:
-  // its catalogue IS the entitlement ("every model on every plan"), so the
-  // discovered list is what the picker should show. Configured ids stay first.
+  /*
+    The picker shows exactly what the user enabled in provider settings — the
+    same rows, in the same order, that the editor's model list saves. A
+    signed-in gateway's full catalogue once merged in here on the theory that
+    the subscription is the entitlement, but that drowned the user's own
+    selection: unchecking models in the editor then changed nothing the
+    composer could see. Discovery enriches an id; it never grants one.
+  */
   const discoveredIds = (discovered ?? []).map((model) => model.modelId);
   let ids: string[];
   if (discoveredIds.length > 0) {
@@ -51,7 +54,7 @@ export function composerModelsForProvider(
     // never list a second row beside the configured `beta`.
     const merged: string[] = [];
     const seen = (id: string) => merged.some((existing) => sameComposerModelId(existing, id));
-    for (const id of [...configuredModelIds(provider), ...discoveredIds]) {
+    for (const id of configuredModelIds(provider)) {
       if (!seen(id)) merged.push(id);
     }
     ids = merged;

@@ -27,7 +27,7 @@ const model = (modelId, displayName = modelId) => ({
   source: "discovered",
 });
 
-test("Composer lists configured models first, then the discovered catalogue", () => {
+test("Composer lists exactly the configured models, in the saved order", () => {
   const models = composerModelsForProvider(
     {
       id: "mimo",
@@ -40,14 +40,15 @@ test("Composer lists configured models first, then the discovered catalogue", ()
     ],
   );
 
-  // A gateway's catalogue is the entitlement, so discovery contributes ids;
-  // the user's explicit choices keep the top of the list.
+  // The picker mirrors the editor's saved selection — the rows the user
+  // enabled, in the order they saved. Discovery enriches a configured id
+  // with its published name; it never adds a row of its own, so unchecking
+  // a model in the editor actually removes it from the composer.
   assert.deepEqual(
     models.map(({ modelId, displayName }) => ({ modelId, displayName })),
     [
       { modelId: "claude-opus-4-6", displayName: "claude-opus-4-6" },
       { modelId: "x-ai/grok-4.6", displayName: "x-ai/grok-4.6" },
-      { modelId: "aws/claude-fable-5-006", displayName: "aws/claude-fable-5-006" },
     ],
   );
 });
