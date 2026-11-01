@@ -82,7 +82,7 @@ export const zhCN = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib.",
+    tagline: "I am Nib",
     starting: "正在启动 Nib…",
     loadingView: "正在加载页面…",
     uiCrashed: "界面出现了问题",
@@ -1632,6 +1632,7 @@ sklm: {
     "copyProviderName": "{{name}}（副本）",
     "copyProviderHint": "创建独立的服务配置，不复制 API 密钥、账号登录信息或自定义请求头。当前默认模型保持不变。",
     editProviderTitle: "编辑 AI 服务",
+    lockedIdentityKeyHint: "Nib 密钥由 Nib 登录管理，无法在此修改。",
     apiKeyKeepHint: "留空则保留已保存的密钥。",
     apiKeyOptionalHint: "可选，留空时不发送 API Key。",
     clearApiKey: "清除已保存的 API Key",

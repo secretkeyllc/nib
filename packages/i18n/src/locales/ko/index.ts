@@ -82,7 +82,7 @@ export const ko = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib.",
+    tagline: "I am Nib",
     starting: "Nib 시작 중…",
     loadingView: "화면 불러오는 중…",
     uiCrashed: "인터페이스에 문제가 발생했습니다",
@@ -1650,6 +1650,7 @@ sklm: {
     "copyProviderName": "{{name}} (복사본)",
     "copyProviderHint": "독립적인 서비스를 만듭니다. API 키, 계정 로그인 및 사용자 지정 헤더는 복사하지 않습니다. 기본 모델은 변경되지 않습니다.",
     editProviderTitle: "AI 프로바이더 편집",
+    lockedIdentityKeyHint: "Nib 키는 Nib 로그인으로 관리되며 여기서 수정할 수 없습니다.",
     apiKeyKeepHint: "저장된 키를 유지하려면 비워 두세요.",
     apiKeyOptionalHint: "선택 사항입니다. 비워 두면 API 키 없이 요청합니다.",
     clearApiKey: "저장된 API 키 삭제",

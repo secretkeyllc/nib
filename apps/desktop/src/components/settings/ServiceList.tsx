@@ -77,9 +77,15 @@ export function ServiceList({
   const menuItems = (provider: ProviderPublic): CapabilityMenuItem[] => {
     const kind = serviceRowKind(provider);
     const pluginOAuth = kind === "account" && !!provider.ownerPluginId;
+    // The product's own gateway row is the one subscription account the user
+    // may open in the editor: identity is locked there, but format, models
+    // and advanced settings are theirs to tune like any other endpoint. Its
+    // authKind follows the sign-in state (oauth until a key is stored), so
+    // the check is by id, not by row kind.
+    const nibGateway = provider.id === "plugin:nib.provider:nib";
     const items: CapabilityMenuItem[] = [];
     // A plugin owns its row's fields and lifetime; only its key is the user's.
-    if (kind !== "plugin" && !pluginOAuth) {
+    if (nibGateway || (kind !== "plugin" && !pluginOAuth)) {
       items.push({
         key: "edit",
         label: t(kind === "account" ? "settings.editVendorAccount" : "settings.editProvider"),
@@ -169,9 +175,11 @@ export function ServiceList({
             ? undefined
             : kind !== "plugin"
             ? () => onEdit(provider)
-            : provider.authKind === "api_key"
-              ? () => toggleKeyEntry(provider)
-              : undefined;
+            : provider.id === "plugin:nib.provider:nib"
+              ? () => onEdit(provider)
+              : provider.authKind === "api_key"
+                ? () => toggleKeyEntry(provider)
+                : undefined;
         return (
           <ServiceRow
             key={provider.id}

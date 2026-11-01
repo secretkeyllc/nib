@@ -480,9 +480,15 @@ export function ModelConfigPage() {
               isRowBusy={(id) => rowBusy.isBusy(id) || busyAccountId === id}
               isTesting={testingRows.isBusy}
               onEdit={(provider) =>
-                serviceRowKind(provider) === "account"
-                  ? setEditingAccountId(provider.id)
-                  : setSetupFor(provider.id)
+                // The Nib gateway row is a subscription account by authKind,
+                // but it edits through the service dialog (identity locked
+                // there) — not through the vendor-account form, which has no
+                // format or model controls to offer.
+                provider.id === "plugin:nib.provider:nib"
+                  ? setSetupFor(provider.id)
+                  : serviceRowKind(provider) === "account"
+                    ? setEditingAccountId(provider.id)
+                    : setSetupFor(provider.id)
               }
               onTest={(provider) => void testProvider(provider)}
               onSignIn={(provider) => {

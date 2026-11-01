@@ -153,7 +153,10 @@ check("agent plugin receives the provider OAuth permission", (byName.agent?.perm
 const pluginOAuthId = "plugin:e2e.agent:declared-oauth";
 const oauthRow = (providerList.providers ?? []).find((p) => p.id === pluginOAuthId);
 check("OAuth provider materializes as a plugin-owned row", oauthRow?.ownerPluginId === "e2e.agent" && oauthRow?.authKind === "oauth", JSON.stringify([oauthRow?.id, oauthRow?.ownerPluginId, oauthRow?.authKind]));
-check("other plugins keep no owned provider rows", (providerList.providers ?? []).every((p) => !p.ownerPluginId || p.ownerPluginId === "e2e.agent"));
+// The Nib provider ships inside the app, so its owned row exists in every
+// environment; only the e2e agent plugin may contribute rows on top of it.
+check("other plugins keep no owned provider rows", (providerList.providers ?? []).every((p) =>
+  !p.ownerPluginId || p.ownerPluginId === "e2e.agent" || p.ownerPluginId === "nib.provider"));
 
 // 4) plugin OAuth through the real Settings page, Host-rendered dialog, and
 // provider runtime. The plugin returns only synthetic fixture credentials.
@@ -175,17 +178,46 @@ await ui.until(
 );
 const oauthTile = `[data-subscription-vendor-id="${pluginOAuthId}"]`;
 await ui.click(oauthTile);
-const loginSurface = await ui.until(
-  () => {
-    const dialog = document.querySelector(".oauth-dialog");
-    return Boolean(dialog?.textContent?.includes("E2E-OAUTH-42") && dialog.querySelector('input[type="password"]'));
-  },
-  null,
-  "plugin OAuth device-code and secret prompt",
-);
+let loginSurface;
+try {
+  loginSurface = await ui.until(
+    () => {
+      const dialog = document.querySelector(".oauth-dialog");
+      // The code is deliberately absent from the visible text: the approval
+      // page opens with it in the URL, so the user never transcribes it. The
+      // dialog proves the code through the approval link instead.
+      return Boolean(
+        dialog?.querySelector('a.oauth-link[href*="code=E2E-OAUTH-42"]') &&
+        dialog.querySelector('input[type="password"]'),
+      );
+    },
+    null,
+    "plugin OAuth device-code and secret prompt",
+  );
+} catch (error) {
+  // The wait only says "false"; dump what the page actually shows so the
+  // failure names its cause.
+  try {
+    const dump = await ui.run(() => JSON.stringify({
+      oauthDialog: document.querySelector(".oauth-dialog")?.outerHTML?.slice(0, 2000) ?? null,
+      dialogish: [...document.querySelectorAll("[class*='dialog'], [class*='sheet']")].map((e) => e.className).slice(0, 6),
+    }));
+    console.error("[oauth-debug]", dump);
+  } catch {
+    // The window may already be gone; the original timeout is the report.
+  }
+  throw error;
+}
 check("Host renders the plugin's device code and secure prompt", loginSurface);
-const loginCopy = await ui.run(() => document.querySelector(".oauth-dialog")?.textContent ?? "");
-check("Host dialog shows fixture code and prompt label", loginCopy.includes("E2E-OAUTH-42") && loginCopy.includes("Approve E2E OAuth fixture"));
+const loginCopy = await ui.run(() => {
+  const dialog = document.querySelector(".oauth-dialog");
+  return JSON.stringify({
+    text: dialog?.textContent ?? "",
+    codeInLink: Boolean(dialog?.querySelector('a.oauth-link[href*="code=E2E-OAUTH-42"]')),
+  });
+});
+const loginCopyParsed = JSON.parse(loginCopy);
+check("Host dialog shows fixture code and prompt label", loginCopyParsed.codeInLink && loginCopyParsed.text.includes("Approve E2E OAuth fixture"));
 await ui.type("e2e-approved");
 await ui.click('.oauth-answer button[type="submit"]');
 await ui.until(

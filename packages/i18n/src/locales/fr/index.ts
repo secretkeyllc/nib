@@ -82,7 +82,7 @@ export const fr = {
   },
   "app": {
     "shellName": "Nib",
-    "tagline": "I am Nib.",
+    "tagline": "I am Nib",
     "starting": "Démarrage de Nib…",
     "loadingView": "Chargement de la vue…",
     "uiCrashed": "Un problème s'est produit avec l'interface"
@@ -1637,6 +1637,7 @@ sklm: {
     "copyProviderName": "{{name}} (copie)",
     "copyProviderHint": "Crée un service indépendant. Les clés API, connexions aux comptes et en-têtes personnalisés ne sont pas copiés. Le modèle par défaut reste inchangé.",
     "editProviderTitle": "Modifier le fournisseur d'IA",
+    "lockedIdentityKeyHint": "La clé Nib est gérée par votre connexion Nib et ne peut pas être modifiée ici.",
     "apiKeyKeepHint": "Laissez vide pour conserver la clé enregistrée.",
     "apiKeyOptionalHint": "Facultatif. Laissez vide pour envoyer des requêtes sans clé API.",
     "clearApiKey": "Supprimer la clé API enregistrée",

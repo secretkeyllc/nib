@@ -82,7 +82,7 @@ export const ptBR = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib.",
+    tagline: "I am Nib",
     starting: "Iniciando o Nib…",
     loadingView: "Carregando visualização…",
     uiCrashed: "Algo deu errado com a interface"
@@ -1607,6 +1607,7 @@ export const ptBR = {
     copyProviderName: "{{name}} (cópia)",
     copyProviderHint: "Cria um serviço independente. Chaves de API, logins de contas e cabeçalhos personalizados não são copiados. O modelo padrão permanece inalterado.",
     editProviderTitle: "Editar provedor de IA",
+    lockedIdentityKeyHint: "A chave do Nib é gerenciada pelo seu login do Nib e não pode ser editada aqui.",
     apiKeyKeepHint: "Deixe em branco para manter a chave salva.",
     apiKeyOptionalHint: "Opcional. Deixe em branco para enviar solicitações sem chave de API.",
     clearApiKey: "Limpar chave de API salva",

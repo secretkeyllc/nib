@@ -82,7 +82,7 @@ export const zhTW = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib.",
+    tagline: "I am Nib",
     starting: "正在啟動 Nib…",
     loadingView: "正在載入頁面…",
     uiCrashed: "介面出現了問題",
@@ -1632,6 +1632,7 @@ sklm: {
     "copyProviderName": "{{name}}（副本）",
     "copyProviderHint": "建立獨立的服務設定，不複製 API 金鑰、帳號登入資訊或自訂請求標頭。目前的預設模型保持不變。",
     editProviderTitle: "編輯 AI 服務",
+    lockedIdentityKeyHint: "Nib 金鑰由 Nib 登入管理，無法在此修改。",
     apiKeyKeepHint: "留空則保留已儲存的金鑰。",
     apiKeyOptionalHint: "選填，留空時不傳送 API 金鑰。",
     clearApiKey: "清除已儲存的 API 金鑰",

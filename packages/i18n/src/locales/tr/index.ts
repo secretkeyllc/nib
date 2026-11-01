@@ -82,7 +82,7 @@ export const tr = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib.",
+    tagline: "I am Nib",
     starting: "Nib başlatılıyor…",
     loadingView: "Görünüm yükleniyor…",
     uiCrashed: "Arayüzde bir sorun oluştu",
@@ -1644,6 +1644,7 @@ sklm: {
     "copyProviderName": "{{name}} (kopya)",
     "copyProviderHint": "Bağımsız bir hizmet oluşturur. API anahtarları, hesap girişleri ve özel başlıklar kopyalanmaz. Varsayılan model değişmez.",
     editProviderTitle: "AI servisini düzenle",
+    lockedIdentityKeyHint: "Nib anahtarı Nib girişiniz tarafından yönetilir ve burada düzenlenemez.",
     apiKeyKeepHint: "Kayıtlı anahtarı korumak için boş bırakın.",
     apiKeyOptionalHint: "İsteğe bağlı. API anahtarı olmadan istek göndermek için boş bırakın.",
     clearApiKey: "Kayıtlı API anahtarını sil",

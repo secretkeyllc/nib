@@ -82,7 +82,7 @@ export const de = {
   },
   "app": {
     "shellName": "Nib",
-    "tagline": "I am Nib.",
+    "tagline": "I am Nib",
     "starting": "Nib wird gestartet…",
     "loadingView": "Ansicht wird geladen…",
     "uiCrashed": "Mit der Schnittstelle ist ein Fehler aufgetreten"
@@ -1637,6 +1637,7 @@ sklm: {
     "copyProviderName": "{{name}} (Kopie)",
     "copyProviderHint": "Erstellt einen unabhängigen Dienst. API-Schlüssel, Kontoanmeldungen und benutzerdefinierte Header werden nicht kopiert. Das Standardmodell bleibt unverändert.",
     "editProviderTitle": "AI-Anbieter bearbeiten",
+    "lockedIdentityKeyHint": "Der Nib-Schlüssel wird über Ihre Nib-Anmeldung verwaltet und kann hier nicht geändert werden.",
     "apiKeyKeepHint": "Lassen Sie das Feld leer, um den gespeicherten Schlüssel beizubehalten.",
     "apiKeyOptionalHint": "Optional. Leer lassen, um Anfragen ohne API-Schlüssel zu senden.",
     "clearApiKey": "Gespeicherten API-Schlüssel löschen",

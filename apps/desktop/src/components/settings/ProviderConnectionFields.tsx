@@ -29,6 +29,12 @@ export type ProviderConnectionFieldsProps = {
   serviceBaseUrl: string;
   /** Hides service switching when the manifest owns this provider row. */
   lockedService?: boolean;
+  /**
+   * The row's identity (name, address, credential) belongs to the product, not
+   * the user: the three fields render read-only and the key has no clear
+   * button. Format, models and advanced settings stay editable.
+   */
+  lockedIdentity?: boolean;
   onChangeService: () => void;
   apiKeyRef: RefObject<HTMLInputElement | null>;
   nameRef: RefObject<HTMLInputElement | null>;
@@ -59,6 +65,7 @@ export function ProviderConnectionFields({
   apiKeyHint,
   serviceBaseUrl,
   lockedService = false,
+  lockedIdentity = false,
   onChangeService,
   apiKeyRef,
   nameRef,
@@ -141,7 +148,9 @@ export function ProviderConnectionFields({
               <Input
                 ref={nameRef}
                 value={name}
-                autoFocus
+                autoFocus={!lockedIdentity}
+                readOnly={lockedIdentity}
+                aria-readonly={lockedIdentity}
                 onChange={(event) => onNameChange(event.target.value)}
               />
             </Field>
@@ -156,6 +165,8 @@ export function ProviderConnectionFields({
                   placeholder="https://api.example.com/v1"
                   aria-invalid={Boolean(baseUrlError)}
                   aria-describedby={baseUrlError ? "provider-base-url-error" : undefined}
+                  readOnly={lockedIdentity}
+                  aria-readonly={lockedIdentity}
                   onChange={(event) => onBaseUrlChange(event.target.value)}
                   onBlur={commitBaseUrl}
                 />
@@ -173,7 +184,10 @@ export function ProviderConnectionFields({
           </div>
           <div className="provider-setup-field-row provider-setup-custom-auth-row">
             <div className="provider-setup-key">
-              <Field label={t("settings.apiKey")} hint={keyHint}>
+              <Field
+                label={t("settings.apiKey")}
+                hint={lockedIdentity ? t("settings.lockedIdentityKeyHint") : keyHint}
+              >
                 <div className="provider-setup-key-control">
                   <Input
                     ref={apiKeyRef}
@@ -182,10 +196,12 @@ export function ProviderConnectionFields({
                     placeholder="sk-…"
                     className="font-mono text-sm-plus"
                     autoComplete="off"
-                    disabled={saving}
+                    disabled={saving || lockedIdentity}
+                    readOnly={lockedIdentity}
+                    aria-readonly={lockedIdentity}
                     onChange={(event) => onApiKeyChange(event.target.value)}
                   />
-                  {hasSavedApiKey && onClearApiKey ? (
+                  {hasSavedApiKey && onClearApiKey && !lockedIdentity ? (
                     <TooltipButton
                       type="button"
                       className="icon-btn icon-btn-square"

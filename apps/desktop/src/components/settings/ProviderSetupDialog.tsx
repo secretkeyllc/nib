@@ -123,6 +123,14 @@ export function ProviderSetupDialog({
   const { t } = useTranslation();
   const [imageModelDraft, setImageModelDraft] = useState<string[] | undefined>();
   const editing = !!provider;
+  /*
+    The product's own gateway row is edited like any custom endpoint — format,
+    models and advanced settings are the user's — but its identity is not: the
+    name, the gateway address and the key come from the sign-in, and a second
+    value for any of them could only break the account. Read-only fields, no
+    service switch, and the save never rewrites what it cannot show.
+  */
+  const lockedIdentity = provider?.id === "plugin:nib.provider:nib";
   const apiKeyRef = useRef<HTMLInputElement>(null);
   const [service, setService] = useState(() =>
     initialServiceId(initialService, initialDraft, provider),
@@ -383,19 +391,22 @@ export function ProviderSetupDialog({
       if (provider) {
         const result = await api.updateProvider({
           id: provider.id,
-          name: providerName,
+          // A locked identity (the Nib gateway row) is never rewritten: the
+          // fields were read-only, so the save only carries what the user
+          // could actually change — format, models, headers.
+          name: lockedIdentity ? provider.name : providerName,
           // A row whose stored wire format differs from the published preset is
           // no longer that preset, but its catalog identity is still its own.
           vendorKey: namedPreset?.vendorKey ?? provider?.vendorKey ?? "custom",
-          baseUrl: providerBaseUrl,
+          baseUrl: lockedIdentity ? provider.baseUrl ?? providerBaseUrl : providerBaseUrl,
           defaultModelId: persisted[0]?.id,
           models: persisted,
           apiStyle: resolvedApiStyle,
           headers,
-          ...(custom && noApiKeyRequired !== (provider.authKind === "none")
+          ...(custom && noApiKeyRequired !== (provider.authKind === "none") && !lockedIdentity
             ? { authKind: noApiKeyRequired ? "none" : "api_key_and_base_url" }
             : {}),
-          ...(secretValue ? { secretValue } : {}),
+          ...(secretValue && !lockedIdentity ? { secretValue } : {}),
         });
         await onSaved(result.provider ?? provider, persisted, imageModelIdsToSave);
       } else {
@@ -507,6 +518,8 @@ export function ProviderSetupDialog({
             custom={custom}
             editing={editing}
             saving={saving}
+            lockedService={lockedIdentity}
+            lockedIdentity={lockedIdentity}
             serviceLabel={namedPreset ? t(namedPreset.labelKey) : t("settings.presetCustomEndpoint")}
             serviceBaseUrl={namedPreset?.baseUrl ?? ""}
             onChangeService={() => setChoosing(true)}

@@ -80,7 +80,7 @@ export const en = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib.",
+    tagline: "I am Nib",
     starting: "Starting Nib…",
     loadingView: "Loading view…",
     uiCrashed: "Something went wrong with the interface",
@@ -1654,6 +1654,7 @@ sklm: {
     "copyProviderName": "{{name}} (copy)",
     "copyProviderHint": "Creates an independent service. API keys, account logins and custom headers are not copied. Your default model stays unchanged.",
     editProviderTitle: "Edit AI provider",
+    lockedIdentityKeyHint: "The Nib key is managed by your Nib sign-in and cannot be edited here.",
     apiKeyKeepHint: "Leave blank to keep the saved key.",
     apiKeyOptionalHint: "Optional. Leave blank to send requests without an API key.",
     clearApiKey: "Clear saved API key",

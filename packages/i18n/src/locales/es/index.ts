@@ -82,7 +82,7 @@ export const es = {
   },
   "app": {
     "shellName": "Nib",
-    "tagline": "I am Nib.",
+    "tagline": "I am Nib",
     "starting": "Iniciando Nib…",
     "loadingView": "Cargando vista…",
     "uiCrashed": "Algo salió mal con la interfaz"
@@ -1637,6 +1637,7 @@ sklm: {
     "copyProviderName": "{{name}} (copia)",
     "copyProviderHint": "Crea un servicio independiente. No se copian las claves API, los inicios de sesión ni las cabeceras personalizadas. El modelo predeterminado no cambia.",
     "editProviderTitle": "Editar proveedor de IA",
+    "lockedIdentityKeyHint": "La clave de Nib la gestiona su inicio de sesión de Nib y no puede editarse aquí.",
     "apiKeyKeepHint": "Déjelo en blanco para conservar la clave guardada.",
     "apiKeyOptionalHint": "Opcional. Déjelo en blanco para enviar solicitudes sin clave de API.",
     "clearApiKey": "Borrar la clave de API guardada",
