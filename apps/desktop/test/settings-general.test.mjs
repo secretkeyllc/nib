@@ -350,12 +350,15 @@ test("a service row opens its editor and keeps only a switch and one menu", () =
   assert.match(serviceRowSource, /kind !== "account" \? \(/);
   assert.match(serviceRowSource, /disabled=\{busy \|\| kind === "plugin"\}/);
   // Plugin-owned rows are not editable, including OAuth account rows; those
-  // rows still expose sign-out through the overflow menu.
+  // rows still expose sign-out through the overflow menu. The one exception
+  // is the product's own gateway row, whose editor locks the identity and
+  // leaves format, models and advanced settings to the user.
   assert.match(serviceListSource, /const pluginOAuth = kind === "account" && !!provider\.ownerPluginId/);
   assert.match(
     serviceListSource,
-    /if \(kind !== "plugin" && !pluginOAuth\) \{\s*items\.push\(\{\s*key: "edit"/,
+    /if \(nibGateway \|\| \(kind !== "plugin" && !pluginOAuth\)\) \{\s*items\.push\(\{\s*key: "edit"/,
   );
+  assert.match(serviceListSource, /const nibGateway = provider\.id === "plugin:nib\.provider:nib"/);
   assert.match(serviceListSource, /t\(pluginOAuth\s*\?\s*"settings\.vendorSignOut"/);
   assert.match(serviceListSource, /if \(kind !== "plugin"\) \{\s*const isArmed/);
   // Removal is confirmed inside the menu rather than by a second row button.
