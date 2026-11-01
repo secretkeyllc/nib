@@ -232,7 +232,7 @@ export function ProviderSetupDialog({
     // the value the form holds is what the resolver receives: the gateway
     // preset lets the user re-pick the wire style, and feeding the preset
     // default here would silently overwrite that pick on every save.
-    named && !apiStyleTouched ? namedPreset.apiStyle : apiStyle,
+    named && namedPreset && !apiStyleTouched ? namedPreset.apiStyle : apiStyle,
     named || editing || Boolean(initialDraft) || apiStyleTouched,
   );
   const resolvedApiStyle: CatalogApiStyle = endpointDraft.apiStyle;
