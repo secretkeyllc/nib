@@ -186,6 +186,24 @@ Pre-tag checklist:
 - [ ] `release.mjs` / tag runs only after the documentation commit is on the
       release branch
 
+### 4.1.1 Tag creation rules and the CI backstop
+
+The 0.22.16–0.22.19 releases were tagged by hand with `git tag`, bypassing
+`scripts/release.mjs --tag` and its preflight; four releases shipped without
+in-app "what's new" entries. Two rules close that hole:
+
+1. **Create release tags only through the script**:
+   `node scripts/release.mjs <version> --tag`. It refuses to tag while the
+   release-docs preflight fails. Hand-running `git tag` is a release process
+   failure (D260).
+2. **CI backstop**: the `verify` job in `.github/workflows/release.yml` runs
+   `check-release-docs.mjs <tag-version>` on every tag push, before any build.
+   A hand-made tag whose surfaces disagree now fails the release workflow
+   instead of shipping a build without notes. This exists because the preflight
+   is deliberately out of `ci.yml` (prerelease branches must pass the stable
+   version explicitly); the tag push is the one point where the version is
+   always known and the check must be unconditional.
+
 ### 4.2 Build / package
 
 ```bash

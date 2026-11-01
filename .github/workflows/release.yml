@@ -60,12 +60,23 @@ jobs:
           node-version: 24
           cache: pnpm
 
+      # D260 hardening: a tag pushed by hand (bypassing `scripts/release.mjs
+      # --tag`) can carry version surfaces that disagree with the tag, and the
+      # packaged app would ship without its "what's new" catalog entry. The
+      # preflight must pass against the tag's own version before anything is
+      # built. It needs node_modules (the catalog check transpiles the
+      # changelog sources with the workspace TypeScript), so it runs right
+      # after install. This is the backstop; the runbook owns the process.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Release docs preflight (D260)
+        run: node scripts/check-release-docs.mjs "${GITHUB_REF_NAME#v}"
+        if: github.event_name == 'push'
+
       - uses: dtolnay/rust-toolchain@stable
 
       - uses: Swatinem/rust-cache@v2
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Build workspace packages
         run: pnpm build:js

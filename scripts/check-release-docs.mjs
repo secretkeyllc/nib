@@ -200,8 +200,11 @@ if (!read("packages/shared/src/changelog.test.ts").includes(`"${documentVersion}
   );
 }
 
-// 6. READMEs declare the current release line.
+// 6. READMEs declare the current release line. README.zh-CN.md was removed in
+// the Nib rebrand; the check degrades to the files that exist instead of
+// crashing, so a missing translation can never mask a real alignment failure.
 for (const relPath of ["README.md", "README.zh-CN.md"]) {
+  if (!existsSync(path.join(root, relPath))) continue;
   if (!read(relPath).includes(releaseLine)) {
     fail(relPath, `status section does not mention the ${releaseLine} release line`);
   }
