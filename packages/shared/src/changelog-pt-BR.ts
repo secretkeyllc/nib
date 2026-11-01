@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.20",
+    date: "2026-11-01",
+    highlights: [
+      "Entrar no Nib agora carrega a lista completa de modelos do gateway da conta com os limites de contexto e saída publicados.",
+      "Entrar novamente mantém a seleção de modelos e os limites manuais salvos enquanto atualiza os valores publicados.",
+      "Sair e entrar de novo restaura os metadados dos modelos; uma falha na descoberta nunca bloqueia um login válido.",
+    ],
+  },
+
+{
     version: "0.22.19",
     date: "2026-11-01",
     highlights: [

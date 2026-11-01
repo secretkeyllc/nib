@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.20",
+    date: "2026-11-01",
+    highlights: [
+      "Nib'de oturum açmak artık hesabın ağ geçidindeki tam model listesini yayımlanan bağlam ve çıktı limitleriyle yükler.",
+      "Yeniden oturum açmak, kaydedilen model seçimini ve manuel limitleri korurken yayımlanan değerleri günceller.",
+      "Oturumu kapatıp yeniden açmak model üst verilerini geri getirir; başarısız bir model sorgusu geçerli bir oturum açmayı engellemez.",
+    ],
+  },
+
+{
     version: "0.22.19",
     date: "2026-11-01",
     highlights: [

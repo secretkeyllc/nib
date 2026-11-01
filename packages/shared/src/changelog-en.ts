@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.20",
+    date: "2026-11-01",
+    highlights: [
+      "Signing in to Nib now loads your account's full gateway model list with the published context and output limits.",
+      "Re-signing in keeps your saved model selection and manual limit overrides while refreshing the published values.",
+      "Signing out and back in restores the model metadata again, and a failed model lookup never blocks a valid sign-in.",
+    ],
+  },
+
+{
     version: "0.22.19",
     date: "2026-11-01",
     highlights: [

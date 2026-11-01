@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.20",
+    date: "2026-11-01",
+    highlights: [
+      "Nach der Anmeldung bei Nib wird jetzt die vollständige Gateway-Modellliste des Kontos mit den veröffentlichten Kontext- und Ausgabelimits geladen.",
+      "Eine erneute Anmeldung behält die gespeicherte Modellauswahl und manuelle Limits und aktualisiert die veröffentlichten Werte.",
+      "Ab- und wieder anmelden stellt die Modell-Metadaten wieder her; eine fehlgeschlagene Modellabfrage blockiert eine gültige Anmeldung nie.",
+    ],
+  },
+
+{
     version: "0.22.19",
     date: "2026-11-01",
     highlights: [

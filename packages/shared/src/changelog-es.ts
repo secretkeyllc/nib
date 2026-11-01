@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.20",
+    date: "2026-11-01",
+    highlights: [
+      "Iniciar sesión en Nib ahora carga la lista completa de modelos de la pasarela de la cuenta con los límites de contexto y salida publicados.",
+      "Volver a iniciar sesión conserva la selección de modelos y los límites manuales guardados mientras actualiza los valores publicados.",
+      "Cerrar sesión y volver a iniciarla restaura los metadatos de los modelos; un fallo al consultarlos nunca bloquea un inicio de sesión válido.",
+    ],
+  },
+
+{
     version: "0.22.19",
     date: "2026-11-01",
     highlights: [

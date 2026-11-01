@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.20",
+    date: "2026-11-01",
+    highlights: [
+      "Nib에 로그인하면 이제 계정 게이트웨이의 전체 모델 목록이 게시된 컨텍스트·출력 제한과 함께 불러와집니다.",
+      "다시 로그인해도 저장된 모델 선택과 수동 제한은 유지되며 게시된 값만 새로 고칩니다.",
+      "로그아웃 후 다시 로그인하면 모델 메타데이터가 복원되며, 모델 조회 실패가 유효한 로그인을 막지 않습니다.",
+    ],
+  },
+
+{
     version: "0.22.19",
     date: "2026-11-01",
     highlights: [

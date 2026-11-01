@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.20",
+    date: "2026-11-01",
+    highlights: [
+      "登录 Nib 后现在会加载账户网关的完整模型列表，并应用已发布的上下文与输出限制。",
+      "重新登录会保留已保存的模型选择和手动限制，同时刷新目录发布的数值。",
+      "退出后再次登录会恢复模型元数据；模型发现失败也不会阻断有效的登录。",
+    ],
+  },
+
+{
     version: "0.22.19",
     date: "2026-11-01",
     highlights: [
