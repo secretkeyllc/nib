@@ -1662,6 +1662,7 @@ sklm: {
     "changeServiceTitle": "Cambiar servicio",
     "modelReasoningTag": "Razonamiento",
     "modelsAutoPicked": "Elegidos entre los modelos recomendados. Ajústelos en Gestionar modelos.",
+    "presetNib": "Cuenta de Nib",
     "presetOpenai": "OpenAI",
     "presetAnthropic": "Antrópico",
     "presetGoogle": "Google Gemini",

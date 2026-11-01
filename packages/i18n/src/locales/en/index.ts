@@ -1679,6 +1679,7 @@ sklm: {
     changeServiceTitle: "Change service",
     modelReasoningTag: "Reasoning",
     modelsAutoPicked: "Picked from the recommended models. Adjust them in Manage models.",
+    presetNib: "Nib account",
     presetOpenai: "OpenAI",
     presetAnthropic: "Anthropic",
     presetGoogle: "Google Gemini",

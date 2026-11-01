@@ -1675,6 +1675,7 @@ sklm: {
     changeServiceTitle: "서비스 변경",
     modelReasoningTag: "추론",
     modelsAutoPicked: "추천 모델이 자동으로 선택되었습니다. 모델 관리에서 조정할 수 있습니다.",
+    presetNib: "Nib 계정",
     presetOpenai: "OpenAI",
     presetAnthropic: "Anthropic",
     presetGoogle: "Google Gemini",

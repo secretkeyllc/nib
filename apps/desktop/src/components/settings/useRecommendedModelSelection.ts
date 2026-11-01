@@ -9,7 +9,7 @@
  * so a list meant for one vendor never rides along to the next.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ModelBinding } from "@pi-desktop/shared";
+import { bindingFromModelInfo, type ModelBinding } from "@pi-desktop/shared";
 import { canRecommendFrom, recommendModels } from "./recommended-models";
 import type { ProviderModelsState } from "./useProviderModels";
 
@@ -30,6 +30,7 @@ export function useRecommendedModelSelection({
   discovery,
   setModels: setModelsState,
   namedService,
+  selectAll = false,
 }: {
   /** Only a new service with an empty selection is preselected. */
   enabled: boolean;
@@ -38,6 +39,13 @@ export function useRecommendedModelSelection({
   discovery: ProviderModelsState;
   setModels: (next: ModelBinding[] | ((current: ModelBinding[]) => ModelBinding[])) => void;
   namedService: boolean;
+  /**
+   * Preselect the service's whole list instead of the recommendation picks.
+   * For the product's own gateway: the subscription is the entitlement
+   * ("every model on the plan"), so a trustworthy list selects everything —
+   * the first entry stays the default by virtue of the save order.
+   */
+  selectAll?: boolean;
 }): RecommendedModelSelection {
   const touchedRef = useRef(false);
   const serviceKeyRef = useRef(serviceKey);
@@ -68,11 +76,18 @@ export function useRecommendedModelSelection({
     // A later failure (say a mistyped key after a good one) keeps the picks:
     // they came from a list the service did answer with.
     if (!enabled || touchedRef.current || !recommendable) return;
+    if (selectAll) {
+      const everything = discovery.models.map(bindingFromModelInfo);
+      setModelsState(everything);
+      setAutoPicked(everything.length > 0);
+      setNoRecommendation(everything.length === 0);
+      return;
+    }
     const picks = recommendModels(discovery.models);
     setModelsState(picks);
     setAutoPicked(picks.length > 0);
     setNoRecommendation(picks.length === 0);
-  }, [discovery.models, enabled, recommendable, setModelsState]);
+  }, [discovery.models, enabled, recommendable, selectAll, setModelsState]);
 
   return { setModels, autoPicked, noRecommendation };
 }

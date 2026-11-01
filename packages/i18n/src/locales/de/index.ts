@@ -1662,6 +1662,7 @@ sklm: {
     "changeServiceTitle": "Dienst ändern",
     "modelReasoningTag": "Reasoning",
     "modelsAutoPicked": "Aus den empfohlenen Modellen ausgewählt. Unter „Modelle verwalten\" anpassen.",
+    "presetNib": "Nib-Konto",
     "presetOpenai": "OpenAI",
     "presetAnthropic": "Anthropic",
     "presetGoogle": "Google Gemini",

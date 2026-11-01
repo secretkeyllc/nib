@@ -20,6 +20,16 @@ import {
   type OAuthVendor,
   type ProviderPublic,
 } from "@pi-desktop/shared";
+
+/**
+ * The transports the product's own gateway serves. Both are OpenAI wire
+ * styles; the preset's chat_completions is the default answer, and a pick
+ * here is saved like any other user override.
+ */
+const NIB_GATEWAY_API_STYLES: readonly CatalogApiStyle[] = [
+  "chat_completions",
+  "responses",
+];
 import { api } from "../../lib/api";
 import { useAppStore } from "../../stores/app-store";
 import { pairsToRecord, recordToPairs } from "../extensions/KeyValueRows";
@@ -64,6 +74,11 @@ function initialName(provider?: ProviderPublic | null): string {
   return provider?.name ?? providerSetupPreset(provider)?.name ?? "";
 }
 
+/** The gateway row edits on the nib preset, whichever authKind it wears. */
+function isBundledNibRow(provider?: ProviderPublic | null): boolean {
+  return provider?.id === "plugin:nib.provider:nib";
+}
+
 function initialBaseUrl(provider?: ProviderPublic | null): string {
   return providerSetupPreset(provider)?.baseUrl ?? provider?.baseUrl ?? "";
 }
@@ -78,7 +93,13 @@ function initialServiceId(
   provider: ProviderPublic | null | undefined,
 ): string {
   if (initialService) return initialService;
-  if (!initialDraft) return serviceIdFor(provider);
+  if (!initialDraft) {
+    // The bundled gateway row is a subscription account by authKind, so the
+    // generic preset matcher may not see it; its identity is fixed and the
+    // nib preset is the only truthful description of it.
+    if (isBundledNibRow(provider)) return "nib";
+    return serviceIdFor(provider);
+  }
   return initialDraft.apiStyle === OPENCODE_GO_API_STYLE
     ? NAMED_ENDPOINT_PRESETS.find((preset) => preset.apiStyle === OPENCODE_GO_API_STYLE)?.id ??
         CUSTOM_SERVICE
@@ -242,6 +263,9 @@ export function ProviderSetupDialog({
     discovery,
     setModels,
     namedService: named,
+    // The product's own gateway: the plan is the entitlement, so the whole
+    // catalogue the account can call starts selected.
+    selectAll: service === "nib",
   });
   // Every edit made through the picker or the summary ends preselection.
   const selection = useModelSelection(discovery, models, recommended.setModels);
@@ -520,6 +544,11 @@ export function ProviderSetupDialog({
             saving={saving}
             lockedService={lockedIdentity}
             lockedIdentity={lockedIdentity}
+            bundledService={lockedIdentity}
+            hideApiKey={lockedIdentity}
+            // The nib preset's label ("Nib account") is what the chip shows;
+            // the app mark comes from bundledService. "Custom endpoint" would
+            // deny the row came built-in.
             serviceLabel={namedPreset ? t(namedPreset.labelKey) : t("settings.presetCustomEndpoint")}
             serviceBaseUrl={namedPreset?.baseUrl ?? ""}
             onChangeService={() => setChoosing(true)}
@@ -551,6 +580,11 @@ export function ProviderSetupDialog({
             apiStyleNote={endpointFormatNote}
             accountOnlyApiStyle={accountOnlyApiStyle}
             requiresApiStyleChoice={requiresApiStyleChoice}
+            allowedApiStyles={
+              // The gateway serves both OpenAI wire styles; the preset's
+              // chat_completions is only the default answer.
+              lockedIdentity ? NIB_GATEWAY_API_STYLES : undefined
+            }
           />
 
         </div>

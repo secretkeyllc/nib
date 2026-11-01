@@ -29,6 +29,16 @@ export type ProviderConnectionFieldsProps = {
   serviceBaseUrl: string;
   /** Hides service switching when the manifest owns this provider row. */
   lockedService?: boolean;
+  /** The product's own row: the chip carries the app mark, not a letter. */
+  bundledService?: boolean;
+  /** No key field at all: the credential is the sign-in's, not a paste. */
+  hideApiKey?: boolean;
+  /**
+   * Restrict the format picker to these transports. A preset normally owns
+   * its format outright; the one exception is the product's own gateway,
+   * which serves both OpenAI wire styles and lets the user pick.
+   */
+  allowedApiStyles?: readonly CatalogApiStyle[];
   /**
    * The row's identity (name, address, credential) belongs to the product, not
    * the user: the three fields render read-only and the key has no clear
@@ -65,6 +75,9 @@ export function ProviderConnectionFields({
   apiKeyHint,
   serviceBaseUrl,
   lockedService = false,
+  bundledService = false,
+  hideApiKey = false,
+  allowedApiStyles,
   lockedIdentity = false,
   onChangeService,
   apiKeyRef,
@@ -101,7 +114,7 @@ export function ProviderConnectionFields({
         <div className="block space-y-1.5">
           <div className="text-sm text-text-secondary">{t("settings.service")}</div>
           <div className="provider-service-chip">
-            <ServiceMonogram name={serviceLabel} />
+            <ServiceMonogram name={serviceLabel} bundled={bundledService} />
             <span className="provider-service-chip-copy">
               <span className="provider-service-chip-name">{serviceLabel}</span>
               {serviceBaseUrl ? (
@@ -123,7 +136,7 @@ export function ProviderConnectionFields({
           </div>
         </div>
 
-        {named ? (
+        {named && !hideApiKey ? (
           <div className="provider-setup-key">
             <Field label={t("settings.apiKey")} hint={apiKeyHint ?? keyHint}>
               <Input
@@ -135,6 +148,31 @@ export function ProviderConnectionFields({
                 autoComplete="off"
                 autoFocus
                 onChange={(event) => onApiKeyChange(event.target.value)}
+              />
+            </Field>
+          </div>
+        ) : null}
+
+        {/*
+          A named preset decides its own format, with one exception: the
+          product's gateway serves two OpenAI wire styles and the user picks.
+          The selector takes the key field's slot on that row — the key is
+          managed by the sign-in, so there is nothing to type where other
+          services paste one.
+        */}
+        {named && allowedApiStyles && allowedApiStyles.length > 0 ? (
+          <div className="provider-setup-key">
+            <Field label={t("settings.apiStyle")} hint={apiStyleNote}>
+              <SettingsMenuSelect
+                fullWidth
+                label={t("settings.apiStyle")}
+                value={apiStyle}
+                disabled={saving}
+                onChange={(id) => onApiStyleChange(id as CatalogApiStyle)}
+                options={allowedApiStyles.map((style) => ({
+                  id: style,
+                  label: t(API_STYLE_LABEL_KEYS[style]),
+                }))}
               />
             </Field>
           </div>

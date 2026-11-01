@@ -466,7 +466,12 @@ fn the_user_path_refuses_a_plugin_owned_row() {
         .expect_err("the user path cannot delete a plugin row")
         .to_string();
     assert!(delete_error.contains("PROVIDER_OWNED_BY_PLUGIN"));
-    let update_error = providers::update_provider(
+    // A rename through the user path is ignored rather than refused: the
+    // declaration owns the row's identity, so identity fields are forced to
+    // their current values and the rest of the edit proceeds. The user's
+    // fields (models, format, headers, enablement) update in place — the
+    // product's own gateway row is edited exactly this way.
+    let renamed = providers::update_provider(
         &db,
         &secrets,
         providers::ProviderUpdateInput {
@@ -477,8 +482,24 @@ fn the_user_path_refuses_a_plugin_owned_row() {
             protocol: None,
             base_url: None,
             auth_kind: None,
-            models: None,
-            default_model_id: None,
+            models: Some(vec![providers::ModelBinding {
+                id: "demo-1".into(),
+                alias: None,
+                context_window_source: None,
+                max_tokens_source: None,
+                context_window: 0,
+                max_tokens: 0,
+                thinking_levels: Vec::new(),
+                default_thinking_level: None,
+                thinking_protocol: None,
+                supports_reasoning_effort: None,
+                supports_images: None,
+                supports_documents: None,
+                available_for_subagents: None,
+                native_web_search: None,
+                fast_mode_allowed: None,
+            }]),
+            default_model_id: Some("demo-1".into()),
             secret_value: None,
             api_style: None,
             oauth_account_label: None,
@@ -491,11 +512,15 @@ fn the_user_path_refuses_a_plugin_owned_row() {
             enabled: None,
         },
     )
-    .expect_err("the user path cannot edit a plugin row")
-    .to_string();
-    assert!(update_error.contains("PROVIDER_OWNED_BY_PLUGIN"));
+    .expect("the user's fields of a plugin row update in place")
+    .unwrap();
+    assert_eq!(renamed.name, "Demo", "the declaration keeps the name");
     let row = providers::get_provider(&db, &secrets, id).unwrap().unwrap();
     assert_eq!(row.name, "Demo");
+    assert!(
+        row.models.iter().any(|model| model.id == "demo-1"),
+        "the user's model selection is saved"
+    );
 }
 
 #[test]

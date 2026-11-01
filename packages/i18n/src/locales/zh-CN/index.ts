@@ -1657,6 +1657,7 @@ sklm: {
     changeServiceTitle: "更换服务",
     modelReasoningTag: "推理",
     modelsAutoPicked: "已按推荐自动选择，可在「管理模型」中调整。",
+    presetNib: "Nib 账号",
     presetOpenai: "OpenAI",
     presetAnthropic: "Anthropic",
     presetGoogle: "Google Gemini",

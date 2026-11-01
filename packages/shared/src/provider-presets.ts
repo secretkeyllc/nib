@@ -28,6 +28,19 @@ export type NamedEndpointPreset = {
 
 export const NAMED_ENDPOINT_PRESETS: readonly NamedEndpointPreset[] = [
   {
+    // The product's own gateway. It sits first in the table so the add path
+    // offers it first, and so the endpoint registry answers for
+    // `api.nib.am/v1`: only a registry fact — never a heuristic — may speak
+    // for the wire style of the account the app signs in with.
+    id: "nib",
+    vendorKey: "nib",
+    name: "Nib",
+    baseUrl: "https://api.nib.am/v1",
+    apiStyle: "chat_completions",
+    labelKey: "settings.presetNib",
+    aliases: ["nib account"],
+  },
+  {
     id: "openai",
     vendorKey: "openai",
     name: "OpenAI",

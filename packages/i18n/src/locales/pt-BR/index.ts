@@ -1634,6 +1634,7 @@ export const ptBR = {
     modelsAutoPicked: "Selecionados entre os modelos recomendados. Ajuste-os em Gerenciar modelos.",
     serviceRowLabel: "{{name}}. Pressione Enter para editar; arraste ou use as teclas de seta para cima e para baixo para reordenar.",
     serviceRowActions: "Ações de {{name}}",
+    presetNib: "Conta do Nib",
     presetOpenai: "OpenAI",
     presetAnthropic: "Anthropic",
     presetGoogle: "Google Gemini",

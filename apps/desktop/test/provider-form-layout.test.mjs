@@ -79,11 +79,15 @@ test("custom API format sits beside the key, not in a disclosure", () => {
   assert.match(fieldsSource, /CUSTOM_PROVIDER_API_STYLES\.map/);
   assert.doesNotMatch(fieldsSource, /settings\.apiStyleDerived/);
   assert.match(fieldsSource, /provider-service-chip/);
-  // The format choice belongs to the custom rows only.
-  assert.ok(
-    fieldsSource.indexOf("{custom ? (") < fieldsSource.indexOf("settings.apiStyle\""),
-    "API format must sit inside the custom rows",
-  );
+  // The format choice belongs to the custom rows only — with one deliberate
+  // exception: the product's gateway row (a named preset) picks between the
+  // two OpenAI wire styles in the key field's slot, because its key is the
+  // sign-in's and there is nothing to paste.
+  const customBlockAt = fieldsSource.indexOf("{custom ? (");
+  const namedStyleAt = fieldsSource.indexOf("allowedApiStyles");
+  const customStyleAt = fieldsSource.indexOf('settings.apiStyle"', customBlockAt);
+  assert.ok(customStyleAt > customBlockAt, "API format must sit inside the custom rows");
+  assert.ok(namedStyleAt > -1 && namedStyleAt < customBlockAt, "the gateway row's picker precedes the custom block");
   assert.match(pickerSource, /provider-chosen-advanced-toggle/);
 });
 

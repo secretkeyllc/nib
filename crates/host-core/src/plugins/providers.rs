@@ -280,10 +280,11 @@ pub(crate) fn sync_plugin_providers(
         // A declaration that moves the endpoint abandons the answer the previous
         // one produced: the cached rows carry no endpoint of their own, so the
         // discovery cache is dropped and the next probe records the new answer.
+        // The address alone decides this — a stored format the user re-picked
+        // differs from the declaration by design and must not read as a move.
         let endpoint_changed = existing_config.is_some()
-            && (existing_base_url.as_deref().unwrap_or("").trim()
-                != provider.base_url.as_deref().unwrap_or("").trim()
-                || existing_api_style.as_deref().unwrap_or("") != provider.api_style);
+            && existing_base_url.as_deref().unwrap_or("").trim()
+                != provider.base_url.as_deref().unwrap_or("").trim();
         // A declaration that no longer names a model forgets that model's
         // cached row, exactly as a user save does: the row would otherwise keep
         // describing a model this provider stopped declaring. The row above is
@@ -333,6 +334,17 @@ pub(crate) fn sync_plugin_providers(
         // The public projection derives the default from the first binding, so
         // the declared order is the plugin's choice of default.
         let default_model_id = models.first().map(|model| model.id.clone());
+        // The declared format is the row's *initial* answer, not a per-boot
+        // reset: the user may re-pick it in the editor (the product's own
+        // gateway row serves both wire styles), and an update that re-wrote
+        // the stored value every launch would undo their choice. Only a row
+        // being created right now takes the declared value verbatim.
+        let declared_api_style = provider.api_style.clone();
+        let api_style_for_write = if existing_config.is_some() {
+            existing_api_style.unwrap_or(declared_api_style)
+        } else {
+            declared_api_style
+        };
         db.conn()
             .prepare_cached(
                 "INSERT INTO providers (
@@ -360,11 +372,11 @@ pub(crate) fn sync_plugin_providers(
                 row_id,
                 provider.name,
                 provider.vendor_key,
-                protocol_for_api_style(&provider.api_style),
+                protocol_for_api_style(&api_style_for_write),
                 if enabled { 1 } else { 0 },
                 provider.base_url,
                 provider.auth_kind,
-                provider.api_style,
+                api_style_for_write,
                 default_model_id,
                 config,
                 plugin_id,

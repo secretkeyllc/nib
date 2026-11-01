@@ -11,7 +11,7 @@ import type { ProviderPublic } from "@pi-desktop/shared";
 import { IconCopy, IconKey, IconPencil, IconPlug, IconTrash } from "../icons";
 import { useArmedDelete, type CapabilityMenuItem } from "./AgentCapabilityLayout";
 import { ServiceRow } from "./ServiceRow";
-import { serviceRowKind } from "./service-row-status";
+import { isBundledProvider, serviceRowKind } from "./service-row-status";
 import { useProviderReorder } from "./useProviderReorder";
 import type { AccountEntry } from "./useVendorAccounts";
 
@@ -171,15 +171,17 @@ export function ServiceList({
         const kind = serviceRowKind(provider);
         const rowBusy = reorder.saving || isRowBusy(provider.id);
         const onOpen =
-          kind === "account" && provider.ownerPluginId
+          kind === "account" && provider.ownerPluginId && !isBundledProvider(provider)
             ? undefined
+            : isBundledProvider(provider)
+            ? // The product's own gateway row opens the editor on click, the
+              // same way every service the user added does.
+              () => onEdit(provider)
             : kind !== "plugin"
             ? () => onEdit(provider)
-            : provider.id === "plugin:nib.provider:nib"
-              ? () => onEdit(provider)
-              : provider.authKind === "api_key"
-                ? () => toggleKeyEntry(provider)
-                : undefined;
+            : provider.authKind === "api_key"
+              ? () => toggleKeyEntry(provider)
+              : undefined;
         return (
           <ServiceRow
             key={provider.id}

@@ -1669,6 +1669,7 @@ sklm: {
     changeServiceTitle: "Servisi değiştir",
     modelReasoningTag: "Akıl yürütme",
     modelsAutoPicked: "Önerilen modeller seçildi. Modelleri yönet bölümünden değiştirebilirsiniz.",
+    presetNib: "Nib hesabı",
     presetOpenai: "OpenAI",
     presetAnthropic: "Anthropic",
     presetGoogle: "Google Gemini",

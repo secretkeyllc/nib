@@ -310,12 +310,23 @@ pub fn update_provider(
         return Ok(None);
     };
     // A plugin-declared row is refreshed from its manifest on every load, so a
-    // generic edit would be silently reverted. The plugin path owns it.
-    if let Some(owner) = current.owner_plugin_id.as_deref() {
-        bail!(
-            "PROVIDER_OWNED_BY_PLUGIN: provider {} belongs to plugin {owner}",
-            input.id
-        );
+    // generic edit must not rewrite what the declaration owns — the name, the
+    // endpoint, the wire identity and the credential kind. The user's fields
+    // (models, format override, headers, enablement) still update in place,
+    // which is how the product's own gateway row is meant to be edited: the
+    // identity is the sign-in's, the tuning is the user's.
+    let owned_by_plugin = current.owner_plugin_id.is_some();
+    let mut input = input;
+    if owned_by_plugin {
+        input.name = None;
+        input.base_url = None;
+        input.vendor_key = None;
+        input.provider_type = None;
+        input.protocol = None;
+        input.auth_kind = None;
+        input.secret_value = None;
+        // An oauth account label is written by the login flow, not by a form.
+        input.oauth_account_label = None;
     }
     // Validate before any side effect: a rejected alias must not replace the
     // stored secret.
