@@ -28,7 +28,9 @@ import { fileURLToPath } from 'node:url'
 
 const docsRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
-const ignoredDirectories = new Set(['node_modules', '.vitepress', 'dist', 'cache'])
+// Mirrors srcExclude in .vitepress/config.mts: these stay in the repository
+// but are internal material, not published documentation.
+const ignoredDirectories = new Set(['node_modules', '.vitepress', 'dist', 'cache', 'plugin-plan', 'implementation'])
 const PLACEHOLDER = 'PIHOLDTOKEN'
 const REQUIRED_ADR_SECTIONS = ['Context', 'Decision']
 const OPTIONAL_ADR_SECTIONS = ['Consequences']

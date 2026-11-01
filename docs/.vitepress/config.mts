@@ -52,7 +52,8 @@ function adrItems(): DefaultTheme.SidebarItem[] {
   const directory = path.join(docsRoot, 'adr')
   return fs.readdirSync(directory)
     .filter((file) => file.endsWith('.md') && file !== 'README.md')
-    .sort((left, right) => left.localeCompare(right, 'en'))
+    .sort((left, right) => right.localeCompare(left, 'en')) // newest first
+    .slice(0, 10) // sidebar carries only the recent entries; /adr/README has the full index
     .map((file) => ({
       text: titleFromMarkdown(path.join(directory, file)),
       link: `/adr/${file.slice(0, -3)}`,
@@ -138,6 +139,9 @@ const enNav: DefaultTheme.NavItem[] = [
 export default defineConfig({
   title: 'Nib',
   description: 'A modular desktop workspace for AI agents',
+  // Internal process records and SDK contract drafts stay in the repository
+  // but are not published to docs.nib.am (mirrors PI-Desktop's approach).
+  srcExclude: ['plugin-plan/**', 'implementation/**'],
   // Product shell is dark-base; lock docs to the same charcoal system.
   appearance: 'force-dark',
   cleanUrls: true,
@@ -145,6 +149,12 @@ export default defineConfig({
   head: [
     ['meta', { name: 'theme-color', content: '#0d0d0d' }],
     ['meta', { name: 'color-scheme', content: 'dark light' }],
+    // Same favicon as nib.am (logo-gray at 270px); the docs logo is the white
+    // wordmark the site nav uses. Both come from the nibam repo's assets.
+    ['link', { rel: 'icon', href: '/favicon.ico', sizes: 'any' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' }],
+    ['link', { rel: 'icon', type: 'image/png', sizes: '512x512', href: '/favicon-512.png' }],
+    ['link', { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon-180.png' }],
   ],
   locales: {
     root: { label: 'English', lang: 'en' },
@@ -155,7 +165,7 @@ export default defineConfig({
     theme: { light: 'github-light', dark: 'github-dark' },
   },
   themeConfig: {
-    logo: '/app-icon.png',
+    logo: '/logo-white.png',
     siteTitle: 'Nib',
     search: { provider: 'local' },
     socialLinks: [{ icon: 'github', link: 'https://github.com/secretkeyllc/nib' }],

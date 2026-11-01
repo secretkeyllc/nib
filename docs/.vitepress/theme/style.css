@@ -367,7 +367,7 @@ body {
 .VPHero .name {
   margin-bottom: 0.12em;
   color: var(--fog);
-  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  font-size: clamp(1.5rem, 2.8vw, 2.1rem);
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.2;
@@ -488,9 +488,9 @@ body {
   width: 100%;
   height: auto;
   margin: 0;
-  border: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
-  background: transparent;
+  background: var(--graphite);
   box-shadow: 0 50px 120px rgba(0, 0, 0, 0.55);
   object-fit: contain;
 }
