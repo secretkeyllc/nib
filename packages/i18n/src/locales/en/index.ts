@@ -80,7 +80,7 @@ export const en = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib",
+    tagline: "I am Nib.",
     starting: "Starting Nib…",
     loadingView: "Loading view…",
     uiCrashed: "Something went wrong with the interface",
@@ -1316,13 +1316,13 @@ sklm: {
       sshFailed: "Install failed: {{message}}",
       transportSsh: "SSH",
       experimental: "Experimental",
+    },
     remoteControl: {
       title: "Phone remote control",
       experimental: "Experimental",
       statusTitle: "Pairing",
       startPairing: "Start pairing",
       stopPairing: "Stop pairing",
-    },
     },
     configSync: {
       title: "Cloud sync",

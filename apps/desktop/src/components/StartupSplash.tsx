@@ -19,8 +19,9 @@ export function StartupSplash({ exiting = false }: { exiting?: boolean }) {
           <BrandLogo size={64} />
         </div>
         <div className="startup-splash-copy">
-          <div className="startup-splash-name">{t("app.shellName")}</div>
-          <div className="startup-splash-tagline">{t("app.tagline")}</div>
+          {/* One line only: the signature line doubles as the wordmark, in the
+              name's weight — not name over tagline. */}
+          <div className="startup-splash-name">{t("app.tagline")}</div>
         </div>
         <div className="startup-splash-track" aria-hidden>
           <span className="startup-splash-bar" />

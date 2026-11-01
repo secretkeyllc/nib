@@ -82,7 +82,7 @@ export const tr = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib",
+    tagline: "I am Nib.",
     starting: "Nib başlatılıyor…",
     loadingView: "Görünüm yükleniyor…",
     uiCrashed: "Arayüzde bir sorun oluştu",
@@ -1417,7 +1417,6 @@ sklm: {
     subagentCreated: "{{name}} oluşturuldu",
     subagentSaved: "{{name}} kaydedildi",
     projectArchive: "Proje arşivi",
-    remoteHosts: {
     remoteControl: {
       title: "Telefondan uzaktan kontrol",
       experimental: "Deneysel",
@@ -1425,6 +1424,7 @@ sklm: {
       startPairing: "Eşleştirmeyi başlat",
       stopPairing: "Eşleştirmeyi durdur",
     },
+    remoteHosts: {
       title: "Uzak ana bilgisayarlar",
       listError: "Ana bilgisayarlar yüklenemedi",
       loading: "Yükleniyor…",

@@ -82,7 +82,7 @@ export const zhCN = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib",
+    tagline: "I am Nib.",
     starting: "正在启动 Nib…",
     loadingView: "正在加载页面…",
     uiCrashed: "界面出现了问题",
@@ -1456,13 +1456,13 @@ sklm: {
       sshFailed: "安装失败：{{message}}",
       transportSsh: "SSH",
       experimental: "实验性",
+    },
     remoteControl: {
       title: "手机远程控制",
       experimental: "实验性",
       statusTitle: "配对状态",
       startPairing: "开始配对",
       stopPairing: "停止配对",
-    },
     },
     importTitle: "从其他工具导入",
     importScan: "扫描",

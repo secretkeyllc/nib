@@ -77,10 +77,23 @@ export function NibAccountButton() {
     null,
   );
 
+  const lastSignedIn = useRef<boolean | null>(null);
+
   const load = () => {
     void api
       .nibEntitlement()
-      .then(setEnt)
+      .then((next) => {
+        setEnt(next);
+        // The poll doubles as the expiry detector: the first read that comes
+        // back signed-out means the session died (or was signed out
+        // elsewhere). Refresh the provider rows so the composer drops the
+        // gateway models this frame instead of on its own next poll.
+        if (lastSignedIn.current === true && next.signedIn !== true) {
+          void refreshProviders();
+          notifyAuthChanged();
+        }
+        lastSignedIn.current = next.signedIn === true;
+      })
       .catch(() => setEnt(null));
   };
 

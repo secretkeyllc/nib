@@ -45,6 +45,12 @@ for (const file of files) {
   for (const match of text.matchAll(/\bt\(\s*"([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)"/g)) {
     if (!used.has(match[1])) used.set(match[1], file);
   }
+  // i18n keys are also handed to components as `labelKey`/`titleKey`/… props
+  // and resolved dynamically — that indirection is exactly how
+  // `settings.remoteControl.*` shipped as raw key text, so scan those too.
+  for (const match of text.matchAll(/\b[a-zA-Z]+Key:\s*"([a-zA-Z0-9_]+\.[a-zA-Z0-9_.]+)"/g)) {
+    if (!used.has(match[1])) used.set(match[1], file);
+  }
 }
 
 const flats = Object.fromEntries(

@@ -19,8 +19,10 @@ test("boot path renders a branded startup splash instead of plain status text", 
   assert.match(splash, /export function StartupSplash/);
   assert.match(splash, /data-testid="startup-splash"/);
   assert.match(splash, /<BrandLogo size=\{64\}/);
-  assert.match(splash, /t\("app\.shellName"\)/);
   assert.match(splash, /t\("app\.tagline"\)/);
+  // Single line: the signature line doubles as the wordmark; the plain
+  // "Nib" name lives in the sidebar, not the splash.
+  assert.doesNotMatch(splash, /t\("app\.shellName"\)/);
   assert.match(splash, /t\("app\.starting"\)/);
   assert.match(app, /import \{ StartupSplash \}/);
   assert.match(app, /app-shell-boot/);

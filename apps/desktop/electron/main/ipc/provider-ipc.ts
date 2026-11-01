@@ -50,6 +50,8 @@ type RuntimeProvider = {
   apiKey?: string;
   authKind?: string;
   apiStyle?: string;
+  /** Set on rows contributed by a plugin (e.g. the Nib gateway row). */
+  ownerPluginId?: string;
   hasSecret?: boolean;
   hasOauth?: boolean;
   oauthAccountLabel?: string;
@@ -358,6 +360,20 @@ export function registerProviderIpc({
       const provider = req.providerId
         ? providers.find((p) => p.id === req.providerId)
         : undefined;
+      // A plugin-owned subscription gateway without any stored credential has
+      // nothing to list: an expired session must look exactly like being
+      // signed out — for the remote controller and the settings page the same
+      // as for the composer. (vendorOAuth.listModels already refuses; this
+      // keeps the configured-binding fallback below from resurrecting the
+      // manifest's frozen catalogue.)
+      if (
+        provider?.ownerPluginId &&
+        provider.authKind === OAUTH_AUTH_KIND &&
+        !provider.hasSecret &&
+        !provider.hasOauth
+      ) {
+        return { models: [], source: "fallback" as const };
+      }
       if (provider) modelsDevCatalog.configureAccount(provider);
       const baseUrl = (req.baseUrl ?? provider?.baseUrl ?? "").trim();
       const apiStyle = req.apiStyle ?? provider?.apiStyle ?? "chat_completions";

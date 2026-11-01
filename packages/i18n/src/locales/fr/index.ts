@@ -82,7 +82,7 @@ export const fr = {
   },
   "app": {
     "shellName": "Nib",
-    "tagline": "I am Nib",
+    "tagline": "I am Nib.",
     "starting": "Démarrage de Nib…",
     "loadingView": "Chargement de la vue…",
     "uiCrashed": "Un problème s'est produit avec l'interface"
@@ -1415,7 +1415,6 @@ sklm: {
     "subagentCreated": "Créé {{name}}",
     "subagentSaved": "Enregistré {{name}}",
     "projectArchive": "Archive du projet",
-    "remoteHosts": {
     remoteControl: {
       title: "Contrôle à distance depuis le téléphone",
       experimental: "Expérimental",
@@ -1423,6 +1422,7 @@ sklm: {
       startPairing: "Démarrer le jumelage",
       stopPairing: "Arrêter le jumelage",
     },
+    "remoteHosts": {
       "title": "Hôtes distants",
       "listError": "Impossible de charger les hôtes",
       "loading": "Chargement…",

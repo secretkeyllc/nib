@@ -82,7 +82,7 @@ export const de = {
   },
   "app": {
     "shellName": "Nib",
-    "tagline": "I am Nib",
+    "tagline": "I am Nib.",
     "starting": "Nib wird gestartet…",
     "loadingView": "Ansicht wird geladen…",
     "uiCrashed": "Mit der Schnittstelle ist ein Fehler aufgetreten"
@@ -1415,7 +1415,6 @@ sklm: {
     "subagentCreated": "Erstellt {{name}}",
     "subagentSaved": "Gespeichert {{name}}",
     "projectArchive": "Projektarchiv",
-    "remoteHosts": {
     remoteControl: {
       title: "Fernsteuerung vom Handy",
       experimental: "Experimentell",
@@ -1423,6 +1422,7 @@ sklm: {
       startPairing: "Koppeln starten",
       stopPairing: "Koppeln beenden",
     },
+    "remoteHosts": {
       "title": "Remote-Hosts",
       "listError": "Hosts konnten nicht geladen werden",
       "loading": "Wird geladen…",

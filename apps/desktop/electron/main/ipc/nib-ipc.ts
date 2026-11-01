@@ -96,6 +96,35 @@ function num(value: unknown): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
+/**
+ * Remove the account material the plugin keeps in its own settings file. An
+ * explicit sign-out and a detected session expiry must both end here: a JWT or
+ * gateway key left behind would let panel reads and the keychain-fallback path
+ * keep using a dead account after the user can no longer use it.
+ */
+async function clearPluginAccountSettings(
+  dataDir: string,
+  logger: Logger,
+  reason: string,
+): Promise<void> {
+  const file = settingsFile(dataDir);
+  try {
+    const raw = await readFile(file, "utf8");
+    const parsed = JSON.parse(raw) as PluginSettings;
+    delete parsed.nibAccessToken;
+    delete parsed.nibApiKey;
+    await writeFile(file, `${JSON.stringify(parsed, null, 2)}\n`, "utf8");
+  } catch (error) {
+    // No settings file at all is the already-signed-out case; anything else
+    // is worth a line in the log but must not block the caller.
+    if ((error as NodeJS.ErrnoException)?.code !== "ENOENT") {
+      logger.app("provider", "warn", `nib ${reason} could not clear plugin settings`, {
+        data: { error: error instanceof Error ? error.message : String(error) },
+      });
+    }
+  }
+}
+
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
 }
@@ -124,13 +153,17 @@ export function registerNibIpc({
         signal: controller.signal,
       });
       if (response.status === 401) {
-        // An expired/revoked session must stop spending the account's plan:
-        // retire the stored gateway credential so the Nib provider stops
-        // being usable until the next sign-in. Third-party providers the
-        // user added with their own keys are untouched. Fire-and-forget —
+        // An expired/revoked session must be indistinguishable from being
+        // signed out: retire the stored gateway credential AND the plugin's
+        // own copy of the key, so neither the picker nor a request can keep
+        // spending the account until the next sign-in. Third-party providers
+        // the user added with their own keys are untouched. Fire-and-forget —
         // the entitlement answer must not wait on secret-store I/O.
-        void forgetProviderCredential(providerId).catch((error) => {
-          logger.app("provider", "warn", "nib session expiry could not forget the gateway credential", {
+        void (async () => {
+          await forgetProviderCredential(providerId);
+          await clearPluginAccountSettings(dataDir(), logger, "session expiry");
+        })().catch((error) => {
+          logger.app("provider", "warn", "nib session expiry could not retire the gateway credential", {
             data: { error: error instanceof Error ? error.message : String(error) },
           });
         });
@@ -195,23 +228,7 @@ export function registerNibIpc({
     // must know: leaving a working key behind after "sign out" is the one
     // outcome the user would not expect.
     await forgetProviderCredential(providerId);
-
-    const file = settingsFile(dataDir());
-    try {
-      const raw = await readFile(file, "utf8");
-      const parsed = JSON.parse(raw) as PluginSettings;
-      delete parsed.nibAccessToken;
-      delete parsed.nibApiKey;
-      await writeFile(file, `${JSON.stringify(parsed, null, 2)}\n`, "utf8");
-    } catch (error) {
-      // No settings file at all is the already-signed-out case; anything else
-      // is worth a line in the log but must not block the sign-out.
-      if ((error as NodeJS.ErrnoException)?.code !== "ENOENT") {
-        logger.app("provider", "warn", "nib sign-out could not clear plugin settings", {
-          data: { error: error instanceof Error ? error.message : String(error) },
-        });
-      }
-    }
+    await clearPluginAccountSettings(dataDir(), logger, "sign-out");
     return { ok: true };
   });
 

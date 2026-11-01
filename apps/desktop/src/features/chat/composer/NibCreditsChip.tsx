@@ -20,7 +20,8 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { NibEntitlement } from "@pi-desktop/shared";
 import { api } from "../../../lib/api";
-import { onAuthChanged } from "../../../lib/auth-events";
+import { notifyAuthChanged, onAuthChanged } from "../../../lib/auth-events";
+import { useAppStore } from "../../../stores/app-store";
 import {
   placeContextInspector,
   type ContextInspectorPlacement,
@@ -56,6 +57,8 @@ export function NibCreditsChip() {
   const [placement, setPlacement] = useState<ContextInspectorPlacement | null>(
     null,
   );
+  /** Signed-in state of the previous settled read; null before the first. */
+  const lastSignedIn = useRef<boolean | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,6 +86,15 @@ export function NibCreditsChip() {
           setEnt((previous) =>
             thin && previous?.signedIn ? previous : next,
           );
+          // The poll doubles as the expiry detector: the first read that
+          // comes back signed-out means the session died. Refresh the
+          // provider rows so the composer drops the gateway models now,
+          // not on their own next poll.
+          if (lastSignedIn.current === true && next.signedIn !== true) {
+            void useAppStore.getState().refreshProviders();
+            notifyAuthChanged();
+          }
+          lastSignedIn.current = next.signedIn === true;
           timer = setTimeout(load, thin ? RETRY_MS : REFRESH_MS);
         })
         .catch(() => {

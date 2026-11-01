@@ -122,10 +122,16 @@ export function useComposerModelMenu({
         .filter(
           (candidate) =>
             candidate.enabled &&
-            (candidate.hasSecret ||
-              candidate.hasOauth ||
-              candidate.authKind === "none" ||
-              candidate.authKind === "oauth"),
+            // A plugin-owned subscription gateway (the Nib row) without a
+            // stored credential has nothing the account can call: an expired
+            // session must read exactly like being signed out, so the group
+            // stays out of the picker instead of listing dead models.
+            (candidate.ownerPluginId && candidate.authKind === "oauth"
+              ? candidate.hasSecret || candidate.hasOauth
+              : candidate.hasSecret ||
+                candidate.hasOauth ||
+                candidate.authKind === "none" ||
+                candidate.authKind === "oauth"),
         )
         .map((candidate) => {
           const models = composerModelsForProvider(

@@ -832,6 +832,15 @@ export class VendorOAuth {
       const baseUrl = row.baseUrl;
       const apiStyle = row.apiStyle ?? "chat_completions";
 
+      // A subscription gateway without any credential has nothing to list: an
+      // unsigned or expired account must look identical to a row that does not
+      // exist, not like the manifest's frozen catalogue. (Discovery below
+      // would bail the same way; the check also keeps the manifest fallback
+      // from filling in dead models.)
+      const credential =
+        (await this.pluginAccessToken(row.id)) ?? (await this.pluginSettingApiKey(row.id));
+      if (!credential) return [];
+
       // Ask the gateway what this key can actually reach. The manifest's model
       // list is a fallback, not the source of truth: a hardcoded catalogue
       // drifts the moment upstream adds, renames or retires a model.

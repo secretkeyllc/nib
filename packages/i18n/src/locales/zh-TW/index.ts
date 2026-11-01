@@ -82,7 +82,7 @@ export const zhTW = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib",
+    tagline: "I am Nib.",
     starting: "正在啟動 Nib…",
     loadingView: "正在載入頁面…",
     uiCrashed: "介面出現了問題",
@@ -1456,13 +1456,13 @@ sklm: {
       sshFailed: "安裝失敗：{{message}}",
       transportSsh: "SSH",
       experimental: "實驗性",
+    },
     remoteControl: {
       title: "手機遠端控制",
       experimental: "實驗性",
       statusTitle: "配對狀態",
       startPairing: "開始配對",
       stopPairing: "停止配對",
-    },
     },
     importTitle: "從其他工具匯入",
     importScan: "掃描",

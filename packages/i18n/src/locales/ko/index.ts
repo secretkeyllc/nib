@@ -82,7 +82,7 @@ export const ko = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib",
+    tagline: "I am Nib.",
     starting: "Nib 시작 중…",
     loadingView: "화면 불러오는 중…",
     uiCrashed: "인터페이스에 문제가 발생했습니다",
@@ -1423,7 +1423,6 @@ sklm: {
     subagentCreated: "{{name}} 생성됨",
     subagentSaved: "{{name}} 저장됨",
     projectArchive: "프로젝트 보관함",
-    remoteHosts: {
     remoteControl: {
       title: "휴대폰 원격 제어",
       experimental: "실험적",
@@ -1431,6 +1430,7 @@ sklm: {
       startPairing: "페어링 시작",
       stopPairing: "페어링 중지",
     },
+    remoteHosts: {
       title: "원격 호스트",
       listError: "호스트를 불러오지 못했습니다",
       loading: "로드 중…",

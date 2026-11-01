@@ -82,7 +82,7 @@ export const es = {
   },
   "app": {
     "shellName": "Nib",
-    "tagline": "I am Nib",
+    "tagline": "I am Nib.",
     "starting": "Iniciando Nib…",
     "loadingView": "Cargando vista…",
     "uiCrashed": "Algo salió mal con la interfaz"
@@ -1415,7 +1415,6 @@ sklm: {
     "subagentCreated": "Creado {{name}}",
     "subagentSaved": "Guardado {{name}}",
     "projectArchive": "Archivo de proyecto",
-    "remoteHosts": {
     remoteControl: {
       title: "Control remoto desde el móvil",
       experimental: "Experimental",
@@ -1423,6 +1422,7 @@ sklm: {
       startPairing: "Iniciar emparejamiento",
       stopPairing: "Detener emparejamiento",
     },
+    "remoteHosts": {
       "title": "Hosts remotos",
       "listError": "No se pudieron cargar los hosts",
       "loading": "Cargando…",

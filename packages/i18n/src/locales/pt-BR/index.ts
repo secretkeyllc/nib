@@ -82,7 +82,7 @@ export const ptBR = {
   },
   app: {
     shellName: "Nib",
-    tagline: "I am Nib",
+    tagline: "I am Nib.",
     starting: "Iniciando o Nib…",
     loadingView: "Carregando visualização…",
     uiCrashed: "Algo deu errado com a interface"
@@ -1235,7 +1235,6 @@ export const ptBR = {
     subagentCreated: "{{name}} criado",
     subagentSaved: "Salvo {{name}}",
     projectArchive: "Arquivo de projeto",
-    remoteHosts: {
     remoteControl: {
       title: "Controle remoto pelo celular",
       experimental: "Experimental",
@@ -1243,6 +1242,7 @@ export const ptBR = {
       startPairing: "Iniciar pareamento",
       stopPairing: "Parar pareamento",
     },
+    remoteHosts: {
       title: "Hosts remotos",
       listError: "Falha ao carregar hosts",
       loading: "Carregando…",
