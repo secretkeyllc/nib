@@ -2,6 +2,45 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.19",
+    date: "2026-11-01",
+    highlights: [
+      "The Nib service row's click follows its state: signing in takes one click when signed out, and opens the editor when signed in.",
+      "Switching the API format on the Nib row now saves and stays — every save no longer resets to Chat Completions.",
+      "The composer's model menu shows exactly the models enabled on the Nib row, not the gateway's whole catalogue.",
+    ],
+  },
+
+{
+    version: "0.22.18",
+    date: "2026-11-01",
+    highlights: [
+      "The Nib service is a first-class model-list entry: click the row to edit it, labelled \"Nib account\" with the app mark.",
+      "Model selection on the Nib row saves properly — the first open after signing in selects everything the account can call.",
+      "Existing Nib rows migrate to the api.nib.am address on the first launch after updating.",
+    ],
+  },
+
+{
+    version: "0.22.17",
+    date: "2026-11-01",
+    highlights: [
+      "The Nib service in the model list can be edited like any other endpoint: API format, models, and per-model settings.",
+      "The key the desktop signs in with is named \"Nib\" in the console and cannot be renamed or deleted.",
+      "Fixed the reported version number lagging one release behind; the startup wordmark reads \"I am Nib\".",
+    ],
+  },
+
+{
+    version: "0.22.16",
+    date: "2026-10-31",
+    highlights: [
+      "An expired sign-in now reads exactly like being signed out: the stored Nib key is retired, the model picker no longer offers dead entries.",
+      "The remote-control settings entry shows its title and Experimental badge again.",
+    ],
+  },
+
+{
     version: "0.22.15",
     date: "2026-10-31",
     highlights: [

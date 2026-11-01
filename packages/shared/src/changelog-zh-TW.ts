@@ -2,6 +2,45 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.19",
+    date: "2026-11-01",
+    highlights: [
+      "Nib 服務列的點擊跟隨登入狀態：未登入時點擊即登入，已登入時點擊開啟編輯器。",
+      "Nib 行上切換 API 格式現在能正常儲存並保持——不再每次儲存都重設為 Chat Completions。",
+      "輸入框的模型選單只顯示 Nib 行上啟用的模型，而不是閘道的全部目錄。",
+    ],
+  },
+
+{
+    version: "0.22.18",
+    date: "2026-11-01",
+    highlights: [
+      "Nib 服務成為模型列表的一等條目：點擊該列即可編輯，顯示為帶應用圖示的「Nib 帳戶」。",
+      "Nib 行上的模型選擇能正常儲存——登入後首次開啟會選中帳戶可呼叫的全部模型。",
+      "更新後首次啟動時，已有的 Nib 行會自動遷移到 api.nib.am 位址。",
+    ],
+  },
+
+{
+    version: "0.22.17",
+    date: "2026-11-01",
+    highlights: [
+      "模型列表中的 Nib 服務現在可以像其他端點一樣編輯：API 格式、模型與逐模型設定。",
+      "桌面端登入所用的金鑰在控制台中命名為「Nib」，且不能重新命名或刪除。",
+      "修復版本號落後一個版本的問題；啟動標識顯示為「I am Nib」。",
+    ],
+  },
+
+{
+    version: "0.22.16",
+    date: "2026-10-31",
+    highlights: [
+      "過期的登入現在與未登入狀態一致：儲存的 Nib 金鑰會被清除，模型選擇器不再顯示失效條目。",
+      "遠端控制的設定入口重新顯示標題與 Experimental 徽標。",
+    ],
+  },
+
+{
     version: "0.22.15",
     date: "2026-10-31",
     highlights: [

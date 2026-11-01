@@ -2,6 +2,45 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.19",
+    date: "2026-11-01",
+    highlights: [
+      "O clique na linha do serviço Nib segue o estado: desconectado, um clique conecta; conectado, abre o editor.",
+      "Trocar o formato de API na linha Nib agora salva corretamente — cada salvamento não volta mais para Chat Completions.",
+      "O menu de modelos do compositor mostra exatamente os modelos habilitados na linha Nib, não todo o catálogo do gateway.",
+    ],
+  },
+
+{
+    version: "0.22.18",
+    date: "2026-11-01",
+    highlights: [
+      "O serviço Nib é agora uma entrada de primeira classe na lista de modelos: clique na linha para editá-lo, rotulado como \"Conta Nib\" com a marca do app.",
+      "A seleção de modelos na linha Nib salva corretamente — a primeira abertura após o login seleciona tudo que a conta pode chamar.",
+      "Linhas Nib existentes migram para o endereço api.nib.am na primeira execução após a atualização.",
+    ],
+  },
+
+{
+    version: "0.22.17",
+    date: "2026-11-01",
+    highlights: [
+      "O serviço Nib na lista de modelos agora pode ser editado como qualquer outro endpoint: formato de API, modelos e configurações por modelo.",
+      "A chave com a qual o desktop faz login chama-se \"Nib\" no console e não pode ser renomeada ou excluída.",
+      "Corrigido: o número de versão reportado ficava um release atrás; a marca de inicialização diz \"I am Nib\".",
+    ],
+  },
+
+{
+    version: "0.22.16",
+    date: "2026-10-31",
+    highlights: [
+      "Um login expirado agora aparece exatamente como desconectado: a chave Nib armazenada é aposentada e o seletor de modelos não oferece mais entradas mortas.",
+      "A entrada de configurações do controle remoto mostra novamente o título e o selo Experimental.",
+    ],
+  },
+
+{
     version: "0.22.15",
     date: "2026-10-31",
     highlights: [

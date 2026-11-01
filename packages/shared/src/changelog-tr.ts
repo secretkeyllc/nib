@@ -2,6 +2,45 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.19",
+    date: "2026-11-01",
+    highlights: [
+      "Nib servis satırındaki tıklama oturum durumunu izler: oturum kapalıyken tek tıkla oturum açar, açıkken düzenleyiciyi açar.",
+      "Nib satırında API biçimi değiştirmek artık düzgün kaydedilir — her kayıt Chat Completions'a sıfırlanmaz.",
+      "Bestecinin model menüsü yalnızca Nib satırında etkinleştirilen modelleri gösterir, ağ geçidinin tüm kataloğunu değil.",
+    ],
+  },
+
+{
+    version: "0.22.18",
+    date: "2026-11-01",
+    highlights: [
+      "Nib servisi model listesinde birinci sınıf bir öğe olur: düzenlemek için satıra tıklayın, uygulama simgesiyle \"Nib hesabı\" olarak görünür.",
+      "Nib satırındaki model seçimi düzgün kaydedilir — oturum açtıktan sonraki ilk açılış, hesabın çağırabildiği her modeli seçer.",
+      "Güncellemeden sonraki ilk açılışta mevcut Nib satırları api.nib.am adresine taşınır.",
+    ],
+  },
+
+{
+    version: "0.22.17",
+    date: "2026-11-01",
+    highlights: [
+      "Model listesindeki Nib servisi artık diğer uç noktalar gibi düzenlenebilir: API biçimi, modeller ve model başına ayarlar.",
+      "Masaüstünün oturum açtığı anahtar konsolda \"Nib\" olarak adlandırılır ve yeniden adlandırılamaz ya da silinemez.",
+      "Bildirilen sürüm numarasının bir sürüm geride kalması düzeltildi; başlangıç yazısı \"I am Nib\" olur.",
+    ],
+  },
+
+{
+    version: "0.22.16",
+    date: "2026-10-31",
+    highlights: [
+      "Süresi dolmuş bir oturum artık oturum kapalıyla aynı görünür: saklanan Nib anahtarı emekliye ayrılır, model seçici ölü öğeler sunmaz.",
+      "Uzak denetim ayarları girişi başlığını ve Experimental rozetini yeniden gösterir.",
+    ],
+  },
+
+{
     version: "0.22.15",
     date: "2026-10-31",
     highlights: [

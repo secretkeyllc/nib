@@ -2,6 +2,45 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.19",
+    date: "2026-11-01",
+    highlights: [
+      "Der Klick auf die Nib-Dienstzeile folgt dem Zustand: abgemeldet führt ein Klick zur Anmeldung, angemeldet öffnet er den Editor.",
+      "Das Wechseln des API-Formats in der Nib-Zeile wird jetzt korrekt gespeichert — kein Zurücksetzen auf Chat Completions mehr.",
+      "Das Modellmenü des Composers zeigt genau die in der Nib-Zeile aktivierten Modelle, nicht den gesamten Gateway-Katalog.",
+    ],
+  },
+
+{
+    version: "0.22.18",
+    date: "2026-11-01",
+    highlights: [
+      "Der Nib-Dienst ist ein vollwertiger Eintrag in der Modellliste: Klick auf die Zeile öffnet den Editor, beschriftet als „Nib-Konto“ mit dem App-Zeichen.",
+      "Die Modellauswahl in der Nib-Zeile wird zuverlässig gespeichert — die erste Öffnung nach der Anmeldung wählt alle aufrufbaren Modelle.",
+      "Bestehende Nib-Zeilen werden beim ersten Start nach dem Update auf die api.nib.am-Adresse migriert.",
+    ],
+  },
+
+{
+    version: "0.22.17",
+    date: "2026-11-01",
+    highlights: [
+      "Der Nib-Dienst in der Modellliste ist jetzt wie jeder andere Endpunkt editierbar: API-Format, Modelle und modellbezogene Einstellungen.",
+      "Der Schlüssel, mit dem sich die Desktop-App anmeldet, heißt in der Konsole „Nib“ und kann nicht umbenannt oder gelöscht werden.",
+      "Behoben: die gemeldete Versionsnummer hing einen Release hinterher; das Start-Wortmarke liest sich „I am Nib“.",
+    ],
+  },
+
+{
+    version: "0.22.16",
+    date: "2026-10-31",
+    highlights: [
+      "Eine abgelaufene Anmeldung wirkt jetzt wie abgemeldet: der gespeicherte Nib-Schlüssel wird entfernt, die Modellauswahl zeigt keine toten Einträge mehr.",
+      "Der Remote-Control-Eintrag in den Einstellungen zeigt Titel und Experimental-Badge wieder an.",
+    ],
+  },
+
+{
     version: "0.22.15",
     date: "2026-10-31",
     highlights: [

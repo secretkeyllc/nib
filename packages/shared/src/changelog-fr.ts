@@ -2,6 +2,45 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.19",
+    date: "2026-11-01",
+    highlights: [
+      "Le clic sur la ligne du service Nib suit son état : déconnecté, un clic connecte ; connecté, il ouvre l'éditeur.",
+      "Changer le format d'API sur la ligne Nib se sauvegarde désormais correctement — chaque sauvegarde ne remet plus Chat Completions.",
+      "Le menu de modèles du composer montre exactement les modèles activés sur la ligne Nib, pas tout le catalogue du gateway.",
+    ],
+  },
+
+{
+    version: "0.22.18",
+    date: "2026-11-01",
+    highlights: [
+      "Le service Nib devient une entrée de premier plan dans la liste des modèles : cliquez sur la ligne pour l'éditer, libellée « Compte Nib » avec le logo de l'app.",
+      "La sélection de modèles sur la ligne Nib se sauvegarde correctement — la première ouverture après connexion sélectionne tout ce que le compte peut appeler.",
+      "Les lignes Nib existantes migrent vers l'adresse api.nib.am au premier lancement après la mise à jour.",
+    ],
+  },
+
+{
+    version: "0.22.17",
+    date: "2026-11-01",
+    highlights: [
+      "Le service Nib dans la liste des modèles est maintenant modifiable comme n'importe quel endpoint : format d'API, modèles et réglages par modèle.",
+      "La clé avec laquelle le desktop se connecte s'appelle « Nib » dans la console et ne peut être renommée ni supprimée.",
+      "Corrigé : le numéro de version signalé avait une version de retard ; le logo de démarrage lit « I am Nib ».",
+    ],
+  },
+
+{
+    version: "0.22.16",
+    date: "2026-10-31",
+    highlights: [
+      "Une connexion expirée se lit désormais exactement comme une déconnexion : la clé Nib stockée est retirée, le sélecteur de modèles n'offre plus d'entrées mortes.",
+      "L'entrée des réglages de contrôle à distance affiche à nouveau son titre et son badge Experimental.",
+    ],
+  },
+
+{
     version: "0.22.15",
     date: "2026-10-31",
     highlights: [

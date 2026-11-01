@@ -2,6 +2,45 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.19",
+    date: "2026-11-01",
+    highlights: [
+      "El clic en la fila del servicio Nib sigue su estado: cerrando sesión, un clic inicia sesión; con sesión abierta, abre el editor.",
+      "Cambiar el formato de API en la fila Nib ahora se guarda correctamente — ya no se restablece a Chat Completions en cada guardado.",
+      "El menú de modelos del compositor muestra exactamente los modelos habilitados en la fila Nib, no todo el catálogo del gateway.",
+    ],
+  },
+
+{
+    version: "0.22.18",
+    date: "2026-11-01",
+    highlights: [
+      "El servicio Nib es ahora una entrada de primera clase en la lista de modelos: haz clic en la fila para editarlo, etiquetado como \"Cuenta Nib\" con la marca de la app.",
+      "La selección de modelos en la fila Nib se guarda correctamente — la primera apertura tras iniciar sesión selecciona todo lo que la cuenta puede llamar.",
+      "Las filas Nib existentes migran a la dirección api.nib.am en el primer inicio tras actualizar.",
+    ],
+  },
+
+{
+    version: "0.22.17",
+    date: "2026-11-01",
+    highlights: [
+      "El servicio Nib en la lista de modelos ahora se puede editar como cualquier otro endpoint: formato de API, modelos y ajustes por modelo.",
+      "La clave con la que inicia sesión el escritorio se llama \"Nib\" en la consola y no puede renombrarse ni eliminarse.",
+      "Corregido: el número de versión reportado iba un release por detrás; la marca de inicio dice \"I am Nib\".",
+    ],
+  },
+
+{
+    version: "0.22.16",
+    date: "2026-10-31",
+    highlights: [
+      "Un inicio de sesión expirado ahora se ve igual que la sesión cerrada: la clave Nib guardada se retira y el selector de modelos ya no ofrece entradas muertas.",
+      "La entrada de ajustes de control remoto vuelve a mostrar su título y la insignia Experimental.",
+    ],
+  },
+
+{
     version: "0.22.15",
     date: "2026-10-31",
     highlights: [
