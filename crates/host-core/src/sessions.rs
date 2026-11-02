@@ -5606,7 +5606,9 @@ mod tests {
             size: Some(42),
             text: None,
             inline_path: Some("@/scratch/pasted/image.png".into()),
-            remote_ref: Some(json!({ "hostKey": "host-a", "workspacePath": "/srv/project", "path": "/home/nib/.nib/scratch/hash/attachments/abc123-image.png" })),
+            remote_ref: Some(
+                json!({ "hostKey": "host-a", "workspacePath": "/srv/project", "path": "/home/nib/.nib/scratch/hash/attachments/abc123-image.png" }),
+            ),
         }]);
 
         append_message(&db, &session.id, &user, None).unwrap();

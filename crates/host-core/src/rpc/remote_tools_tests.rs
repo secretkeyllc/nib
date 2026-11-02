@@ -225,9 +225,17 @@ async fn workspace_runner_reads_only_the_mapped_session_attachment_scratch() {
     let (dir, state, tx, _rx) = fixture();
     let project = tempfile::tempdir().unwrap();
     let session = "b".repeat(64);
-    let attachments = dir.path().join("scratch").join(&session).join("attachments");
+    let attachments = dir
+        .path()
+        .join("scratch")
+        .join(&session)
+        .join("attachments");
     std::fs::create_dir_all(&attachments).unwrap();
-    std::fs::write(attachments.join("hash-notes.txt"), "uploaded remote attachment").unwrap();
+    std::fs::write(
+        attachments.join("hash-notes.txt"),
+        "uploaded remote attachment",
+    )
+    .unwrap();
     let read = handle_request(state.clone(), "tools.workspaceExecute", json!({
         "path":project.path(),"sessionId":session,"toolCallId":"attachment-read","toolName":"Read",
         "args":{"path":attachments.join("hash-notes.txt")}
