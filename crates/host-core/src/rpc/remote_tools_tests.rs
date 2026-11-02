@@ -471,7 +471,13 @@ async fn workspace_attachment_scratch_is_read_only_and_session_scoped() {
         std::fs::read_to_string(attachment).unwrap(),
         "unique attachment bytes"
     );
-    for invalid in ["../outside".to_string(), "G".repeat(64), "a".repeat(63)] {
+    // Session ids key the mirrored scratch directory: traversal metacharacters
+    // are refused outright regardless of length or case.
+    for invalid in [
+        "../outside".to_string(),
+        "g/../../escape".to_string(),
+        "a b".to_string(),
+    ] {
         let error = handle_request(state.clone(), "tools.workspaceExecute", json!({"path": project.path(), "sessionId": invalid, "toolCallId": "bad-id", "toolName": "Read", "args": {"path": "file"}}), tx.clone()).await.unwrap_err();
         assert_eq!(error.data.unwrap()["errorCode"], "INVALID_PARAMS");
     }

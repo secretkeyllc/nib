@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { realpath, stat } from "node:fs/promises";
 import { isAbsolute } from "node:path";
 import { RacpError } from "@pi-desktop/agent-host";
@@ -17,7 +16,6 @@ const MAX_BYTES = 1024 * 1024;
 export function createWorkspaceTools(getHost: () => HostRpc | null): NonNullable<RacpHostOperations["workspaceTools"]> {
   const active = new Map<string, Active>();
   const seen = new Set<string>();
-  const id = (owner: Owner, sessionId: string) => createHash("sha256").update(JSON.stringify([owner.deviceId, sessionId])).digest("hex");
   const key = (owner: Owner, sessionId: string, toolCallId: string) => JSON.stringify([owner.deviceId, sessionId, toolCallId]);
   const unavailable = () => new RacpError("AGENT_UNAVAILABLE", "workspace tool Host is unavailable");
   const abortEntry = async (entry: Active) => {
@@ -33,7 +31,9 @@ export function createWorkspaceTools(getHost: () => HostRpc | null): NonNullable
       if (active.size >= MAX_ACTIVE) throw new RacpError("CONFLICT", "workspace tool execution capacity is exhausted");
       const host = getHost();
       if (!host) throw unavailable();
-      const entry: Active = { owner, host, sessionId: id(owner, input.sessionId), toolCallId: input.toolCallId, cancelled: false };
+      // The raw desktop session id keys the runner's attachment scratch dir,
+      // mirroring the Desktop storage layout 1:1; ownership stays scoped here.
+      const entry: Active = { owner, host, sessionId: input.sessionId, toolCallId: input.toolCallId, cancelled: false };
       seen.add(requestKey);
       while (seen.size > MAX_SEEN) seen.delete(seen.values().next().value!);
       active.set(requestKey, entry);

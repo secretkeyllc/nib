@@ -25,7 +25,7 @@ function fakeClient(bytes, options = {}) {
       if (method === "workspace/attachmentChunk") return { offset: params.offset + Buffer.from(params.data, "base64").length };
       if (method === "workspace/attachmentComplete") {
         if (options.badHash) return { path: "/remote/attachment.txt", sha256: "0".repeat(64), size: bytes.length };
-        return { path: "/home/nib/.nib/scratch/session/attachments/hash-notes.txt", sha256, size: bytes.length };
+        return { path: options.mirroredPath ?? "/home/nib/.nib/scratch/session/attachments/hash-notes.txt", sha256, size: bytes.length };
       }
       if (method === "workspace/attachmentAbort") return { ok: true };
       assert.fail(`unexpected method ${method}`);
@@ -50,9 +50,31 @@ test("uploads non-image attachments in bounded chunks and replaces local paths",
     assert.ok(result.content.includes("/home/nib/.nib/scratch/session/attachments/hash-notes.txt"));
     assert.equal(result.attachments[0].path, "/home/nib/.nib/scratch/session/attachments/hash-notes.txt");
     assert.equal(prepared[0].message.remoteRef.hostKey, workspace.hostKey);
+    // A content-addressed local blob mirrors to the Host blob directory.
+    assert.equal(client.calls[0].params.directory, "content");
     const chunks = client.calls.filter(call => call.method === "workspace/attachmentChunk");
     assert.equal(chunks.length, 2);
     assert.deepEqual(Buffer.concat(chunks.map(call => Buffer.from(call.params.data, "base64"))), bytes);
+  });
+});
+
+test("pasted sources mirror the scratch pasted directory and original file name", async () => {
+  await fixture(async root => {
+    const sourcePath = join(root, "session-scratch", "pasted", "notes.txt");
+    const bytes = Buffer.from("pasted text");
+    await mkdir(join(root, "session-scratch", "pasted"), { recursive: true });
+    await writeFile(sourcePath, bytes);
+    const client = fakeClient(bytes, { mirroredPath: "/home/nib/.nib/scratch/host-session-1/pasted/notes.txt" });
+    const prepared = [{
+      message: { kind: "file", name: "notes.txt", ref: sourcePath, mimeType: "text/plain" },
+      sourcePath, promptPath: sourcePath, fallbackPath: sourcePath,
+    }];
+    const result = await uploadRemotePromptAttachments(client, workspace, "host-session-1", "summarize", prepared);
+    assert.equal(client.calls[0].params.directory, "pasted");
+    assert.equal(client.calls[0].params.name, "notes.txt");
+    assert.equal(client.calls[0].params.sessionId, "host-session-1");
+    assert.equal(result.attachments[0].path, "/home/nib/.nib/scratch/host-session-1/pasted/notes.txt");
+    assert.ok(result.content.includes("/home/nib/.nib/scratch/host-session-1/pasted/notes.txt"));
   });
 });
 
@@ -143,6 +165,68 @@ test("production prompt and steer IPC upload prepared files and persist remote r
         assert.equal(message.attachments[0].ref, path);
         assert.equal(message.attachments[0].remoteRef.hostKey, workspace.hostKey);
       }
+    } finally { setActiveRemoteHostsBoot(null); }
+  });
+});
+
+test("a host-connected session without a project still uploads attachments", async () => {
+  const { IPC, formatPromptPathText } = await import("@pi-desktop/shared");
+  const { registerAgentIpc } = await import("../electron/main/ipc/agent-ipc.ts");
+  const { setActiveRemoteHostsBoot } = await import("../electron/main/bootstrap/remote-hosts.ts");
+  await fixture(async root => {
+    const directory = join(root, "scratch", "remote:ssh-host:host-9", "pasted");
+    await mkdir(directory, { recursive: true });
+    const path = join(directory, "pasted-note.txt");
+    const bytes = Buffer.from("no-project attachment");
+    await writeFile(path, bytes);
+    const transport = fakeClient(bytes, { mirroredPath: "/home/nib/.nib/scratch/host-9/pasted/pasted-note.txt" });
+    const handlers = new Map(), sidecarCalls = [], failures = [];
+    // No `remoteWorkspace` binding: the common connected-host, no-project case
+    // whose session id is `remote:<hostKey>:<sid>`.
+    const session = { id: "remote:ssh-host:host-9", messages: [] };
+    const host = { async call(method, params) {
+      if (method === "session.get") return { session };
+      if (method === "settings.get") return {};
+      if (method === "session.beginTurn") return { turnId: "turn" };
+      if (method === "session.appendMessage") return {};
+      assert.fail(`unexpected RPC ${method}`);
+    } };
+    const sidecar = { setProjectInstructionRoot() {}, async call(method, params) {
+      if (method === "agent.steeringContext") return { supportsVision: false };
+      sidecarCalls.push({ method, params });
+      return { accepted: true, turnId: "turn" };
+    } };
+    setActiveRemoteHostsBoot({ async workspaceAttachmentRequest(key, method, params) {
+      assert.equal(key, "ssh-host", "the host key comes from the remote session id");
+      return transport.request(method, params);
+    } });
+    try {
+      registerAgentIpc({
+        registrar: { handle: (channel, handler) => handlers.set(channel, handler) },
+        getHost: () => host, getSidecar: () => sidecar, getAgentHostBridge: () => null,
+        logger: { app() {} }, agentExtensions: {}, cancelSessionTools() {}, persistenceOutbox: {}, dataDir: root,
+        activeTurns: new Map(), activeTurnUsages: new Map(), completionNoticeTurns: new Set(),
+        approvedExecutionIdsBySession: new Map(), claimedExecutionSessions: new Map(),
+        recordTurnStart() {}, isTurnDispatchable: () => true,
+        resolveAgentRuntimeLaunch: async () => ({ providerId: "provider", modelId: "model",
+          sidecarParams: { provider: { modelConfig: { input: ["text"] } } } }),
+        acquireSessionOperation: async () => () => {},
+        finishTurn: async (...args) => { failures.push(args); }, emitAgentEvent() {}, setNotificationViewingSessionId() {},
+        optionalWorkspaceRoot: async () => null, composerCommandService: { buildComposerCommands: async () => [] },
+        loadComposerTemplatesCached: async () => [],
+      });
+      const input = { sessionId: "remote:ssh-host:host-9", content: `Read ${formatPromptPathText(path)}.`,
+        attachments: [{ path, name: "pasted-note.txt", kind: "file", mimeType: "text/plain" }] };
+      await handlers.get(IPC.invoke.agentPrompt)(input);
+      assert.equal(failures.length, 0);
+      // The upload went out for a session with no remoteWorkspace binding.
+      assert.equal(transport.calls[0].params.sessionId, "host-9");
+      assert.equal(transport.calls[0].params.directory, "pasted");
+      assert.equal(transport.calls[0].params.name, "pasted-note.txt");
+      const content = sidecarCalls[0].params.content;
+      assert.equal(content.includes(path), false, "the local Windows-style path never reaches the model");
+      assert.ok(content.includes("/home/nib/.nib/scratch/host-9/pasted/pasted-note.txt"));
+      assert.equal(sidecarCalls[0].params.attachments[0].path, "/home/nib/.nib/scratch/host-9/pasted/pasted-note.txt");
     } finally { setActiveRemoteHostsBoot(null); }
   });
 });

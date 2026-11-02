@@ -2,7 +2,6 @@
   "WorkspaceAttachmentCreate": {
     "type": "object",
     "required": [
-      "path",
       "sessionId",
       "name",
       "size",
@@ -34,6 +33,11 @@
         "pattern": "^[a-fA-F0-9]{64}$",
         "minLength": 64,
         "maxLength": 64
+      },
+      "directory": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 32
       }
     },
     "additionalProperties": false

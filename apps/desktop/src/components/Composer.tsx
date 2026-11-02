@@ -551,11 +551,6 @@ export function Composer({
             Native Pi session is read-only: {activeSessionSummary?.readOnlyReason ?? "continuation unavailable"}.
           </div>
         ) : null}
-        {activeSessionSummary?.remoteWorkspace ? (
-          <div className="composer-status" role="note">
-            {t("remote:attachmentUploadHint")}
-          </div>
-        ) : null}
         <ComposerStatus
           t={t}
           queuedPrompts={queuedPrompts}
