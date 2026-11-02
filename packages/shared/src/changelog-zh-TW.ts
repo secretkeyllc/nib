@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.24",
+    date: "2026-11-02",
+    highlights: [
+      "工具在遠端主機上執行的工作階段（包括配對到遠端主機的本機桌面工作階段），附件現在會自動上傳到該主機，模型讀到的是真實檔案而不是無法使用的本機路徑。",
+    ],
+  },
+
+{
     version: "0.22.23",
     date: "2026-11-02",
     highlights: [

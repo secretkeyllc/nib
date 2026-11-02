@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.24",
+    date: "2026-11-02",
+    highlights: [
+      "Attachments in sessions whose tools run on a remote host now upload to that host automatically — including local desktop sessions paired to the host — so the model reads the real file instead of an unusable local path.",
+    ],
+  },
+
+{
     version: "0.22.23",
     date: "2026-11-02",
     highlights: [

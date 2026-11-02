@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.24",
+    date: "2026-11-02",
+    highlights: [
+      "Anhänge von Sitzungen, deren Werkzeuge auf einem entfernten Host laufen (einschließlich lokaler Desktop-Sitzungen, die mit dem Host gepaart sind), werden jetzt automatisch dorthin hochgeladen; das Modell liest die echte Datei statt eines unbrauchbaren lokalen Pfads.",
+    ],
+  },
+
+{
     version: "0.22.23",
     date: "2026-11-02",
     highlights: [

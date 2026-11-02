@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.24",
+    date: "2026-11-02",
+    highlights: [
+      "Araçları uzak bir makinede çalışan oturumların ekleri (makineye eşlenmiş yerel masaüstü oturumları dahil) artık otomatik olarak o makineye yüklenir; model kullanılamaz bir yerel yol yerine gerçek dosyayı okur.",
+    ],
+  },
+
+{
     version: "0.22.23",
     date: "2026-11-02",
     highlights: [

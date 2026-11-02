@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.24",
+    date: "2026-11-02",
+    highlights: [
+      "도구가 원격 호스트에서 실행되는 세션(호스트에 페어링된 로컬 데스크톱 세션 포함)의 첨부 파일은 이제 자동으로 해당 호스트에 업로드되어, 모델이 쓸모없는 로컬 경로 대신 실제 파일을 읽습니다.",
+    ],
+  },
+
+{
     version: "0.22.23",
     date: "2026-11-02",
     highlights: [

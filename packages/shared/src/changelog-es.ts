@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.24",
+    date: "2026-11-02",
+    highlights: [
+      "Los adjuntos de sesiones cuyas herramientas se ejecutan en un host remoto (incluidas sesiones de escritorio locales emparejadas con el host) ahora se suben automáticamente a ese host; el modelo lee el archivo real en lugar de una ruta local inservible.",
+    ],
+  },
+
+{
     version: "0.22.23",
     date: "2026-11-02",
     highlights: [

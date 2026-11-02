@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.24",
+    date: "2026-11-02",
+    highlights: [
+      "Les pièces jointes des sessions dont les outils s'exécutent sur un hôte distant (y compris les sessions de bureau locales appariées à l'hôte) sont désormais téléversées automatiquement vers cet hôte ; le modèle lit le vrai fichier au lieu d'un chemin local inutilisable.",
+    ],
+  },
+
+{
     version: "0.22.23",
     date: "2026-11-02",
     highlights: [

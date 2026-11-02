@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.24",
+    date: "2026-11-02",
+    highlights: [
+      "Anexos em sessões cujas ferramentas rodam em um host remoto (incluindo sessões locais de desktop pareadas com o host) agora são enviados automaticamente para esse host; o modelo lê o arquivo real em vez de um caminho local inútil.",
+    ],
+  },
+
+{
     version: "0.22.23",
     date: "2026-11-02",
     highlights: [

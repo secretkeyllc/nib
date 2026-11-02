@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.24",
+    date: "2026-11-02",
+    highlights: [
+      "工具在远程主机上运行的会话（包括配对到远程主机的本地桌面会话），附件现在会自动上传到那台主机，模型读到的是真实文件而不是无法使用的本地路径。",
+    ],
+  },
+
+{
     version: "0.22.23",
     date: "2026-11-02",
     highlights: [
