@@ -46,18 +46,24 @@
 
 ### E2E Nib subscription model metadata
 
-- **Entry:** `node --test apps/desktop/test/nib-model-metadata.test.mjs`.
+- **Entry:** `node --test apps/desktop/test/nib-model-metadata.test.mjs` and
+  `node scripts/e2e-nib-catalog-upgrade.mjs` after building Host and JS packages.
 - **Environment:** Bundled models.dev snapshot and production OAuth/model
-  configuration code; simulated Nib `/models` and Host storage, no credentials
-  or live service.
-- **Sequence:** Sign in from the three-model manifest seed, query available
-  models, render the model settings pane, remove the fixed account from the
-  catalog, and sign in again. Repeat with user-selected models, manual limit
-  overrides, and an unavailable `/models` response.
-- **Expected:** First sign-in selects every returned model before reporting
-  success; published context/output limits appear in Settings and Composer.
-  Reauthentication restores catalog lookup, keeps manual choices, and does not
-  fail sign-in when model discovery is unavailable.
+  configuration; the process E2E uses real isolated Host/SQLite while the
+  component fixture simulates Host. HTTP is simulated; no live credentials.
+- **Sequence:** Sign in from the three-model seed, query available models,
+  render the model settings pane, remove the fixed account from the
+  catalog, and sign in again. Exercise an existing signed-in account without
+  invoking login, startup retry after a 503, saved subset/empty selection,
+  user limit overrides, host-normalized seed values, concurrent edit/logout,
+  cache-only reads, and persistence across provider/plugin restart. Inspect
+  Settings, Composer model metadata, and runtime binding limits.
+- **Expected:** First sign-in and upgraded-account reconciliation select every
+  returned chat model and publish context/output metadata to Settings, Composer
+  and runtime. Existing selected subsets, explicit overrides and empty
+  selections survive restart. Failed discovery retries; a late response never
+  overwrites a user edit or signed-out credential. Cache hydration performs no
+  gateway request. No production credentials or live service are used.
 
 ### E2E-PI-130-kernel-upgrade
 

@@ -154,6 +154,7 @@ export type OAuthProviderRow = {
   models?: ModelBinding[];
   enabled?: boolean;
   defaultModelId?: string;
+  modelSelectionConfigured?: boolean;
 };
 
 export type PluginOAuthProvider = {
@@ -410,6 +411,8 @@ export class VendorOAuth {
   private catalogPromise?: Promise<MutableModels>;
   private oauthFlowsRegistered = false;
   private readonly getInstallationId: () => Promise<string>;
+  private readonly pluginReconciliations = new Map<string, Promise<void>>();
+  private readonly pluginReconcileAttempts = new Map<string, number>();
 
   constructor(deps: VendorOAuthDeps) {
     this.deps = deps;
@@ -792,17 +795,13 @@ export class VendorOAuth {
     apiStyle: string,
     signal?: AbortSignal,
   ): Promise<OAuthModelOption[]> {
-    // The provider row's credential is the normal source. When the host's
-    // encrypted secret cannot be read (a row created before the credential
-    // existed, a fresh install), the plugin's own settings file carries the
-    // same key, so the picker still shows the real catalogue.
-    let token = await this.pluginAccessToken(row.id);
-    if (!token) token = await this.pluginSettingApiKey(row.id);
-    if (!token) {
-      this.log("warn", "nib model discovery: no credential anywhere", { providerId: row.id });
-      return [];
-    }
-
+    const credential = await this.readPluginCredential(row.id);
+    const token = credential?.expiresAt !== undefined && credential.expiresAt <= Date.now() + 30_000
+      ? (await this.resolvePluginAuth(row)).apiKey : credential?.accessToken;
+    if (!token) return [];
+    const cached = this.liveModelCache.get(row.id);
+    if (cached?.models && Date.now() - cached.at < LIVE_MODELS_TTL_MS &&
+        cached.models.every((model) => model.baseUrl === baseUrl && model.apiStyle === apiStyle)) return cached.models;
     const url = `${baseUrl.replace(/\/+$/, "")}/models`;
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8_000);
@@ -819,19 +818,23 @@ export class VendorOAuth {
         return [];
       }
       const body = (await response.json()) as { data?: Array<{ id?: unknown }> };
-      const ids = Array.isArray(body?.data)
-        ? body.data
-            .map((entry) => (typeof entry?.id === "string" ? entry.id.trim() : ""))
-            .filter((id): id is string => id.length > 0)
-        : [];
-      this.log("info", "nib model discovery ok", { providerId: row.id, count: ids.length });
-      return ids.map((modelId) => ({ modelId, apiStyle, baseUrl }));
+      const ids = [...new Set(Array.isArray(body?.data)
+        ? body.data.map((entry) => typeof entry?.id === "string" ? entry.id.trim() : "")
+            .filter((id) => id.length > 0 && isConversationModelId(id))
+        : [])];
+      const models = ids.map((modelId) => ({ modelId, apiStyle, baseUrl }));
+      if (!requestSignal.aborted) this.liveModelCache.set(row.id, { at: Date.now(), models });
+      return models;
     } catch (error) {
       this.log("warn", "nib model discovery threw", { providerId: row.id, error: error instanceof Error ? error.message : String(error) });
       return [];
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  hasPublishedPluginModels(providerId: string): boolean {
+    return (this.liveModelCache.get(providerId)?.models?.length ?? 0) > 0;
   }
 
   async listModels(providerId: string): Promise<OAuthModelOption[]> {
@@ -1143,10 +1146,7 @@ export class VendorOAuth {
           throw new Error("plugin provider changed during OAuth sign-in");
         }
         await this.writePluginCredential(session.providerId, credential);
-        if (row && currentProvider) {
-          this.deps.onAccountRestored?.(session.providerId);
-          await this.completePluginRow(session, row, currentProvider);
-        }
+        this.deps.onAccountRestored?.(session.providerId);
         const savedRow = (await this.rows()).find((candidate) => candidate.id === session.providerId);
         const savedProvider = this.deps.getPluginOAuthBridge?.()
           ?.listOAuthProviders()
@@ -1164,6 +1164,10 @@ export class VendorOAuth {
           throw new Error("plugin provider changed during OAuth sign-in");
         }
       });
+      const row = (await this.rows()).find((candidate) => candidate.id === session.providerId);
+      const provider = this.deps.getPluginOAuthBridge?.()?.listOAuthProviders()
+        .find((candidate) => candidate.providerId === session.providerId);
+      if (row && provider && !session.cancelled) await this.completePluginRow(session, row, provider);
       this.invalidateAccountModels(session.providerId);
       this.pushPluginEvent(session, {
         kind: "done",
@@ -1377,9 +1381,31 @@ export class VendorOAuth {
     this.liveModelLoads.delete(providerId);
   }
 
+  /** Startup retries are bounded; an explicit refresh can retry immediately. */
+  async reconcilePluginModels(providerId: string, refresh = false): Promise<void> {
+    const existing = this.pluginReconciliations.get(providerId);
+    if (existing) return existing;
+    if (!refresh && Date.now() - (this.pluginReconcileAttempts.get(providerId) ?? 0) < 15_000) return;
+    const work = (async () => {
+      const row = (await this.rows()).find((candidate) => candidate.id === providerId);
+      if (!row?.hasOauth || row.enabled === false || row.authKind !== OAUTH_AUTH_KIND || !row.ownerPluginId) return;
+      if (!refresh && row.modelSelectionConfigured) return;
+      const provider = this.deps.getPluginOAuthBridge?.()?.listOAuthProviders()
+        .find((candidate) => candidate.providerId === providerId);
+      if (!provider) return;
+      this.pluginReconcileAttempts.set(providerId, Date.now());
+      await this.completePluginRow({
+        pluginId: provider.pluginId, runtimeId: provider.runtimeId,
+        controller: new AbortController(), cancelled: false,
+      }, row, provider);
+    })();
+    this.pluginReconciliations.set(providerId, work);
+    try { await work; } finally { this.pluginReconciliations.delete(providerId); }
+  }
+
   /** Populate the account's model configuration before reporting login success. */
   private async completePluginRow(
-    session: PluginLoginSession,
+    session: Pick<PluginLoginSession, "pluginId" | "runtimeId" | "controller" | "cancelled">,
     row: OAuthProviderRow,
     provider: PluginOAuthProvider,
   ): Promise<void> {
@@ -1388,12 +1414,13 @@ export class VendorOAuth {
     if (!baseUrl || !lookup || !provider.isSubscription || !provider.models || session.cancelled) return;
     try {
       const selected = row.models ?? [];
-      const initializeAll = isPluginModelSelectionUnconfigured(selected, provider.models);
+      const initializeAll = !row.modelSelectionConfigured && isPluginModelSelectionUnconfigured(selected, provider.models);
       const offered = await this.discoverPluginModels(
         row, baseUrl, row.apiStyle ?? "chat_completions", session.controller.signal,
       );
       if (session.cancelled) return;
-      const options = initializeAll && offered.length > 0
+      if (offered.length === 0) return; // Leave provenance unset so the next refresh retries.
+      const options = initializeAll
         ? offered
         : selected.map((model) => ({
             modelId: model.id,
@@ -1414,14 +1441,15 @@ export class VendorOAuth {
       const currentProvider = this.deps.getPluginOAuthBridge?.()?.listOAuthProviders()
         .find((candidate) => candidate.providerId === row.id);
       // A late model-list response must not undo an edit or a plugin reload.
-      if (session.cancelled || !current || current.enabled === false ||
+      if (session.cancelled || !current || current.hasOauth === false || current.enabled === false ||
           current.ownerPluginId !== session.pluginId || current.authKind !== OAUTH_AUTH_KIND ||
           current.baseUrl !== row.baseUrl || current.apiStyle !== row.apiStyle ||
           currentProvider?.runtimeId !== session.runtimeId ||
           JSON.stringify(current.models) !== JSON.stringify(row.models)) return;
-      if (JSON.stringify(models) === JSON.stringify(selected)) return;
+      if (row.modelSelectionConfigured && JSON.stringify(models) === JSON.stringify(selected)) return;
       await this.deps.call("providers.update", {
         id: row.id,
+        expectedProvider: row,
         models,
         defaultModelId: models.some((model) => model.id === current.defaultModelId)
           ? current.defaultModelId : models[0].id,

@@ -451,13 +451,22 @@ collection and one `CredentialStore` scope per row, mapping the vendor id to
 contains every local row as an account, including disconnected/orphaned rows so
 the user can remove them explicitly.
 
-For a subscription plugin provider, the first successful sign-in replaces an
-untouched manifest seed with every chat model returned by that account's
-endpoint. Each binding follows its published models.dev limits; generic limits
-remain conservative. A later sign-in preserves the user's model selection and
-manual limits while refreshing catalog-sourced values. A fixed provider ID
-removed from the metadata catalog on sign-out is restored before reauthentication
-lookups.
+Subscription plugin accounts reconcile on provider startup and live model
+refresh, including accounts already signed in before an upgrade. Startup queues
+deduplicated reconciliation without blocking the provider list; transient
+failures leave initialization retryable. Cache-only reads never request the
+gateway. Nib uses its current credential to GET `https://api.nib.am/v1/models`
+for the default Chat Completions wire and keeps all returned chat models.
+
+An untouched legacy manifest seed (including Host normalization and catalog
+limit enrichment) expands to that list. Host persists `modelSelectionConfigured`
+in provider config when model bindings are saved, so later saves, subsets,
+explicit overrides and empty selections survive plugin reload and app restart.
+Models.dev owns inherited limits; user limits remain independent. Reconciliation
+uses the exact Host provider snapshot as an atomic update precondition, and
+checks plugin runtime identity before writing, protecting concurrent edits,
+sign-out and reload. A fixed provider ID removed from the metadata catalog on
+sign-out is restored before reauthentication lookups.
 
 Request auth is resolved **per request**, not at launch:
 

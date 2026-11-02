@@ -968,3 +968,47 @@ fn malformed_thinking_level_fields_are_rejected_by_manifest_validation() {
     write_plugin(&root, value);
     assert!(read_manifest_err(&root).contains("defaultThinkingLevel must be a string"));
 }
+
+#[test]
+fn oauth_model_selection_and_provenance_survive_sync_and_restart() {
+    let (dir, db, secrets) = test_context();
+    let declared = declared_providers(&manifest_with_auth_kind("oauth"));
+    sync_plugin_providers(&db, &secrets, "demo.provider", &declared, true).unwrap();
+    let id = "plugin:demo.provider:demo";
+    let original = providers::get_provider(&db, &secrets, id).unwrap().unwrap();
+    assert_eq!(original.models[1].context_window, 128_000);
+    assert_eq!(original.models[1].max_tokens, 8_192);
+    assert!(!original.model_selection_configured);
+    let updated = providers::update_provider(
+        &db,
+        &secrets,
+        serde_json::from_value(json!({
+            "id": id, "models": [{ "id": "gateway-new", "alias": "My model",
+              "contextWindow": 42000, "contextWindowSource": "user", "maxTokens": 4096,
+              "maxTokensSource": "user", "thinkingLevels": ["off", "high"],
+              "defaultThinkingLevel": "high", "supportsImages": true }]
+        }))
+        .unwrap(),
+    )
+    .unwrap()
+    .unwrap();
+    assert!(updated.model_selection_configured);
+    drop(db);
+    let db = Database::open(&dir.path().join("pi.sqlite")).unwrap();
+    sync_plugin_providers(&db, &secrets, "demo.provider", &declared, true).unwrap();
+    let restored = providers::get_provider(&db, &secrets, id).unwrap().unwrap();
+    assert_eq!(restored.models, updated.models);
+    assert!(restored.model_selection_configured);
+    providers::update_provider(
+        &db,
+        &secrets,
+        serde_json::from_value(json!({ "id": id, "models": [] })).unwrap(),
+    )
+    .unwrap();
+    sync_plugin_providers(&db, &secrets, "demo.provider", &declared, true).unwrap();
+    assert!(providers::get_provider(&db, &secrets, id)
+        .unwrap()
+        .unwrap()
+        .models
+        .is_empty());
+}

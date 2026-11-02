@@ -2555,9 +2555,21 @@ async fn handle_request(
             Ok(json!({ "provider": provider }))
         }
         "providers.update" => {
+            // Reconciliation carries the exact public snapshot it discovered
+            // against. Compare under the Host state lock, atomically with save.
+            let expected = params.get("expectedProvider").cloned();
             let input: ProviderUpdateInput = serde_json::from_value(params)
                 .map_err(|e| rpc_err(1002, e.to_string(), "INVALID_PARAMS"))?;
             let st = state.lock().await;
+            if let Some(expected) = expected {
+                let current = providers::get_provider(&st.db, &st.secrets, &input.id)
+                    .map_err(provider_rpc_err)?;
+                if current.as_ref().map(|row| serde_json::to_value(row).ok())
+                    != Some(Some(expected))
+                {
+                    return Ok(json!({ "provider": current, "reconciled": false }));
+                }
+            }
             let provider =
                 providers::update_provider(&st.db, &st.secrets, input).map_err(provider_rpc_err)?;
             Ok(json!({ "provider": provider }))

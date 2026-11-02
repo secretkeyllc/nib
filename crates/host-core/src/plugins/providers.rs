@@ -276,19 +276,22 @@ pub(crate) fn sync_plugin_providers(
             )
             .optional()?
             .unwrap_or((None, None, None, None));
-        let models = providers::normalize_model_bindings(&provider.models);
-        // A declaration that moves the endpoint abandons the answer the previous
-        // one produced: the cached rows carry no endpoint of their own, so the
-        // discovery cache is dropped and the next probe records the new answer.
-        // The address alone decides this — a stored format the user re-picked
-        // differs from the declaration by design and must not read as a move.
+        let declared_models = providers::normalize_model_bindings(&provider.models);
+        let existing_models = providers::config_model_bindings(
+            existing_config.as_deref().unwrap_or("{}"),
+            None,
+            &row_id,
+        );
+        // OAuth declarations seed a newly-created row. Persisted selections are
+        // account-owned and survive every plugin reload, including empty lists.
+        let models = if provider.auth_kind == "oauth" && existing_config.is_some() {
+            existing_models
+        } else {
+            declared_models
+        };
         let endpoint_changed = existing_config.is_some()
             && existing_base_url.as_deref().unwrap_or("").trim()
                 != provider.base_url.as_deref().unwrap_or("").trim();
-        // A declaration that no longer names a model forgets that model's
-        // cached row, exactly as a user save does: the row would otherwise keep
-        // describing a model this provider stopped declaring. The row above is
-        // already known to be absent or owned by this plugin.
         let removed_models = providers::config_model_bindings(
             existing_config.as_deref().unwrap_or("{}"),
             None,
@@ -303,8 +306,6 @@ pub(crate) fn sync_plugin_providers(
         .map(|binding| binding.id)
         .collect::<Vec<_>>();
         providers::forget_cached_models(db, &row_id, &removed_models)?;
-        // The merge replaces only model bindings; headers and OAuth metadata
-        // are not this declaration's to drop.
         let config = providers::config_with_model_bindings(
             existing_config.as_deref().unwrap_or("{}"),
             &models,
