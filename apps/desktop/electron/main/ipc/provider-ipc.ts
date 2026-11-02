@@ -107,7 +107,15 @@ export function registerProviderIpc({
     });
   };
   handle(IPC.invoke.providersList, async () => {
-    return enrichProviderList({ providers: await listRuntimeProviders() });
+    const providers = await listRuntimeProviders();
+    for (const provider of providers.filter((candidate) => candidate.hasOauth && candidate.ownerPluginId)) {
+      void vendorOAuth.reconcilePluginModels(provider.id).catch((error) => {
+        logger.app("provider", "warn", "plugin provider model reconciliation failed", {
+          data: { providerId: provider.id, error: error instanceof Error ? error.message : String(error) },
+        });
+      });
+    }
+    return enrichProviderList({ providers });
   });
   handle(IPC.invoke.providersReorder, async (input: ProviderReorderInput) => {
     if (!host) throw new Error("host unavailable");
@@ -571,11 +579,12 @@ export function registerProviderIpc({
         }
       };
 
-      // A signed-in vendor account has no API key. VendorOAuth.listModels
-      // reads that account's model endpoint; pi-ai is only the fallback.
+      // Cache hydration stays offline; live refresh reconciles saved selections.
       if (req.source !== "cache" && provider?.authKind === OAUTH_AUTH_KIND) {
         try {
+          await vendorOAuth.reconcilePluginModels(provider.id, true);
           const options = await vendorOAuth.listModels(provider.id);
+          const published = !provider.ownerPluginId || vendorOAuth.hasPublishedPluginModels(provider.id);
           if (options.length > 0) {
             return {
               models: withConfiguredBindings(
@@ -584,13 +593,13 @@ export function registerProviderIpc({
                     {
                       modelId: option.modelId,
                       displayName: option.modelId,
-                      discoveryState: "published",
+                      discoveryState: published ? "published" : undefined,
                     },
                     option.apiStyle,
                   ),
                 ),
               ),
-              source: "remote" as const,
+              source: published ? "remote" as const : "fallback" as const,
             };
           }
         } catch (e) {
@@ -604,38 +613,6 @@ export function registerProviderIpc({
       }
 
       if (req.source === "cache" && provider) {
-        // The picker asks for "cache" on open. For a signed-in vendor account
-        // that list would be the manifest's frozen catalogue, so ask the
-        // gateway first and fall through to the cache only if it cannot answer.
-        if (provider.authKind === OAUTH_AUTH_KIND) {
-          try {
-            const live = await vendorOAuth.listModels(provider.id);
-            if (live.length > 0) {
-              return {
-                models: withConfiguredBindings(
-                  live.map((option) =>
-                    decorate(
-                      {
-                        modelId: option.modelId,
-                        displayName: option.modelId,
-                        discoveryState: "published",
-                      },
-                      option.apiStyle,
-                    ),
-                  ),
-                ),
-                source: "remote" as const,
-              };
-            }
-          } catch (e) {
-            logger.app("provider", "warn", "model discovery failed, using cache", {
-              data: {
-                providerId: provider.id,
-                error: e instanceof Error ? e.message : String(e),
-              },
-            });
-          }
-        }
         // Keep every configured binding visible when the endpoint cache is
         // partial or empty. Decorating these ids through models.dev or generic
         // defaults preserves the per-model state for offline editing too.

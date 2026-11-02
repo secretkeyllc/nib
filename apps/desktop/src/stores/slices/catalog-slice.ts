@@ -81,9 +81,8 @@ export function createCatalogSlice({
         if (providerModelLoads.get(providerId) === existing) {
           providerModelLoads.delete(providerId);
         }
-        if (!refreshedProviderModels.has(providerId)) {
-          await get().loadProviderModels(providerId);
-        }
+        // A failed load remains retryable on the next menu open, without
+        // recursively retrying a still-failing request in this invocation.
         return;
       }
 
@@ -118,6 +117,10 @@ export function createCatalogSlice({
             (refreshed.source === "remote" || refreshed.source === "catalog") &&
             refreshed.models.length > 0
           ) {
+            const providers = await api.listProviders();
+            if (generation !== catalogRuntime.providerGeneration()) return;
+            set({ providers: providers.providers });
+            refreshedProviderModels.add(providerId);
             set((state) => ({
               providerModels: {
                 ...state.providerModels,
@@ -133,11 +136,7 @@ export function createCatalogSlice({
             }));
           }
         } catch {
-          // Keep the cached catalog; the menu already has a usable fallback.
-        } finally {
-          if (generation === catalogRuntime.providerGeneration()) {
-            refreshedProviderModels.add(providerId);
-          }
+          // Keep the cached catalog; leave the provider retryable on next load.
         }
       })();
       providerModelLoads.set(providerId, load);

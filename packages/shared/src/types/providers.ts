@@ -26,6 +26,8 @@ export type ProviderPublic = {
   headers?: Record<string, string>;
   /** Per-model settings selected in the provider dialog. */
   models: ModelBinding[];
+  /** Host-owned durable marker: the model selection has been saved or reconciled. */
+  modelSelectionConfigured?: boolean;
   /** @deprecated Use `models[0]?.id`; retained for older runtime consumers. */
   defaultModelId?: string;
   apiStyle?: string;

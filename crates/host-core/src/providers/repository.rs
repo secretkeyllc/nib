@@ -30,6 +30,14 @@ pub(crate) fn provider_from_row(
             .get::<_, String>(11)
             .ok()
             .and_then(|raw| config_headers(&raw)),
+        model_selection_configured: serde_json::from_str::<serde_json::Value>(&config_raw)
+            .ok()
+            .and_then(|config| {
+                config
+                    .get("modelSelectionConfigured")
+                    .and_then(|v| v.as_bool())
+            })
+            .unwrap_or(false),
         default_model_id: models
             .first()
             .map(|binding| binding.id.clone())
@@ -86,7 +94,10 @@ pub fn list_providers(
 /// endpoint's cached discovery results. Static manifest models stay authoritative
 /// whenever the plugin declares at least one.
 fn hydrate_dynamic_plugin_models(db: &Database, provider: &mut ProviderPublic) -> Result<()> {
-    if provider.owner_plugin_id.is_none() || !provider.models.is_empty() {
+    if provider.owner_plugin_id.is_none()
+        || provider.auth_kind == "oauth"
+        || !provider.models.is_empty()
+    {
         return Ok(());
     }
     provider.models = list_models(db, Some(&provider.id))?
@@ -406,6 +417,14 @@ pub fn update_provider(
             headers,
         )?),
         None => config_json,
+    };
+    let config_json = if input.models.is_some() {
+        let mut config: serde_json::Value =
+            serde_json::from_str(config_json.as_deref().unwrap_or(&raw_config))?;
+        config["modelSelectionConfigured"] = serde_json::Value::Bool(true);
+        Some(serde_json::to_string(&config)?)
+    } else {
+        config_json
     };
 
     if clear_api_key {

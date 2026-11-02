@@ -12,19 +12,21 @@ export function isPluginModelSelectionUnconfigured(
   selected: readonly ModelBinding[],
   declared: readonly PluginProviderModelContrib[] | undefined,
 ): boolean {
+  if (selected.length === 0) return true;
   if (!declared || selected.length !== declared.length) return false;
   return selected.every((binding, index) => {
     const seed = declared[index];
     return binding.id === seed.id &&
-      binding.contextWindowSource === undefined &&
-      binding.maxTokensSource === undefined &&
-      binding.contextWindow === (seed.contextWindow ?? 128_000) &&
-      binding.maxTokens === (seed.maxTokens ?? 8_192) &&
-      JSON.stringify(binding.thinkingLevels) === JSON.stringify(seed.thinkingLevels ?? []) &&
+      binding.contextWindowSource !== "user" &&
+      binding.maxTokensSource !== "user" &&
+      (binding.contextWindowSource === "catalog" || binding.contextWindow === (seed.contextWindow || 128_000)) &&
+      (binding.maxTokensSource === "catalog" || binding.maxTokens === (seed.maxTokens || 8_192)) &&
+      JSON.stringify([...binding.thinkingLevels].sort()) === JSON.stringify([...(seed.thinkingLevels ?? [])].sort()) &&
       (binding.defaultThinkingLevel ?? null) === (seed.defaultThinkingLevel ?? seed.thinkingLevels?.[0] ?? null) &&
       !binding.alias &&
       (binding.supportsImages == null || binding.supportsImages === seed.supportsImages) &&
       binding.supportsDocuments == null &&
+      !binding.thinkingProtocol && binding.supportsReasoningEffort == null &&
       !binding.availableForSubagents && !binding.nativeWebSearch && !binding.fastModeAllowed;
   });
 }

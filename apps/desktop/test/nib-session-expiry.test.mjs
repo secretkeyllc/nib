@@ -38,10 +38,8 @@ test("a subscription gateway without a credential lists no models", () => {
   assert.ok(gate > -1, "the no-credential gate is missing from listModels");
   assert.ok(discover > -1, "discovery call not found");
   assert.ok(gate < discover, "the gate must run before discovery, not after");
-  assert.match(
-    listModels,
-    /\(await this\.pluginAccessToken\(row\.id\)\) \?\? \(await this\.pluginSettingApiKey\(row\.id\)\)/,
-  );
+  assert.match(listModels, /const credential = await this\.pluginAccessToken\(row\.id\);/);
+  assert.doesNotMatch(oauth, /pluginSettingApiKey/);
 });
 
 test("the composer picker hides plugin-owned oauth rows without a credential", () => {
