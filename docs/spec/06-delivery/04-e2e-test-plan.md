@@ -58,6 +58,10 @@
   user limit overrides, host-normalized seed values, concurrent edit/logout,
   cache-only reads, and persistence across provider/plugin restart. Inspect
   Settings, Composer model metadata, and runtime binding limits.
+  Hold account A's discovery response, sign out and sign in as B, then release
+  A; only B's models may be cached or saved. Repeat with a plugin runtime reload.
+  Save the exact three manifest IDs explicitly and verify startup/live refresh
+  retain them; contrast with an empty unmarked selection, which initializes all.
 - **Expected:** First sign-in and upgraded-account reconciliation select every
   returned chat model and publish context/output metadata to Settings, Composer
   and runtime. Existing selected subsets, explicit overrides and empty

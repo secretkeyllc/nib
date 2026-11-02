@@ -22,10 +22,11 @@ const declaration = manifest.contributes.providers[0];
 const providerId = "plugin:nib.provider:nib";
 const served = ["claude-haiku-4-5-20251001", "claude-sonnet-5", "gpt-6-astra", "gpt-6.1-sol", "gemini-4-argon", "grok-4.7", "unpublished-fixture-model"];
 
-async function fixture({ models = structuredClone(declaration.models), fetchModels, signedIn = false } = {}) {
+async function fixture({ models = structuredClone(declaration.models), fetchModels, signedIn = false, modelSelectionConfigured, loginToken = "fixture-gateway-token" } = {}) {
   let row = {
     ...declaration, id: providerId, ownerPluginId: manifest.id,
     enabled: true, defaultModelId: models[0]?.id, models,
+    modelSelectionConfigured,
   };
   const secrets = new Map();
   if (signedIn) secrets.set(secretRefForProviderOauth(providerId), JSON.stringify({ accessToken: "fixture-gateway-token" }));
@@ -73,7 +74,7 @@ async function fixture({ models = structuredClone(declaration.models), fetchMode
     },
     getPluginOAuthBridge: () => ({
       listOAuthProviders: () => [plugin],
-      invokeProviderOAuth: async () => ({ accessToken: "fixture-gateway-token", accountLabel: "Fixture account" }),
+      invokeProviderOAuth: async () => ({ accessToken: loginToken, accountLabel: "Fixture account" }),
     }),
     onAccountRemoved: (id) => catalog.deleteAccount(id),
     onAccountRestored: (id) => catalog.restoreAccount(id),
@@ -92,6 +93,7 @@ async function fixture({ models = structuredClone(declaration.models), fetchMode
   });
   return {
     get row() { return row; }, catalog, runtime, oauth, handlers, requests, events,
+    reload: () => { plugin.runtimeId += "-reloaded"; },
     edit: (models) => { row = { ...row, models, modelSelectionConfigured: true }; },
     login: async () => {
       const outcome = new Promise((resolve) => { finishLogin = resolve; });
@@ -255,4 +257,74 @@ test("sign-out during reconciliation discards the delayed model list", async () 
   release(new Response(JSON.stringify({ data: served.map((id) => ({ id })) })));
   await pending;
   assert.deepEqual(h.row.models.map((model) => model.id), declaration.models.map((model) => model.id));
+});
+
+function gate() {
+  let resolve;
+  const promise = new Promise((done) => { resolve = done; });
+  return { promise, resolve };
+}
+const modelResponse = (ids) => new Response(JSON.stringify({ data: ids.map((id) => ({ id })) }));
+
+test("empty unconfigured selection initializes all gateway models", { timeout: 5000 }, async () => {
+  const h = await fixture({ signedIn: true, models: [] });
+  await h.oauth.reconcilePluginModels(providerId);
+  assert.deepEqual(h.row.models.map((model) => model.id), served);
+});
+
+test("explicit three-model selection survives startup and live refresh", { timeout: 5000 }, async () => {
+  const h = await fixture({ signedIn: true, modelSelectionConfigured: true });
+  await h.handlers.get(IPC.invoke.providersList)();
+  await h.oauth.reconcilePluginModels(providerId);
+  assert.equal(h.requests.length, 0);
+  await h.handlers.get(IPC.invoke.providersListModels)({ providerId, source: "refresh" });
+  assert.deepEqual(h.row.models.map((model) => model.id), declaration.models.map((model) => model.id));
+});
+
+test("login replaces the credential before using a cached catalogue", { timeout: 5000 }, async () => {
+  const h = await fixture({ signedIn: true, loginToken: "fixture-token-B", fetchModels: (init) =>
+    modelResponse(init.headers.authorization === "Bearer fixture-token-B" ? ["grok-4.7"] : served) });
+  await h.oauth.listModels(providerId);
+  await h.login();
+  assert.deepEqual(h.row.models.map((model) => model.id), ["grok-4.7"]);
+});
+
+test("delayed account A discovery cannot cache or persist after logout and login B", { timeout: 5000 }, async () => {
+  const entered = gate();
+  const response = gate();
+  const h = await fixture({ signedIn: true, loginToken: "fixture-token-B", fetchModels: (init) => {
+    if (init.headers.authorization === "Bearer fixture-token-B") return modelResponse(["grok-4.7"]);
+    entered.resolve();
+    return response.promise;
+  } });
+  const old = h.oauth.reconcilePluginModels(providerId);
+  await entered.promise;
+  await h.oauth.deleteAccount(providerId);
+  await h.login();
+  response.resolve(modelResponse(served));
+  await old;
+  assert.deepEqual(h.row.models.map((model) => model.id), ["grok-4.7"]);
+  assert.deepEqual((await h.oauth.listModels(providerId)).map((model) => model.modelId), ["grok-4.7"]);
+});
+
+test("runtime reload rejects in-flight discovery and cannot reuse its cache", { timeout: 5000 }, async () => {
+  const entered = gate();
+  const response = gate();
+  let calls = 0;
+  const h = await fixture({ signedIn: true, fetchModels: () => {
+    if (++calls > 1) return modelResponse(["grok-4.7"]);
+    entered.resolve();
+    return response.promise;
+  } });
+  const old = h.oauth.reconcilePluginModels(providerId);
+  await entered.promise;
+  h.reload();
+  response.resolve(modelResponse(served));
+  await old;
+  assert.equal(h.oauth.hasPublishedPluginModels(providerId), false);
+  assert.deepEqual(h.row.models.map((model) => model.id), declaration.models.map((model) => model.id));
+  await h.oauth.reconcilePluginModels(providerId, true);
+  assert.deepEqual(h.row.models.map((model) => model.id), ["grok-4.7"]);
+  await h.oauth.deleteAccount(providerId);
+  assert.deepEqual(await h.oauth.listModels(providerId), []);
 });

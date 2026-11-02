@@ -467,6 +467,13 @@ uses the exact Host provider snapshot as an atomic update precondition, and
 checks plugin runtime identity before writing, protecting concurrent edits,
 sign-out and reload. A fixed provider ID removed from the metadata catalog on
 sign-out is restored before reauthentication lookups.
+An empty selection without provenance also initializes from gateway discovery;
+an explicitly saved empty or three-model selection does not expand. Successful
+discovery is scoped to the current credential fingerprint, local credential
+generation and plugin runtime. Login and credential writes/removal invalidate
+that scope before mutation. Late replies must pass the same checks before
+caching and, under the credential write lock, before saving bindings. OAuth
+discovery never falls back to a plugin settings file after sign-out.
 
 Request auth is resolved **per request**, not at launch:
 

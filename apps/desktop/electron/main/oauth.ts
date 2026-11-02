@@ -16,7 +16,7 @@
  * non-secret account label, or an already-resolved `ModelAuth`.
  */
 
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { createInstallationIdentity } from "./installation-identity.ts";
 import { isPluginModelSelectionUnconfigured, pluginModelBinding } from "./oauth-model-bindings.ts";
 
@@ -404,7 +404,7 @@ export class VendorOAuth {
   /** One pi-ai collection and credential store per local OAuth account row. */
   private readonly accountModels = new Map<string, AccountModels>();
   /** Successful and failed account model lists, so launch does not refetch per model. */
-  private readonly liveModelCache = new Map<string, { at: number; models: OAuthModelOption[] | null }>();
+  private readonly liveModelCache = new Map<string, { at: number; credentialKey?: string; runtimeId?: string; models: OAuthModelOption[] | null }>();
   private readonly liveModelLoads = new Map<string, Promise<OAuthModelOption[] | undefined>>();
   /** Per-account write chain: `modify` must be a serialized read-modify-write. */
   private readonly chains = new Map<string, Promise<unknown>>();
@@ -413,6 +413,7 @@ export class VendorOAuth {
   private readonly getInstallationId: () => Promise<string>;
   private readonly pluginReconciliations = new Map<string, Promise<void>>();
   private readonly pluginReconcileAttempts = new Map<string, number>();
+  private readonly pluginCredentialGenerations = new Map<string, number>();
 
   constructor(deps: VendorOAuthDeps) {
     this.deps = deps;
@@ -728,6 +729,7 @@ export class VendorOAuth {
       throw new Error(`unknown vendor account provider: ${providerId}`);
     }
     if (row.ownerPluginId) {
+      this.invalidatePluginDiscovery(providerId);
       this.pluginRefreshControllers.get(providerId)?.abort(new Error("provider sign-out requested"));
       const running = [...this.pluginLogins.values()].find(
         (session) => session.providerId === providerId,
@@ -789,18 +791,37 @@ export class VendorOAuth {
    * the caller falls back to the manifest; a network hiccup must not empty the
    * model picker.
    */
+  private pluginRuntimeId(providerId: string): string | undefined {
+    return this.deps.getPluginOAuthBridge?.()?.listOAuthProviders()
+      .find((provider) => provider.providerId === providerId)?.runtimeId;
+  }
+
+  private pluginCredentialKey(providerId: string, token: string): string {
+    return `${this.pluginCredentialGenerations.get(providerId) ?? 0}:${createHash("sha256").update(token).digest("hex")}`;
+  }
+
+  private async pluginDiscoveryIsCurrent(providerId: string, key: string, runtimeId: string): Promise<boolean> {
+    const credential = await this.readPluginCredential(providerId);
+    return !!credential?.accessToken && this.pluginCredentialKey(providerId, credential.accessToken) === key &&
+      this.pluginRuntimeId(providerId) === runtimeId;
+  }
+
   private async discoverPluginModels(
     row: OAuthProviderRow,
     baseUrl: string,
     apiStyle: string,
     signal?: AbortSignal,
   ): Promise<OAuthModelOption[]> {
+    const generation = this.pluginCredentialGenerations.get(row.id) ?? 0;
+    const runtimeId = this.pluginRuntimeId(row.id);
     const credential = await this.readPluginCredential(row.id);
     const token = credential?.expiresAt !== undefined && credential.expiresAt <= Date.now() + 30_000
       ? (await this.resolvePluginAuth(row)).apiKey : credential?.accessToken;
-    if (!token) return [];
+    if (!token || !runtimeId || generation !== (this.pluginCredentialGenerations.get(row.id) ?? 0)) return [];
+    const credentialKey = this.pluginCredentialKey(row.id, token);
     const cached = this.liveModelCache.get(row.id);
-    if (cached?.models && Date.now() - cached.at < LIVE_MODELS_TTL_MS &&
+    if (cached?.models && cached.credentialKey === credentialKey && cached.runtimeId === runtimeId &&
+        Date.now() - cached.at < LIVE_MODELS_TTL_MS &&
         cached.models.every((model) => model.baseUrl === baseUrl && model.apiStyle === apiStyle)) return cached.models;
     const url = `${baseUrl.replace(/\/+$/, "")}/models`;
     const controller = new AbortController();
@@ -823,7 +844,8 @@ export class VendorOAuth {
             .filter((id) => id.length > 0 && isConversationModelId(id))
         : [])];
       const models = ids.map((modelId) => ({ modelId, apiStyle, baseUrl }));
-      if (!requestSignal.aborted) this.liveModelCache.set(row.id, { at: Date.now(), models });
+      if (requestSignal.aborted || !await this.pluginDiscoveryIsCurrent(row.id, credentialKey, runtimeId)) return [];
+      this.liveModelCache.set(row.id, { at: Date.now(), credentialKey, runtimeId, models });
       return models;
     } catch (error) {
       this.log("warn", "nib model discovery threw", { providerId: row.id, error: error instanceof Error ? error.message : String(error) });
@@ -834,7 +856,8 @@ export class VendorOAuth {
   }
 
   hasPublishedPluginModels(providerId: string): boolean {
-    return (this.liveModelCache.get(providerId)?.models?.length ?? 0) > 0;
+    const cached = this.liveModelCache.get(providerId);
+    return !!cached?.models?.length && cached.runtimeId === this.pluginRuntimeId(providerId);
   }
 
   async listModels(providerId: string): Promise<OAuthModelOption[]> {
@@ -849,15 +872,15 @@ export class VendorOAuth {
       // exist, not like the manifest's frozen catalogue. (Discovery below
       // would bail the same way; the check also keeps the manifest fallback
       // from filling in dead models.)
-      const credential =
-        (await this.pluginAccessToken(row.id)) ?? (await this.pluginSettingApiKey(row.id));
+      const credential = await this.pluginAccessToken(row.id);
       if (!credential) return [];
+      const credentialKey = this.pluginCredentialKey(row.id, credential);
+      const runtimeId = this.pluginRuntimeId(row.id);
 
-      // Ask the gateway what this key can actually reach. The manifest's model
-      // list is a fallback, not the source of truth: a hardcoded catalogue
-      // drifts the moment upstream adds, renames or retires a model.
       const discovered = await this.discoverPluginModels(row, baseUrl, apiStyle);
       if (discovered.length > 0) return discovered;
+      // A failed or stale response must not resurrect the old account's seed.
+      if (!runtimeId || !await this.pluginDiscoveryIsCurrent(row.id, credentialKey, runtimeId)) return [];
 
       return (row.models ?? []).map((model) => ({
         modelId: model.id,
@@ -1115,6 +1138,7 @@ export class VendorOAuth {
   }
 
   private async runPluginLogin(session: PluginLoginSession): Promise<void> {
+    this.invalidatePluginDiscovery(session.providerId);
     try {
       const bridge = this.deps.getPluginOAuthBridge?.();
       if (!bridge) throw new Error("provider OAuth is unavailable");
@@ -1314,36 +1338,6 @@ export class VendorOAuth {
     }
   }
 
-  /**
-   * API key kept in the plugin's own settings file, used only when the row's
-   * encrypted credential is unreadable.
-   */
-  private async pluginSettingApiKey(rowId: string): Promise<string | undefined> {
-    const pluginId = rowId.startsWith("plugin:")
-      ? rowId.split(":")[1]
-      : undefined;
-    if (!pluginId) return undefined;
-    try {
-      const { readFile } = await import("node:fs/promises");
-      const { join } = await import("node:path");
-      const { desktopDataDir } = await import("./data-paths.ts");
-      const file = join(
-        desktopDataDir(),
-        "plugins",
-        "data",
-        pluginId.replace(/[^a-zA-Z0-9._-]/g, "_"),
-        "settings.json",
-      );
-      const raw = await readFile(file, "utf8");
-      const parsed = JSON.parse(raw) as { nibApiKey?: unknown };
-      return typeof parsed.nibApiKey === "string" && parsed.nibApiKey
-        ? parsed.nibApiKey
-        : undefined;
-    } catch {
-      return undefined;
-    }
-  }
-
   private async readPluginCredential(
     providerId: string,
   ): Promise<PluginProviderOAuthCredential | undefined> {
@@ -1364,10 +1358,18 @@ export class VendorOAuth {
     providerId: string,
     credential: PluginProviderOAuthCredential,
   ): Promise<void> {
+    this.invalidatePluginDiscovery(providerId);
     await this.deps.call("secrets.set", {
       secretRef: secretRefForProviderOauth(providerId),
       value: JSON.stringify(credential),
     });
+  }
+
+  private invalidatePluginDiscovery(providerId: string): void {
+    this.pluginCredentialGenerations.set(providerId, (this.pluginCredentialGenerations.get(providerId) ?? 0) + 1);
+    this.liveModelCache.delete(providerId);
+    this.pluginReconciliations.delete(providerId);
+    this.pluginReconcileAttempts.delete(providerId);
   }
 
   private clearAccountModels(providerId: string): void {
@@ -1400,7 +1402,9 @@ export class VendorOAuth {
       }, row, provider);
     })();
     this.pluginReconciliations.set(providerId, work);
-    try { await work; } finally { this.pluginReconciliations.delete(providerId); }
+    try { await work; } finally {
+      if (this.pluginReconciliations.get(providerId) === work) this.pluginReconciliations.delete(providerId);
+    }
   }
 
   /** Populate the account's model configuration before reporting login success. */
@@ -1418,6 +1422,8 @@ export class VendorOAuth {
       const offered = await this.discoverPluginModels(
         row, baseUrl, row.apiStyle ?? "chat_completions", session.controller.signal,
       );
+      const discovery = this.liveModelCache.get(row.id);
+      if (discovery?.models !== offered || !discovery.credentialKey || discovery.runtimeId !== session.runtimeId) return;
       if (session.cancelled) return;
       if (offered.length === 0) return; // Leave provenance unset so the next refresh retries.
       const options = initializeAll
@@ -1447,12 +1453,15 @@ export class VendorOAuth {
           currentProvider?.runtimeId !== session.runtimeId ||
           JSON.stringify(current.models) !== JSON.stringify(row.models)) return;
       if (row.modelSelectionConfigured && JSON.stringify(models) === JSON.stringify(selected)) return;
-      await this.deps.call("providers.update", {
-        id: row.id,
-        expectedProvider: row,
-        models,
-        defaultModelId: models.some((model) => model.id === current.defaultModelId)
-          ? current.defaultModelId : models[0].id,
+      await this.serialize(row.id, async () => {
+        if (!await this.pluginDiscoveryIsCurrent(row.id, discovery.credentialKey!, session.runtimeId)) return;
+        await this.deps.call("providers.update", {
+          id: row.id,
+          expectedProvider: row,
+          models,
+          defaultModelId: models.some((model) => model.id === current.defaultModelId)
+            ? current.defaultModelId : models[0].id,
+        });
       });
     } catch {
       // Metadata failure must not turn a valid credential into a failed login.

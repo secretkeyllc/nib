@@ -12,6 +12,7 @@ export function isPluginModelSelectionUnconfigured(
   selected: readonly ModelBinding[],
   declared: readonly PluginProviderModelContrib[] | undefined,
 ): boolean {
+  if (selected.length === 0) return true;
   if (!declared || selected.length !== declared.length) return false;
   return selected.every((binding, index) => {
     const seed = declared[index];
