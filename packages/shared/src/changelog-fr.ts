@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.22",
+    date: "2026-11-02",
+    highlights: [
+      "En mode agent local + outils distants, les pièces jointes sont désormais téléversées dans le répertoire de session privé de l'Hôte distant avant le démarrage de la session.",
+      "Les commandes Read, Glob et Grep distantes peuvent lire les copies téléversées ; les écritures restent dans les limites du projet.",
+      "Chaque fichier est limité à 50 Mio et vérifié par SHA-256 ; le Composer signale que les pièces jointes restent sur l'hôte distant.",
+    ],
+  },
+
+{
     version: "0.22.21",
     date: "2026-11-01",
     highlights: [

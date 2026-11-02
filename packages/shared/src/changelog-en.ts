@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.22",
+    date: "2026-11-02",
+    highlights: [
+      "Attachments sent in the local-agent + remote-tools mode now upload to the remote Host's private session directory before the session starts.",
+      "Remote Read, Glob and Grep can use the uploaded copies; writes stay inside the project boundaries.",
+      "Each upload is capped at 50 MiB per file and verified with SHA-256; the Composer notes that attachments stay on the remote host.",
+    ],
+  },
+
+{
     version: "0.22.21",
     date: "2026-11-01",
     highlights: [

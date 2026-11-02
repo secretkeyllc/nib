@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.22",
+    date: "2026-11-02",
+    highlights: [
+      "在本机 Agent + 远程工具模式下，发送附件现在会在会话开始前上传到所选远程主机的私有会话目录。",
+      "远程 Read、Glob 和 Grep 可以读取上传的副本；写入仍受项目边界限制。",
+      "每个文件上传上限 50 MiB 并经 SHA-256 校验；输入框会提示附件将保留在远程主机。",
+    ],
+  },
+
+{
     version: "0.22.21",
     date: "2026-11-01",
     highlights: [

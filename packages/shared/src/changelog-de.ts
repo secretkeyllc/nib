@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.22",
+    date: "2026-11-02",
+    highlights: [
+      "Anhänge werden im Modus mit lokalem Agent und entfernten Werkzeugen jetzt vor Sitzungsbeginn in das private Sitzungsverzeichnis des gewählten entfernten Hosts hochgeladen.",
+      "Remote Read, Glob und Grep können die hochgeladenen Kopien lesen; Schreibvorgänge bleiben innerhalb der Projektgrenzen.",
+      "Pro Datei gelten 50 MiB Grenze und SHA-256-Prüfung; der Composer weist darauf hin, dass Anhänge auf dem entfernten Host verbleiben.",
+    ],
+  },
+
+{
     version: "0.22.21",
     date: "2026-11-01",
     highlights: [

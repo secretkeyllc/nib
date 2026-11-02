@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.22",
+    date: "2026-11-02",
+    highlights: [
+      "No modo agente local + ferramentas remotas, os anexos agora são enviados para o diretório de sessão privado do Host remoto antes de a sessão começar.",
+      "Read, Glob e Grep remotos podem ler as cópias enviadas; a escrita permanece dentro dos limites do projeto.",
+      "Cada arquivo tem limite de 50 MiB e verificação SHA-256; o Composer avisa que os anexos permanecem no host remoto.",
+    ],
+  },
+
+{
     version: "0.22.21",
     date: "2026-11-01",
     highlights: [

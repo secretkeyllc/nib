@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.22",
+    date: "2026-11-02",
+    highlights: [
+      "로컬 에이전트 + 원격 도구 모드에서 첨부 파일은 세션 시작 전에 선택한 원격 호스트의 개인 세션 디렉터리에 업로드됩니다.",
+      "원격 Read, Glob, Grep는 업로드된 사본을 읽을 수 있으며 쓰기는 프로젝트 경계 안에 유지됩니다.",
+      "파일별 50MiB 제한과 SHA-256 검증이 적용되고 Composer는 첨부 파일이 원격 호스트에 남는다고 안내합니다.",
+    ],
+  },
+
+{
     version: "0.22.21",
     date: "2026-11-01",
     highlights: [

@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.22",
+    date: "2026-11-02",
+    highlights: [
+      "在本機 Agent + 遠端工具模式下，傳送附件現在會在工作階段開始前上傳到所選遠端主機的私人工作階段目錄。",
+      "遠端 Read、Glob 與 Grep 可以讀取上傳的副本；寫入仍受專案邊界限制。",
+      "每個檔案上傳上限 50 MiB 並經 SHA-256 驗證；輸入框會提示附件將保留在遠端主機。",
+    ],
+  },
+
+{
     version: "0.22.21",
     date: "2026-11-01",
     highlights: [

@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.22",
+    date: "2026-11-02",
+    highlights: [
+      "En el modo de agente local + herramientas remotas, los adjuntos ahora se suben al directorio de sesión privado del Host remoto antes de iniciar la sesión.",
+      "Read, Glob y Grep remotos pueden leer las copias subidas; la escritura sigue limitada a los bordes del proyecto.",
+      "Cada archivo tiene un límite de 50 MiB y verificación SHA-256; el Composer indica que los adjuntos permanecen en el host remoto.",
+    ],
+  },
+
+{
     version: "0.22.21",
     date: "2026-11-01",
     highlights: [

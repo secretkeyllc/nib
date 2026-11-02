@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.22",
+    date: "2026-11-02",
+    highlights: [
+      "Yerel temsilci + uzak araçlar modunda ekler artık oturum başlamadan önce seçilen uzak makinenin özel oturum dizinine yüklenir.",
+      "Uzak Read, Glob ve Grep yüklenen kopyaları okuyabilir; yazma işlemleri proje sınırları içinde kalır.",
+      "Dosya başına 50 MiB sınırı ve SHA-256 doğrulaması vardır; Composer eklerin uzak makinede kaldığını belirtir.",
+    ],
+  },
+
+{
     version: "0.22.21",
     date: "2026-11-01",
     highlights: [
