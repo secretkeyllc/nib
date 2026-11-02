@@ -102,3 +102,16 @@ export function splitInlineContent<A extends InlinePlacedAttachment>(
   }
   return { parts, trailing };
 }
+
+/** Rewrite complete attachment tokens, including explicitly quoted paths. */
+export function replacePromptPathReferences(content: string, paths: readonly string[], replacementPath: string): string {
+  const escape = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const alternatives = [...new Set(paths)].filter(Boolean).sort((a, b) => b.length - a.length).flatMap(path => {
+    const quoted = escape(`@"${path}"`);
+    if (/\s/.test(path)) return [quoted];
+    const boundary = String.raw`(?![\\/\p{L}\p{N}_-]|\.[\p{L}\p{N}])`;
+    return [quoted, `${escape(`@${path}`)}${boundary}`];
+  });
+  if (!alternatives.length) return content;
+  return content.replace(new RegExp(alternatives.join("|"), "gu"), () => formatPromptPathText(replacementPath));
+}

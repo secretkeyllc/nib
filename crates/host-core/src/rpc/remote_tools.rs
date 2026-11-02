@@ -255,6 +255,13 @@ pub(super) async fn handle(
             .abort_or_queue_bash(session_id, tool_call_id);
         return Ok(json!({"ok":true,"found":found,"queued":queued,"aborted":found||queued}));
     }
+    if session_id.len() != 64
+        || !session_id
+            .bytes()
+            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+    {
+        return Err(rpc_err(1002, "invalid mapped session id", "INVALID_PARAMS"));
+    }
     let raw_path = params
         .get("path")
         .and_then(Value::as_str)
@@ -293,7 +300,7 @@ pub(super) async fn handle(
     }
     tools::validate_timeout_ms(p.timeout_ms)
         .map_err(|(code, message)| rpc_err(1002, message, &code))?;
-    let (mut cancellation, hashline, shell) = {
+    let (mut cancellation, hashline, shell, scratch) = {
         let mut st = state.lock().await;
         let shell = if p.tool_name == "Bash" {
             let catalog = command_shell_catalog(&st)?;
@@ -320,7 +327,12 @@ pub(super) async fn handle(
         let cancellation = st
             .register_bash_cancellation(&p.session_id, &p.tool_call_id)
             .map_err(|code| rpc_err(1008, "tool already executing", &code))?;
-        (Some(cancellation), st.hashline.clone(), shell)
+        let scratch = st
+            .data_dir
+            .join("scratch")
+            .join(&p.session_id)
+            .join("attachments");
+        (Some(cancellation), st.hashline.clone(), shell, scratch)
     };
     if tool_cancellation_requested(&cancellation) {
         state
@@ -356,7 +368,7 @@ pub(super) async fn handle(
         visualization_root: None,
     };
     let mut result = tokio::select! {
-        result = tools::execute_tool_with_path_access(Some(&root),None,&p.tool_name,&p.args,options) => result,
+        result = tools::execute_tool_with_path_access(Some(&root),if matches!(p.tool_name.as_str(), "Read" | "Glob" | "Grep") { Some(&scratch) } else { None },&p.tool_name,&p.args,options) => result,
         _ = wait_for_tool_cancellation(&mut cancellation) => failure(&p,"TOOL_ABORTED","tool aborted",started),
     };
     result.tool_call_id = p.tool_call_id.clone();

@@ -71,6 +71,7 @@ export interface RemoteHostsBoot {
   abortWorkspaceTool(request: { hostKey: string; sessionId: string; toolCallId: string }): Promise<void>;
   workspaceCommandShell(hostKey: string): Promise<CommandShellOption>;
   workspaceFiles(hostKey: string, input: WorkspaceFilesRequest): Promise<unknown>;
+  workspaceAttachmentRequest(hostKey: string, method: string, params: unknown, timeoutMs?: number): Promise<unknown>;
   workspacePluginFiles(hostKey: string, input: WorkspacePluginFilesRequest): Promise<unknown>;
   readonly registry: RemoteHostRegistry;
 }
@@ -440,6 +441,17 @@ export function createRemoteHostsBoot(options: BootRemoteHostsOptions): RemoteHo
       const host = connectedHost(hostKey);
       if (!host) throw unavailable();
       const result = await host.adapter.client.request("workspace/files", input);
+      if (connectedHost(hostKey) !== host) throw unavailable();
+      return result;
+    },
+    async workspaceAttachmentRequest(hostKey, method, input, timeoutMs) {
+      if (!["workspace/attachmentCreate", "workspace/attachmentChunk", "workspace/attachmentComplete", "workspace/attachmentAbort"].includes(method)) {
+        throw Object.assign(new Error("invalid attachment operation"), { errorCode: "INVALID_ARGUMENT" });
+      }
+      await ensureReady(hostKey);
+      const host = connectedHost(hostKey);
+      if (!host) throw unavailable();
+      const result = await host.adapter.client.request(method, input, timeoutMs);
       if (connectedHost(hostKey) !== host) throw unavailable();
       return result;
     },

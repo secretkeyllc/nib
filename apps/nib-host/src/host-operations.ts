@@ -1,6 +1,7 @@
 import { createWorkspaceFiles } from "./workspace-files.js";
 import { createWorkspacePluginFiles } from "./plugin-workspace-files.js";
 import { createWorkspaceTools } from "./workspace-tools.js";
+import { createWorkspaceAttachments } from "./workspace-attachments.js";
 import { readdir, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
@@ -273,6 +274,7 @@ export function createHostOperations(deps: HostOperationsDeps): Omit<RacpHostOpe
     sessions: createSessionCatalog(deps),
     projects: createProjectCatalog(deps),
     workspace: createWorkspaceAccess(deps),
+    workspaceAttachments: createWorkspaceAttachments(deps.dataDir),
     workspaceTools: createWorkspaceTools(deps.getHost),
     workspaceFiles: createWorkspaceFiles(),
     workspacePluginFiles: createWorkspacePluginFiles({

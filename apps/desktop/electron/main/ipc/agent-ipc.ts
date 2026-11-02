@@ -4,7 +4,36 @@ import type { FinishTurn } from "../runtime/plans";
 import { expandSlashInvocation, visionFromModelConfig, type ComposerTemplate } from "@pi-desktop/agent-runtime";
 import { appendPromptFallbackPaths, durableUserMessageId, preparePromptAttachments, type PreparedPromptAttachment } from "../prompt-attachments";
 import { resolveSessionReferences } from "../session-references";
+import { getActiveRemoteHostsBoot } from "../bootstrap/remote-hosts";
 import { executionFromResponse, resolveSessionMessageInput } from "@pi-desktop/host-runtime";
+import { uploadRemotePromptAttachments, type RemoteAttachmentWorkspace } from "../remote/remote-attachments";
+import type { AgentPromptAttachment } from "@pi-desktop/shared";
+
+async function prepareModelAttachments(
+  workspace: RemoteAttachmentWorkspace | undefined,
+  sessionId: string,
+  content: string,
+  prepared: readonly PreparedPromptAttachment[],
+  isCurrent?: () => boolean,
+): Promise<{ content: string; attachments: Array<AgentPromptAttachment & { data?: string }> }> {
+  const withFallbacks = appendPromptFallbackPaths(content, prepared);
+  if (!workspace || !prepared.length) return {
+    content: withFallbacks,
+    attachments: prepared.filter(item => item.inlineData).map(item => ({
+      path: item.message.ref, name: item.message.name, kind: "image",
+      ...(item.message.mimeType ? { mimeType: item.message.mimeType } : {}),
+      ...(item.message.size !== undefined ? { size: item.message.size } : {}),
+      data: item.inlineData!,
+      ...(item.message.inlinePath ? { inlinePath: item.message.inlinePath } : {}),
+    })),
+  };
+  const boot = getActiveRemoteHostsBoot();
+  if (!boot) throw Object.assign(new Error("remote Host is unavailable"), { errorCode: ErrorCodes.AGENT_UNAVAILABLE });
+  return uploadRemotePromptAttachments({
+    request: async <T>(method: string, params?: unknown, timeoutMs?: number) =>
+      await boot.workspaceAttachmentRequest(workspace.hostKey, method, params, timeoutMs) as T,
+  }, workspace, sessionId, withFallbacks, prepared, isCurrent);
+}
 import type { AgentExtensionBridge } from "../agent-extensions";
 import type { AgentHostBridge } from "../agent-host-bridge";
 import type { AgentSidecar } from "../agent-sidecar";
@@ -136,7 +165,7 @@ export function registerAgentIpc({
         errorCode: ErrorCodes.TURN_NOT_FOUND,
       });
     }
-    const context = await sidecar.call<{ projectPath?: string; remoteWorkspace?: unknown; supportsVision: boolean }>(
+    const context = await sidecar.call<{ projectPath?: string; remoteWorkspace?: RemoteAttachmentWorkspace; supportsVision: boolean }>(
       "agent.steeringContext", { sessionId: req.sessionId, expectedTurnId: req.expectedTurnId },
     );
     const localProjectPath = context.remoteWorkspace ? undefined : context.projectPath;
@@ -156,6 +185,10 @@ export function registerAgentIpc({
       dataDir, req.sessionId, localProjectPath, req.attachments ?? [],
       context.supportsVision, steerContent,
     );
+    const modelInput = await prepareModelAttachments(
+      context.remoteWorkspace, req.sessionId, steerContent, prepared,
+      () => isTurnDispatchable(req.sessionId, req.expectedTurnId),
+    );
     const session = await host.call<{ session?: { messages?: UiMessage[] } }>("session.get", {
       id: req.sessionId, messageLimit: 1,
     });
@@ -174,13 +207,9 @@ export function registerAgentIpc({
     // never turn into a normal prompt or alter the next turn's configuration.
     return sidecar.call<{ accepted: boolean; turnId: string }>("agent.steer", {
       sessionId: req.sessionId, expectedTurnId: req.expectedTurnId, message,
-      content: appendPromptFallbackPaths(steerContent, prepared),
+      content: modelInput.content,
       ...(mcpExpansion ? { mcpServerIds: mcpExpansion.mcpServerIds, mcpToolNames: mcpExpansion.mcpToolNames } : {}),
-      attachments: prepared.filter((attachment) => attachment.inlineData).map((attachment) => ({
-        path: attachment.message.ref, name: attachment.message.name, kind: attachment.message.kind,
-        mimeType: attachment.message.mimeType, size: attachment.message.size, data: attachment.inlineData,
-        ...(attachment.message.inlinePath ? { inlinePath: attachment.message.inlinePath } : {}),
-      })),
+      attachments: modelInput.attachments,
     });
   });
 
@@ -445,10 +474,15 @@ export function registerAgentIpc({
           : undefined,
       content: req.content,
     });
-    const modelContent = appendPromptFallbackPaths(
-      promptContent,
-      preparedAttachments,
-    );
+    const remoteWorkspace = session.remoteWorkspace as RemoteAttachmentWorkspace | undefined;
+    let modelInput: Awaited<ReturnType<typeof prepareModelAttachments>>;
+    try {
+      modelInput = await prepareModelAttachments(remoteWorkspace, req.sessionId, promptContent, preparedAttachments,
+        () => isTurnDispatchable(req.sessionId, durableTurnId));
+    } catch (error) {
+      await finishTurn(req.sessionId, "error", (error as { errorCode?: string }).errorCode, { turnId: durableTurnId });
+      throw error;
+    }
 
     // Persist user message
     const revisionMeta = (req as any).__revisionMeta as
@@ -539,25 +573,11 @@ export function registerAgentIpc({
           // The host-created durable turn is the approval identity used by
           // Rust. The runtime must not replace it with a provider-local UUID.
           turnId: durableTurnId,
-          content: modelContent,
+          content: modelInput.content,
           ...(mcpExpansion ? { mcpServerIds: mcpExpansion.mcpServerIds, mcpToolNames: mcpExpansion.mcpToolNames } : {}),
           ...(sessionMessage ? { sessionMessage: sessionMessage.origin } : {}),
           attachments: [
-            ...preparedAttachments
-              .filter((attachment) => attachment.inlineData)
-              .map((attachment) => ({
-                path: attachment.message.ref,
-                name: attachment.message.name,
-                kind: attachment.message.kind,
-                mimeType: attachment.message.mimeType,
-                size: attachment.message.size,
-                data: attachment.inlineData,
-                ...(attachment.message.inlinePath
-                  ? { inlinePath: attachment.message.inlinePath }
-                  : {}),
-              })),
-            // A referenced conversation crosses the sidecar as quoted text for
-            // this turn; the durable record above keeps it for later turns.
+            ...modelInput.attachments,
             ...sessionReferences.map((attachment) => ({
               path: attachment.ref,
               name: attachment.name,

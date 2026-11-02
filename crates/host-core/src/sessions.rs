@@ -190,6 +190,8 @@ pub struct MessageAttachment {
     /// at that position instead of appending it after the body.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inline_path: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remote_ref: Option<Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -522,6 +524,9 @@ pub(crate) fn ui_to_record(message: &UiMessage) -> (MessageRecord, Option<String
                 if let Some(inline_path) = &attachment.inline_path {
                     block.insert("inlinePath".into(), json!(inline_path));
                 }
+                if let Some(remote_ref) = &attachment.remote_ref {
+                    block.insert("remoteRef".into(), remote_ref.clone());
+                }
                 blocks.push(Value::Object(block));
             }
         }
@@ -667,6 +672,7 @@ pub(crate) fn record_to_ui(record: MessageRecord) -> UiMessage {
                     .get("inlinePath")
                     .and_then(|v| v.as_str())
                     .map(str::to_string),
+                remote_ref: block.get("remoteRef").cloned(),
             })
         })
         .collect::<Vec<_>>();
@@ -5600,6 +5606,9 @@ mod tests {
             size: Some(42),
             text: None,
             inline_path: Some("@/scratch/pasted/image.png".into()),
+            remote_ref: Some(
+                json!({ "hostKey": "host-a", "workspacePath": "/srv/project", "path": "/home/nib/.nib/scratch/hash/attachments/abc123-image.png" }),
+            ),
         }]);
 
         append_message(&db, &session.id, &user, None).unwrap();
@@ -5617,6 +5626,7 @@ mod tests {
         assert_eq!(blocks[1]["type"], "attachment");
         assert_eq!(blocks[1]["ref"], "attachments/abc123");
         assert_eq!(blocks[1]["inlinePath"], "@/scratch/pasted/image.png");
+        assert_eq!(blocks[1]["remoteRef"]["hostKey"], "host-a");
         assert!(blocks[1].get("data").is_none());
     }
 

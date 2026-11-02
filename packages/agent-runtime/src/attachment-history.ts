@@ -28,6 +28,7 @@ export type AttachmentHistoryContext = {
   projectPath?: string;
   attachmentsDir?: string;
   supportsVision: boolean;
+  remoteWorkspace?: { hostKey: string; path: string };
   /**
    * Maximum aggregate raw image bytes inlined during history restoration
    * (default: 30 MB, hard-capped by MAX_INLINED_IMAGE_HISTORY_BYTES).
@@ -245,6 +246,13 @@ export async function hydrateAttachmentHistory(
   return history.map((message, index) => {
     const resolved = resolvedHistory[index];
     if (!resolved) return message;
+    for (const item of resolved) {
+      const remote = item.attachment.remoteRef;
+      if (params.remoteWorkspace && remote?.hostKey === params.remoteWorkspace.hostKey
+        && remote.workspacePath === params.remoteWorkspace.path) {
+        item.fallbackPath = item.inlined ? undefined : remote.path;
+      }
+    }
     const fallbackPaths = resolved
       .filter(
         (item) =>
