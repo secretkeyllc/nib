@@ -8,13 +8,14 @@ import { getActiveRemoteHostsBoot } from "../bootstrap/remote-hosts";
 import { executionFromResponse, resolveSessionMessageInput } from "@pi-desktop/host-runtime";
 import { uploadRemotePromptAttachments, type RemoteAttachmentWorkspace } from "../remote/remote-attachments";
 import { parseRemoteSessionId } from "../remote/backend-router";
+import { sessionToolHost } from "../remote/remote-workspace-tools";
 
 /**
  * The attachment upload target for a renderer-visible session id. An explicit
  * `remoteWorkspace` binding wins; a plain `remote:<hostKey>:<hostSessionId>`
- * id implies a connected host, so attachments upload to the Host's private
- * session scratch even without a registered remote project. `path` is
- * optional in the upload protocol exactly for this case, and the Host-side
+ * id implies a connected host, and a session whose tools were relayed to a
+ * remote host uploads there too (recorded by the tool relay). `path` is
+ * optional in the upload protocol exactly for these cases, and the Host-side
  * sessionId is the bare host session id — the mirrored scratch directory
  * must equal the one the local scratch rule names.
  */
@@ -33,16 +34,23 @@ async function prepareModelAttachments(
   content: string,
   prepared: readonly PreparedPromptAttachment[],
   isCurrent?: () => boolean,
+  toolHostOverride?: string,
 ): Promise<{ content: string; attachments: Array<AgentPromptAttachment & { data?: string }> }> {
   const withFallbacks = appendPromptFallbackPaths(content, prepared);
   if (!prepared.length) return { content: withFallbacks, attachments: [] };
-  // "Connected host" alone is enough to upload: a host-connected session
-  // without a bound project still runs the local agent against remote tools,
-  // and its Windows local paths are unreadable by the remote runner. The
-  // renderer-visible session id already carries the host key.
+  // Attachments follow the host this session's tools execute on — the same
+  // principle for every session shape. An explicit `remoteWorkspace` (project
+  // binding or the runtime's live launch config) wins; otherwise the tool
+  // relay remembers the host that answered a remote tool for this session,
+  // and a `remote:<hostKey>:<sid>` renderer id still names its host directly.
+  // A plain local session with no remote route stays local.
+  const toolHost = toolHostOverride ?? sessionToolHost(sessionId);
   const target = session.remoteWorkspace
     ? { workspace: session.remoteWorkspace, hostSessionId: sessionId }
-    : attachmentTargetForSessionId(session.id);
+    : attachmentTargetForSessionId(session.id) ??
+      (toolHost
+        ? { workspace: { hostKey: toolHost, path: "" }, hostSessionId: sessionId }
+        : undefined);
   if (!target) return {
     content: withFallbacks,
     attachments: prepared.filter(item => item.inlineData).map(item => ({
@@ -214,7 +222,8 @@ export function registerAgentIpc({
     );
     const modelInput = await prepareModelAttachments(
       { id: req.sessionId, remoteWorkspace: context.remoteWorkspace }, req.sessionId, steerContent, prepared,
-      () => isTurnDispatchable(req.sessionId, req.expectedTurnId),
+      // Attachments follow the relay-recorded tool host for parity with prompt.
+      () => isTurnDispatchable(req.sessionId, req.expectedTurnId), sessionToolHost(req.sessionId),
     );
     const session = await host.call<{ session?: { messages?: UiMessage[] } }>("session.get", {
       id: req.sessionId, messageLimit: 1,
@@ -501,11 +510,18 @@ export function registerAgentIpc({
           : undefined,
       content: req.content,
     });
-    const remoteWorkspace = session.remoteWorkspace as RemoteAttachmentWorkspace | undefined;
+    // The launch decision decides where this session's tools run, so the
+    // launch-config's remote workspace (known by the time the sidecar is
+    // launched) admits the upload; a stored remoteWorkspace binding wins when
+    // it is already present on the session row. Attachments follow the tool
+    // host — the same host this prompt's tools will execute on — and the
+    // Host's mirrored scratch keeps the remote path 1:1 with the local one.
+    const launchRemoteWorkspace = launch.sidecarParams?.remoteWorkspace
+      ?? session.remoteWorkspace as RemoteAttachmentWorkspace | undefined;
     let modelInput: Awaited<ReturnType<typeof prepareModelAttachments>>;
     try {
       modelInput = await prepareModelAttachments(
-        { id: req.sessionId, remoteWorkspace },
+        { id: req.sessionId, remoteWorkspace: launchRemoteWorkspace },
         req.sessionId, promptContent, preparedAttachments,
         () => isTurnDispatchable(req.sessionId, durableTurnId));
     } catch (error) {
