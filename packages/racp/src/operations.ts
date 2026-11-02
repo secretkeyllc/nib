@@ -2,6 +2,10 @@ import type { AgentHost, Principal } from "@pi-desktop/agent-host";
 import { RacpError } from "@pi-desktop/agent-host";
 import {
   RacpApprovalResponseSchema,
+  WorkspaceAttachmentCreateSchema,
+  WorkspaceAttachmentChunkSchema,
+  WorkspaceAttachmentCompleteSchema,
+  WorkspaceAttachmentAbortSchema,
   WorkspaceToolExecuteSchema, WorkspaceToolAbortSchema, WorkspaceFilesRequestSchema,
   WorkspacePluginFilesRequestSchema,
   RacpCursorSchema,
@@ -183,6 +187,19 @@ export function createOperations(): Map<RacpOperation, OperationHandler> {
     await requireWorkspaceTools(context).abort(check(WorkspaceToolAbortSchema, params), toolOwner(context));
     return { ok: true };
   });
+  const requireWorkspaceAttachments = (context: OperationContext) => {
+    const service = context.operations.workspaceAttachments;
+    if (!service || !context.capabilities.workspaceAttachments) throw new RacpError("CAPABILITY_UNAVAILABLE", "workspace attachments are not offered by this Host");
+    return service;
+  };
+  handlers.set("workspace/attachmentCreate", async (context, params) =>
+    requireWorkspaceAttachments(context).create(check(WorkspaceAttachmentCreateSchema, params), toolOwner(context)));
+  handlers.set("workspace/attachmentChunk", async (context, params) =>
+    requireWorkspaceAttachments(context).chunk(check(WorkspaceAttachmentChunkSchema, params), toolOwner(context)));
+  handlers.set("workspace/attachmentComplete", async (context, params) =>
+    requireWorkspaceAttachments(context).complete(check(WorkspaceAttachmentCompleteSchema, params), toolOwner(context)));
+  handlers.set("workspace/attachmentAbort", async (context, params) =>
+    requireWorkspaceAttachments(context).abort(check(WorkspaceAttachmentAbortSchema, params), toolOwner(context)));
   handlers.set("workspace/toolShell", async (context, params) => {
     check(Type.Object({}, { additionalProperties: false }), params);
     return { shell: await requireWorkspaceTools(context).shell() };

@@ -156,6 +156,33 @@ export const WorkspaceToolAbortSchema = Type.Object({
 export type WorkspaceToolAbort = Static<typeof WorkspaceToolAbortSchema>;
 export type WorkspaceToolResult = { ok: boolean; content: unknown; isError?: boolean; errorCode?: string; toolCallId?: string };
 
+export const WORKSPACE_ATTACHMENT_CHUNK_BYTES = 256 * 1024;
+export const WORKSPACE_ATTACHMENT_MAX_BYTES = 50 * 1024 * 1024;
+const WorkspaceAttachmentIdSchema = Type.String({ minLength: 1, maxLength: 128, pattern: "^[a-zA-Z0-9_-]+$" });
+const WorkspaceAttachmentHashSchema = Type.String({ pattern: "^[a-fA-F0-9]{64}$", minLength: 64, maxLength: 64 });
+export const WorkspaceAttachmentCreateSchema = Type.Object({
+  path: Type.String({ minLength: 1, maxLength: 4096 }),
+  sessionId: Type.String({ minLength: 1, maxLength: 256 }),
+  name: Type.String({ minLength: 1, maxLength: 1024 }),
+  size: Type.Integer({ minimum: 0, maximum: WORKSPACE_ATTACHMENT_MAX_BYTES }),
+  sha256: WorkspaceAttachmentHashSchema,
+}, { additionalProperties: false });
+export type WorkspaceAttachmentCreate = Static<typeof WorkspaceAttachmentCreateSchema>;
+export const WorkspaceAttachmentChunkSchema = Type.Object({
+  uploadId: WorkspaceAttachmentIdSchema,
+  offset: Type.Integer({ minimum: 0, maximum: WORKSPACE_ATTACHMENT_MAX_BYTES }),
+  data: Type.String({ minLength: 4, maxLength: 349528, pattern: "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$" }),
+}, { additionalProperties: false });
+export type WorkspaceAttachmentChunk = Static<typeof WorkspaceAttachmentChunkSchema>;
+export const WorkspaceAttachmentCompleteSchema = Type.Object({ uploadId: WorkspaceAttachmentIdSchema }, { additionalProperties: false });
+export type WorkspaceAttachmentComplete = Static<typeof WorkspaceAttachmentCompleteSchema>;
+export const WorkspaceAttachmentAbortSchema = Type.Object({ uploadId: WorkspaceAttachmentIdSchema }, { additionalProperties: false });
+export type WorkspaceAttachmentAbort = Static<typeof WorkspaceAttachmentAbortSchema>;
+export type WorkspaceAttachmentCreateResult = { uploadId: string };
+export type WorkspaceAttachmentChunkResult = { offset: number };
+export type WorkspaceAttachmentCompleteResult = { path: string; sha256: string; size: number };
+export type WorkspaceAttachmentAbortResult = { ok: true };
+
 // ---------------------------------------------------------------------------
 // Canonical resources (spec §5)
 // ---------------------------------------------------------------------------
@@ -460,6 +487,7 @@ export const RacpClientCapabilitiesSchema = Type.Object({
   history: Type.Optional(Type.Boolean()),
   toolRelay: Type.Optional(Type.Boolean()),
   terminal: Type.Optional(Type.Boolean()),
+  workspaceAttachments: Type.Optional(Type.Boolean()),
 });
 
 export const RacpServerCapabilitiesSchema = Type.Object({
@@ -478,6 +506,7 @@ export const RacpServerCapabilitiesSchema = Type.Object({
   workspaceTools: Type.Optional(Type.Boolean()),
   workspaceFiles: Type.Optional(Type.Boolean()),
   workspacePluginFiles: Type.Optional(Type.Boolean()),
+  workspaceAttachments: Type.Optional(Type.Boolean()),
   notifications: Type.Boolean(),
   bindings: Type.Array(Type.Union([Type.Literal("RACP-WS"), Type.Literal("RACP-HTTP"), Type.Literal("RACP-GRPC")])),
 });
@@ -620,6 +649,10 @@ export const RACP_OPERATIONS = {
   "workspace/toolShell": { role: "owner", profile: "remote-host", mutation: false },
   "workspace/files": { role: "owner", profile: "remote-host", mutation: false },
   "workspace/pluginFiles": { role: "owner", profile: "remote-host", mutation: false },
+  "workspace/attachmentCreate": { role: "owner", profile: "remote-host", mutation: true },
+  "workspace/attachmentChunk": { role: "owner", profile: "remote-host", mutation: true },
+  "workspace/attachmentComplete": { role: "owner", profile: "remote-host", mutation: true },
+  "workspace/attachmentAbort": { role: "owner", profile: "remote-host", mutation: true },
   "terminal/open": { role: "controller", profile: "remote-host", mutation: true },
   "terminal/input": { role: "controller", profile: "remote-host", mutation: true },
   "terminal/resize": { role: "controller", profile: "remote-host", mutation: true },
@@ -898,6 +931,10 @@ export function racpErrorIsRegistered(code: RacpErrorCode): boolean {
 // ---------------------------------------------------------------------------
 
 export const RACP_SCHEMAS = {
+  WorkspaceAttachmentCreate: WorkspaceAttachmentCreateSchema,
+  WorkspaceAttachmentChunk: WorkspaceAttachmentChunkSchema,
+  WorkspaceAttachmentComplete: WorkspaceAttachmentCompleteSchema,
+  WorkspaceAttachmentAbort: WorkspaceAttachmentAbortSchema,
   WorkspacePluginFilesRequest: WorkspacePluginFilesRequestSchema,
   WorkspacePluginFilesResult: WorkspacePluginFilesResultSchema,
   RequestContext: RacpRequestContextSchema,

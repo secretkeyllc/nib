@@ -22,6 +22,7 @@ import { createJevClassifierTool } from "./jev-classifier-tool.js";
 import { scheduledToolParameters, scheduledToolDescriptions } from "./scheduled-tools.js";
 import { withPiFileOpToolNames } from "./pi-file-ops.js";
 import { remoteMutationIdentity } from "./remote-workspace.js";
+import { remoteAttachmentPrompt } from "./remote-attachment-paths.js";
 import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import {
@@ -395,8 +396,6 @@ function runtimeAttachmentFromMessage(
     ...(attachment.mimeType ? { mimeType: attachment.mimeType } : {}),
     ...(attachment.size !== undefined ? { size: attachment.size } : {}),
     ...(attachment.text ? { text: attachment.text } : {}),
-    // Recorded placement: the message content names this image at that spot, so
-    // the restored prompt keeps the block there too.
     ...(attachment.inlinePath ? { inlinePath: attachment.inlinePath } : {}),
     ...(data ? { data } : {}),
   };
@@ -3152,16 +3151,18 @@ Do not invent objections or turn speculative risks into blockers. Stop when the 
         append(m.id, this.systemJournal.restore(m));
       } else if (m.role === "user") {
         toolCarrier = undefined;
-        const attachments = (m.attachments ?? []).map((attachment) =>
-          runtimeAttachmentFromMessage(
-            attachment,
-            attachment.data,
-          ),
+        const remoteProjection = this.remoteWorkspace
+          ? remoteAttachmentPrompt(m.content, m.attachments ?? [], this.remoteWorkspace)
+          : undefined;
+        const attachmentSource = remoteProjection?.attachments ?? m.attachments ?? [];
+        const attachments = attachmentSource.map((attachment) =>
+          runtimeAttachmentFromMessage(attachment, attachment.data),
         );
-        const content = promptContent({
-          text: m.sessionMessage ? formatSessionMessage(m.content, m.sessionMessage) : m.content,
-          attachments,
-        });
+        const projectedText = remoteProjection?.content ?? m.content;
+        const messageText = m.sessionMessage
+          ? formatSessionMessage(projectedText, m.sessionMessage)
+          : projectedText;
+        const content = promptContent({ text: messageText, attachments });
         if (
           !(m.content || "").trim() &&
           !attachments.some((attachment) => attachment.data)

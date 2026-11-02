@@ -652,9 +652,27 @@ Desktop derives the remote root from its admitted project binding and rejects
 late results after a binding or connection lifecycle change. This operation
 does not widen `workspace/files` or grant remote mutation rights.
 
-`workspaceTools` and `workspaceFiles` are optional advertised capabilities; an
-older Host fails with CAPABILITY_UNAVAILABLE/METHOD_NOT_FOUND rather than
-falling back to the Desktop filesystem. Tools are not automatically replayed
+`workspaceAttachments` is an optional advertised capability for local-Agent
+remote workspaces. It adds owner-only `workspace/attachmentCreate`,
+`workspace/attachmentChunk`, `workspace/attachmentComplete`, and
+`workspace/attachmentAbort` operations. Desktop uploads a bounded file in
+256 KiB base64 chunks, supplies the declared byte size and SHA-256, and uses only
+the verified absolute path returned by `attachmentComplete`. The Host stores the
+ready file under its private per-session scratch attachment directory; it never
+writes the selected project directory. Read/Glob/Grep may read only the current
+session's attachment scratch root. Write/Edit do not gain that extra root.
+Bash keeps its existing remote-user OS permissions and can use the returned path
+for explicitly requested processing; this is not a shell sandbox.
+Uploads are connection-owned, sequential, and bounded to 50 MiB. Incomplete
+uploads are cleaned on abort, expiry, or disconnect; same-hash retries reuse the
+verified existing file. Completed copies remain on the Host for historical reads
+and are not deleted when a local transcript or pairing is removed. Host storage
+cleanup remains explicit in this phase.
+
+`workspaceTools`, `workspaceFiles`, and `workspaceAttachments` are optional
+advertised capabilities; an older Host fails with
+CAPABILITY_UNAVAILABLE/METHOD_NOT_FOUND rather than falling back to the Desktop
+filesystem. Tools are not automatically replayed
 on reconnect. The Host namespaces execution by paired device and local session,
 limits concurrent tools to 32, retains a bounded 4096-key replay fence, and bounds
 arguments/results to 1 MiB. These services never carry model requests, model

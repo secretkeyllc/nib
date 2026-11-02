@@ -292,6 +292,7 @@ async function runtimeFor(
     projectPath: params.remoteWorkspace ? undefined : params.projectPath,
     attachmentsDir: params.attachmentsDir,
     supportsVision,
+    remoteWorkspace: params.remoteWorkspace,
   });
   const compaction = detail.session.compaction;
   // Older callers without a stable message id retain the previous content match.

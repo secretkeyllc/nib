@@ -211,7 +211,7 @@ async fn denied_remote_write_and_cancelled_read_never_run_locally() {
 async fn workspace_runner_reads_without_creating_remote_project_session_or_provider_records() {
     let (dir, state, tx, _rx) = fixture();
     std::fs::write(dir.path().join("data.txt"), "remote bytes").unwrap();
-    let result=handle_request(state.clone(),"tools.workspaceExecute",json!({"path":dir.path(),"sessionId":"local-owner-session","toolCallId":"read-tool","toolName":"Read","args":{"path":"data.txt"}}),tx.clone()).await.unwrap();
+    let result=handle_request(state.clone(),"tools.workspaceExecute",json!({"path":dir.path(),"sessionId":"a".repeat(64),"toolCallId":"read-tool","toolName":"Read","args":{"path":"data.txt"}}),tx.clone()).await.unwrap();
     assert_eq!(result["ok"], true);
     assert!(result.to_string().contains("remote bytes"));
     let guard = state.lock().await;
@@ -221,9 +221,39 @@ async fn workspace_runner_reads_without_creating_remote_project_session_or_provi
 }
 
 #[tokio::test]
+async fn workspace_runner_reads_only_the_mapped_session_attachment_scratch() {
+    let (dir, state, tx, _rx) = fixture();
+    let project = tempfile::tempdir().unwrap();
+    let session = "b".repeat(64);
+    let attachments = dir.path().join("scratch").join(&session).join("attachments");
+    std::fs::create_dir_all(&attachments).unwrap();
+    std::fs::write(attachments.join("hash-notes.txt"), "uploaded remote attachment").unwrap();
+    let read = handle_request(state.clone(), "tools.workspaceExecute", json!({
+        "path":project.path(),"sessionId":session,"toolCallId":"attachment-read","toolName":"Read",
+        "args":{"path":attachments.join("hash-notes.txt")}
+    }), tx.clone()).await.unwrap();
+    assert_eq!(read["ok"], true);
+    assert!(read.to_string().contains("uploaded remote attachment"));
+
+    let other_session = "c".repeat(64);
+    let denied = handle_request(state.clone(), "tools.workspaceExecute", json!({
+        "path":project.path(),"sessionId":other_session,"toolCallId":"cross-session-read","toolName":"Read",
+        "args":{"path":attachments.join("hash-notes.txt")}
+    }), tx.clone()).await.unwrap();
+    assert_eq!(denied["ok"], false);
+
+    let write = handle_request(state.clone(), "tools.workspaceExecute", json!({
+        "path":project.path(),"sessionId":session,"toolCallId":"attachment-write","toolName":"Write",
+        "args":{"path":attachments.join("injected.txt"),"content":"must not write"}
+    }), tx.clone()).await.unwrap();
+    assert_eq!(write["ok"], false);
+    assert!(!attachments.join("injected.txt").exists());
+}
+
+#[tokio::test]
 async fn workspace_bash_requires_matching_shell_and_honors_abort_before_dispatch() {
     let (dir, state, tx, _rx) = fixture();
-    let input = json!({"path":dir.path(),"sessionId":"local-owner","toolCallId":"bash-a","toolName":"Bash","args":{"command":"printf forbidden > should-not-exist"},"expectedCommandShellId":"wrong-shell","expectedCommandShellDialect":"wrong-dialect"});
+    let input = json!({"path":dir.path(),"sessionId":"a".repeat(64),"toolCallId":"bash-a","toolName":"Bash","args":{"command":"printf forbidden > should-not-exist"},"expectedCommandShellId":"wrong-shell","expectedCommandShellDialect":"wrong-dialect"});
     let result = handle_request(state.clone(), "tools.workspaceExecute", input, tx.clone())
         .await
         .unwrap();
@@ -233,12 +263,12 @@ async fn workspace_bash_requires_matching_shell_and_honors_abort_before_dispatch
     handle_request(
         state.clone(),
         "tools.workspaceAbort",
-        json!({"sessionId":"local-owner","toolCallId":"write-late"}),
+        json!({"sessionId":"a".repeat(64),"toolCallId":"write-late"}),
         tx.clone(),
     )
     .await
     .unwrap();
-    let result=handle_request(state.clone(),"tools.workspaceExecute",json!({"path":dir.path(),"sessionId":"local-owner","toolCallId":"write-late","toolName":"Write","args":{"path":"should-not-exist","content":"forbidden"}}),tx.clone()).await.unwrap();
+    let result=handle_request(state.clone(),"tools.workspaceExecute",json!({"path":dir.path(),"sessionId":"a".repeat(64),"toolCallId":"write-late","toolName":"Write","args":{"path":"should-not-exist","content":"forbidden"}}),tx.clone()).await.unwrap();
     assert_eq!(result["errorCode"], "TOOL_ABORTED");
     assert!(!dir.path().join("should-not-exist").exists());
     assert!(state.lock().await.active_bash_cancellations.is_empty());
@@ -385,4 +415,73 @@ async fn remote_projects_cannot_create_isolated_sessions() {
         .unwrap()
         .len();
     assert_eq!(before, after);
+}
+
+#[tokio::test]
+async fn workspace_attachment_scratch_is_read_only_and_session_scoped() {
+    let (dir, state, tx, _rx) = fixture();
+    let project = tempfile::tempdir().unwrap();
+    let session = "a".repeat(64);
+    let ready = dir
+        .path()
+        .join("scratch")
+        .join(&session)
+        .join("attachments");
+    let other = dir
+        .path()
+        .join("scratch")
+        .join("b".repeat(64))
+        .join("attachments");
+    std::fs::create_dir_all(&ready).unwrap();
+    std::fs::create_dir_all(&other).unwrap();
+    let attachment = ready.join("hash-report.txt");
+    std::fs::write(&attachment, "unique attachment bytes").unwrap();
+    std::fs::write(other.join("secret.txt"), "other session secret").unwrap();
+    std::fs::write(dir.path().join("secret.txt"), "Host private secret").unwrap();
+    for (tool, args) in [
+        ("Read", json!({"path": attachment})),
+        ("Glob", json!({"path": ready, "pattern": "*.txt"})),
+        ("Grep", json!({"path": ready, "pattern": "unique"})),
+    ] {
+        let result = handle_request(state.clone(), "tools.workspaceExecute", json!({"path": project.path(), "sessionId": session, "toolCallId": tool, "toolName": tool, "args": args}), tx.clone()).await.unwrap();
+        assert_eq!(result["ok"], true, "{tool}: {result}");
+        assert!(result.to_string().contains("hash-report.txt"));
+    }
+    for (tool, args) in [
+        ("Read", json!({"path": other.join("secret.txt")})),
+        ("Read", json!({"path": ready.join("../../../secret.txt")})),
+        ("Write", json!({"path": attachment, "content": "forbidden"})),
+        (
+            "Edit",
+            json!({"path": attachment, "old_string": "unique", "new_string": "forbidden"}),
+        ),
+    ] {
+        let result = handle_request(state.clone(), "tools.workspaceExecute", json!({"path": project.path(), "sessionId": session, "toolCallId": format!("denied-{tool}"), "toolName": tool, "args": args, "scratch": dir.path()}), tx.clone()).await.unwrap();
+        assert_eq!(result["ok"], false, "{tool}: {result}");
+    }
+    assert_eq!(
+        std::fs::read_to_string(attachment).unwrap(),
+        "unique attachment bytes"
+    );
+    for invalid in ["../outside".to_string(), "G".repeat(64), "a".repeat(63)] {
+        let error = handle_request(state.clone(), "tools.workspaceExecute", json!({"path": project.path(), "sessionId": invalid, "toolCallId": "bad-id", "toolName": "Read", "args": {"path": "file"}}), tx.clone()).await.unwrap_err();
+        assert_eq!(error.data.unwrap()["errorCode"], "INVALID_PARAMS");
+    }
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn workspace_attachment_symlink_escape_is_denied() {
+    let (dir, state, tx, _rx) = fixture();
+    let project = tempfile::tempdir().unwrap();
+    let ready = dir
+        .path()
+        .join("scratch")
+        .join("a".repeat(64))
+        .join("attachments");
+    std::fs::create_dir_all(&ready).unwrap();
+    std::fs::write(dir.path().join("private.txt"), "private").unwrap();
+    std::os::unix::fs::symlink(dir.path().join("private.txt"), ready.join("escape.txt")).unwrap();
+    let result = handle_request(state, "tools.workspaceExecute", json!({"path": project.path(), "sessionId": "a".repeat(64), "toolCallId": "link", "toolName": "Read", "args": {"path": ready.join("escape.txt")}}), tx).await.unwrap();
+    assert_eq!(result["ok"], false);
 }

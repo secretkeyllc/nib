@@ -1,6 +1,14 @@
 import type { Principal, SessionSummary } from "@pi-desktop/agent-host";
 import type {
   FsEntry,
+  WorkspaceAttachmentCreate,
+  WorkspaceAttachmentChunk,
+  WorkspaceAttachmentComplete,
+  WorkspaceAttachmentAbort,
+  WorkspaceAttachmentCreateResult,
+  WorkspaceAttachmentChunkResult,
+  WorkspaceAttachmentCompleteResult,
+  WorkspaceAttachmentAbortResult,
   FsReadResult,
   RacpProjectSummary,
   WorkspaceDiff,
@@ -89,6 +97,7 @@ export type RacpHostOperations = {
   workspace: RacpWorkspaceAccess;
   terminal?: RacpTerminalAccess;
   workspaceFiles?: { read(input: WorkspaceFilesRequest): Promise<unknown> };
+  workspaceAttachments?: RacpWorkspaceAttachments;
   workspacePluginFiles?: { read(input: WorkspacePluginFilesRequest): Promise<WorkspacePluginFilesResult> };
   workspaceTools?: {
     execute(input: WorkspaceToolExecute, owner: { deviceId: string; connectionId: string }): Promise<WorkspaceToolResult>;
@@ -99,3 +108,11 @@ export type RacpHostOperations = {
   /** Owner-only: revoke a paired device (spec `session/revoke`). */
   revokeDevice?: (deviceId: string) => Promise<boolean>;
 };
+
+export interface RacpWorkspaceAttachments {
+  create(input: WorkspaceAttachmentCreate, owner: { deviceId: string; connectionId: string }): Promise<WorkspaceAttachmentCreateResult>;
+  chunk(input: WorkspaceAttachmentChunk, owner: { deviceId: string; connectionId: string }): Promise<WorkspaceAttachmentChunkResult>;
+  complete(input: WorkspaceAttachmentComplete, owner: { deviceId: string; connectionId: string }): Promise<WorkspaceAttachmentCompleteResult>;
+  abort(input: WorkspaceAttachmentAbort, owner: { deviceId: string; connectionId: string }): Promise<WorkspaceAttachmentAbortResult>;
+  disconnect(connectionId: string): Promise<void>;
+}

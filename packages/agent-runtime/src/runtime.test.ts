@@ -5027,6 +5027,12 @@ describe("DesktopAgentRuntime session collaboration provenance", () => {
     ]);
     await runtime.dispose();
     await restored.dispose();
+    const remote = createRuntime({ remoteWorkspace: { hostKey: "ssh", path: "/srv/project" }, history: [
+      { id: "remote-delivery", role: "user", content, sessionMessage: origin, status: "complete", createdAt: "2026-09-13T00:00:00.000Z" },
+    ] });
+    const remoteMessages = (remote as unknown as { agent: Agent }).agent.state.messages;
+    expect(remoteMessages.find(message => message.role === "user")?.content).toBe(expected);
+    await remote.dispose();
   });
   it("replays every under-budget historical image as a provider image block", async () => {
     const history: UiMessage[] = Array.from({ length: 6 }, (_, index) => {

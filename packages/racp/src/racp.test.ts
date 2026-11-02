@@ -451,3 +451,31 @@ describe("owner-only workspace tool boundary", () => {
     await client.close();
   });
 });
+
+it("gates workspace attachment upload operations to owners and validates their schema", async () => {
+  const calls: string[] = [];
+  const h = await harness({ operations: { workspaceAttachments: {
+    async create() { calls.push("create"); return { uploadId: "upload" }; },
+    async chunk() { calls.push("chunk"); return { offset: 3 }; },
+    async complete() { calls.push("complete"); return { path: "/remote/notes.txt", sha256: "a".repeat(64), size: 3 }; },
+    async abort() { calls.push("abort"); return { ok: true }; },
+    async disconnect() {},
+  } } });
+  const owner = await h.connect(OWNER_TOKEN), viewer = await h.connect(VIEWER_TOKEN);
+  const create = { path: "/repo", sessionId: "local-session", name: "notes.txt", size: 3, sha256: "a".repeat(64) };
+  try {
+    expect(owner.client.initialized?.capabilities.workspaceAttachments).toBe(true);
+    for (const [method, params] of [
+      ["workspace/attachmentCreate", create],
+      ["workspace/attachmentChunk", { uploadId: "upload", offset: 0, data: "YWJj" }],
+      ["workspace/attachmentComplete", { uploadId: "upload" }],
+      ["workspace/attachmentAbort", { uploadId: "upload" }],
+    ] as const) {
+      await expect(viewer.client.request(method, params)).rejects.toMatchObject({ code: "FORBIDDEN" });
+      await owner.client.request(method, params);
+    }
+    await expect(owner.client.request("workspace/attachmentCreate", { ...create, size: 50 * 1024 * 1024 + 1 }))
+      .rejects.toMatchObject({ code: "INVALID_ARGUMENT" });
+    expect(calls).toEqual(["create", "chunk", "complete", "abort"]);
+  } finally { await owner.client.close(); await viewer.client.close(); h.server.close(); }
+});

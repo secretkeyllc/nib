@@ -111,6 +111,7 @@ export type RacpRemoteHostClient = {
 export type RemoteWorkspaceCapabilities = {
   workspaceTools: boolean;
   workspaceFiles: boolean;
+  workspaceAttachments?: boolean;
 };
 
 /**
@@ -147,6 +148,7 @@ export function createRacpRemoteHostClient(
     return {
       workspaceTools: capabilities.workspaceTools === true,
       workspaceFiles: capabilities.workspaceFiles === true,
+      workspaceAttachments: capabilities.workspaceAttachments === true,
     };
   };
   const requireWorkspace = (capability?: keyof RemoteWorkspaceCapabilities) => {
@@ -217,6 +219,8 @@ export function createRacpRemoteHostClient(
         } else if (method === "workspace/files") requireWorkspace("workspaceFiles");
         else if (["workspace/toolExecute", "workspace/toolAbort", "workspace/toolShell"].includes(method)) {
           requireWorkspace("workspaceTools");
+        } else if (["workspace/attachmentCreate", "workspace/attachmentChunk", "workspace/attachmentComplete", "workspace/attachmentAbort"].includes(method)) {
+          requireWorkspace("workspaceAttachments");
         }
       }
       return racp.request<T>(method, params, timeoutMs);

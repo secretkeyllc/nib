@@ -76,6 +76,10 @@ type PromptPath = {
 export type PreparedPromptAttachment = {
   message: MessageAttachment;
   fallbackPath: string;
+  /** Canonical source admitted by the session roots, used for remote upload. */
+  sourcePath?: string;
+  /** Original Composer path, before an image becomes a content-addressed blob. */
+  promptPath?: string;
   inlineData?: string;
 };
 
@@ -268,6 +272,8 @@ export async function preparePromptAttachments(
         fallbackPath: mimeType === SVG_MIME_TYPE && source.root === "attachment"
           ? await fallbackPathForStoredAttachment(dataRoot, sessionId, source, name)
           : displayPromptPath(source, projectPath),
+        sourcePath: source.absolute,
+        promptPath: attachment.path,
       });
       continue;
     }
@@ -312,6 +318,8 @@ export async function preparePromptAttachments(
         ...(inlinePath ? { inlinePath } : {}),
       },
       fallbackPath,
+      sourcePath: source.absolute,
+      promptPath: attachment.path,
       ...(bytes
         ? { inlineData: bytes.toString("base64") }
         : {}),

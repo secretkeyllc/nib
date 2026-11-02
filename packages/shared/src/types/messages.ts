@@ -53,6 +53,8 @@ export type MessageAttachment = {
   name: string;
   /** Workspace-relative path, session-scratch absolute path, or a session id. */
   ref: string;
+  /** Main-verified remote copy; the local ref remains available for previews and resend. */
+  remoteRef?: { hostKey: string; workspacePath: string; path: string };
   mimeType?: string;
   size?: number;
   /**
