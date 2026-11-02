@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.21",
+    date: "2026-11-01",
+    highlights: [
+      "Existing signed-in Nib accounts now load the complete model list after upgrading, without requiring another sign-in.",
+      "The gateway's published context and output limits are applied in Composer and runtime while saved selections and manual overrides remain intact.",
+      "Model discovery retries after temporary failures and ignores stale results from sign-out, reauthentication, or plugin reloads.",
+    ],
+  },
+
+{
     version: "0.22.20",
     date: "2026-11-01",
     highlights: [

@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.21",
+    date: "2026-11-01",
+    highlights: [
+      "Les comptes Nib déjà connectés chargent désormais la liste complète des modèles après une mise à niveau, sans nouvelle connexion.",
+      "Les limites de contexte et de sortie publiées par la passerelle s'appliquent dans Composer et à l'exécution, tout en conservant les choix et remplacements manuels enregistrés.",
+      "La découverte des modèles est réessayée après les échecs temporaires et ignore les résultats obsolètes après déconnexion, réauthentification ou rechargement du plugin.",
+    ],
+  },
+
+{
     version: "0.22.20",
     date: "2026-11-01",
     highlights: [

@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.21",
+    date: "2026-11-01",
+    highlights: [
+      "이미 로그인된 Nib 계정은 업그레이드 후 다시 로그인하지 않아도 전체 모델 목록을 불러옵니다.",
+      "게이트웨이에 게시된 컨텍스트 및 출력 제한이 Composer와 런타임에 적용되며 저장된 선택과 수동 재정의는 유지됩니다.",
+      "모델 조회는 일시적인 실패 후 다시 시도하고 로그아웃, 재인증 또는 플러그인 재로드 중 발생한 오래된 결과는 무시합니다.",
+    ],
+  },
+
+{
     version: "0.22.20",
     date: "2026-11-01",
     highlights: [

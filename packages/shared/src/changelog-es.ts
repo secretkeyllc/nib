@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.21",
+    date: "2026-11-01",
+    highlights: [
+      "Las cuentas de Nib que ya tienen sesión iniciada cargan la lista completa de modelos tras actualizarse, sin pedir otro inicio de sesión.",
+      "Los límites publicados de contexto y salida de la pasarela se aplican en Composer y en tiempo de ejecución, conservando las selecciones y sobrescrituras manuales guardadas.",
+      "El descubrimiento de modelos se reintenta tras fallos temporales e ignora resultados obsoletos durante el cierre de sesión, la reautenticación o la recarga del complemento.",
+    ],
+  },
+
+{
     version: "0.22.20",
     date: "2026-11-01",
     highlights: [

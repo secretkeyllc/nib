@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.21",
+    date: "2026-11-01",
+    highlights: [
+      "Contas Nib que já estão conectadas agora carregam a lista completa de modelos após a atualização, sem exigir outro login.",
+      "Os limites publicados de contexto e saída do gateway são aplicados no Composer e no tempo de execução, preservando seleções e substituições manuais salvas.",
+      "A descoberta de modelos tenta novamente após falhas temporárias e ignora resultados antigos durante logout, reautenticação ou recarga do plugin.",
+    ],
+  },
+
+{
     version: "0.22.20",
     date: "2026-11-01",
     highlights: [

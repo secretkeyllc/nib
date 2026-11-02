@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.21",
+    date: "2026-11-01",
+    highlights: [
+      "Bereits angemeldete Nib-Konten laden nach dem Upgrade die vollständige Modellliste, ohne eine erneute Anmeldung zu verlangen.",
+      "Die veröffentlichten Kontext- und Ausgabelimits des Gateways gelten in Composer und Laufzeit, während gespeicherte Auswahlen und manuelle Überschreibungen erhalten bleiben.",
+      "Die Modellerkennung wird nach vorübergehenden Fehlern wiederholt und ignoriert veraltete Ergebnisse nach Abmeldung, erneuter Authentifizierung oder Plugin-Neuladen.",
+    ],
+  },
+
+{
     version: "0.22.20",
     date: "2026-11-01",
     highlights: [

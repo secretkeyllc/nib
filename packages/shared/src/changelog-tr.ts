@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.21",
+    date: "2026-11-01",
+    highlights: [
+      "Mevcut Nib hesapları yükseltmeden sonra yeniden giriş gerektirmeden tam model listesini yükler.",
+      "Ağ geçidinin yayımlanan bağlam ve çıktı limitleri Composer ve çalışma zamanında uygulanırken kayıtlı seçimler ve manuel geçersiz kılmalar korunur.",
+      "Model keşfi geçici hatalardan sonra yeniden denenir ve çıkış, yeniden kimlik doğrulama veya eklenti yeniden yükleme sırasındaki eski sonuçları yok sayar.",
+    ],
+  },
+
+{
     version: "0.22.20",
     date: "2026-11-01",
     highlights: [

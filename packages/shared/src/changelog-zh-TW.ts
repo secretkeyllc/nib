@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.21",
+    date: "2026-11-01",
+    highlights: [
+      "已有登入的 Nib 帳戶升級後現在會自動載入完整模型清單，不再需要重新登入。",
+      "閘道發布的上下文與輸出限制會套用到輸入框和執行時，同時保留已儲存的選擇與手動覆寫。",
+      "模型探索會在暫時失敗後重試，並忽略登出、重新驗證或外掛程式重新載入期間的過期結果。",
+    ],
+  },
+
+{
     version: "0.22.20",
     date: "2026-11-01",
     highlights: [
