@@ -242,6 +242,12 @@ pub(super) async fn handle(
         .get("sessionId")
         .and_then(Value::as_str)
         .filter(|s| !s.is_empty() && s.len() <= 256)
+        .filter(|s| {
+            // The mirrored attachment scratch dir is keyed by the raw desktop
+            // session id; only traversal-safe directory names are admitted.
+            s.bytes()
+                .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+        })
         .ok_or_else(|| rpc_err(1002, "sessionId required", "INVALID_PARAMS"))?;
     let tool_call_id = params
         .get("toolCallId")
@@ -254,13 +260,6 @@ pub(super) async fn handle(
             .await
             .abort_or_queue_bash(session_id, tool_call_id);
         return Ok(json!({"ok":true,"found":found,"queued":queued,"aborted":found||queued}));
-    }
-    if session_id.len() != 64
-        || !session_id
-            .bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
-    {
-        return Err(rpc_err(1002, "invalid mapped session id", "INVALID_PARAMS"));
     }
     let raw_path = params
         .get("path")
@@ -327,11 +326,12 @@ pub(super) async fn handle(
         let cancellation = st
             .register_bash_cancellation(&p.session_id, &p.tool_call_id)
             .map_err(|code| rpc_err(1008, "tool already executing", &code))?;
-        let scratch = st
-            .data_dir
-            .join("scratch")
-            .join(&p.session_id)
-            .join("attachments");
+        // Read/Glob/Grep gain the session scratch root itself, so the mirrored
+        // `attachments/` and `pasted/` attachment copies below it are readable
+        // while nothing else in the scratch tree changes hands. The write path
+        // never receives this root: `execute_tool_with_path_access` below
+        // passes no scratch for Write/Edit.
+        let scratch = st.data_dir.join("scratch").join(&p.session_id);
         (Some(cancellation), st.hashline.clone(), shell, scratch)
     };
     if tool_cancellation_requested(&cancellation) {

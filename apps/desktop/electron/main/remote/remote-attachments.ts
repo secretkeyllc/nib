@@ -63,8 +63,15 @@ export async function uploadRemotePromptAttachments(
       const bytes = await readBoundedSource(source);
       const sha256 = createHash("sha256").update(bytes).digest("hex");
       assertCurrent();
+      // The Host mirrors the Desktop storage rule regardless of a project
+      // binding: the raw (host) session id and the same directory + file name
+      // the local path uses, so a local path maps 1:1 to the remote path.
+      // Content-addressed blobs (`attachments/<sha256>`) keep their shared
+      // rule; pasted sources keep `pasted/<originalName>`.
+      const directory = prepared.message.ref?.startsWith("attachments/") ? "content" : "pasted";
       const created = await client.request<{ uploadId: string }>("workspace/attachmentCreate", {
-        path: workspace.path, sessionId, name: prepared.message.name, size: bytes.length, sha256,
+        ...(workspace.path ? { path: workspace.path } : {}),
+        sessionId, directory, name: prepared.message.name, size: bytes.length, sha256,
       });
       if (!created || typeof created.uploadId !== "string" || !/^[a-zA-Z0-9_-]{1,128}$/.test(created.uploadId)) {
         throw failure("remote Host returned an invalid upload id");

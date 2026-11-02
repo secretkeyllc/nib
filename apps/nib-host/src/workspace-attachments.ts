@@ -12,6 +12,8 @@ type Owner = { deviceId: string; connectionId: string };
 type Upload = {
   owner: Owner; sessionId: string; size: number; sha256: string; name: string;
   offset: number; tempPath: string; timer: NodeJS.Timeout; cancelled: boolean;
+  /** Desktop's storage rule for this attachment, mirrored 1:1 on the Host. */
+  directory: string;
 };
 const MAX_ACTIVE = 16;
 const LIFETIME_MS = 15 * 60 * 1000;
@@ -70,11 +72,19 @@ export function createWorkspaceAttachments(dataDir = join(homedir(), ".nib")): S
     }
     return { root, scratch, staging };
   }
-  async function readyDirectory(sessionId: string): Promise<string> {
-    const { scratch } = await storage();
+  async function readyDirectory(sessionId: string, directory: string): Promise<string> {
+    const { root, scratch } = await storage();
+    // The Desktop's content-addressed rule keeps blobs outside the session
+    // tree (`~/.nib/attachments/<sha256>`); pasted sources live under the
+    // session scratch like on the Desktop (`~/.nib/scratch/<sid>/pasted/`).
+    if (directory === "content") {
+      const ready = join(root, "attachments");
+      await privateDirectory(ready);
+      return ready;
+    }
     const session = join(scratch, sessionId);
     await privateDirectory(session);
-    const ready = join(session, "attachments");
+    const ready = join(session, directory);
     await privateDirectory(ready);
     return ready;
   }
@@ -91,30 +101,38 @@ export function createWorkspaceAttachments(dataDir = join(homedir(), ".nib")): S
   }
   const service: Service = {
     create(input, owner) {
-      if (!owner.deviceId || !owner.connectionId || !input.sessionId || input.sessionId.length > 256 || !input.name || input.name.length > 1024 || !isAbsolute(input.path) || input.path.length > 4096 || /[\u0000-\u001f]/.test(input.path) || !Number.isSafeInteger(input.size) || input.size < 0 || input.size > WORKSPACE_ATTACHMENT_MAX_BYTES || !/^[a-fA-F0-9]{64}$/.test(input.sha256)) return Promise.reject(new RacpError("INVALID_ARGUMENT", "invalid attachment request"));
+      // `path` is the Desktop-side workspace project directory used for the
+      // overlap guard. A host-connected session without a bound project omits
+      // it; uploads then cannot touch a project because they never write one.
+      const workspacePath = typeof input.path === "string" ? input.path : undefined;
+      if (!owner.deviceId || !owner.connectionId || !input.sessionId || input.sessionId.length > 256 || !input.name || input.name.length > 1024 || (workspacePath !== undefined && (!isAbsolute(workspacePath) || workspacePath.length > 4096 || /[\u0000-\u001f]/.test(workspacePath))) || !Number.isSafeInteger(input.size) || input.size < 0 || input.size > WORKSPACE_ATTACHMENT_MAX_BYTES || !/^[a-fA-F0-9]{64}$/.test(input.sha256)) return Promise.reject(new RacpError("INVALID_ARGUMENT", "invalid attachment request"));
       const pending = { connectionId: owner.connectionId, cancelled: false };
       pendingCreates.add(pending);
       return serial(async () => {
         if (pending.cancelled) throw new RacpError("CONFLICT", "attachment connection closed");
         if (uploads.size >= MAX_ACTIVE) throw new RacpError("RATE_LIMITED", "attachment upload capacity exhausted");
-        const original = await lstat(input.path).catch(() => undefined);
-        if (original?.isSymbolicLink()) throw new RacpError("REMOTE_PATH_FORBIDDEN", "workspace symlink is not allowed");
-        const workspace = await realpath(input.path).catch(() => undefined);
-        if (!workspace || !(await stat(workspace)).isDirectory()) throw new RacpError("REMOTE_PATH_NOT_FOUND", "workspace directory unavailable");
-        const { root, staging } = await storage();
-        // Reject overlapping roots: uploads must never mutate the selected project.
-        if (inside(workspace, root) || inside(root, workspace)) throw new RacpError("REMOTE_PATH_FORBIDDEN", "workspace overlaps Host data directory");
-        const sessionId = createHash("sha256").update(JSON.stringify([owner.deviceId, input.sessionId])).digest("hex");
-        await readyDirectory(sessionId);
+        if (workspacePath !== undefined) {
+          const original = await lstat(workspacePath).catch(() => undefined);
+          if (original?.isSymbolicLink()) throw new RacpError("REMOTE_PATH_FORBIDDEN", "workspace symlink is not allowed");
+          const workspace = await realpath(workspacePath).catch(() => undefined);
+          if (!workspace || !(await stat(workspace)).isDirectory()) throw new RacpError("REMOTE_PATH_NOT_FOUND", "workspace directory unavailable");
+          const { root } = await storage();
+          // Reject overlapping roots: uploads must never mutate the selected project.
+          if (inside(workspace, root) || inside(root, workspace)) throw new RacpError("REMOTE_PATH_FORBIDDEN", "workspace overlaps Host data directory");
+        }
+        // The Desktop names the session-private directory its own storage rule
+        // dictates, so a local path maps 1:1 onto the Host path.
+        const directory = input.directory === "pasted" || input.directory === "content" ? input.directory : "attachments";
+        await readyDirectory(input.sessionId, directory);
         const id = randomUUID().replaceAll("-", "");
-        const tempPath = join(staging, `${id}.part`);
+        const tempPath = join((await storage()).staging, `${id}.part`);
         const file = await open(tempPath, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY | constants.O_NOFOLLOW, 0o600);
         await file.close();
         const timer = setTimeout(() => {
           void serial(async () => { const active = uploads.get(id); if (active) await remove(id, active); }, true).catch(error => console.warn("Attachment expiry cleanup failed", error));
         }, LIFETIME_MS);
         timer.unref?.();
-        const upload: Upload = { owner: { ...owner }, sessionId, size: input.size, sha256: input.sha256.toLowerCase(), name: safeName(input.name), offset: 0, tempPath, timer, cancelled: false };
+        const upload: Upload = { owner: { ...owner }, sessionId: input.sessionId, size: input.size, sha256: input.sha256.toLowerCase(), name: safeName(input.name), offset: 0, tempPath, timer, cancelled: false, directory };
         uploads.set(id, upload);
         if (pending.cancelled) { await remove(id, upload); throw new RacpError("CONFLICT", "attachment connection closed"); }
         return { uploadId: id };
@@ -161,7 +179,13 @@ export function createWorkspaceAttachments(dataDir = join(homedir(), ".nib")): S
           } finally { await file.close(); }
           const actual = hash.digest("hex");
           if (actual !== upload.sha256) throw new RacpError("INVALID_ARGUMENT", "attachment SHA-256 mismatch");
-          const target = join(await readyDirectory(upload.sessionId), `${actual}-${upload.name}`);
+          // The mirrored name is the Desktop's own convention for this kind:
+          // `attachments/<sha256>` for content-addressed blobs, the original
+          // file name otherwise. Same-hash retries reuse the verified file.
+          const readyDirectoryPath = await readyDirectory(upload.sessionId, upload.directory);
+          const target = upload.directory === "content"
+            ? join(readyDirectoryPath, upload.sha256)
+            : join(readyDirectoryPath, upload.name);
           if (upload.cancelled) throw new RacpError("CONFLICT", "attachment connection closed");
           const existing = await lstat(target).catch(() => undefined);
           if (existing) {

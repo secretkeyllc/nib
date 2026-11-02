@@ -21,10 +21,13 @@ describe("owner workspace tools", () => {
     expect(await tools.execute(input(link), owner)).toEqual({ ok: true, content: "remote file", toolCallId: "call-1" });
     expect(calls).toHaveLength(1); expect(calls[0]?.method).toBe("tools.workspaceExecute");
     expect(calls[0]?.params.path).not.toBe(link);
-    expect(calls[0]?.params.sessionId).not.toBe("local-session");
+    // The raw session id keys the mirrored attachment scratch, so the runner
+    // must see exactly the session the Desktop named; per-device isolation
+    // comes from the execution key, not from renaming the session.
+    expect(calls[0]?.params.sessionId).toBe("local-session");
     await expect(tools.execute(input(link), owner)).rejects.toMatchObject({ code: "CONFLICT" });
     await tools.execute(input(link), { ...owner, deviceId: "another-device" });
-    expect(calls[1]?.params.sessionId).not.toBe(calls[0]?.params.sessionId);
+    expect(calls[1]?.params.sessionId).toBe(calls[0]?.params.sessionId);
   });
   it("rejects unknown tools, relative paths, oversized args and unavailable roots without RPC", async () => {
     let calls = 0;

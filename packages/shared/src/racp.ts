@@ -161,11 +161,20 @@ export const WORKSPACE_ATTACHMENT_MAX_BYTES = 50 * 1024 * 1024;
 const WorkspaceAttachmentIdSchema = Type.String({ minLength: 1, maxLength: 128, pattern: "^[a-zA-Z0-9_-]+$" });
 const WorkspaceAttachmentHashSchema = Type.String({ pattern: "^[a-fA-F0-9]{64}$", minLength: 64, maxLength: 64 });
 export const WorkspaceAttachmentCreateSchema = Type.Object({
-  path: Type.String({ minLength: 1, maxLength: 4096 }),
+  /** Workspace project directory for the overlap guard; absent without a project. */
+  path: Type.Optional(Type.String({ minLength: 1, maxLength: 4096 })),
   sessionId: Type.String({ minLength: 1, maxLength: 256 }),
   name: Type.String({ minLength: 1, maxLength: 1024 }),
   size: Type.Integer({ minimum: 0, maximum: WORKSPACE_ATTACHMENT_MAX_BYTES }),
   sha256: WorkspaceAttachmentHashSchema,
+  /**
+   * The session scratch directory kind the Desktop's own storage rule picks:
+   * `pasted` for pasted/composed sources, `content` for `attachments/<sha256>`
+   * blobs; anything else (or an older Desktop) lands in `attachments` under the
+   * original file name. The raw session id and the mirrored name keep the Host
+   * path 1:1 with the local path.
+   */
+  directory: Type.Optional(Type.String({ minLength: 1, maxLength: 32 })),
 }, { additionalProperties: false });
 export type WorkspaceAttachmentCreate = Static<typeof WorkspaceAttachmentCreateSchema>;
 export const WorkspaceAttachmentChunkSchema = Type.Object({

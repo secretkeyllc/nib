@@ -1,5 +1,5 @@
+import { IPC, ErrorCodes, compactionRecordId, findSkillMentions, isGlobalPermissionMode, isRpcTimeoutError, type AgentEventEnvelope, type AgentPromptAttachment, type AgentPromptRequest, type AgentSteerRequest, type UiMessage, type AgentQueuePushRequest, type AgentStopRequest, type AgentStopSubagentsRequest, type AskToolResolution, type GlobalPermissionMode, type MessageUsage, type PendingInteractiveRequests, type PlanExecutionFinishStatus, type PlanResolutionResult, type PlanResolveRequest, type VoiceOrigin } from "@pi-desktop/shared";
 import { expandMcpInvocation } from "../composer-mcp";
-import { IPC, ErrorCodes, compactionRecordId, findSkillMentions, isGlobalPermissionMode, isRpcTimeoutError, type AgentEventEnvelope, type AgentPromptRequest, type AgentSteerRequest, type UiMessage, type AgentQueuePushRequest, type AgentStopRequest, type AgentStopSubagentsRequest, type AskToolResolution, type GlobalPermissionMode, type MessageUsage, type PendingInteractiveRequests, type PlanExecutionFinishStatus, type PlanResolutionResult, type PlanResolveRequest, type VoiceOrigin } from "@pi-desktop/shared";
 import type { FinishTurn } from "../runtime/plans";
 import { expandSlashInvocation, visionFromModelConfig, type ComposerTemplate } from "@pi-desktop/agent-runtime";
 import { appendPromptFallbackPaths, durableUserMessageId, preparePromptAttachments, type PreparedPromptAttachment } from "../prompt-attachments";
@@ -7,17 +7,43 @@ import { resolveSessionReferences } from "../session-references";
 import { getActiveRemoteHostsBoot } from "../bootstrap/remote-hosts";
 import { executionFromResponse, resolveSessionMessageInput } from "@pi-desktop/host-runtime";
 import { uploadRemotePromptAttachments, type RemoteAttachmentWorkspace } from "../remote/remote-attachments";
-import type { AgentPromptAttachment } from "@pi-desktop/shared";
+import { parseRemoteSessionId } from "../remote/backend-router";
+
+/**
+ * The attachment upload target for a renderer-visible session id. An explicit
+ * `remoteWorkspace` binding wins; a plain `remote:<hostKey>:<hostSessionId>`
+ * id implies a connected host, so attachments upload to the Host's private
+ * session scratch even without a registered remote project. `path` is
+ * optional in the upload protocol exactly for this case, and the Host-side
+ * sessionId is the bare host session id — the mirrored scratch directory
+ * must equal the one the local scratch rule names.
+ */
+function attachmentTargetForSessionId(
+  sessionId: string,
+): { workspace: RemoteAttachmentWorkspace; hostSessionId: string } | undefined {
+  const parsed = parseRemoteSessionId(sessionId);
+  return parsed
+    ? { workspace: { hostKey: parsed.hostKey, path: "" }, hostSessionId: parsed.hostSessionId }
+    : undefined;
+}
 
 async function prepareModelAttachments(
-  workspace: RemoteAttachmentWorkspace | undefined,
+  session: { id: string; remoteWorkspace?: RemoteAttachmentWorkspace },
   sessionId: string,
   content: string,
   prepared: readonly PreparedPromptAttachment[],
   isCurrent?: () => boolean,
 ): Promise<{ content: string; attachments: Array<AgentPromptAttachment & { data?: string }> }> {
   const withFallbacks = appendPromptFallbackPaths(content, prepared);
-  if (!workspace || !prepared.length) return {
+  if (!prepared.length) return { content: withFallbacks, attachments: [] };
+  // "Connected host" alone is enough to upload: a host-connected session
+  // without a bound project still runs the local agent against remote tools,
+  // and its Windows local paths are unreadable by the remote runner. The
+  // renderer-visible session id already carries the host key.
+  const target = session.remoteWorkspace
+    ? { workspace: session.remoteWorkspace, hostSessionId: sessionId }
+    : attachmentTargetForSessionId(session.id);
+  if (!target) return {
     content: withFallbacks,
     attachments: prepared.filter(item => item.inlineData).map(item => ({
       path: item.message.ref, name: item.message.name, kind: "image",
@@ -27,12 +53,13 @@ async function prepareModelAttachments(
       ...(item.message.inlinePath ? { inlinePath: item.message.inlinePath } : {}),
     })),
   };
+  const { workspace, hostSessionId } = target;
   const boot = getActiveRemoteHostsBoot();
   if (!boot) throw Object.assign(new Error("remote Host is unavailable"), { errorCode: ErrorCodes.AGENT_UNAVAILABLE });
   return uploadRemotePromptAttachments({
     request: async <T>(method: string, params?: unknown, timeoutMs?: number) =>
       await boot.workspaceAttachmentRequest(workspace.hostKey, method, params, timeoutMs) as T,
-  }, workspace, sessionId, withFallbacks, prepared, isCurrent);
+  }, workspace, hostSessionId, withFallbacks, prepared, isCurrent);
 }
 import type { AgentExtensionBridge } from "../agent-extensions";
 import type { AgentHostBridge } from "../agent-host-bridge";
@@ -186,7 +213,7 @@ export function registerAgentIpc({
       context.supportsVision, steerContent,
     );
     const modelInput = await prepareModelAttachments(
-      context.remoteWorkspace, req.sessionId, steerContent, prepared,
+      { id: req.sessionId, remoteWorkspace: context.remoteWorkspace }, req.sessionId, steerContent, prepared,
       () => isTurnDispatchable(req.sessionId, req.expectedTurnId),
     );
     const session = await host.call<{ session?: { messages?: UiMessage[] } }>("session.get", {
@@ -477,7 +504,9 @@ export function registerAgentIpc({
     const remoteWorkspace = session.remoteWorkspace as RemoteAttachmentWorkspace | undefined;
     let modelInput: Awaited<ReturnType<typeof prepareModelAttachments>>;
     try {
-      modelInput = await prepareModelAttachments(remoteWorkspace, req.sessionId, promptContent, preparedAttachments,
+      modelInput = await prepareModelAttachments(
+        { id: req.sessionId, remoteWorkspace },
+        req.sessionId, promptContent, preparedAttachments,
         () => isTurnDispatchable(req.sessionId, durableTurnId));
     } catch (error) {
       await finishTurn(req.sessionId, "error", (error as { errorCode?: string }).errorCode, { turnId: durableTurnId });

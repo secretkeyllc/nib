@@ -30,6 +30,19 @@ async function upload(service: ReturnType<typeof createWorkspaceAttachments>, wo
   }
   return { created, result: await service.complete({ uploadId: created.uploadId }, owner) };
 }
+/** A host-connected session sends no workspace path; the mirrored name rides along. */
+function hostedInput(bytes: Buffer, name = "notes.txt", directory = "pasted") {
+  return { sessionId: "host-session-1", name, size: bytes.length, directory, sha256: createHash("sha256").update(bytes).digest("hex") };
+}
+async function uploadInput(service: ReturnType<typeof createWorkspaceAttachments>, input: ReturnType<typeof hostedInput>, bytes: Buffer) {
+  const created = await service.create(input, owner);
+  for (let offset = 0; offset < bytes.length;) {
+    const chunk = bytes.subarray(offset, Math.min(offset + 256 * 1024, bytes.length));
+    const result = await service.chunk({ uploadId: created.uploadId, offset, data: chunk.toString("base64") }, owner);
+    offset = result.offset;
+  }
+  return { created, result: await service.complete({ uploadId: created.uploadId }, owner) };
+}
 afterEach(async () => { await Promise.all(dirs.splice(0).map(path => rm(path, { recursive: true, force: true }))); });
 
 describe("private workspace attachment uploads", () => {
@@ -37,16 +50,48 @@ describe("private workspace attachment uploads", () => {
     const { service, workspace, dataDir } = await fixture();
     const bytes = Buffer.alloc(256 * 1024 + 19, 0x65);
     const { result } = await upload(service, workspace, bytes);
-    const expectedSession = createHash("sha256").update(JSON.stringify([owner.deviceId, "local-session-id"])).digest("hex");
-    expect(result.path).toBe(join(dataDir, "scratch", expectedSession, "attachments", `${result.sha256}-résumé.txt`));
+    expect(result.path).toBe(join(dataDir, "scratch", "local-session-id", "attachments", "résumé.txt"));
     expect(await readFile(result.path)).toEqual(bytes);
     expect(result.size).toBe(bytes.length);
   });
 
-  it("isolates different contents with the same filename", async () => {
+  it("accepts an upload without a workspace path and mirrors the pasted name", async () => {
+    const { service, dataDir } = await fixture();
+    const bytes = Buffer.from("host-bound session attachment");
+    const { result } = await uploadInput(service, hostedInput(bytes), bytes);
+    expect(result.path).toBe(join(dataDir, "scratch", "host-session-1", "pasted", "notes.txt"));
+    expect(await readFile(result.path)).toEqual(bytes);
+
+    // A second session with the same file name stays isolated.
+    const other = await uploadInput(service, { ...hostedInput(bytes), sessionId: "host-session-2" }, bytes);
+    expect(other.result.path).toBe(join(dataDir, "scratch", "host-session-2", "pasted", "notes.txt"));
+    expect(other.result.path).not.toBe(result.path);
+    expect(await readFile(other.result.path)).toEqual(bytes);
+  });
+
+  it("still applies the project overlap guard when a workspace path is supplied", async () => {
+    const { service, dataDir, root } = await fixture();
+    const bytes = Buffer.from("guarded");
+    await expect(service.create(createInput(dataDir, bytes), owner)).rejects.toMatchObject({ code: "REMOTE_PATH_FORBIDDEN" });
+    // A nonexistent workspace is refused independently of the overlap check.
+    await expect(service.create(createInput(join(root, "missing-workspace"), bytes), owner)).rejects.toMatchObject({ code: "REMOTE_PATH_NOT_FOUND" });
+  });
+
+  it("mirrors the desktop content-addressed blob rule outside the session tree", async () => {
+    const { service, dataDir } = await fixture();
+    const bytes = Buffer.from("content image bytes");
+    const sha256 = createHash("sha256").update(bytes).digest("hex");
+    const { result } = await uploadInput(service, { ...hostedInput(bytes), directory: "content" }, bytes);
+    // The Desktop stores content-addressed blobs at ~/.nib/attachments/<sha256>;
+    // the Host mirrors that rule instead of nesting blobs in the session tree.
+    expect(result.path).toBe(join(dataDir, "attachments", sha256));
+    expect(await readFile(result.path)).toEqual(bytes);
+  });
+
+  it("keeps distinct uploaded files isolated under the mirrored names", async () => {
     const { service, workspace } = await fixture();
-    const first = await upload(service, workspace, Buffer.from("first"));
-    const second = await upload(service, workspace, Buffer.from("second"));
+    const first = await upload(service, workspace, Buffer.from("first"), "a.txt");
+    const second = await upload(service, workspace, Buffer.from("second"), "b.txt");
     expect(first.result.path).not.toBe(second.result.path);
     expect(await readFile(first.result.path, "utf8")).toBe("first");
     expect(await readFile(second.result.path, "utf8")).toBe("second");
@@ -77,7 +122,7 @@ describe("private workspace attachment uploads", () => {
     const { service, workspace, dataDir, root } = await fixture();
     const bytes = Buffer.from("safe");
     const traversal = await upload(service, workspace, bytes, "../../private.txt");
-    expect(traversal.result.path).toMatch(/-private\.txt$/);
+    expect(traversal.result.path).toBe(join(dataDir, "scratch", "local-session-id", "attachments", "private.txt"));
     const linkedWorkspace = join(root, "project-link");
     await symlink(workspace, linkedWorkspace);
     await expect(service.create(createInput(linkedWorkspace, bytes), owner)).rejects.toMatchObject({ code: "REMOTE_PATH_FORBIDDEN" });
