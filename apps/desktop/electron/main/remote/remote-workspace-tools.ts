@@ -21,6 +21,39 @@ type Dependencies = {
   log: (message: string, error: unknown) => void;
 };
 
+/**
+ * Sessions whose tools this build has relayed to a remote host, keyed by the
+ * session id. A remote relay is the definition of "this session's tools run
+ * remotely", so the prompt's own attachments follow the same host: a Windows
+ * or macOS desktop session whose project binding lives in the Windows
+ * host-core still gets its uploads there. LRU-bounded; a rebind overwrites.
+ */
+const sessionToolHosts = new Map<string, string>();
+const SESSION_TOOL_HOST_LIMIT = 512;
+function rememberSessionToolHost(sessionId: string, hostKey: string): void {
+  if (sessionToolHosts.get(sessionId) === hostKey) return;
+  sessionToolHosts.delete(sessionId);
+  if (sessionToolHosts.size >= SESSION_TOOL_HOST_LIMIT) {
+    sessionToolHosts.delete(sessionToolHosts.keys().next().value!);
+  }
+  sessionToolHosts.set(sessionId, hostKey);
+}
+
+/**
+ * The remote host a session's tools execute on, or `undefined` when the
+ * session is purely local. Attachment upload asks this alongside the explicit
+ * remote-workspace bindings: whichever way the session reached remote tools,
+ * the attachments must take the same route to stay readable.
+ */
+export function sessionToolHost(sessionId: string): string | undefined {
+  return sessionToolHosts.get(sessionId);
+}
+
+/** Test seam for the relay-recorded fact; production writes go through execute(). */
+export function rememberSessionToolHostForTest(sessionId: string, hostKey: string): void {
+  rememberSessionToolHost(sessionId, hostKey);
+}
+
 /** Local permission admission precedes this relay. No models or credentials cross it. */
 export function createRemoteWorkspaceToolRelay(host: HostReply, deps: Dependencies) {
   const active = new Map<string, RemoteWorkspaceToolRequest>();
@@ -48,7 +81,11 @@ export function createRemoteWorkspaceToolRelay(host: HostReply, deps: Dependenci
         const boot = deps.getBoot();
         if (!boot) throw new Error("remote host is unavailable");
         if (active.has(key)) throw new Error("duplicate remote tool dispatch");
+        // The relay is where "this session runs its tools remotely" becomes a
+        // fact, so it is the recording point for attachment routing, too.
+        rememberSessionToolHost(request.sessionId, request.remoteWorkspace.hostKey);
         active.set(key, request);
+        ownsActive = true;
         ownsActive = true;
         result = await boot.executeWorkspaceTool({ ...request.remoteWorkspace,
           sessionId: request.sessionId, turnId: request.turnId, toolCallId: request.toolCallId,

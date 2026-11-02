@@ -230,3 +230,68 @@ test("a host-connected session without a project still uploads attachments", asy
     } finally { setActiveRemoteHostsBoot(null); }
   });
 });
+
+test("a local desktop session whose tools were relayed to a host uploads there", async () => {
+  const { IPC, formatPromptPathText } = await import("@pi-desktop/shared");
+  const { registerAgentIpc } = await import("../electron/main/ipc/agent-ipc.ts");
+  const { setActiveRemoteHostsBoot } = await import("../electron/main/bootstrap/remote-hosts.ts");
+  // The tool relay records a session -> host fact the moment a remote tool
+  // executes; a later prompt on the same plain (non-`remote:`) session id
+  // must upload to that host, mirroring the desktop scratch layout.
+  const { rememberSessionToolHostForTest } = await import("../electron/main/remote/remote-workspace-tools.ts");
+  await fixture(async root => {
+    const directory = join(root, "scratch", "267c70a5-plain-local", "pasted");
+    await mkdir(directory, { recursive: true });
+    const path = join(directory, "pasted-21631828.txt");
+    const bytes = Buffer.from("relay-host attachment");
+    await writeFile(path, bytes);
+    const transport = fakeClient(bytes, { mirroredPath: "/root/.nib/scratch/267c70a5-plain-local/pasted/pasted-21631828.txt" });
+    const handlers = new Map(), sidecarCalls = [], failures = [];
+    // No remoteWorkspace binding, no `remote:` id — the fact comes only from
+    // the relay record, matching the Windows desktop + remote tool session.
+    const session = { id: "267c70a5-plain-local", messages: [] };
+    const host = { async call(method, params) {
+      if (method === "session.get") return { session };
+      if (method === "settings.get") return {};
+      if (method === "session.beginTurn") return { turnId: "turn" };
+      if (method === "session.appendMessage") return {};
+      assert.fail(`unexpected RPC ${method}`);
+    } };
+    const sidecar = { setProjectInstructionRoot() {}, async call(method, params) {
+      if (method === "agent.steeringContext") return { supportsVision: false };
+      sidecarCalls.push({ method, params });
+      return { accepted: true, turnId: "turn" };
+    } };
+    setActiveRemoteHostsBoot({ async workspaceAttachmentRequest(key, method, params) {
+      assert.equal(key, "ssh-kc212", "the relay-recorded host key routes the upload");
+      return transport.request(method, params);
+    } });
+    try {
+      registerAgentIpc({
+        registrar: { handle: (channel, handler) => handlers.set(channel, handler) },
+        getHost: () => host, getSidecar: () => sidecar, getAgentHostBridge: () => null,
+        logger: { app() {} }, agentExtensions: {}, cancelSessionTools() {}, persistenceOutbox: {}, dataDir: root,
+        activeTurns: new Map(), activeTurnUsages: new Map(), completionNoticeTurns: new Set(),
+        approvedExecutionIdsBySession: new Map(), claimedExecutionSessions: new Map(),
+        recordTurnStart() {}, isTurnDispatchable: () => true,
+        resolveAgentRuntimeLaunch: async () => ({ providerId: "provider", modelId: "model",
+          sidecarParams: { provider: { modelConfig: { input: ["text"] } } } }),
+        acquireSessionOperation: async () => () => {},
+        finishTurn: async (...args) => { failures.push(args); }, emitAgentEvent() {}, setNotificationViewingSessionId() {},
+        optionalWorkspaceRoot: async () => null, composerCommandService: { buildComposerCommands: async () => [] },
+        loadComposerTemplatesCached: async () => [],
+      });
+      rememberSessionToolHostForTest("267c70a5-plain-local", "ssh-kc212");
+      const input = { sessionId: "267c70a5-plain-local", content: `Read ${formatPromptPathText(path)}.`,
+        attachments: [{ path, name: "pasted-21631828.txt", kind: "file", mimeType: "text/plain" }] };
+      await handlers.get(IPC.invoke.agentPrompt)(input);
+      assert.equal(failures.length, 0);
+      assert.equal(transport.calls[0].params.sessionId, "267c70a5-plain-local");
+      assert.equal(transport.calls[0].params.name, "pasted-21631828.txt");
+      const content = sidecarCalls[0].params.content;
+      assert.equal(content.includes(path), false, "the local Windows path never reaches the model");
+      assert.ok(content.includes("/root/.nib/scratch/267c70a5-plain-local/pasted/pasted-21631828.txt"));
+      assert.equal(sidecarCalls[0].params.attachments[0].path, "/root/.nib/scratch/267c70a5-plain-local/pasted/pasted-21631828.txt");
+    } finally { setActiveRemoteHostsBoot(null); }
+  });
+});
