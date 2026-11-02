@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.23",
+    date: "2026-11-02",
+    highlights: [
+      "Los adjuntos de una sesión conectada a un host remoto ahora se suben incluso sin carpeta de proyecto, en lugar de enviar una ruta local ilegible.",
+      "Las copias remotas de adjuntos replican exactamente el diseño de almacenamiento del escritorio — misma sesión, directorio y nombres de archivo — las herramientas remotas los encuentran donde apunta la ruta local.",
+      "El Composer ya no muestra un aviso permanente de subida; las subidas son silenciosas salvo que el turno falle.",
+    ],
+  },
+
+{
     version: "0.22.22",
     date: "2026-11-02",
     highlights: [

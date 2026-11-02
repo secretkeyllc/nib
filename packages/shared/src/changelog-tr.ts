@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.23",
+    date: "2026-11-02",
+    highlights: [
+      "Bağlı uzak makinedeki bir oturumda proje klasörü bulunmasa da ekler artık gerçekten yüklenir; okunamayan bir yerel yol gönderilmez.",
+      "Uzak ek kopyaları masaüstü depolama düzenini birebir yansıtır — aynı oturum, dizin ve dosya adlarıyla — uzak araçlar yerel yolun işaret ettiği yerde bulur.",
+      "Composer artık sürekli bir yükleme bildirimi göstermez; bir tur başarısız olmadıkça yükleme sessiz kalır.",
+    ],
+  },
+
+{
     version: "0.22.22",
     date: "2026-11-02",
     highlights: [

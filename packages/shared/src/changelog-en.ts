@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.23",
+    date: "2026-11-02",
+    highlights: [
+      "Attachments sent to a connected remote host now upload even when the session has no project folder, instead of sending an unreadable local path.",
+      "Remote attachment copies mirror the desktop storage layout exactly — same session, directory and file names — so remote tools find them where the local path points.",
+      "The composer no longer shows a standing upload notice; uploads stay silent unless a turn fails.",
+    ],
+  },
+
+{
     version: "0.22.22",
     date: "2026-11-02",
     highlights: [

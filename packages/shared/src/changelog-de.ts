@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.23",
+    date: "2026-11-02",
+    highlights: [
+      "Anhänge werden in einer mit einem entfernten Host verbundenen Sitzung jetzt auch ohne Projektordner hochgeladen, statt einen unlesbaren lokalen Pfad zu senden.",
+      "Remote-Anhangskopien spiegeln das Desktop-Speicherlayout exakt — gleiche Sitzung, Verzeichnis- und Dateinamen — Remote-Werkzeuge finden sie genau dort, wo der lokale Pfad zeigt.",
+      "Der Composer zeigt keinen dauerhaften Upload-Hinweis mehr; Uploads bleiben stumm, außer ein Zug schlägt fehl.",
+    ],
+  },
+
+{
     version: "0.22.22",
     date: "2026-11-02",
     highlights: [

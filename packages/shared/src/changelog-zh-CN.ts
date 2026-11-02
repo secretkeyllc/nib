@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.23",
+    date: "2026-11-02",
+    highlights: [
+      "连接远程主机的会话即使没有绑定项目目录，附件现在也会真正上传，而不再是发一个远程读不到的本地路径。",
+      "远程附件副本与桌面端存储规则完全一致——同样的会话、目录和文件名——远程工具按本地路径的指向就能找到。",
+      "输入框不再常驻上传提示；除非回合失败，上传保持静默。",
+    ],
+  },
+
+{
     version: "0.22.22",
     date: "2026-11-02",
     highlights: [

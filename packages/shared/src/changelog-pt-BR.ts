@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.23",
+    date: "2026-11-02",
+    highlights: [
+      "Anexos em uma sessão conectada a um host remoto agora são enviados mesmo sem pasta de projeto, em vez de enviar um caminho local ilegível.",
+      "As cópias remotas de anexos espelham exatamente o layout de armazenamento do desktop — mesma sessão, diretório e nomes de arquivo — as ferramentas remotas os encontram onde o caminho local aponta.",
+      "O Composer não exibe mais um aviso permanente de envio; os envios ficam silenciosos a menos que o turno falhe.",
+    ],
+  },
+
+{
     version: "0.22.22",
     date: "2026-11-02",
     highlights: [

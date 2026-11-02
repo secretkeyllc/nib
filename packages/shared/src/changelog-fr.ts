@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.23",
+    date: "2026-11-02",
+    highlights: [
+      "Les pièces jointes d'une session connectée à un hôte distant sont maintenant téléversées même sans dossier de projet, au lieu d'envoyer un chemin local illisible.",
+      "Les copies distantes des pièces jointes reproduisent exactement l'organisation du bureau — même session, répertoire et noms de fichiers — les outils distants les trouvent là où le chemin local pointe.",
+      "Le Composer n'affiche plus d'avis de téléversement permanent ; les envois restent silencieux sauf en cas d'échec du tour.",
+    ],
+  },
+
+{
     version: "0.22.22",
     date: "2026-11-02",
     highlights: [

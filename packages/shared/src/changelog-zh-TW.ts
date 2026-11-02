@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.23",
+    date: "2026-11-02",
+    highlights: [
+      "連線遠端主機的工作階段即使沒有繫結專案目錄，附件現在也會真正上傳，而不再是發一個遠端讀不到的本機路徑。",
+      "遠端附件副本與桌面端儲存規則完全一致——同樣的工作階段、目錄和檔案名稱——遠端工具按本機路徑的指向就能找到。",
+      "輸入框不再常駐上傳提示；除非回合失敗，上傳保持靜默。",
+    ],
+  },
+
+{
     version: "0.22.22",
     date: "2026-11-02",
     highlights: [

@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.23",
+    date: "2026-11-02",
+    highlights: [
+      "원격 호스트에 연결된 세션은 프로젝트 폴더가 없어도 첨부 파일을 이제 실제로 업로드하며, 읽을 수 없는 로컬 경로를 보내지 않습니다.",
+      "원격 첨부 사본은 데스크톱 저장소 규칙을 그대로 반영합니다 — 같은 세션·디렉터리·파일 이름 — 원격 도구가 로컬 경로가 가리키는 위치에서 찾습니다.",
+      "Composer는 상시 업로드 안내를 더 이상 표시하지 않으며, 턴이 실패할 때만 알립니다.",
+    ],
+  },
+
+{
     version: "0.22.22",
     date: "2026-11-02",
     highlights: [
