@@ -1,3 +1,5 @@
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import type { RemoteHostsBoot } from "../bootstrap/remote-hosts";
 
 export type RemoteWorkspaceToolRequest = {
@@ -26,10 +28,72 @@ type Dependencies = {
  * session id. A remote relay is the definition of "this session's tools run
  * remotely", so the prompt's own attachments follow the same host: a Windows
  * or macOS desktop session whose project binding lives in the Windows
- * host-core still gets its uploads there. LRU-bounded; a rebind overwrites.
+ * host-core still gets its uploads there.
+ *
+ * The map is an LRU cache over a durable JSON file: a desktop restart must not
+ * detach a running remote session's attachments from the host that has been
+ * executing its tools all along. Writes are throttled to the recording moment
+ * and the file lives beside the other Main-process preferences.
  */
-const sessionToolHosts = new Map<string, string>();
 const SESSION_TOOL_HOST_LIMIT = 512;
+let sessionToolHosts = new Map<string, string>();
+let toolHostStoreFile: string | null = null;
+let toolHostFlushTimer: NodeJS.Timeout | undefined;
+
+function flushSessionToolHosts(): void {
+  if (!toolHostStoreFile) return;
+  try {
+    mkdirSync(dirname(toolHostStoreFile), { recursive: true });
+    const temporary = join(dirname(toolHostStoreFile), `.session-tool-hosts-${process.pid}.tmp`);
+    writeFileSync(temporary, JSON.stringify({
+      version: 1,
+      hosts: [...sessionToolHosts.entries()].slice(-SESSION_TOOL_HOST_LIMIT),
+    }), { encoding: "utf8", mode: 0o600 });
+    renameSync(temporary, toolHostStoreFile);
+  } catch (error) {
+    try { deps0?.log?.("session tool host persistence failed", error); } catch { /* noop */ }
+  }
+}
+
+// Late-bound logger; set together with the store file during wiring.
+let deps0: { log?: (message: string, error: unknown) => void } | undefined;
+
+function scheduleSessionToolHostFlush(): void {
+  if (toolHostFlushTimer) return;
+  toolHostFlushTimer = setTimeout(() => {
+    toolHostFlushTimer = undefined;
+    flushSessionToolHosts();
+  }, 250);
+  toolHostFlushTimer.unref?.();
+}
+
+/** Load the durable record once Main names its data directory. */
+export function loadSessionToolHosts(dataDir: string): void {
+  toolHostStoreFile = join(dataDir, "session-tool-hosts.json");
+  try {
+    const value: unknown = JSON.parse(readFileSync(toolHostStoreFile, "utf8"));
+    if (value && typeof value === "object" && !Array.isArray(value)
+      && (value as { version?: unknown }).version === 1
+      && Array.isArray((value as { hosts?: unknown }).hosts)) {
+      const restored = new Map<string, string>();
+      for (const entry of (value as { hosts: unknown[] }).hosts) {
+        if (Array.isArray(entry) && entry.length === 2
+          && typeof entry[0] === "string" && typeof entry[1] === "string") {
+          restored.set(entry[0], entry[1]);
+        }
+      }
+      sessionToolHosts = restored;
+    }
+  } catch {
+    // A missing or unreadable file starts from an empty cache.
+  }
+}
+
+/** Wire the failure logger used by the persistence best-effort writes. */
+export function setSessionToolHostLogger(log: (message: string, error: unknown) => void): void {
+  deps0 = { log };
+}
+
 function rememberSessionToolHost(sessionId: string, hostKey: string): void {
   if (sessionToolHosts.get(sessionId) === hostKey) return;
   sessionToolHosts.delete(sessionId);
@@ -37,6 +101,7 @@ function rememberSessionToolHost(sessionId: string, hostKey: string): void {
     sessionToolHosts.delete(sessionToolHosts.keys().next().value!);
   }
   sessionToolHosts.set(sessionId, hostKey);
+  scheduleSessionToolHostFlush();
 }
 
 /**
