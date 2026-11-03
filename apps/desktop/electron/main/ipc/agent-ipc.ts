@@ -8,6 +8,7 @@ import { getActiveRemoteHostsBoot } from "../bootstrap/remote-hosts";
 import { executionFromResponse, resolveSessionMessageInput } from "@pi-desktop/host-runtime";
 import { uploadRemotePromptAttachments, type RemoteAttachmentWorkspace } from "../remote/remote-attachments";
 import { parseRemoteSessionId } from "../remote/backend-router";
+import type { Logger } from "../logger";
 import { sessionToolHost } from "../remote/remote-workspace-tools";
 
 /**
@@ -27,7 +28,6 @@ function attachmentTargetForSessionId(
     ? { workspace: { hostKey: parsed.hostKey, path: "" }, hostSessionId: parsed.hostSessionId }
     : undefined;
 }
-
 async function prepareModelAttachments(
   session: { id: string; remoteWorkspace?: RemoteAttachmentWorkspace },
   sessionId: string,
@@ -35,7 +35,10 @@ async function prepareModelAttachments(
   prepared: readonly PreparedPromptAttachment[],
   isCurrent?: () => boolean,
   toolHostOverride?: string,
+  host?: { call<T>(method: string, params?: unknown): Promise<T> } | null,
+  logger?: Pick<Logger, "app">,
 ): Promise<{ content: string; attachments: Array<AgentPromptAttachment & { data?: string }> }> {
+  const log = logger?.app.bind(logger) as NonNullable<typeof logger>["app"];
   const withFallbacks = appendPromptFallbackPaths(content, prepared);
   if (!prepared.length) return { content: withFallbacks, attachments: [] };
   // Attachments follow the host this session's tools execute on — the same
@@ -45,22 +48,56 @@ async function prepareModelAttachments(
   // and a `remote:<hostKey>:<sid>` renderer id still names its host directly.
   // A plain local session with no remote route stays local.
   const toolHost = toolHostOverride ?? sessionToolHost(sessionId);
-  const target = session.remoteWorkspace
+  let target = session.remoteWorkspace
     ? { workspace: session.remoteWorkspace, hostSessionId: sessionId }
     : attachmentTargetForSessionId(session.id) ??
       (toolHost
         ? { workspace: { hostKey: toolHost, path: "" }, hostSessionId: sessionId }
         : undefined);
-  if (!target) return {
-    content: withFallbacks,
-    attachments: prepared.filter(item => item.inlineData).map(item => ({
-      path: item.message.ref, name: item.message.name, kind: "image",
-      ...(item.message.mimeType ? { mimeType: item.message.mimeType } : {}),
-      ...(item.message.size !== undefined ? { size: item.message.size } : {}),
-      data: item.inlineData!,
-      ...(item.message.inlinePath ? { inlinePath: item.message.inlinePath } : {}),
-    })),
-  };
+  if (!target && host) {
+    // Every in-memory signal was empty. The Host that owns the session store
+    // is the authority on its remote binding — the same fact the tool relay
+    // consults per tool call. A binding here means the tools are about to run
+    // remotely, so the attachments must go with them.
+    try {
+      const answered = await host.call<{ remoteWorkspace?: RemoteAttachmentWorkspace | null }>(
+        "session.remoteWorkspace", { id: sessionId },
+      );
+      const binding = answered?.remoteWorkspace;
+      if (binding?.hostKey) {
+        log("provider", "info", "attachment upload: host binding admitted the upload", {
+          data: { sessionId, hostKey: binding.hostKey },
+        });
+        target = { workspace: binding, hostSessionId: sessionId };
+      }
+    } catch (error) {
+      log("provider", "warn", "attachment upload: host binding lookup failed", {
+        data: { sessionId, error: error instanceof Error ? error.message : String(error) },
+      });
+    }
+  }
+  if (!target) {
+    log("provider", "info", "attachment upload: no remote route; staying local", {
+      data: {
+        sessionId,
+        hasRemoteWorkspace: Boolean(session.remoteWorkspace),
+        toolHost: toolHost ?? null,
+      },
+    });
+    return {
+      content: withFallbacks,
+      attachments: prepared.filter(item => item.inlineData).map(item => ({
+        path: item.message.ref, name: item.message.name, kind: "image",
+        ...(item.message.mimeType ? { mimeType: item.message.mimeType } : {}),
+        ...(item.message.size !== undefined ? { size: item.message.size } : {}),
+        data: item.inlineData!,
+        ...(item.message.inlinePath ? { inlinePath: item.message.inlinePath } : {}),
+      })),
+    };
+  }
+  log("provider", "info", "attachment upload: uploading to the tool host", {
+    data: { sessionId, hostKey: target.workspace.hostKey, hostSessionId: target.hostSessionId },
+  });
   const { workspace, hostSessionId } = target;
   const boot = getActiveRemoteHostsBoot();
   if (!boot) throw Object.assign(new Error("remote Host is unavailable"), { errorCode: ErrorCodes.AGENT_UNAVAILABLE });
@@ -73,7 +110,6 @@ import type { AgentExtensionBridge } from "../agent-extensions";
 import type { AgentHostBridge } from "../agent-host-bridge";
 import type { AgentSidecar } from "../agent-sidecar";
 import type { HostProcess } from "../host-process";
-import type { Logger } from "../logger";
 import type { PersistenceOutbox } from "../persistence-outbox";
 import type { ComposerCommandService } from "./composer-ipc";
 import type { IpcRegistrar } from "./types";
@@ -224,6 +260,7 @@ export function registerAgentIpc({
       { id: req.sessionId, remoteWorkspace: context.remoteWorkspace }, req.sessionId, steerContent, prepared,
       // Attachments follow the relay-recorded tool host for parity with prompt.
       () => isTurnDispatchable(req.sessionId, req.expectedTurnId), sessionToolHost(req.sessionId),
+      host, logger,
     );
     const session = await host.call<{ session?: { messages?: UiMessage[] } }>("session.get", {
       id: req.sessionId, messageLimit: 1,
@@ -523,7 +560,7 @@ export function registerAgentIpc({
       modelInput = await prepareModelAttachments(
         { id: req.sessionId, remoteWorkspace: launchRemoteWorkspace },
         req.sessionId, promptContent, preparedAttachments,
-        () => isTurnDispatchable(req.sessionId, durableTurnId));
+        () => isTurnDispatchable(req.sessionId, durableTurnId), undefined, host, logger);
     } catch (error) {
       await finishTurn(req.sessionId, "error", (error as { errorCode?: string }).errorCode, { turnId: durableTurnId });
       throw error;
