@@ -42,7 +42,15 @@ Keep the local attachment `ref` for Desktop preview and resend. Persist a separa
 history projection uses it only for the matching Host/workspace. Images retain
 inline model delivery while also gaining a remote file copy.
 
-Incomplete uploads are connection-owned and cleaned after abort, disconnect, or
+Preview follows the same Host route. A chip whose path names the remote copy is
+locally unresolvable, so `fsResolveRef`, `fsRead`, and `fsReadImageDataUrl` fall
+back — after local resolution declines — to the session's relayed tool Host,
+recorded when the tool relay dispatched the session's remote tools. The request
+carries the Desktop session id and the sentinel root `/.session-scratch`; the
+Host admits only that session's own scratch directory for the operation, never
+`~/.nib` at large. Sessions without a relayed tool Host, and Hosts that cannot
+answer, keep the exact local behavior.
+
 Incomplete uploads are connection-owned and cleaned after abort, disconnect, or
 expiry. Ready copies remain for historical reads until explicit Host storage
 cleanup. Removing a local transcript or pairing does not silently delete files on

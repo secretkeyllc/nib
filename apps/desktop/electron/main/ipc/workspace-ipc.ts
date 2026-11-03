@@ -1,27 +1,33 @@
-import { BrowserWindow, dialog, shell, type OpenDialogOptions } from "electron";
-import { dirname } from "node:path";
-import { homedir } from "node:os";
 import { existsSync, statSync } from "node:fs";
 import { realpath, stat } from "node:fs/promises";
-import { isAbsolute, join, resolve } from "node:path";
+import { homedir } from "node:os";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import {
-  ErrorCodes,
-  IPC,
+  type ComposerTemplate,
+  loadComposerTemplates,
+} from "@pi-desktop/agent-runtime";
+import { collectWorkspaceDiff, 
+  isAttachmentBlobRef,
+  listDir,
+  readOpenableFile,
+  readOpenableImage,
+  resolveRealOpenablePath,} from "@pi-desktop/host-runtime";
+import {
   type ComposerPasteFile,
+  ErrorCodes,
   type FsChatRefProjectRoot,
   type FsChatRefResolveResult,
+  IPC,
   type ProjectGroupRecord,
   type RemoteWorkspace,
   type WorkspaceFilesRequest,
 } from "@pi-desktop/shared";
-import {
-  loadComposerTemplates,
-  type ComposerTemplate,
-} from "@pi-desktop/agent-runtime";
-import { remoteWorkspaceForFiles } from "../remote/workspace-file-scope";
-import { sessionToolHost } from "../remote/remote-workspace-tools";
+import { BrowserWindow, dialog, type OpenDialogOptions, shell } from "electron";
+import type { AgentSidecar } from "../agent-sidecar";
 import { getActiveRemoteHostsBoot } from "../bootstrap/remote-hosts";
-import { cloneGitRepository } from "../git-clone";
+import { BROWSER_PLUGIN_ID, type BrowserHost } from "../browser-host";
+import { isChatRefOutsideRoots, resolveChatFileRef } from "../chat-ref-resolve";
+import type { ClipboardHistory } from "../clipboard-history";
 import {
   importComposerFiles,
   saveComposerPasteFiles,
@@ -30,32 +36,24 @@ import {
   consumeComposerPickerSelection,
   rememberComposerPickerSelection,
 } from "../composer-picker";
-import { collectWorkspaceDiff } from "@pi-desktop/host-runtime";
-import { parseAllowedExternalUrl } from "../safe-open-external";
-import {
-  isAttachmentBlobRef,
-  listDir,
-  readOpenableFile,
-  readOpenableImage,
-  resolveRealOpenablePath,
-} from "@pi-desktop/host-runtime";
-import { openableMp4Path } from "../open-attachment-video";
-import { isChatRefOutsideRoots, resolveChatFileRef } from "../chat-ref-resolve";
-import { rebaseWorktreeRef, type WorktreeRefContext } from "../worktree-ref";
 import { getWorkspaceFileIndex, searchWorkspaceFiles } from "../fs-index";
+import { cloneGitRepository } from "../git-clone";
+import type { HostProcess } from "../host-process";
+import type { Logger } from "../logger";
+import { getModuleDirectory } from "../module-path";
+import { openableMp4Path } from "../open-attachment-video";
+import type { PluginRuntime } from "../plugin-runtime";
+import { sessionToolHost } from "../remote/remote-workspace-tools";
+import { resolveViaSessionToolHost } from "../remote/tool-host-file-refs";
+import { remoteWorkspaceForFiles } from "../remote/workspace-file-scope";
+import { parseAllowedExternalUrl } from "../safe-open-external";
 import {
   projectFolderPaths,
   refreshProjectGroups,
   rememberProjectGroups,
   workspaceRootsFor,
 } from "../workspace-roots";
-import { BROWSER_PLUGIN_ID, type BrowserHost } from "../browser-host";
-import type { AgentSidecar } from "../agent-sidecar";
-import type { HostProcess } from "../host-process";
-import type { Logger } from "../logger";
-import type { ClipboardHistory } from "../clipboard-history";
-import { getModuleDirectory } from "../module-path";
-import type { PluginRuntime } from "../plugin-runtime";
+import { rebaseWorktreeRef, type WorktreeRefContext } from "../worktree-ref";
 import type { IpcRegistrar } from "./types";
 
 type WorkspaceRecord = { path: string; name: string };
@@ -928,6 +926,14 @@ export function registerWorkspaceIpc({
       if (remote) {
         return readRemoteFiles(remote, "read", requested, input.mimeType);
       }
+      // A locally unresolvable path may live on the Host that ran this
+      // session's tools — an uploaded attachment's remote copy. The Host
+      // admits only the session's own scratch directory for the read.
+      const toolHostRead = await resolveViaSessionToolHost<unknown>({
+        sessionId: input.sessionId, operation: "read", ref: requested,
+        mimeType: input.mimeType, boot: getActiveRemoteHostsBoot(),
+      });
+      if (toolHostRead) return toolHostRead;
       let workspaceRoot: string | null = null;
       try {
         workspaceRoot = await requireWorkspaceRoot(input.sessionId);
@@ -954,6 +960,11 @@ export function registerWorkspaceIpc({
       if (remote) {
         return readRemoteFiles(remote, "image", ref, input.mimeType);
       }
+      const toolHostImage = await resolveViaSessionToolHost<unknown>({
+        sessionId: input.sessionId, operation: "image", ref,
+        mimeType: input.mimeType, boot: getActiveRemoteHostsBoot(),
+      });
+      if (toolHostImage) return toolHostImage;
       const workspaceRoot = await optionalWorkspaceRoot(input.sessionId);
       const requested = String(input.ref ?? "").trim();
       return readOpenableImage(
@@ -1079,10 +1090,17 @@ export function registerWorkspaceIpc({
         containment: [{ kind: "scratch" as const, path: join(dataDir, "scratch") }],
         attachments: join(dataDir, "attachments"),
       };
-      if (await isChatRefOutsideRoots(ref, roots)) {
-        return { match: null, reason: "outside-allowed-roots" };
-      }
-      return { match: await resolveChatFileRef(ref, roots) };
+      const local: FsChatRefResolveResult = (await isChatRefOutsideRoots(ref, roots))
+        ? { match: null, reason: "outside-allowed-roots" }
+        : { match: await resolveChatFileRef(ref, roots) };
+      if (local.match) return local;
+      // Local storage has never seen a chip that names its file on the Host
+      // that ran this session's tools — an uploaded attachment's remote copy.
+      // The Host resolves against that session's own scratch directory alone.
+      return await resolveViaSessionToolHost<FsChatRefResolveResult>({
+        sessionId: input.sessionId, operation: "resolve", ref: rawRef,
+        boot: getActiveRemoteHostsBoot(),
+      }) ?? local;
     },
   );
 

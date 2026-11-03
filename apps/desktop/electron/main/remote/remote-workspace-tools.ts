@@ -119,6 +119,11 @@ export function rememberSessionToolHostForTest(sessionId: string, hostKey: strin
   rememberSessionToolHost(sessionId, hostKey);
 }
 
+/** Test seam clearing the record without touching the durable file. */
+export function resetSessionToolHostsForTest(): void {
+  sessionToolHosts = new Map();
+}
+
 /** Local permission admission precedes this relay. No models or credentials cross it. */
 export function createRemoteWorkspaceToolRelay(host: HostReply, deps: Dependencies) {
   const active = new Map<string, RemoteWorkspaceToolRequest>();
