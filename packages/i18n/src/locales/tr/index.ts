@@ -811,6 +811,7 @@ export const tr = {
     "creditsBalance": "Account balance: {{amount}} credits",
     "creditsBalanceTitle": "Account balance",
     "accountSignedIn": "Nib account",
+    "accountGreeting": "Hi {{name}}, I am Nib.",
     "accountSignInHint": "Sign in to use your plan",
     "accountLanguageAuto": "Auto",
     "accountVendorMissing": "The Nib provider is not loaded, so sign-in is unavailable. Reinstall the app or check the plugin.",

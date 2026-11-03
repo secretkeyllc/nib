@@ -1517,6 +1517,35 @@
   line-height: var(--leading-none);
 }
 
+/* Paid / Extra view switch. Two equal tabs above the meters; the active one
+   carries the accent so the current allowance reads without hunting. */
+.nib-credits-view-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 10px;
+  padding: 3px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-sunken, rgba(127, 127, 127, 0.12));
+}
+
+.nib-credits-view-tab {
+  padding: 4px 10px;
+  border: 0;
+  border-radius: var(--radius-2xs);
+  background: transparent;
+  color: var(--text-muted, inherit);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: var(--font-weight-strong, 600);
+  cursor: pointer;
+}
+
+.nib-credits-view-tab.is-active {
+  background: var(--surface-raised, var(--bg-raised, #fff));
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
 .nib-credits-popover-reset {
   flex: 0 0 auto;
   color: var(--ds-text-muted);
@@ -1795,6 +1824,12 @@
   gap: 6px;
   color: var(--ds-text-muted);
   font-variant-numeric: tabular-nums;
+}
+
+/* The complimentary Extra row sits under the paid plan: same layout, slightly
+   quieter name so the plan the customer pays for stays the headline. */
+.nib-account-plan-bonus .nib-account-plan-name {
+  font-size: var(--text-sm);
 }
 
 .nib-account-plan-name {

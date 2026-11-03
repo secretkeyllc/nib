@@ -807,6 +807,7 @@ export const zhCN = {
     creditsBalance: "账户余额：{{amount}} 额度",
     creditsBalanceTitle: "账户余额",
     accountSignedIn: "Nib 账号",
+    accountGreeting: "Hi {{name}}，I am Nib.",
     accountSignInHint: "登录后即可使用套餐",
     accountLanguageAuto: "跟随系统",
     accountVendorMissing: "Nib 服务未加载，暂时无法登录。请重装应用或检查插件。",

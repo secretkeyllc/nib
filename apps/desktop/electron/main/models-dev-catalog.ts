@@ -1683,6 +1683,13 @@ export class ModelsDevCatalog {
     const deploymentFallback = result
       ? undefined
       : this.modelForDeploymentMarker(input.modelId, preferredProvider);
+    // Gateway deployment variant: `<base>-extra` serves the base model's
+    // weights behind a quota-isolated route, so its published record answers
+    // for context window, capabilities and cost. Wire ids are matched exactly
+    // everywhere else, so the served id itself is never rewritten here.
+    const extraFallback = result
+      ? undefined
+      : this.modelForExtraSuffix(input.modelId, preferredProvider);
     /* The row's own catalog provider stays authoritative. When an unanchored
        relay serves a known model family and the weight owner publishes a
        matching record, prefer that record over reseller consensus. An
@@ -1694,11 +1701,11 @@ export class ModelsDevCatalog {
     /* Canonical translation is the weakest step: it maps one published name
        onto another, so it only runs when the ordinary lookup found nothing. */
     const ownerRecord = relayOwnerKey
-      ? this.unanchoredOwnerRecord(requested, !result && !deploymentFallback)
+      ? this.unanchoredOwnerRecord(requested, !result && !deploymentFallback && !extraFallback)
       : undefined;
     const borrowed = ownerRecord === null
       ? undefined
-      : ownerRecord ?? result ?? deploymentFallback ??
+      : ownerRecord ?? result ?? deploymentFallback ?? extraFallback ??
         (preferredProvider ? this.borrowedAcrossProviders(input) : undefined);
     // Cache the result (a miss included) so a repeated miss is also O(1) and
     // cannot grow the candidate index with query-dependent keys.
@@ -1719,6 +1726,37 @@ export class ModelsDevCatalog {
     const marker = /[-_:](?:1|2|4|32|64|128|200|256|512)k$|[-_:](?:1|2|4)m$/i;
     if (!marker.test(leaf)) return undefined;
     const lookupId = leaf.replace(marker, "");
+
+    const candidates = (this.lookupIndex?.candidates(normalizedModelId(lookupId)) ?? [])
+      .filter(({ model }) => normalizedModelId(model.modelId) === normalizedModelId(lookupId));
+    if (preferredProvider) {
+      const own = candidates.filter(({ provider }) => provider === preferredProvider);
+      if (own.length === 1) return own[0].model;
+      return own.length > 1 ? modelWithSharedCapabilities(own.map(({ model }) => model)) : undefined;
+    }
+
+    const official = candidates.filter(isOfficialSourceProvider);
+    if (official.length === 1) return official[0].model;
+    if (official.length === 0) return undefined;
+    return modelWithSharedCapabilities(official.map(({ model }) => model));
+  }
+
+  /**
+   * `<base>-extra` names a quota-isolated deployment of the base model (the
+   * gateway maps it back upstream), so the base model's published record —
+   * context window, modalities, tool support, cost — answers for it. Without
+   * this the row falls back to the generic 128k text-only shape and a 200k
+   * model reads as 128k.
+   */
+  private modelForExtraSuffix(
+    modelId: string,
+    preferredProvider: ModelsDevProvider | undefined,
+  ): ModelsDevModel | undefined {
+    const leaf = modelId.slice(modelId.lastIndexOf("/") + 1);
+    const suffix = /[-_:]extra$/i;
+    if (!suffix.test(leaf)) return undefined;
+    const lookupId = leaf.replace(suffix, "");
+    if (!lookupId) return undefined;
 
     const candidates = (this.lookupIndex?.candidates(normalizedModelId(lookupId)) ?? [])
       .filter(({ model }) => normalizedModelId(model.modelId) === normalizedModelId(lookupId));

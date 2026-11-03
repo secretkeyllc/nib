@@ -180,21 +180,30 @@ export function NibAccountButton() {
   const total = Math.round(ent?.creditsTotal ?? 0);
   const used = Math.round(ent?.creditsUsed ?? 0);
   const left = Math.max(0, total - used);
+  // The complimentary (Extra) subscription: paid plan first in the UI, the
+  // bonus row always after it.
+  const bonus = ent?.allowances?.find((row) => row.isBonus) ?? null;
 
-  // The heading names the account, not the plan: "who am I signed in as" is
-  // the question this menu answers, and the plan is its own line below.
-  // An expired session is not the same as signed out: the provider credential
-  // (the account's own gateway key) stays live, so the model may still work —
-  // the heading must say the session ended, not pretend no account exists.
+  // The heading greets the account: "Hi <name>, I am Nib." reads as the
+  // product saying hello rather than a form field. An expired session is not
+  // the same as signed out: the provider credential (the account's own
+  // gateway key) stays live, so the model may still work — the heading must
+  // say the session ended, not pretend no account exists.
   const sessionExpired = ent?.sessionExpired === true;
+  const greetingName =
+    ent?.accountName?.trim() || ent?.accountEmail?.trim() || null;
   const accountLabel = signedIn
-    ? (ent?.accountName?.trim() ||
-       ent?.accountEmail?.trim() ||
-       t("nib.accountSignedIn"))
+    ? (greetingName
+        ? t("nib.accountGreeting", { name: greetingName })
+        : t("nib.accountSignedIn"))
     : sessionExpired
       ? t("nib.accountSessionExpired")
       : t("nib.accountSignedOut");
-  const accountSecondary = signedIn ? ent?.accountEmail?.trim() || null : null;
+  // When the greeting already names the email there is nothing secondary to
+  // add; when it names a display name the email belongs underneath it.
+  const accountEmail = ent?.accountEmail?.trim() || null;
+  const accountSecondary =
+    signedIn && greetingName !== accountEmail ? accountEmail : null;
 
   const patchSettings = (patch: Partial<AppSettings>) => {
     if (!settings) return;
@@ -276,6 +285,27 @@ export function NibAccountButton() {
               t("nib.accountSignInHint")
             )}
           </span>
+          {/*
+            The complimentary Extra allowance is its own row under the plan:
+            it meters separately (-extra models only), so folding it into the
+            plan line would read as one bigger plan. Paid first, bonus after.
+          */}
+          {signedIn && bonus && (bonus.creditsTotal ?? 0) > 0 ? (
+            <span className="nib-account-plan nib-account-plan-bonus">
+              <strong className="nib-account-plan-name">
+                {bonus.groupName ?? "Extra"}
+              </strong>
+              <span className="nib-account-plan-usage">
+                {t("nib.accountPlanUsage", {
+                  left: Math.max(
+                    0,
+                    Math.round((bonus.creditsTotal ?? 0) - (bonus.creditsUsed ?? 0)),
+                  ).toLocaleString(),
+                  total: Math.round(bonus.creditsTotal ?? 0).toLocaleString(),
+                })}
+              </span>
+            </span>
+          ) : null}
           {/*
             The balance sits under the plan, not inside it: it is a separate
             pool that does not expire and is spent alongside the plan, so

@@ -46,6 +46,7 @@ import type { PluginRuntime } from "../plugin-runtime";
 import { sessionToolHost } from "../remote/remote-workspace-tools";
 import { resolveViaSessionToolHost } from "../remote/tool-host-file-refs";
 import { remoteWorkspaceForFiles } from "../remote/workspace-file-scope";
+import { parseRemoteSessionId } from "../remote/backend-router";
 import { parseAllowedExternalUrl } from "../safe-open-external";
 import {
   projectFolderPaths,
@@ -664,6 +665,18 @@ export function registerWorkspaceIpc({
   );
 
   const remoteFileWorkspace = (sessionId?: string) => remoteWorkspaceForFiles(getHost, sessionId);
+  /**
+   * The host's workspace-files authorization is keyed by the *host* session id
+   * (the bare uuid), while the renderer only knows the namespaced
+   * `remote:<hostKey>:<uuid>` form. Forwarding the namespaced id verbatim made
+   * every session-scratch read answer "outside the allowed roots" — the host
+   * had granted the session, but the request named a session it never saw.
+   * Local sessions have no host session id, so they forward nothing.
+   */
+  const hostSessionIdFor = (sessionId?: string): string | undefined => {
+    if (!sessionId) return undefined;
+    return parseRemoteSessionId(sessionId)?.hostSessionId;
+  };
   const readRemoteFiles = (remote: RemoteWorkspace, operation: WorkspaceFilesRequest["operation"], ref?: string, mimeType?: string, sessionId?: string) => {
     const boot = getActiveRemoteHostsBoot();
     if (!boot) throw new Error("remote hosts unavailable");
@@ -924,7 +937,7 @@ export function registerWorkspaceIpc({
       if (await isLocalStoredFile(requested)) return readOpenableFile(requested, null, localFileStores, input.mimeType);
       const remote = await remoteFileWorkspace(input.sessionId);
       if (remote) {
-        return readRemoteFiles(remote, "read", requested, input.mimeType);
+        return readRemoteFiles(remote, "read", requested, input.mimeType, hostSessionIdFor(input.sessionId));
       }
       // A locally unresolvable path may live on the Host that ran this
       // session's tools — an uploaded attachment's remote copy. The Host
@@ -958,7 +971,7 @@ export function registerWorkspaceIpc({
       if (await isLocalStoredFile(ref)) return readOpenableImage(ref, null, localFileStores, input.mimeType);
       const remote = await remoteFileWorkspace(input.sessionId);
       if (remote) {
-        return readRemoteFiles(remote, "image", ref, input.mimeType);
+        return readRemoteFiles(remote, "image", ref, input.mimeType, hostSessionIdFor(input.sessionId));
       }
       const toolHostImage = await resolveViaSessionToolHost<unknown>({
         sessionId: input.sessionId, operation: "image", ref,
@@ -1061,7 +1074,7 @@ export function registerWorkspaceIpc({
       const rawRef = String(input.ref ?? "").trim();
       if (!rawRef) return { match: null };
       const remote = await remoteFileWorkspace(input.sessionId);
-      if (remote && !(await isLocalStoredFile(rawRef))) return await readRemoteFiles(remote, "resolve", rawRef) as FsChatRefResolveResult;
+      if (remote && !(await isLocalStoredFile(rawRef))) return await readRemoteFiles(remote, "resolve", rawRef, undefined, hostSessionIdFor(input.sessionId)) as FsChatRefResolveResult;
       // A reference captured from the parent checkout names the same relative
       // file the session's worktree holds; resolve the branch copy instead of
       // rejecting the path as outside the isolated roots (issue #1747).
