@@ -319,7 +319,7 @@ test("the latest-submit restore guard wraps the asynchronous send (#1809)", () =
   assert.match(submit, /if \(accepted\) remember\(\);/);
 });
 
-test("draft attachment routing keeps image chips structured and file chips textual", () => {
+test("draft attachment routing keeps every file and image chip structured", () => {
   const helperSource = storeHelpers.match(
     /(?:export\s+)?function promptAttachmentsFromDraft\([\s\S]*?\n\}\n\n(?:export\s+)?function promptAttachmentsFromMessage/,
   )?.[0]
@@ -362,6 +362,11 @@ test("draft attachment routing keeps image chips structured and file chips textu
       mimeType: "image/png",
     },
     {
+      path: "/tmp/notes.txt",
+      name: "notes.txt",
+      kind: "file",
+    },
+    {
       path: "src/legacy.jpg",
       name: "legacy.jpg",
       kind: "image",
@@ -402,4 +407,37 @@ test("the user row is inserted before the host round trip and echoed under the s
     /id: durableUserMessageId\(\s*req\.messageId,\s*Array\.isArray\(session\.messages\)\s*\?\s*session\.messages\s*:\s*\[\],\s*\)/,
   );
   assert.match(attachments, /export function durableUserMessageId\([\s\S]*?UUID_PATTERN\.test\(requested\)[\s\S]*?!existing\.some\(\(message\) => message\?\.id === requested\)/);
+});
+
+test("promptAttachmentsFromDraft keeps token-carrying file chips for the remote upload", () => {
+  const helperSource = storeHelpers.match(
+    /(?:export\s+)?function promptAttachmentsFromDraft\([\s\S]*?\n\}\n\n(?:export\s+)?function promptAttachmentsFromMessage/,
+  )?.[0]
+    ?.replace(/\n\n(?:export\s+)?function promptAttachmentsFromMessage[\s\S]*$/, "")
+    .replace(/^export\s+/, "");
+  assert.ok(helperSource, "prompt attachment mapper not found");
+  const executable = helperSource.replace(
+    /function promptAttachmentsFromDraft\(\s*references: ComposerDraftSnapshot\["fileReferences"\],\s*\): AgentPromptAttachment\[\] \{/,
+    "function promptAttachmentsFromDraft(references) {",
+  );
+  const promptAttachmentsFromDraft = new Function(
+    `${executable}; return promptAttachmentsFromDraft;`,
+  )();
+  const tokenChip = {
+    token: "chip-1",
+    path: "C:\\Users\\u\\.nib\\scratch\\s\\pasted\\notes.txt",
+    name: "notes.txt",
+    kind: "file",
+  };
+  const attachments = promptAttachmentsFromDraft([tokenChip]);
+  // The chip rides the structured attachment channel so main can upload it to
+  // a remote session's Host; dropping it left the model only the desktop path.
+  assert.equal(attachments.length, 1);
+  assert.equal(attachments[0].path, tokenChip.path);
+  assert.equal(attachments[0].kind, "file");
+  // Session links still stay out of the structured channel.
+  assert.deepEqual(
+    promptAttachmentsFromDraft([{ kind: "session", path: "pi-desktop://s", name: "s" }]),
+    [],
+  );
 });

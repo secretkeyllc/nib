@@ -33,10 +33,13 @@ export function promptAttachmentsFromDraft(
       (/\.(avif|bmp|gif|heic|jpe?g|png|tiff?|webp)$/i.test(reference.path)
         ? "image"
         : "file");
-    // Inline chips use tokens for both files and images. Ordinary file chips
-    // already serialize to @path text (the model can Read them); only image
-    // chips need the structured transport for vision/fallback handling.
-    if (reference.token && kind !== "image") return [];
+    // Inline chips use tokens for both files and images. Image chips always
+    // need the structured transport for vision/fallback handling. File chips
+    // travel structured too: on a local session the model reads `@path`
+    // directly, but a remote session's agent cannot read the desktop path —
+    // main uploads the structured attachment to the Host and rewrites the
+    // prompt onto the remote copy. Local sessions lose nothing: main resolves
+    // the same path it would have read from the chip text.
     return [
       {
         path: reference.path,
