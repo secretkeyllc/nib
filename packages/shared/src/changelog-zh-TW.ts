@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.25",
+    date: "2026-11-02",
+    highlights: [
+      "純遠端工作階段（Agent 執行於主機上）傳送的附件現在會在工作階段開始前上傳到主機，提示文字指向遠端副本。",
+      "工作階段與執行主機的對應記錄在桌面重新啟動後依然保留，升級後附件依舊跟隨工具所在主機。",
+    ],
+  },
+
+{
     version: "0.22.24",
     date: "2026-11-02",
     highlights: [

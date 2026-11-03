@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.25",
+    date: "2026-11-02",
+    highlights: [
+      "Los adjuntos de sesiones puramente remotas (el agente se ejecuta en el Host) ahora se suben al Host antes de iniciar el turno, y el texto del prompt apunta a la copia remota.",
+      "El registro de sesión a host de ejecución sobrevive al reinicio del escritorio; tras una actualización los adjuntos siguen al host de las herramientas.",
+    ],
+  },
+
+{
     version: "0.22.24",
     date: "2026-11-02",
     highlights: [

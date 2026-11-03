@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.25",
+    date: "2026-11-02",
+    highlights: [
+      "Les pièces jointes des sessions purement distantes (l'agent s'exécute sur l'hôte) sont maintenant téléversées vers l'hôte avant le début du tour, et le texte du prompt pointe vers la copie distante.",
+      "L'enregistrement session vers hôte d'exécution survit au redémarrage du bureau ; après une mise à niveau, les pièces jointes suivent toujours l'hôte des outils.",
+    ],
+  },
+
+{
     version: "0.22.24",
     date: "2026-11-02",
     highlights: [

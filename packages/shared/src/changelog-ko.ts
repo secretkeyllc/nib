@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.25",
+    date: "2026-11-02",
+    highlights: [
+      "순수 원격 세션(에이전트가 호스트에서 실행)에서 보낸 첨부 파일은 이제 턴 시작 전에 호스트에 업로드되며 프롬프트 텍스트는 원격 사본을 가리킵니다.",
+      "세션과 실행 호스트의 기록은 데스크톱을 다시 시작해도 유지되어, 업그레이드 후에도 첨부 파일이 도구의 호스트를 따릅니다.",
+    ],
+  },
+
+{
     version: "0.22.24",
     date: "2026-11-02",
     highlights: [

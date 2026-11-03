@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.25",
+    date: "2026-11-02",
+    highlights: [
+      "纯远程会话（Agent 跑在主机上）发送的附件现在会在回合开始前上传到主机，提示文本指向远程副本。",
+      "会话与执行主机的对应记录在桌面重启后依然保留，升级后附件依旧跟随工具所在主机。",
+    ],
+  },
+
+{
     version: "0.22.24",
     date: "2026-11-02",
     highlights: [

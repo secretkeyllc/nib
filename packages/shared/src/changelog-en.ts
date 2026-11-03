@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.25",
+    date: "2026-11-02",
+    highlights: [
+      "Attachments sent to a pure remote session (the agent runs on the Host) now upload to the Host before the turn starts, with the prompt pointing at the remote copy.",
+      "The session-to-execution-host record survives a desktop restart, so attachments keep following the tools after an upgrade.",
+    ],
+  },
+
+{
     version: "0.22.24",
     date: "2026-11-02",
     highlights: [

@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.25",
+    date: "2026-11-02",
+    highlights: [
+      "Anhänge in reinen Remote-Sitzungen (der Agent läuft auf dem Host) werden jetzt vor dem Zug auf den Host hochgeladen; der Prompttext verweist auf die entfernte Kopie.",
+      "Die Zuordnung Sitzung zu Ausführungshost übersteht einen Desktop-Neustart; nach einem Upgrade folgen Anhänge weiter dem Host der Werkzeuge.",
+    ],
+  },
+
+{
     version: "0.22.24",
     date: "2026-11-02",
     highlights: [

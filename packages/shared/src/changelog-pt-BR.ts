@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.25",
+    date: "2026-11-02",
+    highlights: [
+      "Anexos em sessões puramente remotas (o agente roda no Host) agora são enviados ao Host antes do início do turno, e o texto do prompt aponta para a cópia remota.",
+      "O registro de sessão para host de execução sobrevive à reinicialização do desktop; após uma atualização os anexos continuam seguindo o host das ferramentas.",
+    ],
+  },
+
+{
     version: "0.22.24",
     date: "2026-11-02",
     highlights: [

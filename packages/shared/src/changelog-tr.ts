@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.25",
+    date: "2026-11-02",
+    highlights: [
+      "Saf uzak oturumlarda (ajan makinede çalışır) gönderilen ekler artık tur başlamadan önce makineye yüklenir ve istem metni uzak kopyayı gösterir.",
+      "Oturumdan yürütme makinesine giden kayıt masaüstü yeniden başlasa da korunur; yükseltme sonrası ekler araçların olduğu makineyi takip eder.",
+    ],
+  },
+
+{
     version: "0.22.24",
     date: "2026-11-02",
     highlights: [
