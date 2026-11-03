@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.26",
+    date: "2026-11-03",
+    highlights: [
+      "每次附件上传决策都会写入桌面日志，并且 prompt 会直接从会话存储解析远程绑定——封堵了最后一条静默回退路径。",
+    ],
+  },
+
+{
     version: "0.22.25",
     date: "2026-11-02",
     highlights: [

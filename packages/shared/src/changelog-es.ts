@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.26",
+    date: "2026-11-03",
+    highlights: [
+      "Cada decisión de subida de adjuntos ahora se registra en el registro del escritorio, y el prompt resuelve el enlace remoto directamente desde el almacén de sesiones: se cierra la última vía de retroceso silencioso.",
+    ],
+  },
+
+{
     version: "0.22.25",
     date: "2026-11-02",
     highlights: [

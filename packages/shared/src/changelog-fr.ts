@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.26",
+    date: "2026-11-03",
+    highlights: [
+      "Chaque décision de téléversement de pièce jointe est désormais consignée dans le journal du bureau, et le prompt résout la liaison distante directement depuis le magasin de sessions — la dernière voie de repli silencieuse est fermée.",
+    ],
+  },
+
+{
     version: "0.22.25",
     date: "2026-11-02",
     highlights: [

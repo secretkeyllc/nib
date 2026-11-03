@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.26",
+    date: "2026-11-03",
+    highlights: [
+      "Cada decisão de envio de anexo agora é registrada no log do desktop, e o prompt resolve o vínculo remoto diretamente do armazenamento de sessões — fechando o último caminho de fallback silencioso.",
+    ],
+  },
+
+{
     version: "0.22.25",
     date: "2026-11-02",
     highlights: [

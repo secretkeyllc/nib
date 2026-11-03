@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.26",
+    date: "2026-11-03",
+    highlights: [
+      "Her ek yükleme kararı artık masaüstü günlüğüne yazılır ve istem, uzak bağlamayı doğrudan oturum deposundan çözümler — son sessiz geri dönüş yolu kapatıldı.",
+    ],
+  },
+
+{
     version: "0.22.25",
     date: "2026-11-02",
     highlights: [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.26",
+    date: "2026-11-03",
+    highlights: [
+      "Jede Anhang-Upload-Entscheidung wird jetzt im Desktop-Protokoll vermerkt, und der Prompt löst die Remote-Bindung direkt aus dem Sitzungsspeicher auf — der letzte stille Fallback-Pfad ist geschlossen.",
+    ],
+  },
+
+{
     version: "0.22.25",
     date: "2026-11-02",
     highlights: [

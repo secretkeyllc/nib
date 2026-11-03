@@ -37,7 +37,7 @@ describe("changelog catalog", () => {
     // entry by being a release someone could still be running, not merely by
     // having been published.
     const versions = CHANGELOG.en.map((e) => e.version);
-    expect(versions).toEqual(["0.22.25", "0.22.24", "0.22.23", "0.22.22", "0.22.21", "0.22.20", "0.22.19", "0.22.18", "0.22.17", "0.22.16", "0.22.15", "0.22.14", "0.22.13", "0.22.12", "0.22.11", "0.22.10", "0.22.9", "0.22.8", "0.22.1", "0.22.0"]);
+    expect(versions).toEqual(["0.22.26", "0.22.25", "0.22.24", "0.22.23", "0.22.22", "0.22.21", "0.22.20", "0.22.19", "0.22.18", "0.22.17", "0.22.16", "0.22.15", "0.22.14", "0.22.13", "0.22.12", "0.22.11", "0.22.10", "0.22.9", "0.22.8", "0.22.1", "0.22.0"]);
     for (const version of versions) {
       expect(version).not.toMatch(/-/);
     }

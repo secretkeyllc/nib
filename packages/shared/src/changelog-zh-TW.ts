@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.26",
+    date: "2026-11-03",
+    highlights: [
+      "每次附件上傳決策都會寫入桌面日誌，並且提示會直接從工作階段儲存解析遠端繫結——封堵了最後一條靜默回退路徑。",
+    ],
+  },
+
+{
     version: "0.22.25",
     date: "2026-11-02",
     highlights: [

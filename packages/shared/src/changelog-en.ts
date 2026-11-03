@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.26",
+    date: "2026-11-03",
+    highlights: [
+      "Every attachment upload decision is now logged in the desktop log, and the prompt resolves the remote binding from the session store directly — closing the last silent-fallback path.",
+    ],
+  },
+
+{
     version: "0.22.25",
     date: "2026-11-02",
     highlights: [

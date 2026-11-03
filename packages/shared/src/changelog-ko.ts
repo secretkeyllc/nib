@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.26",
+    date: "2026-11-03",
+    highlights: [
+      "이제 모든 첨부 파일 업로드 결정이 데스크톱 로그에 기록되고, 프롬프트가 세션 저장소에서 원격 바인딩을 직접 해석하여 마지막 무음 폴백 경로를 막았습니다.",
+    ],
+  },
+
+{
     version: "0.22.25",
     date: "2026-11-02",
     highlights: [
