@@ -173,16 +173,39 @@ test("agentPrompt starts a turn with reject_if_busy and returns the local respon
     messageId: "u1",
   });
 });
-
-test("agentPrompt with attachments raises CAPABILITY_UNAVAILABLE without any RACP call", async () => {
-  const { backend, client } = makeBackend();
-  await assert.rejects(
-    backend.invoke(IPC.invoke.agentPrompt, [
-      { sessionId: REMOTE_SESSION_ID, content: "hi", attachments: [{ id: "a" }] },
-    ]),
-    (error) => error.errorCode === "CAPABILITY_UNAVAILABLE",
-  );
-  assert.equal(client.calls.length, 0);
+test("agentPrompt with attachments uploads them and rewrites the prompt paths", async () => {
+  const { mkdtemp, writeFile, mkdir } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const dataDir = await mkdtemp(join(tmpdir(), "remote-backend-attach-"));
+  const pastedDir = join(dataDir, "scratch", REMOTE_SESSION_ID, "pasted");
+  await mkdir(pastedDir, { recursive: true });
+  const source = join(pastedDir, "notes.txt");
+  const bytes = Buffer.from("remote turn attachment");
+  await writeFile(source, bytes);
+  const sha256 = (await import("node:crypto")).createHash("sha256").update(bytes).digest("hex");
+  const turn = makeRacpTurn({ id: "turn-att" });
+  const { backend, client } = makeBackend({
+    "workspace/attachmentCreate": () => ({ uploadId: "upload-1" }),
+    "workspace/attachmentChunk": (params) => ({ offset: params.offset + Buffer.from(params.data, "base64").length }),
+    "workspace/attachmentComplete": () => ({
+      path: `/root/.nib/scratch/${HOST_SESSION_ID}/pasted/notes.txt`, sha256, size: bytes.length,
+    }),
+    "turn/start": () => ({ accepted: true, turn }),
+  }, { dataDir });
+  await backend.invoke(IPC.invoke.agentPrompt, [
+    { sessionId: REMOTE_SESSION_ID, content: "read the notes", attachments: [{ path: source, name: "notes.txt", kind: "file", mimeType: "text/plain" }] },
+  ]);
+  const methods = client.calls.map((call) => call.method);
+  assert.deepEqual(methods, [
+    "workspace/attachmentCreate", "workspace/attachmentChunk", "workspace/attachmentComplete", "turn/start",
+  ]);
+  assert.equal(client.calls[0].params.sessionId, HOST_SESSION_ID);
+  assert.equal(client.calls[0].params.name, "notes.txt");
+  // The prompt text the Host receives references the remote copy, never the
+  // desktop's local path.
+  const text = client.calls.at(-1).params.input.text;
+  assert.ok(text.includes(`/root/.nib/scratch/${HOST_SESSION_ID}/pasted/notes.txt`), text);
+  assert.equal(text.includes(source), false);
 });
 
 test("agentQueuePush queues with the local content, since RACP turns carry none", async () => {
