@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.29",
+    date: "2026-11-03",
+    highlights: [
+      "Los chips de archivos subidos en una sesión ya se abren en todos los casos: cuando la búsqueda local no encuentra el archivo, la vista de archivos consulta al host que ejecutó las herramientas de la sesión y lee la copia en el directorio privado de esa sesión.",
+    ],
+  },
+{
     version: "0.22.28",
     date: "2026-11-03",
     highlights: [

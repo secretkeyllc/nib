@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.29",
+    date: "2026-11-03",
+    highlights: [
+      "세션에서 업로드한 파일 칩이 이제 어디서든 열립니다: 로컬 조회가 실패하면 파일 보기가 세션의 도구를 실행한 호스트에 질의하여 해당 세션의 비공개 스크래치 디렉터리에 있는 복사본을 읽습니다.",
+    ],
+  },
+{
     version: "0.22.28",
     date: "2026-11-03",
     highlights: [

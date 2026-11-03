@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.29",
+    date: "2026-11-03",
+    highlights: [
+      "Les puces des fichiers téléversés dans une session s'ouvrent désormais partout : lorsque la recherche locale échoue, la vue des fichiers interroge l'hôte qui a exécuté les outils de la session et lit la copie dans le répertoire scratch privé de cette session.",
+    ],
+  },
+{
     version: "0.22.28",
     date: "2026-11-03",
     highlights: [

@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.29",
+    date: "2026-11-03",
+    highlights: [
+      "Os chips de arquivos enviados em uma sessão agora abrem em todos os casos: quando a busca local não encontra o arquivo, a visualização de arquivos consulta o host que executou as ferramentas da sessão e lê a cópia no diretório scratch privado dessa sessão.",
+    ],
+  },
+{
     version: "0.22.28",
     date: "2026-11-03",
     highlights: [

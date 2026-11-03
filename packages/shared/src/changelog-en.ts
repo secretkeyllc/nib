@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.29",
+    date: "2026-11-03",
+    highlights: [
+      "Chips for files uploaded in a session now open everywhere: after local lookup declines, the file view asks the Host that ran the session's tools and reads the copy in that session's private scratch directory.",
+    ],
+  },
+{
     version: "0.22.28",
     date: "2026-11-03",
     highlights: [

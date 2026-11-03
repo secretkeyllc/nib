@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.29",
+    date: "2026-11-03",
+    highlights: [
+      "会话内上传文件的 chip 现在处处可打开：本地查询不到时，文件视图会向执行该会话工具的主机查询，并读取该会话私有 scratch 目录中的副本。",
+    ],
+  },
+{
     version: "0.22.28",
     date: "2026-11-03",
     highlights: [

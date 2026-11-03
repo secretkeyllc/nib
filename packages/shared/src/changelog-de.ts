@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.29",
+    date: "2026-11-03",
+    highlights: [
+      "Chips für in einer Sitzung hochgeladene Dateien öffnen nun überall: Wenn die lokale Suche nichts findet, fragt die Dateiansicht den Host ab, der die Werkzeuge der Sitzung ausgeführt hat, und liest die Kopie im privaten Scratch-Verzeichnis dieser Sitzung.",
+    ],
+  },
+{
     version: "0.22.28",
     date: "2026-11-03",
     highlights: [

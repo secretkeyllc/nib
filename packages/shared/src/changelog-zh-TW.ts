@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.29",
+    date: "2026-11-03",
+    highlights: [
+      "工作階段內上傳檔案的 chip 現在處處可開啟：本機查詢不到時，檔案檢視會向執行該工作階段工具的主機查詢，並讀取該工作階段私有 scratch 目錄中的副本。",
+    ],
+  },
+{
     version: "0.22.28",
     date: "2026-11-03",
     highlights: [

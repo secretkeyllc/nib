@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.29",
+    date: "2026-11-03",
+    highlights: [
+      "Bir oturuma yüklenen dosyaların rozetleri artık her yerde açılıyor: yerel arama sonuç vermezse dosya görünümü, oturumun araçlarını çalıştıran ana makineye sorar ve kopyayı o oturumun özel scratch dizininden okur.",
+    ],
+  },
+{
     version: "0.22.28",
     date: "2026-11-03",
     highlights: [
