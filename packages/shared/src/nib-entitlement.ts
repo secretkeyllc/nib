@@ -7,6 +7,25 @@
  * payload with only `signedIn: true` means the read itself failed — the chip
  * then shows the plan it knows and omits the numbers.
  */
+/**
+ * One active subscription's allowance, paid plan first and the complimentary
+ * (Extra) group after. They share a term but meter separately, so every
+ * surface that shows both must keep them as two rows rather than a sum.
+ */
+export type NibEntitlementAllowance = {
+  groupId?: number;
+  groupName?: string;
+  isBonus?: boolean;
+  creditsUsed?: number;
+  creditsTotal?: number;
+  dailyUsed?: number;
+  dailyLimit?: number;
+  weeklyUsed?: number;
+  weeklyLimit?: number;
+  /** ISO 8601 instant the subscription term expires. */
+  expiresAt?: string;
+};
+
 export type NibEntitlement = {
   signedIn: boolean;
   /** The session token exists but the control plane rejected it (expired or
@@ -35,6 +54,8 @@ export type NibEntitlement = {
   /** ISO 8601 instant this month's allowance resets. */
   monthlyResetsAt?: string;
   concurrency?: number;
+  /** Every active subscription, paid first. Absent on older control planes. */
+  allowances?: NibEntitlementAllowance[];
 };
 
 /**

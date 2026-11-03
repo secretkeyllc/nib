@@ -211,9 +211,9 @@ export function NibCreditsChip() {
     ? `${left.toLocaleString()}/${total.toLocaleString()}`
     : (ent.planName ?? "Nib");
 
-  const meters: Meter[] = [];
+  const planMeters: Meter[] = [];
   if (ent.dailyLimit) {
-    meters.push({
+    planMeters.push({
       label: t("nib.creditsToday"),
       used: Math.round(ent.dailyUsed ?? 0),
       limit: Math.round(ent.dailyLimit),
@@ -221,7 +221,7 @@ export function NibCreditsChip() {
     });
   }
   if (ent.weeklyLimit) {
-    meters.push({
+    planMeters.push({
       label: t("nib.creditsThisWeek"),
       used: Math.round(ent.weeklyUsed ?? 0),
       limit: Math.round(ent.weeklyLimit),
@@ -229,13 +229,49 @@ export function NibCreditsChip() {
     });
   }
   if (hasBalance) {
-    meters.push({
+    planMeters.push({
       label: t("nib.creditsThisMonth"),
       used,
       limit: total,
       resetsAt: ent.monthlyResetsAt ?? ent.resetsAt,
     });
   }
+
+  /*
+   * The complimentary (Extra) subscription meters separately — only -extra
+   * models draw on it — so it gets its own set of the same three meters. The
+   * plan stays the default view and is listed first; window resets land on the
+   * same instants as the plan (both terms start together), so the plan's reset
+   * instants drive the Extra countdowns too.
+   */
+  const bonusAllowance =
+    ent.allowances?.find((row) => row.isBonus) ?? null;
+  const bonusMeters: Meter[] = bonusAllowance
+    ? [
+        {
+          label: t("nib.creditsToday"),
+          used: Math.round(bonusAllowance.dailyUsed ?? 0),
+          limit: Math.round(bonusAllowance.dailyLimit ?? 0),
+          resetsAt: ent.dailyResetsAt,
+        },
+        {
+          label: t("nib.creditsThisWeek"),
+          used: Math.round(bonusAllowance.weeklyUsed ?? 0),
+          limit: Math.round(bonusAllowance.weeklyLimit ?? 0),
+          resetsAt: ent.weeklyResetsAt,
+        },
+        {
+          label: t("nib.creditsThisMonth"),
+          used: Math.round(bonusAllowance.creditsUsed ?? 0),
+          limit: Math.round(bonusAllowance.creditsTotal ?? 0),
+          resetsAt: ent.monthlyResetsAt ?? ent.resetsAt,
+        },
+      ].filter((meter) => meter.limit > 0)
+    : [];
+  const [meterView, setMeterView] = useState<"plan" | "bonus">("plan");
+  const activeView: "plan" | "bonus" =
+    meterView === "bonus" && bonusMeters.length > 0 ? "bonus" : "plan";
+  const meters = activeView === "bonus" ? bonusMeters : planMeters;
 
   const resetsAt = ent.resetsAt ? new Date(ent.resetsAt) : null;
   const resetLabel =
@@ -281,7 +317,9 @@ export function NibCreditsChip() {
     >
       <div className="nib-credits-popover-heading">
         <strong className="nib-credits-popover-plan">
-          {ent.planName ?? "Nib"}
+          {activeView === "bonus"
+            ? (bonusAllowance?.groupName ?? ent.planName ?? "Extra")
+            : (ent.planName ?? "Nib")}
         </strong>
         {resetLabel ? (
           <span className="nib-credits-popover-reset">
@@ -289,6 +327,33 @@ export function NibCreditsChip() {
           </span>
         ) : null}
       </div>
+      {bonusMeters.length > 0 ? (
+        /*
+          Paid first, Extra second: the two tabs mirror the account menu's row
+          order, and the active tab carries the plan colour so the current view
+          reads at a glance.
+        */
+        <div className="nib-credits-view-toggle" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeView === "plan"}
+            className={`nib-credits-view-tab${activeView === "plan" ? " is-active" : ""}`}
+            onClick={() => setMeterView("plan")}
+          >
+            {ent.planName ?? "Nib"}
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeView === "bonus"}
+            className={`nib-credits-view-tab${activeView === "bonus" ? " is-active" : ""}`}
+            onClick={() => setMeterView("bonus")}
+          >
+            {bonusAllowance?.groupName ?? "Extra"}
+          </button>
+        </div>
+      ) : null}
       {meters.length > 0 ? (
         <div className="nib-credits-popover-meters">
           {meters.map((meter) => {

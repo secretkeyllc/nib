@@ -189,7 +189,41 @@ export function registerNibIpc({
       const plan = record(body.plan ?? record(body.data).plan);
       const usage = record(body.usage ?? record(body.data).usage);
       const account = record(body.account ?? record(body.data).account);
+      // One entry per active subscription (paid first, the Extra group flagged):
+      // the account menu and the composer meters render the two allowances as
+      // separate rows instead of a sum that matches neither.
+      const allowancesRaw = Array.isArray(body.allowances)
+        ? body.allowances
+        : record(body.data).allowances;
+      const allowances = Array.isArray(allowancesRaw)
+        ? allowancesRaw.flatMap((entry) => {
+            const row = record(entry);
+            const num = (value: unknown) =>
+              typeof value === "number" && Number.isFinite(value) ? value : undefined;
+            return [
+              {
+                groupId: num(row.group_id),
+                groupName:
+                  typeof row.group_name === "string" && row.group_name.trim()
+                    ? row.group_name
+                    : undefined,
+                isBonus: row.is_bonus === true,
+                creditsUsed: num(row.credits_used),
+                creditsTotal: num(row.monthly_credits),
+                dailyUsed: num(row.daily_used),
+                dailyLimit: num(row.daily_limit),
+                weeklyUsed: num(row.weekly_used),
+                weeklyLimit: num(row.weekly_limit),
+                expiresAt:
+                  typeof row.expires_at === "string" && row.expires_at
+                    ? row.expires_at
+                    : undefined,
+              },
+            ];
+          })
+        : undefined;
       return {
+        allowances,
         signedIn: true,
         planName: typeof plan.name === "string" ? plan.name : undefined,
         accountEmail:

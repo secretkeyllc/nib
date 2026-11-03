@@ -807,6 +807,7 @@ export const zhTW = {
     "creditsBalance": "帳戶餘額：{{amount}} 額度",
     "creditsBalanceTitle": "帳戶餘額",
     "accountSignedIn": "Nib 帳號",
+    "accountGreeting": "Hi {{name}}，I am Nib.",
     "accountSignInHint": "登入後即可使用方案",
     "accountLanguageAuto": "跟隨系統",
     "accountVendorMissing": "Nib 服務未載入，暫時無法登入。請重裝應用或檢查外掛。",
