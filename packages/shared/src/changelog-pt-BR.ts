@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.30",
+    date: "2026-11-03",
+    highlights: [
+      "Os chips de arquivos em sessoes remotas voltam a abrir: a visualizacao de arquivos repassa o id da sessao ao Host, entao as leituras sao resolvidas dentro do scratch autorizado da sessao.",
+      "Os modelos -extra do gateway agora mostram a janela de contexto e as capacidades reais - o catalogo usa o registro publicado do modelo base para implantacoes -extra.",
+      "O menu da conta cumprimenta voce (Hi <nome>, I am Nib.), lista a cota Extra incluida sob seu plano, e o popover de creditos do composer ganha abas Pro / Pro Extra.",
+    ],
+  },
+
+{
     version: "0.22.29",
     date: "2026-11-03",
     highlights: [

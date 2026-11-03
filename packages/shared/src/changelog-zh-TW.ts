@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.30",
+    date: "2026-11-03",
+    highlights: [
+      "遠端工作階段的檔案 chip 重新可以開啟：檔案檢視會向主機轉發工作階段自身的 id，讀取在 該工作階段已授權的 scratch 目錄內解析，不再回報 path outside allowed roots 錯誤。",
+      "閘道 -extra 模型現在顯示真實的上下文視窗與能力——目錄會借用基礎模型發布的記錄來描述 -extra 部署。",
+      "帳號選單會向你問好（Hi <名字>, I am Nib.），在方案下方列出包含的 Extra 額度，輸入區額度浮窗新增 Pro / Pro Extra 切換。",
+    ],
+  },
+
+{
     version: "0.22.29",
     date: "2026-11-03",
     highlights: [

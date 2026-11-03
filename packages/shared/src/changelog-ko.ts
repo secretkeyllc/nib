@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.30",
+    date: "2026-11-03",
+    highlights: [
+      "원격 세션의 파일 칩이 다시 열립니다: 파일 보기가 세션 ID를 호스트로 전달하여, 이제 해당 세션의 승인된 스크래치 안에서 읽기가 해석됩니다.",
+      "게이트웨이 -extra 모델이 실제 컨텍스트 윈도우와 기능을 표시합니다 — 카탈로그가 -extra 배포에 기본 모델의 게시된 레코드를 빌려 씁니다.",
+      "계정 메뉴가 사용자를 인사하고(Hi <이름>, I am Nib.) 플랜 아래에 포함된 Extra 할당량을 표시하며, 컴포저 크레딧 팝오버에 Pro / Pro Extra 탭이 생겼습니다.",
+    ],
+  },
+
+{
     version: "0.22.29",
     date: "2026-11-03",
     highlights: [

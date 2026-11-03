@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.30",
+    date: "2026-11-03",
+    highlights: [
+      "File chips in remote sessions now open again: the file view forwards the session's own id to the Host, so reads resolve inside that session's authorized scratch instead of reporting a path-outside-allowed-roots error.",
+      "Gateway -extra models now show their real context window and capabilities - the catalog borrows the base model's published record for -extra deployments.",
+      "The account menu greets you (Hi <name>, I am Nib.), lists the included Extra allowance under your plan, and the composer credits popover grows Pro / Pro Extra tabs.",
+    ],
+  },
+
+{
     version: "0.22.29",
     date: "2026-11-03",
     highlights: [

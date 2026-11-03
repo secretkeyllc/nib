@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.30",
+    date: "2026-11-03",
+    highlights: [
+      "Datei-Chips in Remote-Sitzungen oeffnen sich wieder: Die Dateiansicht uebermittelt die Sitzungs-ID an den Host, sodass Lesezeichen innerhalb des autorisierten Scratch-Bereichs der Sitzung aufgeloest werden.",
+      "Gateway--Extra-Modelle zeigen jetzt ihr echtes Kontextfenster und ihre Faehigkeiten - der Katalog uebernimmt den veroeffentlichten Datensatz des Basismodells fuer -extra-Bereitstellungen.",
+      "Das Kontomenue begruesst dich (Hi <Name>, I am Nib.), listet die enthaltene Extra-Zuteilung unter deinem Plan, und der Credits-Popover im Eingabefeld erhaelt Pro / Pro Extra-Registerkarten.",
+    ],
+  },
+
+{
     version: "0.22.29",
     date: "2026-11-03",
     highlights: [

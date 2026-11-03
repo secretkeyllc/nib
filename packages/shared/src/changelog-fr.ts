@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.30",
+    date: "2026-11-03",
+    highlights: [
+      "Les chips de fichiers des sessions distantes s'ouvrent a nouveau : la vue fichier transmet l'identifiant de session a l'Hote, donc les lectures se resolvent dans le scratch autorise de la session.",
+      "Les modeles -extra du gateway affichent desormais leur vraie fenetre de contexte et leurs capacites - le catalogue emprunte l'enregistrement publie du modele de base pour les deploiements -extra.",
+      "Le menu du compte vous salue (Hi <nom>, I am Nib.), liste l'allocation Extra incluse sous votre forfait, et le popover de credits du composer gagne des onglets Pro / Pro Extra.",
+    ],
+  },
+
+{
     version: "0.22.29",
     date: "2026-11-03",
     highlights: [

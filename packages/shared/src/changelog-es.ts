@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.30",
+    date: "2026-11-03",
+    highlights: [
+      "Los chips de archivos en sesiones remotas vuelven a abrirse: la vista de archivos reenvia el id de la sesion al Host, asi las lecturas se resuelven dentro del scratch autorizado de esa sesion.",
+      "Los modelos -extra del gateway ahora muestran su ventana de contexto y capacidades reales: el catalogo toma el registro publicado del modelo base para los despliegues -extra.",
+      "El menu de cuenta te saluda (Hi <nombre>, I am Nib.), muestra la asignacion Extra incluida bajo tu plan, y el popover de creditos del compositor anade pestanas Pro / Pro Extra.",
+    ],
+  },
+
+{
     version: "0.22.29",
     date: "2026-11-03",
     highlights: [

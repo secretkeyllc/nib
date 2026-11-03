@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.30",
+    date: "2026-11-03",
+    highlights: [
+      "Uzak oturumlardaki dosya cipleri yeniden aciliyor: dosya gorunumu oturum kimligini Host'a iletir, boylece okumalar oturumun yetkili scratch alaninda cozumlenir.",
+      "Gateway -extra modelleri artik gercek baglam pencerelerini ve yeteneklerini gosteriyor - katalog, -extra dagitimlari icin temel modelin yayimlanmis kaydini devralir.",
+      "Hesap menusu sizi selamliyor (Hi <ad>, I am Nib.), planinizin altinda dahil olan Extra kotasini listeliyor ve besteci kredileri acilir penceresine Pro / Pro Extra sekmeleri ekleniyor.",
+    ],
+  },
+
+{
     version: "0.22.29",
     date: "2026-11-03",
     highlights: [

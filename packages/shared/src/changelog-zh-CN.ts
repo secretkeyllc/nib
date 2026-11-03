@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.30",
+    date: "2026-11-03",
+    highlights: [
+      "远程会话的文件 chip 重新可以打开：文件视图会向主机转发会话自身的 id，读取在该会话已授权的 scratch 目录内解析，不再报 path outside allowed roots 错误。",
+      "网关 -extra 模型现在显示真实的上下文窗口与能力——目录会借用基础模型发布的记录来描述 -extra 部署。",
+      "账号菜单会向你问好（Hi <名字>, I am Nib.），在套餐下方列出包含的 Extra 额度，输入区额度浮窗新增 Pro / Pro Extra 切换。",
+    ],
+  },
+
+{
     version: "0.22.29",
     date: "2026-11-03",
     highlights: [
