@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.28",
+    date: "2026-11-03",
+    highlights: [
+      "Uzak bir oturumda yüklenmiş bir eke tıklamak artık makine kopyasını önizler: dosya görünümü, uzak scratch yollarını sahibi olan makinede çözer ve yalnızca o oturum dizinine yetki verir.",
+    ],
+  },
+
+{
     version: "0.22.27",
     date: "2026-11-03",
     highlights: [

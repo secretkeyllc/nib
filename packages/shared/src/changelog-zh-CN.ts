@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.28",
+    date: "2026-11-03",
+    highlights: [
+      "远程会话中点击已上传的附件现在可以直接预览主机上的副本：文件视图在所属主机上解析远程 scratch 路径，且只授权该会话自己的目录。",
+    ],
+  },
+
+{
     version: "0.22.27",
     date: "2026-11-03",
     highlights: [

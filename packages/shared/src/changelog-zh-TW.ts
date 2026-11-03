@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.28",
+    date: "2026-11-03",
+    highlights: [
+      "遠端工作階段中點擊已上傳的附件現在可以直接預覽主機上的副本：檔案檢視在所屬主機上解析遠端 scratch 路徑，且僅授權該工作階段自己的目錄。",
+    ],
+  },
+
+{
     version: "0.22.27",
     date: "2026-11-03",
     highlights: [

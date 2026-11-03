@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.28",
+    date: "2026-11-03",
+    highlights: [
+      "Clicking an uploaded attachment in a remote session now previews the Host copy: the file view resolves remote scratch paths on the owning Host, scoped to that one session directory.",
+    ],
+  },
+
+{
     version: "0.22.27",
     date: "2026-11-03",
     highlights: [

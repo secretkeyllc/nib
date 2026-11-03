@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.28",
+    date: "2026-11-03",
+    highlights: [
+      "Ein Klick auf einen hochgeladenen Anhang in einer Remote-Sitzung zeigt nun die Host-Kopie in der Vorschau: Die Dateiansicht löst Remote-Scratch-Pfade auf dem besitzenden Host auf und autorisiert nur dieses eine Sitzungsverzeichnis.",
+    ],
+  },
+
+{
     version: "0.22.27",
     date: "2026-11-03",
     highlights: [

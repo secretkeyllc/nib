@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.28",
+    date: "2026-11-03",
+    highlights: [
+      "Cliquer sur une pièce jointe téléversée dans une session distante prévisualise désormais la copie de l'hôte : la vue fichier résout les chemins scratch distants sur l'hôte propriétaire, en n'autorisant que le répertoire de cette session.",
+    ],
+  },
+
+{
     version: "0.22.27",
     date: "2026-11-03",
     highlights: [

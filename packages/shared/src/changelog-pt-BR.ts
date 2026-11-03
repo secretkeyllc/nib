@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.28",
+    date: "2026-11-03",
+    highlights: [
+      "Clicar em um anexo enviado em uma sessão remota agora pré-visualiza a cópia do Host: a visualização de arquivos resolve caminhos remotos de scratch no Host proprietário, autorizando apenas o diretório dessa sessão.",
+    ],
+  },
+
+{
     version: "0.22.27",
     date: "2026-11-03",
     highlights: [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.28",
+    date: "2026-11-03",
+    highlights: [
+      "원격 세션에서 업로드된 첨부 파일을 클릭하면 이제 호스트 사본을 미리 봅니다: 파일 뷰가 소유 호스트에서 원격 스크래치 경로를 해석하며 해당 세션 디렉터리만 승인합니다.",
+    ],
+  },
+
+{
     version: "0.22.27",
     date: "2026-11-03",
     highlights: [

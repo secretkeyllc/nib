@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.28",
+    date: "2026-11-03",
+    highlights: [
+      "Hacer clic en un adjunto subido en una sesión remota ahora previsualiza la copia del Host: la vista de archivos resuelve las rutas remotas de scratch en el Host propietario, autorizando solo el directorio de esa sesión.",
+    ],
+  },
+
+{
     version: "0.22.27",
     date: "2026-11-03",
     highlights: [
