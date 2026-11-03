@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.27",
+    date: "2026-11-03",
+    highlights: [
+      "Files added with the composer + button now ride the structured attachment channel, so a remote session's Host receives the real file and the prompt points at the remote copy - instead of a desktop path the agent can never read.",
+    ],
+  },
+
+{
     version: "0.22.26",
     date: "2026-11-03",
     highlights: [

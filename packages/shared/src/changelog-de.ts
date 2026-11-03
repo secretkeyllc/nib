@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.27",
+    date: "2026-11-03",
+    highlights: [
+      "Mit dem Plus-Button des Composers hinzugefügte Dateien nutzen jetzt den strukturierten Anhangskanal - der Host einer Remote-Sitzung erhält die echte Datei und der Prompt verweist auf die entfernte Kopie statt auf einen nie lesbaren Desktop-Pfad.",
+    ],
+  },
+
+{
     version: "0.22.26",
     date: "2026-11-03",
     highlights: [

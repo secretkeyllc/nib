@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.27",
+    date: "2026-11-03",
+    highlights: [
+      "Los archivos añadidos con el botón + del compositor ahora usan el canal estructurado de adjuntos: el Host de la sesión remota recibe el archivo real y el prompt apunta a la copia remota, no a una ruta de escritorio ilegible.",
+    ],
+  },
+
+{
     version: "0.22.26",
     date: "2026-11-03",
     highlights: [

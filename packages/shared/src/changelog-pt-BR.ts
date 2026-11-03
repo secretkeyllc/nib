@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.27",
+    date: "2026-11-03",
+    highlights: [
+      "Arquivos adicionados com o botão + do composer agora usam o canal estruturado de anexos - o Host da sessão remota recebe o arquivo real e o prompt aponta para a cópia remota, não para um caminho de desktop ilegível.",
+    ],
+  },
+
+{
     version: "0.22.26",
     date: "2026-11-03",
     highlights: [

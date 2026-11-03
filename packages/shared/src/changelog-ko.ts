@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.27",
+    date: "2026-11-03",
+    highlights: [
+      "컴포저 + 버튼으로 추가한 파일은 이제 구조화된 첨부 채널을 사용합니다 - 원격 세션의 호스트가 실제 파일을 받고 프롬프트는 읽을 수 없는 데스크톱 경로 대신 원격 사본을 가리킵니다.",
+    ],
+  },
+
+{
     version: "0.22.26",
     date: "2026-11-03",
     highlights: [

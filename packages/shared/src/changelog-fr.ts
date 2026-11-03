@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.27",
+    date: "2026-11-03",
+    highlights: [
+      "Les fichiers ajoutés via le bouton + du composer empruntent désormais le canal structuré des pièces jointes - l'hôte de la session distante reçoit le vrai fichier et le prompt pointe vers la copie distante au lieu d'un chemin de bureau illisible.",
+    ],
+  },
+
+{
     version: "0.22.26",
     date: "2026-11-03",
     highlights: [

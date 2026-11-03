@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.27",
+    date: "2026-11-03",
+    highlights: [
+      "用输入框加号添加的文件现在走结构化附件通道——远程会话的主机会收到真实文件，提示文本指向远程副本，而不是一个远程永远读不到的桌面路径。",
+    ],
+  },
+
+{
     version: "0.22.26",
     date: "2026-11-03",
     highlights: [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.27",
+    date: "2026-11-03",
+    highlights: [
+      "Composer + düğmesiyle eklenen dosyalar artık yapılandırılmış ek kanalını kullanır - uzak oturumun makinesi gerçek dosyayı alır ve istem, ajanın asla okuyamayacağı bir masaüstü yolu yerine uzak kopyayı gösterir.",
+    ],
+  },
+
+{
     version: "0.22.26",
     date: "2026-11-03",
     highlights: [
