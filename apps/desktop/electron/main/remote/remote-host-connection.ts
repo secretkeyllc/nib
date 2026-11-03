@@ -21,8 +21,9 @@ export type RemoteHostConnectionOptions = {
   client: RemoteHostClient;
   router: BackendRouter;
   emit: (channel: string, payload: unknown) => void;
+  /** Desktop data root; enables the remote attachment upload on prompt. */
+  dataDir?: string;
   newRequestId?: () => string;
-  /** Reserve one subscription for host scope. Excess sessions remain routable. */
   maxSessionSubscriptions?: number;
   log?: (level: "warn" | "error", message: string, data?: unknown) => void;
 };
@@ -75,6 +76,7 @@ export function createRemoteHostConnection(options: RemoteHostConnectionOptions)
     } });
     const backend = createRemoteBackend({
       hostKey,
+      ...(options.dataDir ? { dataDir: options.dataDir } : {}),
       client: { async request<T>(method: string, params?: unknown): Promise<T> {
         const epoch = transportGeneration;
         check(epoch);

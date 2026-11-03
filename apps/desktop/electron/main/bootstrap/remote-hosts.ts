@@ -242,6 +242,7 @@ export function createRemoteHostsBoot(options: BootRemoteHostsOptions): RemoteHo
     const adapter = buildAdapter({ ...record, url });
     const connection = createRemoteHostConnection({
       hostKey: record.hostKey, hostLabel: record.label, client: adapter.client, router: options.router,
+      dataDir: options.dataDir,
       emit: (channel, payload) => {
         if (closed) return;
         if (channel === IPC.event.sessionsChanged) void refresh(record.hostKey);
@@ -253,6 +254,8 @@ export function createRemoteHostsBoot(options: BootRemoteHostsOptions): RemoteHo
     openingHosts.add(live);
     try {
       assertOpen();
+      actionRequired.delete(record.hostKey);
+      opened.set(record.hostKey, live);
       actionRequired.delete(record.hostKey);
       opened.set(record.hostKey, live);
       await adapter.connect();

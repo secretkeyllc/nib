@@ -39,6 +39,8 @@ import {
 } from "./backend-router.js";
 import { racpSessionToSummary, snapshotToSessionDetail } from "./remote-transcript.js";
 import { createRemoteHistory, type RemoteHistoryReadOptions } from "./remote-history.js";
+import { uploadRemotePromptAttachments } from "./remote-attachments.js";
+import { appendPromptFallbackPaths, preparePromptAttachments } from "../prompt-attachments.js";
 
 /** The subset of `RacpClient` this backend needs; kept minimal for testing. */
 export type RemoteRacpClient = {
@@ -50,6 +52,8 @@ export type RemoteBackendOptions = {
   hostKey: string;
   client: RemoteRacpClient;
   hostLabel?: string;
+  /** Desktop data root; resolves attachment sources for the remote upload. */
+  dataDir?: string;
   onSnapshot?: (snapshot: RacpSessionSnapshot) => void;
   /**
    * Called after the Host confirms a `session/delete`. RACP publishes no delete
@@ -142,14 +146,27 @@ export function createRemoteBackend(options: RemoteBackendOptions): RemoteBacken
     req: AgentPromptRequest | AgentQueuePushRequest,
     admission: "reject_if_busy" | "queue",
   ): Promise<{ accepted: boolean; turn: RacpTurn }> => {
-    if ("attachments" in req && req.attachments?.length) {
-      throw capabilityUnavailable("this remote host does not accept attachments");
-    }
     const hostSessionId = parseRemoteSessionId(req.sessionId)?.hostSessionId;
     if (!hostSessionId) {
       throw Object.assign(new Error("malformed remote session id"), {
         errorCode: ErrorCodes.INTERNAL,
       });
+    }
+    // A remote session's agent runs on the Host, so its attachments must live
+    // there too: every non-image file uploads to the Host's mirrored scratch
+    // before the turn starts, and the prompt text references the remote path.
+    // Images keep their inline delivery and additionally gain the remote copy.
+    let content = req.content;
+    if ("attachments" in req && req.attachments?.length && options.dataDir) {
+      const prepared = await preparePromptAttachments(
+        options.dataDir, req.sessionId, undefined, req.attachments,
+        /* supportsVision */ true, content,
+      );
+      const uploaded = await uploadRemotePromptAttachments({
+        request: <T>(method: string, params?: unknown, timeoutMs?: number) =>
+          client.request<T>(method, params, timeoutMs),
+      }, { hostKey, path: "" }, hostSessionId, appendPromptFallbackPaths(content, prepared), prepared);
+      content = uploaded.content;
     }
     const idempotencyKey = "idempotencyKey" in req ? req.idempotencyKey : undefined;
     return client.request("turn/start", {
@@ -157,7 +174,7 @@ export function createRemoteBackend(options: RemoteBackendOptions): RemoteBacken
       admission,
       ...(idempotencyKey ? { idempotencyKey } : {}),
       input: {
-        text: req.content,
+        text: content,
         ...(req.sessionMessageId ? { sessionMessageId: req.sessionMessageId } : {}),
         ...("messageId" in req && req.messageId ? { messageId: req.messageId } : {}),
       },
