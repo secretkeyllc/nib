@@ -108,6 +108,12 @@ export const WorkspaceFilesRequestSchema = Type.Object({
   operation: Type.Union([Type.Literal("list"), Type.Literal("read"), Type.Literal("index"), Type.Literal("resolve"), Type.Literal("image"), Type.Literal("diff"), Type.Literal("instructions")]),
   ref: Type.Optional(Type.String({ maxLength: 4096 })),
   mimeType: Type.Optional(Type.String({ maxLength: 256 })),
+  /**
+   * The caller's session id. When present, the Host admits that session's own
+   * scratch copy (e.g. an uploaded pasted attachment) as an allowed root for
+   * `resolve`/`read` — the same session-private grant the tool layer uses.
+   */
+  sessionId: Type.Optional(Type.String({ minLength: 1, maxLength: 256 })),
 }, { additionalProperties: false });
 export type WorkspaceFilesRequest = Static<typeof WorkspaceFilesRequestSchema>;
 

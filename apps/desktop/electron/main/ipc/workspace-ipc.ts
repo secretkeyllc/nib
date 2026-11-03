@@ -19,6 +19,7 @@ import {
   type ComposerTemplate,
 } from "@pi-desktop/agent-runtime";
 import { remoteWorkspaceForFiles } from "../remote/workspace-file-scope";
+import { sessionToolHost } from "../remote/remote-workspace-tools";
 import { getActiveRemoteHostsBoot } from "../bootstrap/remote-hosts";
 import { cloneGitRepository } from "../git-clone";
 import {
@@ -665,10 +666,13 @@ export function registerWorkspaceIpc({
   );
 
   const remoteFileWorkspace = (sessionId?: string) => remoteWorkspaceForFiles(getHost, sessionId);
-  const readRemoteFiles = (remote: RemoteWorkspace, operation: WorkspaceFilesRequest["operation"], ref?: string, mimeType?: string) => {
+  const readRemoteFiles = (remote: RemoteWorkspace, operation: WorkspaceFilesRequest["operation"], ref?: string, mimeType?: string, sessionId?: string) => {
     const boot = getActiveRemoteHostsBoot();
     if (!boot) throw new Error("remote hosts unavailable");
-    return boot.workspaceFiles(remote.hostKey, { path: remote.path, operation, ...(ref ? { ref } : {}), ...(mimeType ? { mimeType } : {}) });
+    return boot.workspaceFiles(remote.hostKey, {
+      path: remote.path, operation, ...(ref ? { ref } : {}), ...(mimeType ? { mimeType } : {}),
+      ...(sessionId ? { sessionId } : {}),
+    });
   };
   const localFileStores = [join(dataDir, "scratch"), join(dataDir, "attachments")];
   const isLocalStoredFile = async (ref: string) => isAttachmentBlobRef(ref) || !!(await resolveRealOpenablePath(ref, null, localFileStores));
