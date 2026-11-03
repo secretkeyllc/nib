@@ -160,10 +160,20 @@ export function registerNibIpc({
         // the user added with their own keys are untouched. Fire-and-forget —
         // the entitlement answer must not wait on secret-store I/O.
         void (async () => {
-          await forgetProviderCredential(providerId);
+          // A failed revocation must not leave the plugin's own key copy
+          // behind: the panel read and the picker's fallback both reach the
+          // account through it, so the local cleanup runs regardless and the
+          // revocation error is reported as its own line.
+          try {
+            await forgetProviderCredential(providerId);
+          } catch (error) {
+            logger.app("provider", "warn", "nib session expiry could not retire the gateway credential", {
+              data: { error: error instanceof Error ? error.message : String(error) },
+            });
+          }
           await clearPluginAccountSettings(dataDir(), logger, "session expiry");
         })().catch((error) => {
-          logger.app("provider", "warn", "nib session expiry could not retire the gateway credential", {
+          logger.app("provider", "warn", "nib session expiry could not clear the plugin credential", {
             data: { error: error instanceof Error ? error.message : String(error) },
           });
         });

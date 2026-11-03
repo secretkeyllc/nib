@@ -26,7 +26,13 @@ test("a 401 entitlement read retires the credential and the plugin's key copy", 
   assert.match(expiry, /sessionExpired: true/);
   assert.match(
     expiry,
-    /await forgetProviderCredential\(providerId\);\s*await clearPluginAccountSettings\(dataDir\(\), logger, "session expiry"\)/,
+    /await forgetProviderCredential\(providerId\);/,
+  );
+  // A failed keychain revocation must not skip the plugin's own copy: the
+  // local cleanup runs regardless, and the failure is reported on its own line.
+  assert.match(
+    expiry,
+    /catch \(error\) \{[\s\S]*?could not retire the gateway credential[\s\S]*?\}\s*await clearPluginAccountSettings\(dataDir\(\), logger, "session expiry"\)/,
   );
   // The explicit sign-out path clears the same material.
   assert.match(nibIpc, /await clearPluginAccountSettings\(dataDir\(\), logger, "sign-out"\)/);
