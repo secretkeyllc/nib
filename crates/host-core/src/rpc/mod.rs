@@ -3257,6 +3257,18 @@ async fn handle_request(
             Ok(json!({ "path": path.to_string_lossy() }))
         }
 
+        // The attachment upload needs the same remote-binding fact the tool
+        // relay uses, resolved by the Host that owns the session store.
+        "session.remoteWorkspace" => {
+            let session_id = params
+                .get("sessionId")
+                .and_then(|v| v.as_str())
+                .ok_or_else(|| rpc_err(1002, "sessionId required", "INVALID_PARAMS"))?;
+            let st = state.lock().await;
+            let remote = remote_tools::session_remote_workspace_optional(&st, session_id)
+                .map_err(|e| rpc_err(1002, format!("{e:?}"), "INVALID_PARAMS"))?;
+            Ok(json!({ "remoteWorkspace": remote }))
+        }
         "session.import" => {
             let summary: sessions::SessionSummary = serde_json::from_value(
                 params
