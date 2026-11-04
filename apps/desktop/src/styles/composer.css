@@ -1542,7 +1542,11 @@
 
 .nib-credits-view-tab.is-active {
   background: var(--surface-raised, var(--bg-raised, #fff));
-  color: var(--text);
+  /* The active tab sits on a raised (light) pill in both themes, so its ink
+     must be the design-system text colour — the legacy `--text` variable does
+     not exist and fell back to the inherited muted ink, which disappeared
+     against the white pill in dark mode. */
+  color: var(--ds-text-primary, var(--text-primary, #1a1c1f));
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 

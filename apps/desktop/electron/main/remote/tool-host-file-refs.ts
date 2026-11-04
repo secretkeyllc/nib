@@ -1,4 +1,5 @@
 import type { WorkspaceFilesRequest } from "@pi-desktop/shared";
+import { parseRemoteSessionId } from "./backend-router";
 import { sessionToolHost } from "./remote-workspace-tools";
 
 type FilesBoot = { workspaceFiles(hostKey: string, input: WorkspaceFilesRequest): Promise<unknown> };
@@ -23,7 +24,13 @@ export async function resolveViaSessionToolHost<T>(options: {
 }): Promise<T | null> {
   const { sessionId, operation, ref, mimeType, boot } = options;
   if (!sessionId || !boot) return null;
-  const hostKey = sessionToolHost(sessionId);
+  // The renderer only knows the namespaced `remote:<hostKey>:<uuid>` form,
+  // while the Host's scratch grant is keyed by the bare host session id.
+  // The id itself names the Host, so it wins over the relay record; a local
+  // session id keeps the relayed tool Host route unchanged.
+  const parsed = parseRemoteSessionId(sessionId);
+  const hostKey = parsed?.hostKey ?? sessionToolHost(sessionId);
+  const hostSessionId = parsed?.hostSessionId ?? sessionId;
   if (!hostKey) return null;
   try {
     return await boot.workspaceFiles(hostKey, {
@@ -33,7 +40,7 @@ export async function resolveViaSessionToolHost<T>(options: {
       operation,
       ...(ref ? { ref } : {}),
       ...(mimeType ? { mimeType } : {}),
-      sessionId,
+      sessionId: hostSessionId,
     }) as T;
   } catch {
     // A stale relay record or an unreachable Host must not mask the caller's

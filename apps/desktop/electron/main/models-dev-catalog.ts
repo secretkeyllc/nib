@@ -1746,7 +1746,8 @@ export class ModelsDevCatalog {
    * gateway maps it back upstream), so the base model's published record —
    * context window, modalities, tool support, cost — answers for it. Without
    * this the row falls back to the generic 128k text-only shape and a 200k
-   * model reads as 128k.
+   * model reads as 128k. The display name keeps the deployment visible: the
+   * picker shows "GPT-6 Sol Extra", while the served id stays `<base>-extra`.
    */
   private modelForExtraSuffix(
     modelId: string,
@@ -1760,16 +1761,19 @@ export class ModelsDevCatalog {
 
     const candidates = (this.lookupIndex?.candidates(normalizedModelId(lookupId)) ?? [])
       .filter(({ model }) => normalizedModelId(model.modelId) === normalizedModelId(lookupId));
-    if (preferredProvider) {
-      const own = candidates.filter(({ provider }) => provider === preferredProvider);
-      if (own.length === 1) return own[0].model;
-      return own.length > 1 ? modelWithSharedCapabilities(own.map(({ model }) => model)) : undefined;
-    }
-
-    const official = candidates.filter(isOfficialSourceProvider);
-    if (official.length === 1) return official[0].model;
-    if (official.length === 0) return undefined;
-    return modelWithSharedCapabilities(official.map(({ model }) => model));
+    const base = (() => {
+      if (preferredProvider) {
+        const own = candidates.filter(({ provider }) => provider === preferredProvider);
+        if (own.length === 1) return own[0].model;
+        return own.length > 1 ? modelWithSharedCapabilities(own.map(({ model }) => model)) : undefined;
+      }
+      const official = candidates.filter(isOfficialSourceProvider);
+      if (official.length === 1) return official[0].model;
+      if (official.length === 0) return undefined;
+      return modelWithSharedCapabilities(official.map(({ model }) => model));
+    })();
+    if (!base) return undefined;
+    return { ...base, displayName: `${base.displayName} Extra` };
   }
 
   publishedModelFor(input: CatalogTarget): ModelsDevModel | undefined {
