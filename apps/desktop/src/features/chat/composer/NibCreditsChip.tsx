@@ -57,6 +57,10 @@ export function NibCreditsChip() {
   const [placement, setPlacement] = useState<ContextInspectorPlacement | null>(
     null,
   );
+  // Which allowance the popover shows. Declared before any early return:
+  // hooks must run unconditionally or signed-out renders change hook order
+  // (React #310).
+  const [meterView, setMeterView] = useState<"plan" | "bonus">("plan");
   /** Signed-in state of the previous settled read; null before the first. */
   const lastSignedIn = useRef<boolean | null>(null);
 
@@ -268,7 +272,6 @@ export function NibCreditsChip() {
         },
       ].filter((meter) => meter.limit > 0)
     : [];
-  const [meterView, setMeterView] = useState<"plan" | "bonus">("plan");
   const activeView: "plan" | "bonus" =
     meterView === "bonus" && bonusMeters.length > 0 ? "bonus" : "plan";
   const meters = activeView === "bonus" ? bonusMeters : planMeters;
