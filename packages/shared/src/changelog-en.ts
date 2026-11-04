@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.31",
+    date: "2026-11-03",
+    highlights: [
+      "The app no longer opens on a blank React error screen: a view-state hook in the credits popover was declared after a signed-out early return, which broke hook order (React #310).",
+    ],
+  },
+
+{
     version: "0.22.30",
     date: "2026-11-03",
     highlights: [

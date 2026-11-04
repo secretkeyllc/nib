@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.31",
+    date: "2026-11-03",
+    highlights: [
+      "Uygulama artik bos bir React hata ekraniyla acilmiyor: kredileri acilir penceresindeki bir gorunum-durumu hook'u erken bir return'den sonra bildirilmisti ve hook sirasini bozuyordu (React #310).",
+    ],
+  },
+
+{
     version: "0.22.30",
     date: "2026-11-03",
     highlights: [

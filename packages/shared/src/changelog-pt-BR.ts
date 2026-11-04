@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.31",
+    date: "2026-11-03",
+    highlights: [
+      "O app nao abre mais com uma tela de erro do React: um hook de estado de visualizacao no popover de creditos era declarado apos um return antecipado, quebrando a ordem dos hooks (React #310).",
+    ],
+  },
+
+{
     version: "0.22.30",
     date: "2026-11-03",
     highlights: [

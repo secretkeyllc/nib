@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.31",
+    date: "2026-11-03",
+    highlights: [
+      "앱이 빈 React 오류 화면으로 열리지 않습니다: 크레딧 팝오버의 뷰 상태 훅이 얼리 리턴 이후에 선언되어 훅 순서가 깨졌습니다 (React #310).",
+    ],
+  },
+
+{
     version: "0.22.30",
     date: "2026-11-03",
     highlights: [

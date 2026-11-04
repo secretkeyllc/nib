@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.31",
+    date: "2026-11-03",
+    highlights: [
+      "L'application ne s'ouvre plus sur un ecran d'erreur React : un hook d'etat de vue dans le popover de credits etait declare apres un return precoce, cassant l'ordre des hooks (React #310).",
+    ],
+  },
+
+{
     version: "0.22.30",
     date: "2026-11-03",
     highlights: [

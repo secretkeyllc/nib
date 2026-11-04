@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.31",
+    date: "2026-11-03",
+    highlights: [
+      "Die App startet nicht mehr mit einem leeren React-Fehlerbildschirm: Ein View-State-Hook im Credits-Popover wurde nach einem fruehen Return deklariert und brachte die Hook-Reihenfolge durcheinander (React #310).",
+    ],
+  },
+
+{
     version: "0.22.30",
     date: "2026-11-03",
     highlights: [
