@@ -55,5 +55,16 @@ export function pluginModelBinding(
       ...(config.thinkingProtocol ? { thinkingProtocol: config.thinkingProtocol } : {}),
     } : {}),
   };
-  return resolveBindingLimits(published, selected ?? seed).binding;
+  /*
+   * An empty stored level list is the generic seed a login wrote before the
+   * catalog could answer for the id — not an explicit disable (a deliberate
+   * opt-out keeps `off`). When the catalog now publishes levels, the seed
+   * replaces the stale one; the composer keeps reading the stored binding, so
+   * the repair has to land here for a saved row to pick it up.
+   */
+  const healed =
+    selected && selected.thinkingLevels.length === 0 && levels.length > 0
+      ? undefined
+      : selected;
+  return resolveBindingLimits(published, healed ?? seed).binding;
 }

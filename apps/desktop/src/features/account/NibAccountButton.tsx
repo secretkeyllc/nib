@@ -184,26 +184,26 @@ export function NibAccountButton() {
   // bonus row always after it.
   const bonus = ent?.allowances?.find((row) => row.isBonus) ?? null;
 
-  // The heading greets the account: "Hi <name>, I am Nib." reads as the
-  // product saying hello rather than a form field. An expired session is not
-  // the same as signed out: the provider credential (the account's own
+  // The heading names the account, not the plan: "who am I signed in as" is
+  // the question this menu answers, and the plan is its own line below. The
+  // greeting belongs to the sign-in toast, not this menu. An expired session
+  // is not the same as signed out: the provider credential (the account's own
   // gateway key) stays live, so the model may still work — the heading must
   // say the session ended, not pretend no account exists.
   const sessionExpired = ent?.sessionExpired === true;
-  const greetingName =
-    ent?.accountName?.trim() || ent?.accountEmail?.trim() || null;
   const accountLabel = signedIn
-    ? (greetingName
-        ? t("nib.accountGreeting", { name: greetingName })
-        : t("nib.accountSignedIn"))
+    ? (ent?.accountName?.trim() ||
+       ent?.accountEmail?.trim() ||
+       t("nib.accountSignedIn"))
     : sessionExpired
       ? t("nib.accountSessionExpired")
       : t("nib.accountSignedOut");
-  // When the greeting already names the email there is nothing secondary to
-  // add; when it names a display name the email belongs underneath it.
   const accountEmail = ent?.accountEmail?.trim() || null;
-  const accountSecondary =
-    signedIn && greetingName !== accountEmail ? accountEmail : null;
+  // When the heading already is the email there is nothing secondary to add;
+  // when it names a display name the email belongs underneath it.
+  const accountSecondary = signedIn
+    ? (accountLabel !== accountEmail ? accountEmail : null)
+    : null;
 
   const patchSettings = (patch: Partial<AppSettings>) => {
     if (!settings) return;

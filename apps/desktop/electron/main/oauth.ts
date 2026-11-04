@@ -958,7 +958,13 @@ export class VendorOAuth {
       );
       const limits = resolveBindingLimits(baseline, declared);
       const model = modelConfigWithBinding(limits.catalogConfig, limits.binding);
-      const modelConfig = declared.thinkingLevels.length > 0
+      // An empty stored level list is the generic seed a login wrote before
+      // the catalog could answer (per model.ts: an empty binding is the seed
+      // for an unknown model, not an explicit disable), so a published record
+      // that names levels must win. Only a catalog that names no levels keeps
+      // the model off; an explicit user disable carries `off` instead.
+      const catalogKnowsLevels = (model.supportedThinkingLevels?.length ?? 0) > 0;
+      const modelConfig = declared.thinkingLevels.length > 0 || catalogKnowsLevels
         ? withMappedThinkingLevels(model)
         : { ...model, reasoning: false, supportedThinkingLevels: [] };
       return {
@@ -1391,7 +1397,13 @@ export class VendorOAuth {
     const work = (async () => {
       const row = (await this.rows()).find((candidate) => candidate.id === providerId);
       if (!row?.hasOauth || row.enabled === false || row.authKind !== OAUTH_AUTH_KIND || !row.ownerPluginId) return;
-      if (!refresh && row.modelSelectionConfigured) return;
+      // A configured selection is the user's answer, except for the one shape
+      // no user ever chose: a binding whose level list stayed empty because a
+      // login seeded it before the catalog could answer for the id. Those ride
+      // the reconciliation once; the refreshed binding then matches the stored
+      // one on the next pass and the work stops.
+      if (!refresh && row.modelSelectionConfigured &&
+          !(row.models ?? []).some((model) => model.thinkingLevels.length === 0)) return;
       const provider = this.deps.getPluginOAuthBridge?.()?.listOAuthProviders()
         .find((candidate) => candidate.providerId === providerId);
       if (!provider) return;

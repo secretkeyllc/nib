@@ -82,7 +82,20 @@ export function NibAccountDialog({ onClose }: { onClose: () => void }) {
       session={attempt.session}
       onDone={() => {
         void refreshProviders();
-        showToast(t("nib.accountSignedIn"), { variant: "success" });
+        // The greeting is the product saying hello by name: it reads as the
+        // sign-in moment, where the bare provider label read as a row header.
+        // The entitlement read also warms the fresh account's data for the
+        // account menu and the credits chip.
+        void api
+          .nibEntitlement()
+          .then((ent) => {
+            const name = ent?.accountName?.trim() || ent?.accountEmail?.trim();
+            showToast(
+              name ? t("nib.accountGreeting", { name }) : t("nib.accountSignedIn"),
+              { variant: "success" },
+            );
+          })
+          .catch(() => showToast(t("nib.accountSignedIn"), { variant: "success" }));
         onClose();
       }}
       onClose={onClose}
