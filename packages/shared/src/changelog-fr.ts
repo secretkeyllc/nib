@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.35",
+    date: "2026-11-05",
+    highlights: [
+      "La telecommande web lit desormais votre vraie liste de modeles, et les changements de modele, d'autorisations, de mode et de niveau de reflexion faits depuis le navigateur s'appliquent reellement - les deux commandes de l'hote etaient cassees.",
+      "Une connexion relay bloquee est fermee apres deux heartbeats manques et se reconnecte en quelques secondes, au lieu de rester muette.",
+    ],
+  },
+
+{
     version: "0.22.34",
     date: "2026-11-04",
     highlights: [

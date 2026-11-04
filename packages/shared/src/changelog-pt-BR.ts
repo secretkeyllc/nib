@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.35",
+    date: "2026-11-05",
+    highlights: [
+      "O controle remoto web agora le sua lista real de modelos, e mudancas de modelo, permissao, modo e nivel de pensamento feitas pelo navegador passam a valer - ambos os comandos do host estavam quebrados.",
+      "Uma conexao de relay travada e encerrada apos dois heartbeats perdidos e reconectada em segundos, em vez de ficar em silencio.",
+    ],
+  },
+
+{
     version: "0.22.34",
     date: "2026-11-04",
     highlights: [

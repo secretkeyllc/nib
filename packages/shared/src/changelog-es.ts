@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.35",
+    date: "2026-11-05",
+    highlights: [
+      "El control remoto web ahora lee tu lista real de modelos, y los cambios de modelo, permisos, modo y nivel de pensamiento hechos desde el navegador se aplican de verdad: ambos comandos del host estaban rotos.",
+      "Una conexion de relay estancada se termina tras dos latidos perdidos y se reconecta en segundos, en lugar de quedarse en silencio.",
+    ],
+  },
+
+{
     version: "0.22.34",
     date: "2026-11-04",
     highlights: [

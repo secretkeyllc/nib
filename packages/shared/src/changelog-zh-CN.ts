@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.35",
+    date: "2026-11-05",
+    highlights: [
+      "网页远程控制现在读取真实的模型列表，浏览器端修改模型、权限、模式与思考等级也能真正生效——这两个 host 命令此前一直是坏的。",
+      "卡死的中继连接会在错过两次心跳后立即断开并在数秒内重连，不再长时间假在线。",
+    ],
+  },
+
+{
     version: "0.22.34",
     date: "2026-11-04",
     highlights: [

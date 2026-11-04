@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.35",
+    date: "2026-11-05",
+    highlights: [
+      "Web uzaktan kumandi artik gercek model listenizi okuyor; tarayicidan yapilan model, izin, mod ve dusunme seviyesi degisiklikleri gercekten uygulaniyor - iki ana bilgisayar komutu da bozuktu.",
+      "Takilan relay baglantisi iki kalp atisi kacirildiginda sonlandirilir ve saniyeler icinde yeniden baglanir; sessizce asili kalmak yerine.",
+    ],
+  },
+
+{
     version: "0.22.34",
     date: "2026-11-04",
     highlights: [

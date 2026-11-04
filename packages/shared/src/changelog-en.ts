@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.35",
+    date: "2026-11-05",
+    highlights: [
+      "The web remote control now reads your real model list, and model, permission, mode, and thinking-level changes made from the browser actually apply - both host commands had been broken.",
+      "A stalled relay connection is terminated after two missed heartbeats and reconnects in seconds, instead of sitting silently connected while frames go nowhere.",
+    ],
+  },
+
+{
     version: "0.22.34",
     date: "2026-11-04",
     highlights: [

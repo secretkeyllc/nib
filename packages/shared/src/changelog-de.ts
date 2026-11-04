@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.35",
+    date: "2026-11-05",
+    highlights: [
+      "Die Web-Fernsteuerung liest jetzt deine echte Modellliste, und Modell-, Berechtigungs-, Modus- und Denklevel-Aenderungen aus dem Browser greifen tatsaechlich - beide Host-Befehle waren defekt.",
+      "Eine steckengebliebene Relay-Verbindung wird nach zwei verpassten Heartbeats getrennt und in Sekunden neu verbunden, statt stumm weiterzulaufen.",
+    ],
+  },
+
+{
     version: "0.22.34",
     date: "2026-11-04",
     highlights: [

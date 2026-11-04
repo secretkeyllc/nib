@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.35",
+    date: "2026-11-05",
+    highlights: [
+      "웹 원격 제어가 실제 모델 목록을 읽어오고, 브라우저에서 변경한 모델·권한·모드·사고 수준이 실제로 적용됩니다 — 호스트 명령 두 개가 모두 고장나 있었습니다.",
+      "멈춠 릴레이 연결은 하트비트 두 번을 농치면 종료되고 몇 초 안에 다시 연결되어, 아무것도 전달되지 않는 채 조용히 머무르지 않습니다.",
+    ],
+  },
+
+{
     version: "0.22.34",
     date: "2026-11-04",
     highlights: [
