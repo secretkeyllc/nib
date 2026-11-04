@@ -183,6 +183,12 @@ export function createWorkspaceAttachments(dataDir = join(homedir(), ".nib")): S
           // `attachments/<sha256>` for content-addressed blobs, the original
           // file name otherwise. Same-hash retries reuse the verified file.
           const readyDirectoryPath = await readyDirectory(upload.sessionId, upload.directory);
+          // Mark the session directory as holding published attachment
+          // copies: host-core's startup sweep must not treat a desktop-keyed
+          // scratch as an orphan and delete the uploads on restart.
+          if (upload.directory !== "content") {
+            await mkdir(join(readyDirectoryPath, "..", ".nib-attachments"), { mode: 0o700 }).catch((error: NodeJS.ErrnoException) => { if (error.code !== "EEXIST") throw error; });
+          }
           const target = upload.directory === "content"
             ? join(readyDirectoryPath, upload.sha256)
             : join(readyDirectoryPath, upload.name);
