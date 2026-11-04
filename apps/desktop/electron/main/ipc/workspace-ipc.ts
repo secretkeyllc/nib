@@ -666,16 +666,17 @@ export function registerWorkspaceIpc({
 
   const remoteFileWorkspace = (sessionId?: string) => remoteWorkspaceForFiles(getHost, sessionId);
   /**
-   * The host's workspace-files authorization is keyed by the *host* session id
-   * (the bare uuid), while the renderer only knows the namespaced
-   * `remote:<hostKey>:<uuid>` form. Forwarding the namespaced id verbatim made
-   * every session-scratch read answer "outside the allowed roots" — the host
-   * had granted the session, but the request named a session it never saw.
-   * Local sessions have no host session id, so they forward nothing.
+   * The host's workspace-files authorization is keyed by the *host* session
+   * id. A namespaced `remote:<hostKey>:<uuid>` renderer id must arrive
+   * stripped to the bare uuid (the host never sees the prefix), and a bare
+   * uuid forwards as-is: host-connection sessions name their sessions with
+   * that same uuid everywhere — the attachment upload wrote the mirrored
+   * scratch directory under it, so the host knows it. A local session id
+   * still forwards nothing.
    */
   const hostSessionIdFor = (sessionId?: string): string | undefined => {
     if (!sessionId) return undefined;
-    return parseRemoteSessionId(sessionId)?.hostSessionId;
+    return parseRemoteSessionId(sessionId)?.hostSessionId ?? sessionId;
   };
   const readRemoteFiles = (remote: RemoteWorkspace, operation: WorkspaceFilesRequest["operation"], ref?: string, mimeType?: string, sessionId?: string) => {
     const boot = getActiveRemoteHostsBoot();

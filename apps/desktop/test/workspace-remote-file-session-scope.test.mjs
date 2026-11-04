@@ -113,14 +113,16 @@ test("a remote chip resolve forwards the bare host session id", async () => {
   assert.equal(result.match.absolutePath, "/repo/notes.md");
 });
 
-test("a session id without the remote namespace forwards nothing", async () => {
+test("a bare-uuid session id forwards as-is", async () => {
   resetSessionToolHostsForTest();
   const calls = [];
   const h = harness(calls);
-  // A remote-project session whose renderer id is not namespaced (legacy
-  // shape): the Host has no session under the raw id, so sending one would
-  // only re-create the original bug from the other side.
-  await h.call(IPC.invoke.fsRead, { path: "/repo/notes.md", sessionId: "s1" });
+  // A remote-project session whose renderer id is a bare uuid: host-connection
+  // sessions name their sessions with that same uuid everywhere — the
+  // attachment upload wrote the mirrored scratch under it, so the Host knows
+  // it. Dropping the id (the earlier behavior) stripped the session-scratch
+  // grant from every such request and produced the restriction toast.
+  await h.call(IPC.invoke.fsRead, { path: "/root/.nib/scratch/s1/pasted/a.txt", sessionId: "s1" });
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].input.sessionId, undefined, "no bare id is invented for a non-namespaced session");
+  assert.equal(calls[0].input.sessionId, "s1", "the bare uuid rides along");
 });
