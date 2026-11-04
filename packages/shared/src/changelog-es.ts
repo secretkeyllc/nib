@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.34",
+    date: "2026-11-04",
+    highlights: [
+      "Los enlaces y chips de adjuntos en sesiones conectadas a un host ya se abren, y las copias de adjuntos subidas sobreviven a los reinicios del host.",
+    ],
+  },
+{
     version: "0.22.33",
     date: "2026-11-04",
     highlights: [

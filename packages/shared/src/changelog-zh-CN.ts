@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.34",
+    date: "2026-11-04",
+    highlights: [
+      "主机连接会话中的附件链接与 chip 现在可以打开；已上传的附件副本不再因主机重启而丢失。",
+    ],
+  },
+{
     version: "0.22.33",
     date: "2026-11-04",
     highlights: [

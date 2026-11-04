@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.34",
+    date: "2026-11-04",
+    highlights: [
+      "主機連線工作階段中的附件連結與 chip 現在可以開啟；已上傳的附件副本不再因主機重新啟動而遺失。",
+    ],
+  },
+{
     version: "0.22.33",
     date: "2026-11-04",
     highlights: [

@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.34",
+    date: "2026-11-04",
+    highlights: [
+      "Links e chips de anexos em sessões conectadas ao host agora abrem, e as cópias de anexos enviadas sobrevivem às reinicializações do host.",
+    ],
+  },
+{
     version: "0.22.33",
     date: "2026-11-04",
     highlights: [

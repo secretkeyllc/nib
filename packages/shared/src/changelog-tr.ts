@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.34",
+    date: "2026-11-04",
+    highlights: [
+      "Ana makine bağlantı oturumlarındaki ek bağlantıları ve rozetleri artık açılıyor ve yüklenen ek kopyaları ana makine yeniden başlatmalarından kalıyor.",
+    ],
+  },
+{
     version: "0.22.33",
     date: "2026-11-04",
     highlights: [

@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.34",
+    date: "2026-11-04",
+    highlights: [
+      "Anhang-Links und -Chips in Host-Verbindungssitzungen öffnen jetzt, und hochgeladene Anhangkopien überleben Host-Neustarts.",
+    ],
+  },
+{
     version: "0.22.33",
     date: "2026-11-04",
     highlights: [

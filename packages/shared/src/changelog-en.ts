@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.34",
+    date: "2026-11-04",
+    highlights: [
+      "Attachment links and chips in host-connection sessions open now, and uploaded attachment copies survive Host restarts.",
+    ],
+  },
+{
     version: "0.22.33",
     date: "2026-11-04",
     highlights: [
