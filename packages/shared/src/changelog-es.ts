@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.32",
+    date: "2026-11-03",
+    highlights: [
+      "El inicio de sesión le saluda por su nombre, la ventana de créditos se lee correctamente en modo oscuro, los modelos -extra conservan los niveles de razonamiento del modelo base y ganan la etiqueta \"Extra\", y los chips de adjuntos en sesiones de conexión a host vuelven a abrirse.",
+    ],
+  },
+{
     version: "0.22.31",
     date: "2026-11-03",
     highlights: [

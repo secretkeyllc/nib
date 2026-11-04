@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.32",
+    date: "2026-11-03",
+    highlights: [
+      "La connexion vous salue par votre nom, la fenêtre de crédits s'affiche correctement en mode sombre, les modèles -extra conservent les niveaux de réflexion du modèle de base et gagnent un libellé « Extra », et les puces de pièces jointes des sessions connectées à un hôte s'ouvrent à nouveau.",
+    ],
+  },
+{
     version: "0.22.31",
     date: "2026-11-03",
     highlights: [

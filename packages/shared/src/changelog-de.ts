@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.32",
+    date: "2026-11-03",
+    highlights: [
+      "Die Anmeldung begrüßt Sie namentlich, das Guthaben-Popover ist im Dunkelmodus korrekt lesbar, -extra-Modelle übernehmen die Denkstufen des Basismodells und erhalten ein „Extra“-Label, und Anhang-Chips in Host-Verbindungssitzungen öffnen wieder.",
+    ],
+  },
+{
     version: "0.22.31",
     date: "2026-11-03",
     highlights: [

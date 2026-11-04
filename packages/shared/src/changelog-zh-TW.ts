@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.32",
+    date: "2026-11-03",
+    highlights: [
+      "登入後按名字問候你；額度浮窗在深色模式下正常顯示；-extra 模型繼承基礎模型的思維強度檔位並帶上 Extra 標籤；主機連線工作階段的附件 chip 重新可以開啟。",
+    ],
+  },
+{
     version: "0.22.31",
     date: "2026-11-03",
     highlights: [

@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.32",
+    date: "2026-11-03",
+    highlights: [
+      "Sign-in greets you by name, the credits popover reads correctly in dark mode, -extra models keep the base model's thinking levels and gain an \"Extra\" label, and attachment chips in host-connection sessions open again.",
+    ],
+  },
+{
     version: "0.22.31",
     date: "2026-11-03",
     highlights: [

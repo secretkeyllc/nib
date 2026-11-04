@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.32",
+    date: "2026-11-03",
+    highlights: [
+      "로그인 시 이름으로 인사하고, 크레딧 팝업이 다크 모드에서 올바르게 표시되며, -extra 모델이 기본 모델의 사고 수준을 유지한 채 \"Extra\" 라벨을 얻고, 호스트 연결 세션의 첨부 칩이 다시 열립니다.",
+    ],
+  },
+{
     version: "0.22.31",
     date: "2026-11-03",
     highlights: [

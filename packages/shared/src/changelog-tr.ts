@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.32",
+    date: "2026-11-03",
+    highlights: [
+      "Oturum açma sizi adınızla karşılar, kredi açılır penceresi koyu modda doğru görünür, -extra modeller temel modelin düşünme düzeylerini korur ve \"Extra\" etiketi kazanır, ana makine bağlantı oturumlarındaki ek rozetleri yeniden açılır.",
+    ],
+  },
+{
     version: "0.22.31",
     date: "2026-11-03",
     highlights: [

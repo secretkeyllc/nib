@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.32",
+    date: "2026-11-03",
+    highlights: [
+      "O login cumprimenta você pelo nome, o painel de créditos é exibido corretamente no modo escuro, os modelos -extra mantêm os níveis de raciocínio do modelo base e ganham o rótulo \"Extra\", e os chips de anexos em sessões conectadas ao host voltam a abrir.",
+    ],
+  },
+{
     version: "0.22.31",
     date: "2026-11-03",
     highlights: [
