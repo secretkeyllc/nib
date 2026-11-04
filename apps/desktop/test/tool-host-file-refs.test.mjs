@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { register } from "node:module";
 register(new URL("./helpers/ts-import-hooks.mjs", import.meta.url));
-const { resolveViaSessionToolHost } = await import("../electron/main/remote/tool-host-file-refs.ts");
+const { resolveViaConnectedHosts, resolveViaSessionToolHost } = await import("../electron/main/remote/tool-host-file-refs.ts");
 const { rememberSessionToolHostForTest, resetSessionToolHostsForTest } = await import("../electron/main/remote/remote-workspace-tools.ts");
 
 function boot(calls) {
@@ -74,4 +74,48 @@ test("no session id or no boot never touches a host", async () => {
   assert.equal(await resolveViaSessionToolHost({ operation: "read", ref: "/a", boot: boot(calls) }), null);
   assert.equal(await resolveViaSessionToolHost({ sessionId: "s1", operation: "read", ref: "/a", boot: null }), null);
   assert.deepEqual(calls, []);
+});
+
+test("a bare uuid session probes every connected host when no relay record exists", async () => {
+  resetSessionToolHostsForTest();
+  const calls = [];
+  const listBoot = {
+    list: async () => [{ hostKey: "sfo86", connected: false }, { hostKey: "kc212", connected: true }],
+    async workspaceFiles(hostKey, input) {
+      calls.push({ hostKey, input });
+      if (hostKey === "kc212") return { match: { absolutePath: input.ref, sessionScratch: true } };
+      throw new Error("REMOTE_PATH_NOT_FOUND");
+    },
+  };
+  const result = await resolveViaConnectedHosts({
+    sessionIds: ["d4c00204-63cb-4804-bfcd-3e3e850a823f"], operation: "resolve",
+    ref: "/root/.nib/scratch/d4c00204-63cb-4804-bfcd-3e3e850a823f/pasted/test.txt",
+    boot: listBoot,
+  });
+  assert.equal(result.match.absolutePath, "/root/.nib/scratch/d4c00204-63cb-4804-bfcd-3e3e850a823f/pasted/test.txt");
+  // The disconnected Host is skipped; only the connected one is probed.
+  assert.deepEqual(calls.map((call) => call.hostKey), ["kc212"]);
+  assert.equal(calls[0].input.path, "/.session-scratch");
+});
+
+test("no connected-host list means the probe never runs", async () => {
+  resetSessionToolHostsForTest();
+  const calls = [];
+  const result = await resolveViaConnectedHosts({
+    sessionIds: ["s1"], operation: "resolve", ref: "/x", boot: boot(calls),
+  });
+  assert.equal(result, null);
+  assert.deepEqual(calls, []);
+});
+
+test("every host declining leaves the caller's local answer standing", async () => {
+  resetSessionToolHostsForTest();
+  const declining = {
+    list: async () => [{ hostKey: "kc212", connected: true }],
+    async workspaceFiles() { throw new Error("REMOTE_PATH_NOT_FOUND"); },
+  };
+  const result = await resolveViaConnectedHosts({
+    sessionIds: ["s1"], operation: "resolve", ref: "/x", boot: declining,
+  });
+  assert.equal(result, null);
 });
