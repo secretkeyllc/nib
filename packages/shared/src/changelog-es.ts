@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.33",
+    date: "2026-11-04",
+    highlights: [
+      "Los chips de adjuntos ahora se abren en sesiones que se ejecutan en un host conectado sin un proyecto vinculado, y el selector Pro / Pro Extra del panel de créditos es legible en modo oscuro.",
+    ],
+  },
+{
     version: "0.22.32",
     date: "2026-11-03",
     highlights: [

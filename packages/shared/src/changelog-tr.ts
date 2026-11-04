@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.33",
+    date: "2026-11-04",
+    highlights: [
+      "Ek rozetleri artık proje bağlaması olmadan bağlı bir ana makinede çalışan oturumlarda açılıyor ve kredi açılır penceresindeki Pro / Pro Extra geçişi koyu modda okunabiliyor.",
+    ],
+  },
+{
     version: "0.22.32",
     date: "2026-11-03",
     highlights: [

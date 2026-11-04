@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.33",
+    date: "2026-11-04",
+    highlights: [
+      "Os chips de anexos agora abrem em sessões executadas em um host conectado sem projeto vinculado, e o seletor Pro / Pro Extra do painel de créditos é legível no modo escuro.",
+    ],
+  },
+{
     version: "0.22.32",
     date: "2026-11-03",
     highlights: [

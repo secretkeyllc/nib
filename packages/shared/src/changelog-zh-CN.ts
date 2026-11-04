@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.33",
+    date: "2026-11-04",
+    highlights: [
+      "没有项目绑定、运行在已连接主机上的会话，附件 chip 现在也能打开；额度浮窗的 Pro / Pro Extra 切换在深色模式下可正常显示。",
+    ],
+  },
+{
     version: "0.22.32",
     date: "2026-11-03",
     highlights: [

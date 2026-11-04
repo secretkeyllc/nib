@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.33",
+    date: "2026-11-04",
+    highlights: [
+      "프로젝트 바인딩 없이 연결된 호스트에서 실행되는 세션에서도 첨부 칩이 열리고, 크레딧 팝업의 Pro / Pro Extra 전환이 다크 모드에서 읽힙니다.",
+    ],
+  },
+{
     version: "0.22.32",
     date: "2026-11-03",
     highlights: [

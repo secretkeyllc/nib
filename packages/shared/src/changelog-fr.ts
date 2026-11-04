@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.33",
+    date: "2026-11-04",
+    highlights: [
+      "Les puces de pièces jointes s'ouvrent désormais dans les sessions exécutées sur un hôte connecté sans projet associé, et le sélecteur Pro / Pro Extra du panneau de crédits est lisible en mode sombre.",
+    ],
+  },
+{
     version: "0.22.32",
     date: "2026-11-03",
     highlights: [

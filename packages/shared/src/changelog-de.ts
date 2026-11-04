@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.33",
+    date: "2026-11-04",
+    highlights: [
+      "Anhang-Chips öffnen jetzt auch in Sitzungen, die ohne Projektbindung auf einem verbundenen Host laufen, und der Pro-/Pro-Extra-Umschalter im Guthaben-Popover ist im Dunkelmodus lesbar.",
+    ],
+  },
+{
     version: "0.22.32",
     date: "2026-11-03",
     highlights: [
