@@ -1534,20 +1534,21 @@
   border: 0;
   border-radius: var(--radius-2xs);
   background: transparent;
-  color: var(--text-muted, inherit);
+  color: var(--ds-text-muted);
   font-size: var(--text-xs, 0.75rem);
   font-weight: var(--font-weight-strong, 600);
   cursor: pointer;
 }
 
 .nib-credits-view-tab.is-active {
-  background: var(--surface-raised, var(--bg-raised, #fff));
-  /* The active tab sits on a raised (light) pill in both themes, so its ink
-     must be the design-system text colour — the legacy `--text` variable does
-     not exist and fell back to the inherited muted ink, which disappeared
-     against the white pill in dark mode. */
-  color: var(--ds-text-primary, var(--text-primary, #1a1c1f));
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  /* Same pattern as every other selected segment (.dock-tab.is-active,
+     .scope-seg.is-active): the raised surface token flips with the theme, and
+     the text token is its readable counterpart. The earlier revision named
+     `--surface-raised`, which does not exist, so the pill stayed the #fff
+     fallback in dark mode while the ink followed the (white) dark text token. */
+  background: var(--ds-raised);
+  color: var(--ds-text-primary);
+  box-shadow: var(--ds-raised-shadow);
 }
 
 .nib-credits-popover-reset {

@@ -24,10 +24,11 @@ export async function resolveViaSessionToolHost<T>(options: {
 }): Promise<T | null> {
   const { sessionId, operation, ref, mimeType, boot } = options;
   if (!sessionId || !boot) return null;
-  // The renderer only knows the namespaced `remote:<hostKey>:<uuid>` form,
-  // while the Host's scratch grant is keyed by the bare host session id.
-  // The id itself names the Host, so it wins over the relay record; a local
-  // session id keeps the relayed tool Host route unchanged.
+  // The renderer sends the id it holds: the namespaced `remote:<hostKey>:<uuid>`
+  // form names its Host outright, while a bare uuid (a session whose backend
+  // was not namespaced by the connection) relies on the relay record. When
+  // neither names a Host — a local session that has simply never relayed a
+  // tool — there is nothing remote to ask and the caller's local answer stands.
   const parsed = parseRemoteSessionId(sessionId);
   const hostKey = parsed?.hostKey ?? sessionToolHost(sessionId);
   const hostSessionId = parsed?.hostSessionId ?? sessionId;
@@ -47,4 +48,57 @@ export async function resolveViaSessionToolHost<T>(options: {
     // local answer; fall back to it.
     return null;
   }
+}
+
+/**
+ * Hosts a bare session uuid may belong to when no relay record names one.
+ *
+ * An uploaded attachment's remote copy is resolved by the Host that stored it,
+ * and the store is keyed by the host session id — which for a connected host
+ * session is the same uuid the renderer holds. The relay record is written by
+ * the tool path, so a session that has not run a remote tool yet (or whose
+ * record was pruned) would otherwise never reach its own scratch copy. Asking
+ * each connected Host is bounded and safe: every Host but the owning one
+ * answers "no such session", and the request carries no path outside that
+ * session's scratch.
+ */
+export async function resolveViaConnectedHosts<T>(options: {
+  sessionIds: readonly string[];
+  operation: WorkspaceFilesRequest["operation"];
+  ref?: string;
+  mimeType?: string;
+  boot: FilesBoot | null;
+}): Promise<T | null> {
+  const { sessionIds, operation, ref, mimeType, boot } = options;
+  if (!boot || sessionIds.length === 0) return null;
+  const hosts = (boot as { list?: () => Promise<Array<{ hostKey?: string; connected?: boolean }>> }).list;
+  if (typeof hosts !== "function") return null;
+  let connected: Array<{ hostKey?: string; connected?: boolean }>;
+  try {
+    connected = await hosts.call(boot);
+  } catch {
+    return null;
+  }
+  for (const host of connected) {
+    const hostKey = host?.hostKey;
+    if (typeof hostKey !== "string" || !hostKey || host.connected === false) continue;
+    for (const sessionId of sessionIds) {
+      if (!sessionId) continue;
+      try {
+        const answer = await boot.workspaceFiles(hostKey, {
+          path: "/.session-scratch",
+          operation,
+          ...(ref ? { ref } : {}),
+          ...(mimeType ? { mimeType } : {}),
+          sessionId,
+        }) as T;
+        if (answer) return answer;
+      } catch {
+        // A Host that does not know this session (or is unreachable) cannot
+        // answer for it; keep looking.
+        continue;
+      }
+    }
+  }
+  return null;
 }

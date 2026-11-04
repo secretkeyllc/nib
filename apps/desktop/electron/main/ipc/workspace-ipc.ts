@@ -43,10 +43,10 @@ import type { Logger } from "../logger";
 import { getModuleDirectory } from "../module-path";
 import { openableMp4Path } from "../open-attachment-video";
 import type { PluginRuntime } from "../plugin-runtime";
-import { sessionToolHost } from "../remote/remote-workspace-tools";
-import { resolveViaSessionToolHost } from "../remote/tool-host-file-refs";
-import { remoteWorkspaceForFiles } from "../remote/workspace-file-scope";
 import { parseRemoteSessionId } from "../remote/backend-router";
+import { sessionToolHost } from "../remote/remote-workspace-tools";
+import { resolveViaConnectedHosts, resolveViaSessionToolHost } from "../remote/tool-host-file-refs";
+import { remoteWorkspaceForFiles } from "../remote/workspace-file-scope";
 import { parseAllowedExternalUrl } from "../safe-open-external";
 import {
   projectFolderPaths,
@@ -1110,8 +1110,16 @@ export function registerWorkspaceIpc({
       // Local storage has never seen a chip that names its file on the Host
       // that ran this session's tools — an uploaded attachment's remote copy.
       // The Host resolves against that session's own scratch directory alone.
-      return await resolveViaSessionToolHost<FsChatRefResolveResult>({
+      // When neither the id nor the relay record names a Host (the session id
+      // is a bare uuid), every connected Host gets one bounded probe keyed by
+      // that id: all but the owning one answer "no such session".
+      const toolHost = await resolveViaSessionToolHost<FsChatRefResolveResult>({
         sessionId: input.sessionId, operation: "resolve", ref: rawRef,
+        boot: getActiveRemoteHostsBoot(),
+      });
+      if (toolHost) return toolHost;
+      return await resolveViaConnectedHosts<FsChatRefResolveResult>({
+        sessionIds: [input.sessionId ?? ""], operation: "resolve", ref: rawRef,
         boot: getActiveRemoteHostsBoot(),
       }) ?? local;
     },
