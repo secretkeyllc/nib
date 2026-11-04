@@ -36,6 +36,16 @@ const SESSION_REFRESH_MIN_INTERVAL_MS = 1_000;
 
 /** App-level keepalive; well under Cloudflare's 100s idle cutoff. */
 const HEARTBEAT_MS = 25_000;
+/**
+ * Half-open watchdog. On a stalled path this process's ws.send() still
+ * "succeeds" into the kernel buffer, so the socket can sit OPEN for minutes
+ * while every frame black-holes — the relay answers each app ping with a
+ * pong, so on a healthy socket inbound frames arrive every ~25s. Two missed
+ * cycles mean the path is gone: terminate (not close — a dead path never
+ * completes the closing handshake) and let the reconnect loop take over.
+ */
+const WATCHDOG_MS = 5_000;
+const WATCHDOG_STALL_MS = 50_000;
 
 /** Reconnect backoff bounds. */
 const RECONNECT_MIN_MS = 2_000;
@@ -79,6 +89,8 @@ type RelayCommand = { id: string; c: string; p: Record<string, unknown> };
 class RemoteControlSession {
   private ws: WebSocket | null = null;
   private pingTimer: NodeJS.Timeout | null = null;
+  private watchdogTimer: NodeJS.Timeout | null = null;
+  private lastInbound = 0;
   private reconnectTimer: NodeJS.Timeout | null = null;
   private reconnectDelay = RECONNECT_MIN_MS;
   private closedByUser = false;
@@ -86,17 +98,29 @@ class RemoteControlSession {
   private lastSessionRefresh = 0;
   private sessionRefreshTimer: NodeJS.Timeout | null = null;
 
+  private readonly deps: Deps;
+  private readonly identity: { mid: string; name: string };
+  private readonly token: string;
+  /** The stored pairing sid — the exact one the QR encodes. The session
+   * used to mint its own random sid here, so the relay knew the desktop
+   * under a sid no scanned link would ever carry and every phone attach
+   * was rejected as "配对不存在". */
+  readonly sid: string;
+  private readonly onPhase: (phase: RemoteControlPhase, error?: string) => void;
+
   constructor(
-    private readonly deps: Deps,
-    private readonly identity: { mid: string; name: string },
-    private readonly token: string,
-    /** The stored pairing sid — the exact one the QR encodes. The session
-     * used to mint its own random sid here, so the relay knew the desktop
-     * under a sid no scanned link would ever carry and every phone attach
-     * was rejected as "配对不存在". */
-    readonly sid: string,
-    private readonly onPhase: (phase: RemoteControlPhase, error?: string) => void,
-  ) {}
+    deps: Deps,
+    identity: { mid: string; name: string },
+    token: string,
+    sid: string,
+    onPhase: (phase: RemoteControlPhase, error?: string) => void,
+  ) {
+    this.deps = deps;
+    this.identity = identity;
+    this.token = token;
+    this.sid = sid;
+    this.onPhase = onPhase;
+  }
 
   start(): void {
     this.open();
@@ -105,8 +129,10 @@ class RemoteControlSession {
   stop(): void {
     this.closedByUser = true;
     if (this.pingTimer) clearInterval(this.pingTimer);
+    if (this.watchdogTimer) clearInterval(this.watchdogTimer);
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
     this.pingTimer = null;
+    this.watchdogTimer = null;
     this.reconnectTimer = null;
     this.ws?.close();
     this.ws = null;
@@ -185,9 +211,21 @@ class RemoteControlSession {
       );
       if (this.pingTimer) clearInterval(this.pingTimer);
       this.pingTimer = setInterval(() => this.rawSend(JSON.stringify({ t: "ping" })), HEARTBEAT_MS);
+      this.lastInbound = Date.now();
+      if (this.watchdogTimer) clearInterval(this.watchdogTimer);
+      this.watchdogTimer = setInterval(() => {
+        if (this.ws?.readyState !== WebSocket.OPEN) return;
+        if (Date.now() - this.lastInbound > WATCHDOG_STALL_MS) {
+          this.deps.logger.app("remote-control", "warn", "relay path stalled; terminating half-open socket", {
+            sid: this.sid.slice(0, 8),
+          });
+          this.ws.terminate();
+        }
+      }, WATCHDOG_MS);
     });
 
     ws.on("message", (raw) => {
+      this.lastInbound = Date.now();
       let frame: Record<string, unknown>;
       try {
         frame = JSON.parse(String(raw)) as Record<string, unknown>;
@@ -212,6 +250,8 @@ class RemoteControlSession {
       });
       if (this.pingTimer) clearInterval(this.pingTimer);
       this.pingTimer = null;
+      if (this.watchdogTimer) clearInterval(this.watchdogTimer);
+      this.watchdogTimer = null;
       this.ws = null;
       if (this.closedByUser) return;
       this.onPhase("connecting");
@@ -368,13 +408,11 @@ class RemoteControlSession {
         }
         let models: Array<{ id: string; label?: string }> = [];
         try {
-          const row = await this.invokeIpc<{ models?: Array<{ id?: unknown; name?: unknown }> }>(
+          const row = await this.invokeIpc<{ models?: Array<Record<string, unknown>> }>(
             IPC.invoke.providersListModels,
             [{ providerId: "plugin:nib.provider:nib" }],
           );
-          models = (row?.models ?? [])
-            .map((m) => ({ id: String(m.id ?? ""), label: m.name ? String(m.name) : undefined }))
-            .filter((m) => m.id.length > 0);
+          models = remoteStatusModels(row?.models);
         } catch {
           models = [];
         }
@@ -385,17 +423,62 @@ class RemoteControlSession {
         };
       }
       case "configure": {
-        const sessionId = String(cmd.p.sessionId ?? "");
-        if (!sessionId) throw new Error("sessionId required");
-        const patch: Record<string, unknown> = { sessionId };
-        if (typeof cmd.p.modelId === "string") patch.modelId = cmd.p.modelId;
-        if (typeof cmd.p.permissionMode === "string") patch.permissionMode = cmd.p.permissionMode;
-        return this.invokeIpc(IPC.invoke.sessionConfigure, [patch]);
+        const call = remoteConfigureCall(cmd.p);
+        if (!call) throw new Error("sessionId required");
+        return this.invokeIpc(IPC.invoke.sessionConfigure, [call.id, call.config]);
       }
       default:
         throw new Error(`unknown command: ${cmd.c}`);
     }
   }
+}
+
+
+/**
+ * The model options a remote controller's picker renders, mapped from the
+ * provider catalogue's own field names (modelId/displayName — the web page
+ * used to read id/name and filtered every row away).
+ */
+export function remoteStatusModels(
+  models: Array<Record<string, unknown>> | undefined,
+): Array<{ id: string; label?: string }> {
+  return (models ?? [])
+    .map((m) => {
+      const id =
+        typeof m.modelId === "string" && m.modelId.trim()
+          ? m.modelId
+          : typeof m.id === "string"
+            ? m.id
+            : "";
+      const rawLabel =
+        typeof m.displayName === "string" && m.displayName.trim()
+          ? m.displayName
+          : typeof m.name === "string" && m.name.trim()
+            ? m.name
+            : "";
+      return { id: id.trim(), label: rawLabel.trim() || undefined };
+    })
+    .filter((m) => m.id.length > 0);
+}
+
+/**
+ * The remote `configure` command becomes a sessionConfigure IPC call, whose
+ * signature is (id, config) — not one merged object. Everything the session
+ * legitimately takes is forwarded: model, permission mode, chat mode,
+ * thinking level, fast mode.
+ */
+export function remoteConfigureCall(
+  p: Record<string, unknown>,
+): { id: string; config: Record<string, unknown> } | null {
+  const id = typeof p.sessionId === "string" ? p.sessionId.trim() : "";
+  if (!id) return null;
+  const config: Record<string, unknown> = {};
+  if (typeof p.modelId === "string" && p.modelId.trim()) config.modelId = p.modelId.trim();
+  if (typeof p.permissionMode === "string") config.permissionMode = p.permissionMode;
+  if (typeof p.mode === "string") config.mode = p.mode;
+  if (typeof p.thinkingLevel === "string") config.thinkingLevel = p.thinkingLevel;
+  if (typeof p.fastMode === "boolean") config.fastMode = p.fastMode;
+  return { id, config };
 }
 
 type RemoteControlInternalState = {
