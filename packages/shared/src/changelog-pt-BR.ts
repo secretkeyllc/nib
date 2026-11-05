@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.36",
+    date: "2026-11-05",
+    highlights: [
+      "Uma sessao criada pelo botao + ao lado de um projeto no navegador agora abre dentro desse projeto, e a barra lateral web mostra os nomes reais dos seus projetos em vez das chaves remote-project cruas.",
+      "O app renova sua sessao Nib em segundo plano: voce continua conectado alem das 24 horas e todas as superficies - o menu da conta, o chip de creditos, a lista de modelos - mostram o mesmo estado apos uma falha de rede.",
+    ],
+  },
+
+{
     version: "0.22.35",
     date: "2026-11-05",
     highlights: [

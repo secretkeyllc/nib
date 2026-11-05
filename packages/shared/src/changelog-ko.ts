@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.36",
+    date: "2026-11-05",
+    highlights: [
+      "브라우저의 프로젝트 옆 + 버튼으로 만든 세션이 이제 해당 프로젝트 안에서 열리고, 웹 사이드바가 원시 remote-project 키 대신 실제 프로젝트 이름을 보여줍니다.",
+      "앱이 백그라운드에서 Nib 세션을 갱신하므로 24시간이 지나도 로그인 상태가 유지되고, 계정 메뉴·크레딧 칩·모델 목록 등 모든 화면이 네트워크 오류 후에도 같은 상태를 보여줍니다.",
+    ],
+  },
+
+{
     version: "0.22.35",
     date: "2026-11-05",
     highlights: [

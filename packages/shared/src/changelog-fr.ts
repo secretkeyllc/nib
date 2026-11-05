@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.36",
+    date: "2026-11-05",
+    highlights: [
+      "Une session creee depuis le bouton + a cote d’un projet dans le navigateur s’ouvre desormais dans ce projet, et la barre laterale web affiche les vrais noms de vos projets au lieu des cles remote-project brutes.",
+      "L’appli renouvelle votre session Nib en arriere-plan : vous restez connecte au-dela des 24 heures et toutes les surfaces - le menu de compte, la puce de credits, la liste des modeles - affichent le meme etat apres une coupure reseau.",
+    ],
+  },
+
+{
     version: "0.22.35",
     date: "2026-11-05",
     highlights: [

@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.36",
+    date: "2026-11-05",
+    highlights: [
+      "在浏览器中点击项目旁的 + 创建的会话，现在会打开在该项目内，网页侧边栏也显示真实的项目名称，而不是原始的 remote-project 键。",
+      "应用会在后台续期你的 Nib 登录会话：超过 24 小时仍保持登录，账号菜单、额度条、模型列表等各处显示在网络波动后保持一致。",
+    ],
+  },
+
+{
     version: "0.22.35",
     date: "2026-11-05",
     highlights: [

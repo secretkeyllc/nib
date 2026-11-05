@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.36",
+    date: "2026-11-05",
+    highlights: [
+      "Tarayicida bir projenin yanindaki + dugmesiyle olusturulan oturum artik o projenin icinde aciliyor ve web kenar cubugu ham remote-project anahtarlari yerine gercek proje adlarini gosteriyor.",
+      "Uygulama Nib oturumunuzu arka planda yeniliyor: 24 saati gectikten sonra da oturumunuz acik kaliyor ve hesap menusu, kredi cipligi, model listesi gibi tum yuzeyler bir ag aksakligindan sonra ayni durumu gosteriyor.",
+    ],
+  },
+
+{
     version: "0.22.35",
     date: "2026-11-05",
     highlights: [

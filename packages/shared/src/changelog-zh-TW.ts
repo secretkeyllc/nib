@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.36",
+    date: "2026-11-05",
+    highlights: [
+      "在瀏覽器中點擊專案旁的 + 建立的對話，現在會開啟在該專案內，網頁側邊欄也顯示真實的專案名稱，而不是原始的 remote-project 鍵。",
+      "應用程式會在背景續期你的 Nib 登入工作階段：超過 24 小時仍保持登入，帳號選單、額度條、模型清單等各處顯示在網路波動後保持一致。",
+    ],
+  },
+
+{
     version: "0.22.35",
     date: "2026-11-05",
     highlights: [

@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.36",
+    date: "2026-11-05",
+    highlights: [
+      "Eine im Browser ueber das + neben einem Projekt erstellte Sitzung oeffnet jetzt in genau diesem Projekt, und die Web-Seitenleiste zeigt deine echten Projektnamen statt roher remote-project-Schluessel.",
+      "Die App erneuert deine Nib-Sitzung im Hintergrund: Du bleibst ueber die 24 Stunden hinaus angemeldet, und alle Oberflaechen - Kontomenue, Guthaben-Chip, Modellliste - zeigen nach einer Netzwerkstoerung denselben Zustand.",
+    ],
+  },
+
+{
     version: "0.22.35",
     date: "2026-11-05",
     highlights: [

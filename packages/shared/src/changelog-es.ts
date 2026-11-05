@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.36",
+    date: "2026-11-05",
+    highlights: [
+      "Una sesion creada desde el boton + junto a un proyecto en el navegador ahora se abre dentro de ese proyecto, y la barra lateral web muestra los nombres reales de tus proyectos en lugar de claves remote-project sin procesar.",
+      "La app renueva tu sesion de Nib en segundo plano: sigues conectado mas alla de las 24 horas y todas las superficies - el menu de cuenta, el chip de creditos, la lista de modelos - muestran el mismo estado tras un fallo de red.",
+    ],
+  },
+
+{
     version: "0.22.35",
     date: "2026-11-05",
     highlights: [
