@@ -29,10 +29,30 @@ test("status models map the provider catalogue shape", () => {
   assert.deepEqual(
     models,
     [
-      { id: "gpt-5.2", label: "GPT-5.2" },
-      { id: "claude-opus-4-6", label: undefined },
-      { id: "trim-me", label: "Padded" },
-      { id: "legacy-shape-id", label: "Legacy shape" },
+      { id: "gpt-5.2", label: "GPT-5.2", contextWindow: undefined },
+      { id: "claude-opus-4-6", label: undefined, contextWindow: undefined },
+      { id: "trim-me", label: "Padded", contextWindow: undefined },
+      { id: "legacy-shape-id", label: "Legacy shape", contextWindow: undefined },
+    ],
+  );
+});
+
+test("status models carry the context window when the catalogue knows it", () => {
+  const models = remoteStatusModels([
+    { modelId: "gpt-5.2", displayName: "GPT-5.2", contextWindow: 400000 },
+    { modelId: "gpt-5-mini", displayName: "GPT-5 mini", contextWindow: 128000.4 },
+    { modelId: "no-window", displayName: "No window" },
+    { modelId: "bad-window", displayName: "Bad window", contextWindow: -5 },
+    { modelId: "nan-window", displayName: "NaN window", contextWindow: Number.NaN },
+  ]);
+  assert.deepEqual(
+    models.map((m) => [m.id, m.contextWindow]),
+    [
+      ["gpt-5.2", 400000],
+      ["gpt-5-mini", 128000],
+      ["no-window", undefined],
+      ["bad-window", undefined],
+      ["nan-window", undefined],
     ],
   );
 });

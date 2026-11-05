@@ -343,8 +343,8 @@ class RemoteControlSession {
 
   private async execute(cmd: RelayCommand): Promise<unknown> {
     if (!executor) throw new Error("executor unavailable");
-    // Allowlist on purpose: a frame can only reach these six channels, never
-    // storage, settings, or anything else the registrar exposes.
+    // Allowlist on purpose: a frame can only reach these seven channels,
+    // never storage, settings, or anything else the registrar exposes.
     switch (cmd.c) {
       case "snapshot": {
         const requested = typeof cmd.p.sessionId === "string" ? cmd.p.sessionId : "";
@@ -394,19 +394,39 @@ class RemoteControlSession {
         ]);
       }
       case "new-session": {
-        const created = await this.invokeIpc(IPC.invoke.sessionCreate, [{}]);
+        // A projectPath (normally the controller's `remote-project:<id>`
+        // group key) binds the new session to that project; the Host's
+        // session.create has always accepted it — older controllers simply
+        // never sent one. Absent, the session lands in Sessions (unbound).
+        const requestedPath =
+          typeof cmd.p.projectPath === "string" ? cmd.p.projectPath.trim() : "";
+        const created = await this.invokeIpc(IPC.invoke.sessionCreate, [
+          requestedPath ? { projectPath: requestedPath } : {},
+        ]);
         void this.pushSessions();
         return created;
       }
+      case "groups": {
+        // The sidebar's display names: the Host's project groups, exactly
+        // what the desktop's own sidebar renders. Controllers on older
+        // desktops get an unknown-command error and keep raw keys.
+        const result = await this.invokeIpc<{ groups?: Array<Record<string, unknown>> }>(
+          IPC.invoke.projectGroupList,
+          [],
+        );
+        return { groups: result?.groups ?? [] };
+      }
       case "status": {
         // What the picker needs: the session's current model/mode and the
-        // model options the Nib provider offers on this desktop.
+        // model options the Nib provider offers on this desktop, plus each
+        // model's context window so the remote composer can show a
+        // context-usage readout without a models.dev lookup of its own.
         const requested = typeof cmd.p.sessionId === "string" ? cmd.p.sessionId : "";
         let status: Record<string, unknown> = {};
         if (requested) {
           status = await this.invokeIpc(IPC.invoke.agentGetStatus, [requested]);
         }
-        let models: Array<{ id: string; label?: string }> = [];
+        let models: Array<{ id: string; label?: string; contextWindow?: number }> = [];
         try {
           const row = await this.invokeIpc<{ models?: Array<Record<string, unknown>> }>(
             IPC.invoke.providersListModels,
@@ -437,11 +457,13 @@ class RemoteControlSession {
 /**
  * The model options a remote controller's picker renders, mapped from the
  * provider catalogue's own field names (modelId/displayName — the web page
- * used to read id/name and filtered every row away).
+ * used to read id/name and filtered every row away). The context window rides
+ * along when the catalogue knows it: the remote context chip divides the
+ * newest turn's usage by it.
  */
 export function remoteStatusModels(
   models: Array<Record<string, unknown>> | undefined,
-): Array<{ id: string; label?: string }> {
+): Array<{ id: string; label?: string; contextWindow?: number }> {
   return (models ?? [])
     .map((m) => {
       const id =
@@ -456,7 +478,11 @@ export function remoteStatusModels(
           : typeof m.name === "string" && m.name.trim()
             ? m.name
             : "";
-      return { id: id.trim(), label: rawLabel.trim() || undefined };
+      const contextWindow =
+        typeof m.contextWindow === "number" && Number.isFinite(m.contextWindow) && m.contextWindow > 0
+          ? Math.round(m.contextWindow)
+          : undefined;
+      return { id: id.trim(), label: rawLabel.trim() || undefined, contextWindow };
     })
     .filter((m) => m.id.length > 0);
 }
