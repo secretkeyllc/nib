@@ -83,7 +83,17 @@ export function NibAccountButton() {
     void api
       .nibEntitlement()
       .then((next) => {
-        setEnt(next);
+        // A network hiccup answers `signedIn: true` with no display fields.
+        // Keeping the last complete read keeps the menu showing the same
+        // account the composer chip shows — an empty "Nib account" heading
+        // beside a working model read as being signed in AND out at once.
+        // A genuine signed-out / expired read is never thin, so it replaces.
+        const thin =
+          next.signedIn &&
+          next.creditsTotal === undefined &&
+          next.creditsUsed === undefined &&
+          !next.planName;
+        setEnt((previous) => (thin && previous?.signedIn ? previous : next));
         // The poll doubles as the expiry detector: the first read that comes
         // back signed-out means the session died (or was signed out
         // elsewhere). Refresh the provider rows so the composer drops the
@@ -94,7 +104,9 @@ export function NibAccountButton() {
         }
         lastSignedIn.current = next.signedIn === true;
       })
-      .catch(() => setEnt(null));
+      .catch(() => {
+        // A thrown read keeps what this menu had — same contract as the chip.
+      });
   };
 
   useEffect(() => {
