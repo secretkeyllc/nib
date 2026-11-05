@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.37",
+    date: "2026-11-05",
+    highlights: [
+      "Tarayicidan olusturulan oturumlar silinebilir ve ilk mesajlarindan baslik alir; yeni bir sohbet, composerin gosterdigi modelle baslar.",
+    ],
+  },
+
+{
     version: "0.22.36",
     date: "2026-11-05",
     highlights: [

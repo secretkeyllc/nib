@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.37",
+    date: "2026-11-05",
+    highlights: [
+      "在浏览器中创建的会话可以删除，并会用第一条消息作为标题；新会话按输入区显示的模型开始对话。",
+    ],
+  },
+
+{
     version: "0.22.36",
     date: "2026-11-05",
     highlights: [

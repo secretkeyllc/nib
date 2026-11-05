@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.37",
+    date: "2026-11-05",
+    highlights: [
+      "Im Browser erstellte Sitzungen lassen sich loeschen und bekommen ihren Titel aus der ersten Nachricht; ein neuer Chat startet mit dem Modell, das der Composer anzeigt.",
+    ],
+  },
+
+{
     version: "0.22.36",
     date: "2026-11-05",
     highlights: [

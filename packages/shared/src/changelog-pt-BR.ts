@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.37",
+    date: "2026-11-05",
+    highlights: [
+      "Sessoes criadas pelo navegador podem ser excluidas e recebem titulo da primeira mensagem, e um novo chat comeca no modelo que o composer mostra.",
+    ],
+  },
+
+{
     version: "0.22.36",
     date: "2026-11-05",
     highlights: [

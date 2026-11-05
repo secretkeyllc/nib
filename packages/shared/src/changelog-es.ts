@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.37",
+    date: "2026-11-05",
+    highlights: [
+      "Las sesiones creadas desde el navegador se pueden borrar y se titulan con su primer mensaje, y un chat nuevo empieza con el modelo que muestra el compositor.",
+    ],
+  },
+
+{
     version: "0.22.36",
     date: "2026-11-05",
     highlights: [

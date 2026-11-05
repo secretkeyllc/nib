@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.37",
+    date: "2026-11-05",
+    highlights: [
+      "브라우저에서 만든 세션을 삭제할 수 있고 첫 메시지로 제목이 붙으며, 새 채팅이 컴포저에 표시된 모델로 시작합니다.",
+    ],
+  },
+
+{
     version: "0.22.36",
     date: "2026-11-05",
     highlights: [

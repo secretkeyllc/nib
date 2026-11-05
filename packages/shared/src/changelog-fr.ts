@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.37",
+    date: "2026-11-05",
+    highlights: [
+      "Les sessions creees depuis le navigateur peuvent etre supprimees et prennent le titre de leur premier message ; une nouvelle conversation demarre avec le modele affiche par le composeur.",
+    ],
+  },
+
+{
     version: "0.22.36",
     date: "2026-11-05",
     highlights: [
