@@ -343,7 +343,7 @@ class RemoteControlSession {
 
   private async execute(cmd: RelayCommand): Promise<unknown> {
     if (!executor) throw new Error("executor unavailable");
-    // Allowlist on purpose: a frame can only reach these seven channels,
+    // Allowlist on purpose: a frame can only reach these nine channels,
     // never storage, settings, or anything else the registrar exposes.
     switch (cmd.c) {
       case "snapshot": {
@@ -415,6 +415,26 @@ class RemoteControlSession {
           [],
         );
         return { groups: result?.groups ?? [] };
+      }
+      case "delete-session": {
+        // Same handler the desktop sidebar's delete runs: drops the session,
+        // its pi-agent, and the persistence outbox entries. The web page has
+        // no other path to remove a session (including one it created by
+        // mistake with an older binding bug).
+        const sessionId = String(cmd.p.sessionId ?? "").trim();
+        if (!sessionId) throw new Error("sessionId required");
+        const removed = await this.invokeIpc(IPC.invoke.sessionDelete, [sessionId]);
+        void this.pushSessions();
+        return removed;
+      }
+      case "rename-session": {
+        // The desktop titles a task from its first message in the renderer;
+        // remote prompts never ran that step, so web-created sessions stayed
+        // "New task". Controllers rename through the same IPC.
+        const sessionId = String(cmd.p.sessionId ?? "").trim();
+        const title = String(cmd.p.title ?? "").trim().slice(0, 200);
+        if (!sessionId || !title) throw new Error("sessionId and title required");
+        return this.invokeIpc(IPC.invoke.sessionRename, [sessionId, title]);
       }
       case "status": {
         // What the picker needs: the session's current model/mode and the
