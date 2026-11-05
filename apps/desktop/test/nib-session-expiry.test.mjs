@@ -54,3 +54,25 @@ test("the composer picker hides plugin-owned oauth rows without a credential", (
     /candidate\.ownerPluginId && candidate\.authKind === "oauth"\s*\?\s*candidate\.hasSecret \|\| candidate\.hasOauth/,
   );
 });
+
+test("a 401 first tries a silent refresh-token renewal", () => {
+  const expiry = nibIpc.slice(nibIpc.indexOf("response.status === 401"));
+  // The renewal runs BEFORE retirement: a short-lived access token is not a
+  // signed-out account, and every surface must keep showing the same one.
+  assert.match(expiry, /await renewSessionToken\(dataDir\(\), logger\)/);
+  const renew = nibIpc.slice(nibIpc.indexOf("async function renewSessionToken"));
+  // Both halves of the rotated pair persist, or the next renewal replays a
+  // spent token; the plugin file is the one store main and remote-control read.
+  assert.match(renew, /parsed\.nibAccessToken = nextAccess;/);
+  assert.match(renew, /parsed\.nibRefreshToken = nextRefresh;/);
+  // An explicit sign-out clears the refresh token with the rest.
+  assert.match(nibIpc, /delete parsed\.nibRefreshToken;/);
+});
+
+test("the account menu keeps the last complete read over a thin one", async () => {
+  const button = await read("../src/features/account/NibAccountButton.tsx");
+  assert.match(
+    button,
+    /thin && previous\?\.signedIn \? previous : next/,
+  );
+});

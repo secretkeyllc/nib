@@ -30,6 +30,84 @@ function announcementReadUrl(id: string): string {
   return `${ANNOUNCEMENTS_URL}/${encodeURIComponent(id)}/read`;
 }
 
+const REFRESH_URL = "https://nib.am/api/v1/auth/refresh";
+
+/** Plugin-settings keys the account lifecycle owns. */
+type PluginSettings = {
+  nibAccessToken?: unknown;
+  nibRefreshToken?: unknown;
+  nibApiKey?: unknown;
+  [key: string]: unknown;
+};
+
+/**
+ * Exchange the stored refresh token for a fresh JWT pair.
+ *
+ * The device login returns a refresh token alongside the access token; before
+ * this renewal existed, every 24-hour access-token expiry read as a signed-out
+ * account until the user logged in again — with the gateway key still working,
+ * so the app showed signed-out and signed-in at the same time. The rotation
+ * endpoint returns a new pair; both halves must be persisted or the next
+ * renewal replays the spent token.
+ */
+async function renewSessionToken(
+  dataDir: string,
+  logger: Logger,
+): Promise<boolean> {
+  const file = settingsFile(dataDir);
+  let refreshToken: string;
+  let parsed: PluginSettings;
+  try {
+    const raw = await readFile(file, "utf8");
+    parsed = JSON.parse(raw) as PluginSettings;
+    refreshToken =
+      typeof parsed.nibRefreshToken === "string" ? parsed.nibRefreshToken : "";
+  } catch {
+    return false;
+  }
+  if (!refreshToken) return false;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    const response = await fetch(REFRESH_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+      signal: controller.signal,
+    });
+    if (!response.ok) return false;
+    const body = record(await response.json());
+    const inner = record(body.data);
+    const nextAccess =
+      typeof body.access_token === "string"
+        ? body.access_token
+        : typeof inner.access_token === "string"
+          ? inner.access_token
+          : "";
+    if (!nextAccess) return false;
+    const nextRefresh =
+      typeof body.refresh_token === "string"
+        ? body.refresh_token
+        : typeof inner.refresh_token === "string"
+          ? inner.refresh_token
+          : refreshToken;
+    parsed.nibAccessToken = nextAccess;
+    // Rotation: the spent token may already be invalid server-side. Keeping
+    // the new one is what makes the next renewal a renewal and not a replay.
+    if (nextRefresh) parsed.nibRefreshToken = nextRefresh;
+    await writeFile(file, `${JSON.stringify(parsed, null, 2)}\n`, "utf8");
+    return true;
+  } catch (error) {
+    logger.app("provider", "warn", "nib session renewal failed", {
+      data: { error: error instanceof Error ? error.message : String(error) },
+    });
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /**
  * The provider row the `nib.provider` plugin declares. Host-core composes it as
  * `plugin:<plugin id>:<declared provider id>`, so it is a fixed string rather
@@ -60,13 +138,6 @@ type Deps = {
   forgetProviderCredential: (providerId: string) => Promise<void>;
   /** The Nib provider row id, e.g. `plugin:nib.provider:nib`. */
   providerId: string;
-};
-
-/** Everything the plugin keeps for the account, cleared on sign-out. */
-type PluginSettings = {
-  nibAccessToken?: unknown;
-  nibApiKey?: unknown;
-  [key: string]: unknown;
 };
 
 /**
@@ -112,6 +183,7 @@ async function clearPluginAccountSettings(
     const raw = await readFile(file, "utf8");
     const parsed = JSON.parse(raw) as PluginSettings;
     delete parsed.nibAccessToken;
+    delete parsed.nibRefreshToken;
     delete parsed.nibApiKey;
     await writeFile(file, `${JSON.stringify(parsed, null, 2)}\n`, "utf8");
   } catch (error) {
@@ -127,6 +199,80 @@ async function clearPluginAccountSettings(
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+}
+
+/**
+ * Shape an entitlement response into the display record. Shared by the
+ * original read and the post-renewal retry so both carry the exact same
+ * fields — a renewed session that returned fewer fields than the first read
+ * would otherwise flip a surface's view of the account.
+ */
+async function entitlementFrom(response: Response): Promise<NibEntitlement> {
+  const body = record(await response.json());
+  const plan = record(body.plan ?? record(body.data).plan);
+  const usage = record(body.usage ?? record(body.data).usage);
+  const account = record(body.account ?? record(body.data).account);
+  // One entry per active subscription (paid first, the Extra group flagged):
+  // the account menu and the composer meters render the two allowances as
+  // separate rows instead of a sum that matches neither.
+  const allowancesRaw = Array.isArray(body.allowances)
+    ? body.allowances
+    : record(body.data).allowances;
+  const allowances = Array.isArray(allowancesRaw)
+    ? allowancesRaw.flatMap((entry) => {
+        const row = record(entry);
+        const num = (value: unknown) =>
+          typeof value === "number" && Number.isFinite(value) ? value : undefined;
+        return [
+          {
+            groupId: num(row.group_id),
+            groupName:
+              typeof row.group_name === "string" && row.group_name.trim()
+                ? row.group_name
+                : undefined,
+            isBonus: row.is_bonus === true,
+            creditsUsed: num(row.credits_used),
+            creditsTotal: num(row.monthly_credits),
+            dailyUsed: num(row.daily_used),
+            dailyLimit: num(row.daily_limit),
+            weeklyUsed: num(row.weekly_used),
+            weeklyLimit: num(row.weekly_limit),
+            expiresAt:
+              typeof row.expires_at === "string" && row.expires_at
+                ? row.expires_at
+                : undefined,
+          },
+        ];
+      })
+    : undefined;
+  return {
+    allowances,
+    signedIn: true,
+    planName: typeof plan.name === "string" ? plan.name : undefined,
+    accountEmail:
+      typeof account.email === "string" && account.email.trim()
+        ? account.email.trim()
+        : undefined,
+    accountName:
+      typeof account.display_name === "string" && account.display_name.trim()
+        ? account.display_name.trim()
+        : undefined,
+    creditsUsed: num(usage.credits_used),
+    creditsTotal: num(usage.credits_total),
+    dailyUsed: num(usage.daily_used),
+    dailyLimit: num(usage.daily_limit),
+    weeklyUsed: num(usage.weekly_used),
+    weeklyLimit: num(usage.weekly_limit),
+    topupRemaining: num(usage.topup_credits_remaining),
+    resetsAt: typeof usage.resets_at === "string" ? usage.resets_at : undefined,
+    dailyResetsAt:
+      typeof usage.daily_resets_at === "string" ? usage.daily_resets_at : undefined,
+    weeklyResetsAt:
+      typeof usage.weekly_resets_at === "string" ? usage.weekly_resets_at : undefined,
+    monthlyResetsAt:
+      typeof usage.monthly_resets_at === "string" ? usage.monthly_resets_at : undefined,
+    concurrency: num(plan.concurrency),
+  };
 }
 
 export function registerNibIpc({
@@ -153,6 +299,22 @@ export function registerNibIpc({
         signal: controller.signal,
       });
       if (response.status === 401) {
+        // Access tokens are short-lived; the refresh token can mint a new pair
+        // without the user seeing anything. Renew once and retry the read; a
+        // failed renewal (no token stored, or the session revoked server-side)
+        // falls through to the retirement path below.
+        if (await renewSessionToken(dataDir(), logger)) {
+          const retryToken = await readSessionToken(dataDir());
+          const retry = retryToken
+            ? await fetch(ENTITLEMENT_URL, {
+                headers: { accept: "application/json", authorization: `Bearer ${retryToken}` },
+                signal: controller.signal,
+              })
+            : null;
+          if (retry && retry.ok) {
+            return await entitlementFrom(retry);
+          }
+        }
         // An expired/revoked session must be indistinguishable from being
         // signed out: retire the stored gateway credential AND the plugin's
         // own copy of the key, so neither the picker nor a request can keep
@@ -185,71 +347,7 @@ export function registerNibIpc({
         });
         return { signedIn: true };
       }
-      const body = record(await response.json());
-      const plan = record(body.plan ?? record(body.data).plan);
-      const usage = record(body.usage ?? record(body.data).usage);
-      const account = record(body.account ?? record(body.data).account);
-      // One entry per active subscription (paid first, the Extra group flagged):
-      // the account menu and the composer meters render the two allowances as
-      // separate rows instead of a sum that matches neither.
-      const allowancesRaw = Array.isArray(body.allowances)
-        ? body.allowances
-        : record(body.data).allowances;
-      const allowances = Array.isArray(allowancesRaw)
-        ? allowancesRaw.flatMap((entry) => {
-            const row = record(entry);
-            const num = (value: unknown) =>
-              typeof value === "number" && Number.isFinite(value) ? value : undefined;
-            return [
-              {
-                groupId: num(row.group_id),
-                groupName:
-                  typeof row.group_name === "string" && row.group_name.trim()
-                    ? row.group_name
-                    : undefined,
-                isBonus: row.is_bonus === true,
-                creditsUsed: num(row.credits_used),
-                creditsTotal: num(row.monthly_credits),
-                dailyUsed: num(row.daily_used),
-                dailyLimit: num(row.daily_limit),
-                weeklyUsed: num(row.weekly_used),
-                weeklyLimit: num(row.weekly_limit),
-                expiresAt:
-                  typeof row.expires_at === "string" && row.expires_at
-                    ? row.expires_at
-                    : undefined,
-              },
-            ];
-          })
-        : undefined;
-      return {
-        allowances,
-        signedIn: true,
-        planName: typeof plan.name === "string" ? plan.name : undefined,
-        accountEmail:
-          typeof account.email === "string" && account.email.trim()
-            ? account.email.trim()
-            : undefined,
-        accountName:
-          typeof account.display_name === "string" && account.display_name.trim()
-            ? account.display_name.trim()
-            : undefined,
-        creditsUsed: num(usage.credits_used),
-        creditsTotal: num(usage.credits_total),
-        dailyUsed: num(usage.daily_used),
-        dailyLimit: num(usage.daily_limit),
-        weeklyUsed: num(usage.weekly_used),
-        weeklyLimit: num(usage.weekly_limit),
-        topupRemaining: num(usage.topup_credits_remaining),
-        resetsAt: typeof usage.resets_at === "string" ? usage.resets_at : undefined,
-        dailyResetsAt:
-          typeof usage.daily_resets_at === "string" ? usage.daily_resets_at : undefined,
-        weeklyResetsAt:
-          typeof usage.weekly_resets_at === "string" ? usage.weekly_resets_at : undefined,
-        monthlyResetsAt:
-          typeof usage.monthly_resets_at === "string" ? usage.monthly_resets_at : undefined,
-        concurrency: num(plan.concurrency),
-      };
+      return await entitlementFrom(response);
     } catch (error) {
       logger.app("provider", "warn", "nib entitlement threw", {
         data: { error: error instanceof Error ? error.message : String(error) },

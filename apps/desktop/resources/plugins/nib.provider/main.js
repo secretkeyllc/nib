@@ -166,6 +166,8 @@ async function deviceLogin(loginId, context) {
     if (polled.ok && accessToken) {
       return {
         accessToken,
+        // Rotated on every /auth/refresh; renewing the JWT needs it.
+        refreshToken: field(polled.payload, "refresh_token"),
         // The gateway only accepts `sk-nib-…` API keys; the JWT above is for
         // the control plane. Both arrive from the same token poll.
         apiKey: field(polled.payload, "api_key"),
@@ -266,6 +268,10 @@ module.exports = {
     try {
       await pi.plugin.setSettings({
         nibAccessToken: credentials.accessToken,
+        // The refresh token lets main renew the JWT silently when the control
+        // plane answers 401 — without it every access-token expiry (24h) reads
+        // as a signed-out account until the user logs in again.
+        nibRefreshToken: credentials.refreshToken,
         // The provider row holds this same key, but the host's copy is behind
         // an encrypted secret that a model-list read cannot always reach; the
         // plugin's own copy is what the picker falls back to.
