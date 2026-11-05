@@ -69,6 +69,12 @@ export type SshBootstrapDeps = {
   buildTransport?: (target: SshTarget) => SshTransport;
   /** Read the published `.sha256` text. Defaults to an HTTPS GET. */
   fetchChecksum?: (url: string, signal?: AbortSignal) => Promise<string>;
+  /**
+   * Confirm a base can actually serve the tarball before its digest is
+   * trusted. Defaults to a ranged HTTPS GET; injected so tests can model a
+   * CDN holding a stale 404 while the origin has the file.
+   */
+  probeArtifact?: (url: string, signal?: AbortSignal) => Promise<boolean>;
   uploadArtifact?: typeof uploadSshArtifact;
   /** Reserve the loopback port the forward binds. */
   reservePort?: () => Promise<number>;
@@ -191,6 +197,29 @@ async function defaultFetchChecksum(url: string, signal?: AbortSignal): Promise<
   return await response.text();
 }
 
+/**
+ * Is this base actually able to serve the tarball?
+ *
+ * A digest alone does not prove the artifact is downloadable: a CDN edge can
+ * hold a stale 404 for a version directory while the origin serves the file
+ * (the two halves of a release publish land at different times). Probing with
+ * a ranged GET keeps it cheap — every host in play honours Range, and a base
+ * that answers one byte will answer the whole artifact.
+ */
+async function defaultProbeArtifact(url: string, signal?: AbortSignal): Promise<boolean> {
+  try {
+    const response = await fetch(url, {
+      redirect: "follow",
+      headers: { Range: "bytes=0-0" },
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(20_000)]) : AbortSignal.timeout(20_000),
+    });
+    // A ranged answer is 206; a server that ignores Range replies 200.
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 function validateTarget(request: RemoteHostBootstrapRequest): SshTarget {
   const host = assertSshArgument(String(request?.host ?? ""), "host");
   const target: SshTarget = { host };
@@ -293,11 +322,20 @@ export function createSshBootstrap(deps: SshBootstrapDeps): SshBootstrap {
 
         // 2. Resolve the artifact and the digest a release source published
         //    for it. The sources are walked in order and the first one that
-        //    answers wins: the download server is primary (reachable where
-        //    GitHub is not), the GitHub release is the fallback.
+        //    answers BOTH the checksum and the tarball wins: the download
+        //    server is primary (reachable where GitHub is not), the GitHub
+        //    release is the fallback.
+        //
+        //    The tarball is probed, not just the digest, because the two can
+        //    disagree: a CDN that cached a 404 for a version directory while a
+        //    release was still being published keeps answering 404 for that
+        //    URL long after the origin has the file. Choosing the source on the
+        //    checksum alone pinned the bootstrap to the broken base and failed
+        //    the install instead of falling through to the release that had it.
         mark("resolve-release");
         const artifactName = nibHostArtifactName(deps.version, remoteTarget);
         const sources = nibHostArtifactUrls(deps.version, remoteTarget);
+        const probeArtifact = deps.probeArtifact ?? defaultProbeArtifact;
         let expectedSha256: string | null = null;
         let checksumUrl = sources[0].checksum;
         let lastChecksumError: unknown;
@@ -307,14 +345,17 @@ export function createSshBootstrap(deps: SshBootstrapDeps): SshBootstrap {
               await fetchChecksum(source.checksum, signal),
               artifactName,
             );
-            if (expectedSha256) {
-              checksumUrl = source.checksum;
-              mark("download-checksum");
-              break;
-            }
           } catch (error) {
             lastChecksumError = error;
+            continue;
           }
+          if (!expectedSha256) continue;
+          // A published digest for an artifact this base cannot serve is not a
+          // usable source; try the next one rather than failing the download.
+          if (!(await probeArtifact(source.tarball, signal))) continue;
+          checksumUrl = source.checksum;
+          mark("download-checksum");
+          break;
         }
         signal?.throwIfAborted();
         if (!expectedSha256) {

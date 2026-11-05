@@ -65,7 +65,7 @@ function fakeTransport({ uname = "Linux\nx86_64\n", stdout = scriptStdout(), std
   };
 }
 
-function harness({ transport = fakeTransport(), checksum, ports = [RESERVED_PORT], exchange } = {}) {
+function harness({ transport = fakeTransport(), checksum, ports = [RESERVED_PORT], exchange, unavailable = [] } = {}) {
   const built = [];
   const fetched = [];
   const pairings = [];
@@ -81,6 +81,11 @@ function harness({ transport = fakeTransport(), checksum, ports = [RESERVED_PORT
       fetched.push(url);
       return checksum ?? `${DIGEST}  ${ARTIFACT_NAME}\n`;
     },
+    // `unavailable` names bases whose tarball never downloads — a CDN holding
+    // a stale 404 for a version directory while the digest still answers.
+    // That mismatch used to pin the bootstrap to a base that could not serve
+    // the artifact instead of falling through to the next one.
+    probeArtifact: async (url) => !unavailable.some((prefix) => url.startsWith(prefix)),
     reservePort: async () => ports[Math.min(portIndex++, ports.length - 1)],
     exchangePairing: async (input) => {
       pairings.push(input);
@@ -170,6 +175,25 @@ test("a remote host running a different release is refused before the forward", 
   assert.deepEqual(transport.calls.forwards, [], "a mismatched host must not get a tunnel");
   assert.deepEqual(pairings, []);
   assert.equal(transport.calls.disposeCount, 1, "the failed attempt must shut its own transport down");
+});
+
+test("a base whose tarball is missing falls through to the next source", async () => {
+  // The failure that shipped: dl.nib.am answered the .sha256 but its tarball
+  // URL was a 404 a CDN had cached from an incomplete publish. The bootstrap
+  // used to pin the digest to that base and fail the install; it must probe
+  // the artifact and use the release that actually serves it.
+  const { bootstrap, fetched } = harness({ unavailable: ["https://dl.nib.am/"] });
+  const outcome = await bootstrap.bootstrap(request());
+  assert.equal(outcome.steps.includes("install"), true, "the bootstrap still installs");
+  // The second source (the GitHub release) supplied the digest.
+  assert.equal(
+    fetched[0],
+    `https://dl.nib.am/host/v${VERSION}/${ARTIFACT_NAME}.sha256`,
+  );
+  assert.equal(
+    fetched[1],
+    `https://github.com/secretkeyllc/nib/releases/download/v${VERSION}/${ARTIFACT_NAME}.sha256`,
+  );
 });
 
 test("an unpublished target fails without downloading anything", async () => {
