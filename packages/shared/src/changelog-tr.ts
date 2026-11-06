@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.38",
+    date: "2026-11-06",
+    highlights: [
+      "Kopan telefon baglantisi kendiliginden kurtulur: eslestirme belirligi her yeniden baglanmadan once yeniden okunur, reddedilen bir el sikisma bir dakika bekleyip relay'i uzmez.",
+    ],
+  },
+
+{
     version: "0.22.37",
     date: "2026-11-05",
     highlights: [

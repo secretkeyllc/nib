@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.38",
+    date: "2026-11-06",
+    highlights: [
+      "手機遠端連結斷開後可自動恢復：每次重連前都會重新讀取配對權杖，被拒絕的交握會等待一分鐘再重試，不再反覆衝擊中繼。",
+    ],
+  },
+
+{
     version: "0.22.37",
     date: "2026-11-05",
     highlights: [

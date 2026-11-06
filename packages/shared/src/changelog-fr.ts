@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.38",
+    date: "2026-11-06",
+    highlights: [
+      "Un lien mobile perdu se retablit tout seul : le jeton d'appairage est relu avant chaque reconnexion, et une poignee de main refusee attend une minute au lieu de marteler le relais.",
+    ],
+  },
+
+{
     version: "0.22.37",
     date: "2026-11-05",
     highlights: [

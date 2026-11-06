@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.38",
+    date: "2026-11-06",
+    highlights: [
+      "Um link de celular perdido se recupera sozinho: o token de pareamento é relido antes de cada reconexão, e um handshake rejeitado espera um minuto em vez de bombardear o relay.",
+    ],
+  },
+
+{
     version: "0.22.37",
     date: "2026-11-05",
     highlights: [
