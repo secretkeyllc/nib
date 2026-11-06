@@ -33,6 +33,10 @@ function sameUsage(previous: MessageUsage, next: MessageUsage): boolean {
  * Whether the newest usage-bearing message is at or before the checkpoint's
  * `throughMessageId` — i.e. the compaction has already swallowed that turn and
  * its usage describes a context that no longer exists.
+ *
+ * Position matters: a turn that arrived AFTER the covered message (the retry
+ * that follows a compaction mid-turn) still describes the live context, so the
+ * checkpoint must not override it.
  */
 function usageLiesWithinCompaction(
   messages: UiMessage[],
@@ -40,13 +44,16 @@ function usageLiesWithinCompaction(
   usageMessage: UiMessage,
 ): boolean {
   if (!compaction.throughMessageId) return false;
-  for (const message of messages) {
-    if (message.id === usageMessage.id) return false;
-    if (message.id === compaction.throughMessageId) return true;
+  const coveredIndex = messages.findIndex((m) => m.id === compaction.throughMessageId);
+  if (coveredIndex === -1) {
+    // The covered message is gone from the visible list. Only treat that as
+    // "usage is inside the compaction" when the usage message is also gone
+    // from view; a usage row we can see postdates the checkpoint.
+    return messages.every((m) => m.id !== usageMessage.id);
   }
-  // The covered message was dropped from the visible list; the checkpoint is
-  // the latest thing that happened, so its footprint is the occupancy.
-  return true;
+  const usageIndex = messages.findIndex((m) => m.id === usageMessage.id);
+  if (usageIndex === -1) return true;
+  return usageIndex <= coveredIndex;
 }
 
 /** Summary tokens plus the retained tail's own tokens (estimate). */
