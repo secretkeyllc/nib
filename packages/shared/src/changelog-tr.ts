@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.39",
+    date: "2026-11-06",
+    highlights: [
+      "Sikistirdiginiz anda baglam halkasi duser, uzak besteci gosterdigi modelle yeni sohbet baslatir ve koyu mod metni artik saf beyaz degil.",
+    ],
+  },
+
+{
     version: "0.22.38",
     date: "2026-11-06",
     highlights: [

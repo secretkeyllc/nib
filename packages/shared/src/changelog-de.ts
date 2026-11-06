@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.39",
+    date: "2026-11-06",
+    highlights: [
+      "Der Kontext-Ring sinkt sofort nach dem Komprimieren, der Remote-Composer startet neue Chats mit dem angezeigten Modell, und der Text im Dunkelmodus ist nicht mehr reinweiss.",
+    ],
+  },
+
+{
     version: "0.22.38",
     date: "2026-11-06",
     highlights: [

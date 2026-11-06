@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.39",
+    date: "2026-11-06",
+    highlights: [
+      "El indicador de contexto baja en cuanto compactas, el compositor remoto inicia chats nuevos con el modelo que muestra, y el texto del modo oscuro ya no es blanco puro.",
+    ],
+  },
+
+{
     version: "0.22.38",
     date: "2026-11-06",
     highlights: [
