@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.38",
+    date: "2026-11-06",
+    highlights: [
+      "끊긴 휴대폰 연결이 스스로 복구됩니다: 페어링 토큰을 재연결마다 다시 읽고, 거부된 핸드셰이크는 릴레이를 반복 호출하지 않고 1분 기다립니다.",
+    ],
+  },
+
+{
     version: "0.22.37",
     date: "2026-11-05",
     highlights: [

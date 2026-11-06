@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.38",
+    date: "2026-11-06",
+    highlights: [
+      "Un enlace movil perdido se recupera solo: el token de emparejamiento se relee antes de cada reconexion, y un handshake rechazado espera un minuto en vez de bombardear el relay.",
+    ],
+  },
+
+{
     version: "0.22.37",
     date: "2026-11-05",
     highlights: [

@@ -50,6 +50,9 @@ const WATCHDOG_STALL_MS = 50_000;
 /** Reconnect backoff bounds. */
 const RECONNECT_MIN_MS = 2_000;
 const RECONNECT_MAX_MS = 30_000;
+/** The relay REJECTED the handshake (4001 auth / 4002 pairing): a long pause
+ * before the next attempt instead of a fast retry loop. */
+const REJECT_RETRY_MS = 60_000;
 
 export type RemoteControlPhase = "idle" | "connecting" | "waiting" | "connected" | "error";
 
@@ -100,7 +103,15 @@ class RemoteControlSession {
 
   private readonly deps: Deps;
   private readonly identity: { mid: string; name: string };
-  private readonly token: string;
+  /**
+   * The relay validates the JWT on EVERY hello, so a session that captured
+   * the token once and reused it across reconnects hardened into an
+   * AUTH_FAILED loop: the background renewal writes the fresh token to
+   * nib.provider/settings.json, but this field still held the expired one.
+   * Re-read from disk on every open — reconnects then pick up the renewed
+   * token automatically.
+   */
+  private readToken: () => Promise<string>;
   /** The stored pairing sid — the exact one the QR encodes. The session
    * used to mint its own random sid here, so the relay knew the desktop
    * under a sid no scanned link would ever carry and every phone attach
@@ -111,13 +122,13 @@ class RemoteControlSession {
   constructor(
     deps: Deps,
     identity: { mid: string; name: string },
-    token: string,
+    readToken: () => Promise<string>,
     sid: string,
     onPhase: (phase: RemoteControlPhase, error?: string) => void,
   ) {
     this.deps = deps;
     this.identity = identity;
-    this.token = token;
+    this.readToken = readToken;
     this.sid = sid;
     this.onPhase = onPhase;
   }
@@ -192,6 +203,28 @@ class RemoteControlSession {
   private open(): void {
     if (this.closedByUser) return;
     this.onPhase("connecting");
+    // Fresh token on EVERY attempt, not only the first: the relay validates
+    // each hello against the current JWT, and the background renewal may have
+    // rotated the stored one since the last try.
+    void this.readToken()
+      .then((token) => {
+        if (this.closedByUser) return;
+        if (!token) {
+          this.closedByUser = true;
+          this.onPhase("error", "NOT_SIGNED_IN");
+          return;
+        }
+        this.openSocket(token);
+      })
+      .catch((error) => {
+        this.deps.logger.app("remote-control", "warn", "could not read the pairing token", {
+          message: error instanceof Error ? error.message : String(error),
+        });
+        this.onPhase("error", "NOT_SIGNED_IN");
+      });
+  }
+
+  private openSocket(token: string): void {
     const ws = new WebSocket(RELAY_URL);
     this.ws = ws;
 
@@ -206,7 +239,7 @@ class RemoteControlSession {
           mid: this.identity.mid,
           name: this.identity.name,
           ver: APP_VERSION,
-          token: this.token,
+          token,
         }),
       );
       if (this.pingTimer) clearInterval(this.pingTimer);
@@ -254,6 +287,16 @@ class RemoteControlSession {
       this.watchdogTimer = null;
       this.ws = null;
       if (this.closedByUser) return;
+      // A rejected hello (4001 auth / 4002 pairing) is not a network blip:
+      // retrying every few seconds only spams the relay's rejection log —
+      // the prod log showed an AUTH_FAILED loop at one attempt per ~27s for
+      // 20 minutes. Back off HARD and wait out a full minute before trying
+      // again; the token refreshes underneath, so the next hello can succeed.
+      if (code === 4001 || code === 4002) {
+        this.onPhase("error", code === 4001 ? "AUTH_FAILED" : "PAIRING_UNAVAILABLE");
+        this.reconnectTimer = setTimeout(() => this.open(), REJECT_RETRY_MS);
+        return;
+      }
       this.onPhase("connecting");
       this.reconnectTimer = setTimeout(() => {
         this.reconnectDelay = Math.min(this.reconnectDelay * 2, RECONNECT_MAX_MS);
@@ -663,7 +706,9 @@ export function createRemoteControl(deps: Deps): RemoteControlWithMaintenance {
     state.machineName = identity.name;
     state.error = undefined;
 
-    state.session = new RemoteControlSession(deps, identity, token, sid, (phase, error) => {
+    // The session re-reads the token before every connection attempt, so a
+    // renewal that lands mid-session is picked up on the next reconnect.
+    state.session = new RemoteControlSession(deps, identity, readToken, sid, (phase, error) => {
       state.phase = phase;
       state.error = error;
       broadcast();

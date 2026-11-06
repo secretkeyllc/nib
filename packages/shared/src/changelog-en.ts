@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.38",
+    date: "2026-11-06",
+    highlights: [
+      "A dropped phone link recovers on its own: the pairing token is re-read before every reconnect, and a rejected handshake waits out a minute instead of hammering the relay.",
+    ],
+  },
+
+{
     version: "0.22.37",
     date: "2026-11-05",
     highlights: [

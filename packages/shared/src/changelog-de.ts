@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.38",
+    date: "2026-11-06",
+    highlights: [
+      "Eine verlorene Handy-Verbindung erholt sich von selbst: Das Pairing-Token wird vor jeder neuen Verbindung neu gelesen, und ein abgelehnter Handshake wartet eine Minute, statt das Relay zu bombardieren.",
+    ],
+  },
+
+{
     version: "0.22.37",
     date: "2026-11-05",
     highlights: [

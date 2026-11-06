@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.38",
+    date: "2026-11-06",
+    highlights: [
+      "手机远程链接断开后可自动恢复：每次重连前都会重新读取配对令牌，被拒绝的握手会等待一分钟再重试，不再反复冲击中继。",
+    ],
+  },
+
+{
     version: "0.22.37",
     date: "2026-11-05",
     highlights: [
