@@ -30,6 +30,34 @@ function sameUsage(previous: MessageUsage, next: MessageUsage): boolean {
 }
 
 /**
+ * Whether the newest usage-bearing message is at or before the checkpoint's
+ * `throughMessageId` — i.e. the compaction has already swallowed that turn and
+ * its usage describes a context that no longer exists.
+ */
+function usageLiesWithinCompaction(
+  messages: UiMessage[],
+  compaction: ContextCompactionMark,
+  usageMessage: UiMessage,
+): boolean {
+  if (!compaction.throughMessageId) return false;
+  for (const message of messages) {
+    if (message.id === usageMessage.id) return false;
+    if (message.id === compaction.throughMessageId) return true;
+  }
+  // The covered message was dropped from the visible list; the checkpoint is
+  // the latest thing that happened, so its footprint is the occupancy.
+  return true;
+}
+
+/** Summary tokens plus the retained tail's own tokens (estimate). */
+function compactionFootprintTokens(compaction: ContextCompactionMark): number {
+  // summaryTokens is an estimate (chars/4) and the retained tail is carried
+  // verbatim in the checkpoint; the caller only has the mark here, so the
+  // summary is the whole footprint. A next turn refreshes the real figure.
+  return Math.max(1, Math.round(compaction.summaryTokens));
+}
+
+/**
  * The composer mirrors the newest parent turn with usage, not a later live turn
  * without totals. It shares the transcript projection instead of rebuilding it.
  */
@@ -50,6 +78,26 @@ export function latestTurnContextInspector(
   const latestUsage = latestUsageMessage?.usage;
   if (!latestUsage) return undefined;
 
+  // A compaction rewrites the conversation the earlier turns filled, so the
+  // newest turn's usage no longer describes what the model holds. Nothing runs
+  // after /compact until the next prompt, so the ring would otherwise sit on
+  // the pre-compaction occupancy. When the latest checkpoint covers (or comes
+  // after) the newest usage turn, the checkpoint's own footprint is the honest
+  // occupancy: the summary tokens plus the retained tail.
+  const lastCompaction = compactions && compactions.length > 0 ? compactions[compactions.length - 1] : undefined;
+  const compactionSupersedesUsage =
+    lastCompaction !== undefined &&
+    latestUsageMessage !== undefined &&
+    usageLiesWithinCompaction(messages, lastCompaction, latestUsageMessage);
+  const effectiveUsage: MessageUsage =
+    lastCompaction !== undefined && compactionSupersedesUsage
+      ? {
+          inputTokens: compactionFootprintTokens(lastCompaction),
+          outputTokens: 0,
+          totalTokens: compactionFootprintTokens(lastCompaction),
+        }
+      : latestUsage;
+
   const { entries } = getTranscriptProjection(messages, compactions);
   let latestTurn: ReturnType<typeof getAssistantTurnSummary> | undefined;
   for (let index = entries.length - 1; index >= 0; index--) {
@@ -63,7 +111,7 @@ export function latestTurnContextInspector(
     }
   }
   const result: LatestTurnContextInspector = {
-    usage: latestUsage,
+    usage: effectiveUsage,
     turnUsage: latestTurn?.usage ?? latestUsage,
     contextWindow: resolveContextWindow(
       latestUsageMessage?.providerId,
