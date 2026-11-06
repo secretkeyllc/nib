@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.39",
+    date: "2026-11-06",
+    highlights: [
+      "L'anneau de contexte baisse des la compaction, le compositeur distant demarre une nouvelle conversation sur le modele affiche, et le texte du mode sombre n'est plus blanc pur.",
+    ],
+  },
+
+{
     version: "0.22.38",
     date: "2026-11-06",
     highlights: [

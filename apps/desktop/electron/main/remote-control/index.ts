@@ -443,9 +443,17 @@ class RemoteControlSession {
         // never sent one. Absent, the session lands in Sessions (unbound).
         const requestedPath =
           typeof cmd.p.projectPath === "string" ? cmd.p.projectPath.trim() : "";
-        const created = await this.invokeIpc(IPC.invoke.sessionCreate, [
-          requestedPath ? { projectPath: requestedPath } : {},
-        ]);
+        // modelId/providerId ride along when the controller sends them: the
+        // session then STARTS on the model the remote composer shows instead
+        // of the desktop default (a follow-up configure raced the first
+        // prompt and the opening turn ran on the wrong model).
+        const modelId = typeof cmd.p.modelId === "string" ? cmd.p.modelId.trim() : "";
+        const providerId = typeof cmd.p.providerId === "string" ? cmd.p.providerId.trim() : "";
+        const input: Record<string, unknown> = {};
+        if (requestedPath) input.projectPath = requestedPath;
+        if (modelId) input.modelId = modelId;
+        if (providerId) input.providerId = providerId;
+        const created = await this.invokeIpc(IPC.invoke.sessionCreate, [input]);
         void this.pushSessions();
         return created;
       }

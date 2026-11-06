@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.39",
+    date: "2026-11-06",
+    highlights: [
+      "압축하면 컨텍스트 링이 바로 줄어들고, 원격 입력창은 표시된 모델로 새 대화를 시작하며, 다크 모드 텍스트가 더 이상 순수 흰색이 아닙니다.",
+    ],
+  },
+
+{
     version: "0.22.38",
     date: "2026-11-06",
     highlights: [

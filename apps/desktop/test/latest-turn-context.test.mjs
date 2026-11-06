@@ -216,3 +216,34 @@ test("latest turn inspector keeps last-request usage beside the turn sum", () =>
   assert.equal(inspector?.turnUsage.cacheReadTokens, 51_500);
   assert.equal(inspector?.turnUsage.inputTokens, 57_300);
 });
+
+test("the inspector reports the checkpoint footprint once the compaction covers the newest turn", () => {
+  // The user compacted and has not prompted since. The only usage row belongs
+  // to a turn the checkpoint swallowed, so its 15 tokens describe a context
+  // that no longer exists — the ring must fall to the summary footprint
+  // instead of sitting on the pre-compaction number (the reported bug).
+  const inspector = latestTurnContextInspector(
+    [
+      message("u1", "user", "long conversation"),
+      message("a1", "assistant", "answer", {
+        providerId: "provider",
+        modelId: "catalog-model",
+        usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+      }),
+    ],
+    providerModels,
+    providers,
+    [
+      {
+        id: "mark-1",
+        generation: 1,
+        summaryTokens: 40,
+        throughMessageId: "a1",
+        summarized: true,
+      },
+    ],
+  );
+
+  assert.equal(inspector?.usage.totalTokens, 40);
+  assert.equal(inspector?.contextWindow, 256_000);
+});
