@@ -4259,6 +4259,41 @@
 }
 
 /* Mobile remote control pairing card */
+
+/* Live pairing status pill: colour carries the state — green connected,
+   amber waiting, muted connecting, red error. */
+.remote-live-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--ds-border-default);
+  color: var(--ds-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.remote-live-status.is-connected {
+  border-color: var(--ds-success);
+  color: var(--ds-success);
+  background: color-mix(in oklab, var(--ds-success) 12%, transparent);
+}
+
+.remote-live-status.is-waiting {
+  border-color: var(--ds-warning);
+  color: var(--ds-warning);
+  background: color-mix(in oklab, var(--ds-warning) 12%, transparent);
+}
+
+.remote-live-status.is-error {
+  border-color: var(--ds-error);
+  color: var(--ds-error);
+}
+
+.remote-live-status.is-connecting {
+  border-color: var(--ds-info);
+  color: var(--ds-info);
+}
 .remote-pairing {
   display: flex;
   align-items: center;
