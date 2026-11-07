@@ -9,6 +9,7 @@ import {
   type PluginComposerTransformMeta,
 } from "@pi-desktop/shared";
 import type { AppState } from "../../../stores/app-store";
+import { useAppStore } from "../../../stores/app-store";
 import { ComposerModePicker } from "./ComposerModePicker";
 import { ComposerPermissionPicker } from "./ComposerPermissionPicker";
 import { ContextUsageInspector } from "../../../components/ContextUsageInspector";
@@ -198,6 +199,7 @@ export function ComposerToolbar({
           thinkingLevel={thinkingLevel}
           selectedProviderId={providerId}
           selectedModelId={modelId}
+          signedIn={useAppStore((s) => s.nibSignedIn)}
           controlsBlocked={controlsBlocked}
           onCloseOtherMenus={() => setPermissionOpen(false)}
         />

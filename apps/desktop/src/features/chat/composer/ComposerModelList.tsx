@@ -1,7 +1,8 @@
 import { formatTokenCount, type ModelInfo, type ProviderPublic } from "@pi-desktop/shared";
 import type { TFunction } from "i18next";
 import type { RefObject } from "react";
-import { IconCheck, IconChevronDown, IconChevronRight, IconEye, IconSearch, IconSparkles } from "../../../components/icons";
+import { IconCheck, IconChevronDown, IconChevronRight, IconEye, IconSearch, IconSliders, IconSparkles, IconUser } from "../../../components/icons";
+import { useAppStore } from "../../../stores/app-store";
 import {
   composerModelBadges,
   composerModelBinding,
@@ -21,6 +22,7 @@ export function ComposerModelList({
   t, query, setQuery, modelSearchRef, modelListRef, modelGroups,
   modelHighlight, setModelHighlight, selectedProviderId, selectedModelId, selectModel,
   currentEntry, recentEntries, hasOtherModels, otherModelsExpanded, setOtherModelsExpanded,
+  signedIn, onCloseMenu,
 }: {
   /**
    * The model this conversation is on, resolved against the visible groups.
@@ -33,6 +35,10 @@ export function ComposerModelList({
   hasOtherModels: boolean;
   otherModelsExpanded: boolean;
   setOtherModelsExpanded: (expanded: boolean) => void;
+  /** The account gate: signed-out pickers always offer the sign-in shortcut. */
+  signedIn: boolean;
+  /** Closes the model menu after a link action. */
+  onCloseMenu: () => void;
   t: TFunction;
   query: string;
   setQuery: (query: string) => void;
@@ -130,6 +136,34 @@ export function ComposerModelList({
                     <span className="composer-menu-entry-label">{t("chat.otherModels")}</span>
                   </button>
                 ) : null}
+                {/*
+                  Two permanent anchors under Other models: a signed-out
+                  account's empty list must still lead somewhere (sign in), and
+                  model configuration is reachable on every visit — adding a
+                  provider should never require hunting through Settings first.
+                */}
+                {!signedIn ? (
+                  <button
+                    type="button" className="composer-menu-entry" role="menuitem"
+                    onClick={() => {
+                      onCloseMenu();
+                      useAppStore.getState().setNibSignInOpen(true);
+                    }}
+                  >
+                    <IconUser size={14} aria-hidden="true" />
+                    <span className="composer-menu-entry-label">{t("chat.modelPickerSignIn")}</span>
+                  </button>
+                ) : null}
+                <button
+                  type="button" className="composer-menu-entry" role="menuitem"
+                  onClick={() => {
+                    useAppStore.getState().setSettingsTab("agent");
+                    onCloseMenu();
+                  }}
+                >
+                  <IconSliders size={14} aria-hidden="true" />
+                  <span className="composer-menu-entry-label">{t("chat.modelPickerConfig")}</span>
+                </button>
                 {(() => {
                   let flatIndex = recentWithoutCurrent.length + (currentEntry ? 1 : 0);
                   return modelGroups.map((group) => (

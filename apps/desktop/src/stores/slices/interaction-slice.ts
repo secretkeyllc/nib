@@ -40,6 +40,8 @@ export function createInteractionSlice({
   | "setPage"
   | "setSettingsTab"
   | "setSettingsAnchor"
+  | "setNibSignedIn"
+  | "setNibSignInOpen"
   | "canNavBack"
   | "canNavForward"
   | "navBack"
@@ -94,6 +96,8 @@ export function createInteractionSlice({
       }));
     },
     setSettingsAnchor: (settingsAnchor) => set({ settingsAnchor }),
+    setNibSignedIn: (nibSignedIn) => set({ nibSignedIn }),
+    setNibSignInOpen: (nibSignInOpen) => set({ nibSignInOpen }),
     canNavBack: () => get().navIndex > 0,
     canNavForward: () => get().navIndex < get().navStack.length - 1,
 

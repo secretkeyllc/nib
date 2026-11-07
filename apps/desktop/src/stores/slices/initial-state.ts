@@ -81,6 +81,10 @@ export function createInitialState(): AppStateData {
     page: "chat",
     settingsTab: "general",
     settingsAnchor: null,
+    // The Nib account gate: drives the model picker's sign-in shortcut and
+    // the account dialog visibility from any surface.
+    nibSignedIn: false,
+    nibSignInOpen: false,
     settingsTabNonce: 0,
     navStack: [{ page: "chat" }],
     navIndex: 0,

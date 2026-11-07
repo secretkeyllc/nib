@@ -202,6 +202,10 @@ export type AppState = {
   settingsTab: SettingsTabId;
   /** Pending row anchor (i18n key) to flash after landing on a settings tab. */
   settingsAnchor: string | null;
+  /** Whether the Nib account (plugin entitlement) reports signed in. */
+  nibSignedIn: boolean;
+  /** The account sign-in dialog visibility, hoisted so any surface can open it. */
+  nibSignInOpen: boolean;
   /** Bumped by every setSettingsTab so a same-tab navigation is observable. */
   settingsTabNonce: number;
   navStack: Array<{ page: AppState["page"]; sessionId?: string }>;
@@ -372,6 +376,8 @@ export type AppState = {
   setPage: (page: AppState["page"], opts?: { record?: boolean }) => void;
   setSettingsTab: (tab: AppState["settingsTab"]) => void;
   setSettingsAnchor: (key: string | null) => void;
+  setNibSignedIn: (nibSignedIn: boolean) => void;
+  setNibSignInOpen: (nibSignInOpen: boolean) => void;
   navBack: () => void;
   navForward: () => void;
   canNavBack: () => boolean;

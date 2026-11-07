@@ -68,7 +68,7 @@ export function NibAccountButton() {
   const refreshProviders = useAppStore((state) => state.refreshProviders);
   const [ent, setEnt] = useState<NibEntitlement | null>(null);
   const [open, setOpen] = useState(false);
-  const [signInOpen, setSignInOpen] = useState(false);
+
   const [signingOut, setSigningOut] = useState(false);
   const panelId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -115,12 +115,15 @@ export function NibAccountButton() {
     return () => clearInterval(timer);
   }, []);
 
+  const nibSignInOpen = useAppStore((s) => s.nibSignInOpen);
+  const setNibSignInOpen = useAppStore((s) => s.setNibSignInOpen);
+
   // A finished sign-in must show up here without a reload; the dialog reports
   // success through this callback rather than the store because the provider
   // row is refreshed asynchronously.
   useEffect(() => {
-    if (!signInOpen) load();
-  }, [signInOpen]);
+    if (!nibSignInOpen) load();
+  }, [nibSignInOpen]);
 
   const updatePlacement = () => {
     const trigger = triggerRef.current;
@@ -189,6 +192,13 @@ export function NibAccountButton() {
   };
   const signedIn = ent?.signedIn === true;
   const planName = ent?.planName?.trim() || null;
+  /**
+   * A trial holder is a prospect: the one action that moves them forward is
+   * buying a plan, so the popover offers it prominently. Detected by name
+   * (the signup grant's group is the configured trial group, e.g. "$10
+   * Trial") or by having no plan row at all — a paying plan never matches.
+   */
+  const isTrial = !signedIn ? false : planName === null || /trial/i.test(planName);
   const total = Math.round(ent?.creditsTotal ?? 0);
   const used = Math.round(ent?.creditsUsed ?? 0);
   const left = Math.max(0, total - used);
@@ -337,10 +347,38 @@ export function NibAccountButton() {
       <div className="nib-account-actions">
         {signedIn ? (
           <>
+            {/* Trial accounts see the purchase action first: it is the one
+                step that converts them, and it opens the web checkout session
+                (the browser carries the sign-in and any 2FA). */}
+            {isTrial ? (
+              <button
+                type="button"
+                className="nib-account-action is-primary"
+                onClick={() => {
+                  setOpen(false);
+                  void api
+                    .openBillingUrl("https://nib.am/app/subscriptions")
+                    .catch(() => undefined);
+                }}
+              >
+                <span className="nib-account-action-label">
+                  {t("nib.accountPurchasePlan")}
+                </span>
+                <IconChevronRight size={13} aria-hidden />
+              </button>
+            ) : null}
             {/* The remote pairing is this menu's highlight feature: one tap
                 unfolds the QR right here instead of sending the user three
                 levels into Settings. */}
-            <NibRemotePairingRow />
+            <NibRemotePairingRow
+              onExpandedChange={() => {
+                // The QR doubles the popover's height; without a re-anchor it
+                // grows DOWN over the viewport edge, hiding the sign-out and
+                // top-up rows. Re-running the placement flips it upward and
+                // clamps it against the screen instead.
+                window.requestAnimationFrame(updatePlacement);
+              }}
+            />
             <button
               type="button"
               className="nib-account-action"
@@ -387,7 +425,7 @@ export function NibAccountButton() {
             className="nib-account-action is-primary"
             onClick={() => {
               setOpen(false);
-              setSignInOpen(true);
+              setNibSignInOpen(true);
             }}
           >
             <span className="nib-account-action-label">
@@ -491,8 +529,8 @@ export function NibAccountButton() {
       {popover && typeof document !== "undefined"
         ? portalToBody(popover)
         : null}
-      {signInOpen ? (
-        <NibAccountDialog onClose={() => setSignInOpen(false)} />
+      {nibSignInOpen ? (
+        <NibAccountDialog onClose={() => setNibSignInOpen(false)} />
       ) : null}
     </span>
   );

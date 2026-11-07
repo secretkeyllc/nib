@@ -52,6 +52,7 @@ export function ScheduledModelPicker({ value, disabled, onChange }: {
   return <ComposerModelPicker t={t} controller={controller} modelLabel={label}
     thinkingLabel={thinkingLevel} thinkingLevel={thinkingLevel}
     selectedProviderId={value.providerId} selectedModelId={value.modelId}
+    signedIn={true}
     controlsBlocked={disabled} onCloseOtherMenus={() => {}}
     rootActions={value.providerId ? <button type="button" className="composer-plus-item"
       role="menuitem" disabled={disabled} onClick={() => {onChange({}); controller.setOpen(false);}}>

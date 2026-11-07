@@ -13,7 +13,14 @@ import { IconQrCode } from "../../components/icons";
  * Lives in the `remote` namespace's flat-key convention (see the i18n
  * renderer-keys contract): every key is single-segment.
  */
-export function NibRemotePairingRow({ onWorkspaceOpened }: { onWorkspaceOpened?: () => void }) {
+export function NibRemotePairingRow({
+  onWorkspaceOpened,
+  /** The popover re-anchors when the QR folds in or out; tell the parent. */
+  onExpandedChange,
+}: {
+  onWorkspaceOpened?: () => void;
+  onExpandedChange?: (expanded: boolean) => void;
+}) {
   const { t } = useTranslation("remote");
   const [state, setState] = useState<RemoteControlState | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -60,7 +67,10 @@ export function NibRemotePairingRow({ onWorkspaceOpened }: { onWorkspaceOpened?:
     try {
       const next = active ? await api.remoteControlStop() : await api.remoteControlStart();
       setState(next);
-      if (!active) setExpanded(true);
+      if (!active) {
+        setExpanded(true);
+        onExpandedChange?.(true);
+      }
     } catch {
       // The start failure surfaces through remoteControlChanged (phase error);
       // nothing actionable inline beyond the status text.
@@ -91,7 +101,10 @@ export function NibRemotePairingRow({ onWorkspaceOpened }: { onWorkspaceOpened?:
             void toggle();
             return;
           }
-          setExpanded((v) => !v);
+          setExpanded((v) => {
+            onExpandedChange?.(!v);
+            return !v;
+          });
         }}
       >
         <IconQrCode size={13} aria-hidden />

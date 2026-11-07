@@ -90,6 +90,9 @@ export function NibCreditsChip() {
           setEnt((previous) =>
             thin && previous?.signedIn ? previous : next,
           );
+          // One honest flag for every surface: the model picker's sign-in
+          // shortcut reads this instead of running its own entitlement read.
+          useAppStore.getState().setNibSignedIn(next.signedIn === true);
           // The poll doubles as the expiry detector: the first read that
           // comes back signed-out means the session died. Refresh the
           // provider rows so the composer drops the gateway models now,

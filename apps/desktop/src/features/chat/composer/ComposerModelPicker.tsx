@@ -19,6 +19,8 @@ export type ComposerModelPickerProps = {
   fastMode?: boolean;
   selectedProviderId?: string;
   selectedModelId?: string;
+  /** The Nib account gate: signed-out pickers offer the sign-in shortcut. */
+  signedIn: boolean;
   controlsBlocked: boolean;
   onCloseOtherMenus: () => void;
   rootActions?: ReactNode;
@@ -34,6 +36,7 @@ export function ComposerModelPicker({
   fastMode = false,
   selectedProviderId,
   selectedModelId,
+  signedIn,
   controlsBlocked,
   onCloseOtherMenus,
   rootActions,
@@ -120,6 +123,8 @@ export function ComposerModelPicker({
           setOtherModelsExpanded={setOtherModelsExpanded}
           setModelHighlight={setModelHighlight} selectModel={selectModel}
           selectedProviderId={selectedProviderId} selectedModelId={selectedModelId}
+          onCloseMenu={() => setOpen(false)}
+          signedIn={signedIn}
         />
         {thinkingMenuLevels.length > 1 ? (
           <ThinkingLevelSlider
