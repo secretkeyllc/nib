@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.40",
+    date: "2026-11-07",
+    highlights: [
+      "Sesiones remotas mas silenciosas: los mensajes enviados desde el telefono ya no hacen sonar el escritorio, el despliegue del QR ya no tapa los botones del menu, y las opciones de compra estan en el menu de cuenta.",
+    ],
+  },
+
+{
     version: "0.22.39",
     date: "2026-11-06",
     highlights: [

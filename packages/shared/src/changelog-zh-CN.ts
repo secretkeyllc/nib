@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.40",
+    date: "2026-11-07",
+    highlights: [
+      "更安静的远程会话：手机发送的消息不再打扰桌面端，二维码展开不再遮挡菜单按钮，账户菜单里可以直接进入套餐购买与充值。",
+    ],
+  },
+
+{
     version: "0.22.39",
     date: "2026-11-06",
     highlights: [

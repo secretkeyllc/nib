@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.40",
+    date: "2026-11-07",
+    highlights: [
+      "更安靜的遠端會話：手機發送的訊息不再打擾桌面端，QR 展開不再遮擋選單按鈕，帳戶選單裡可以直接進入方案購買與儲值。",
+    ],
+  },
+
+{
     version: "0.22.39",
     date: "2026-11-06",
     highlights: [

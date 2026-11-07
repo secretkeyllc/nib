@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.40",
+    date: "2026-11-07",
+    highlights: [
+      "Sessões remotas mais silenciosas: mensagens enviadas do celular não tocam mais no desktop, o QR aberto não cobre mais os botões do menu, e as compras ficam no menu da conta.",
+    ],
+  },
+
+{
     version: "0.22.39",
     date: "2026-11-06",
     highlights: [

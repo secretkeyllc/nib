@@ -424,9 +424,9 @@
 /* 全自动 (auto) runs tools without asking — the permission chip turns
    warning-orange so the risky mode is visible at a glance. */
 .mode-chip.is-risky {
-  color: var(--ember, #ff7048);
-  border-color: var(--ember, #ff7048);
-  background: var(--glow, rgba(255, 112, 72, 0.12));
+  color: var(--ember);
+  border-color: var(--ember);
+  background: var(--glow);
 }
 .icon-btn {
   display: inline-flex;

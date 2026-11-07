@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.40",
+    date: "2026-11-07",
+    highlights: [
+      " quieter remote sessions: messages sent from the phone no longer ring the desktop, a QR fold-out no longer covers the menu buttons, and purchase entries sit right in the account menu.",
+    ],
+  },
+
+{
     version: "0.22.39",
     date: "2026-11-06",
     highlights: [

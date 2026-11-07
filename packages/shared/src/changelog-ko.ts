@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.40",
+    date: "2026-11-07",
+    highlights: [
+      "더 조용한 원격 세션: 휴대폰에서 보낸 메시지가 데스크톱 알림을 울리지 않고, QR 펼침이 메뉴 버튼을 가리지 않으며, 계정 메뉴에서 바로 구매할 수 있습니다.",
+    ],
+  },
+
+{
     version: "0.22.39",
     date: "2026-11-06",
     highlights: [
