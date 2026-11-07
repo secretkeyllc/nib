@@ -4262,6 +4262,13 @@
 
 /* Live pairing status pill: colour carries the state — green connected,
    amber waiting, muted connecting, red error. */
+.remote-status-row .settings-row-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .remote-live-status {
   display: inline-block;
   padding: 3px 10px;

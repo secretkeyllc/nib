@@ -1498,7 +1498,7 @@ export const api = {
   /** Open the Nib web console in the system browser. */
   openConsole: () => invoke<{ ok: boolean }>(IPC.invoke.nibOpenConsole),
   /** Open an allow-listed billing page (subscriptions / balance) in the browser. */
-  openBillingUrl: (url: string) => invoke<{ ok: boolean }>(IPC.invoke.nibOpenUrl, [url]),
+  openBillingUrl: (url: string) => invoke<{ ok: boolean }>(IPC.invoke.nibOpenUrl, url),
   /** Sign out locally: drop the provider key and the control-plane token. */
   nibSignOut: () => invoke<{ ok: boolean }>(IPC.invoke.nibSignOut),
   /** Announcements the admin console published for this account. */

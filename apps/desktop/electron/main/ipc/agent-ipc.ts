@@ -1,7 +1,7 @@
 import { IPC, ErrorCodes, compactionRecordId, findSkillMentions, isGlobalPermissionMode, isRpcTimeoutError, type AgentEventEnvelope, type AgentPromptAttachment, type AgentPromptRequest, type AgentSteerRequest, type UiMessage, type AgentQueuePushRequest, type AgentStopRequest, type AgentStopSubagentsRequest, type AskToolResolution, type GlobalPermissionMode, type MessageUsage, type PendingInteractiveRequests, type PlanExecutionFinishStatus, type PlanResolutionResult, type PlanResolveRequest, type VoiceOrigin } from "@pi-desktop/shared";
 import { expandMcpInvocation } from "../composer-mcp";
 import type { FinishTurn } from "../runtime/plans";
-import { clearRemoteDrivenTurn } from "../remote-control/remote-turn-flags";
+import { clearRemoteDrivenTurn, markRemoteDrivenTurn } from "../remote-control/remote-turn-flags";
 import { expandSlashInvocation, visionFromModelConfig, type ComposerTemplate } from "@pi-desktop/agent-runtime";
 import { appendPromptFallbackPaths, durableUserMessageId, preparePromptAttachments, type PreparedPromptAttachment } from "../prompt-attachments";
 import { resolveSessionReferences } from "../session-references";
@@ -311,9 +311,12 @@ export function registerAgentIpc({
       });
     }
     if (!host) throw new Error("host unavailable");
-    // A prompt typed in the desktop re-arms task notifications: the
-    // remote-driven silence applies only to the turn the controller started.
-    clearRemoteDrivenTurn(req.sessionId);
+    // A prompt typed in the desktop re-arms task notifications; a prompt the
+    // controller sent silences them for its turn. Clearing unconditionally
+    // here erased the remote mark the bridge had just set, which is why
+    // remote turns still rang the desktop.
+    if (req.remoteOrigin === true) markRemoteDrivenTurn(req.sessionId);
+    else clearRemoteDrivenTurn(req.sessionId);
     const releaseSessionOperation = await acquireSessionOperation(req.sessionId);
     try {
     const sessionMessage = await resolveSessionMessageInput(host, req);

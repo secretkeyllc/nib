@@ -418,10 +418,10 @@ class RemoteControlSession {
         const content = String(cmd.p.content ?? "");
         if (!sessionId || !content.trim()) throw new Error("sessionId and content required");
         // The sender is watching the answer on the controller; a desktop
-        // banner per message is noise. The flag is consumed at turn end.
-        markRemoteDrivenTurn(sessionId);
+        // banner per message is noise. The flag rides the request itself so
+        // the local-prompt path in agent-ipc can tell the two origins apart.
         return this.invokeIpc(IPC.invoke.agentPrompt, [
-          { sessionId, content } satisfies AgentPromptRequest,
+          { sessionId, content, remoteOrigin: true } satisfies AgentPromptRequest,
         ]);
       }
       case "stop": {

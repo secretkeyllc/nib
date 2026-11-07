@@ -4,6 +4,7 @@ import { IPC, type RemoteControlState } from "@pi-desktop/shared";
 import { api } from "../../lib/api";
 import { Button } from "../../components/ui";
 import { SettingsCard, SettingsRow } from "./primitives";
+import { HelpIcon } from "../../components/ui";
 
 /**
  * Mobile remote control (Settings → About tab).
@@ -94,19 +95,22 @@ export function RemoteControlSection() {
 
   return (
     <SettingsCard title={t("pairingTitle")}>
-      <SettingsRow
-        title={t("pairingStatus")}
-        description={phaseLabel()}
-        detail={
-          <span className={`remote-live-status is-${phase}`}>
-            {phaseLabel() ?? t("pairingPhaseIdle")}
-          </span>
-        }
-      >
-        <Button variant="secondary" disabled={busy} onClick={() => void toggle()}>
-          {state?.active ? t("pairingStop") : t("pairingStart")}
-        </Button>
-      </SettingsRow>
+      <div className="settings-row remote-status-row">
+        <div className="settings-row-copy">
+          <div className="settings-row-title">
+            {t("pairingStatus")}
+            <HelpIcon label={phaseLabel()} />
+            <span className={`remote-live-status is-${phase}`}>
+              {phaseLabel() ?? t("pairingPhaseIdle")}
+            </span>
+          </div>
+        </div>
+        <div className="settings-row-control">
+          <Button variant="secondary" disabled={busy} onClick={() => void toggle()}>
+            {state?.active ? t("pairingStop") : t("pairingStart")}
+          </Button>
+        </div>
+      </div>
       {signedIn && (
         <SettingsRow title={t("pairingAutoTitle")} description={t("pairingAutoDesc")}>
           <button

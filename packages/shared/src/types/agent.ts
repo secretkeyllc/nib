@@ -11,6 +11,12 @@ import type { RacpPermissionMode } from "../racp.js";
 export type AgentPromptRequest = {
   sessionId: string;
   content: string;
+  /**
+   * Internal: set by the remote-control bridge when a phone drives the prompt.
+   * Turn completion for such a turn must not raise a desktop notification —
+   * the sender is reading the answer on the controller.
+   */
+  remoteOrigin?: boolean;
   /** Host-owned collaboration delivery; its durable record supplies the input. */
   sessionMessageId?: string;
   /** Attachments are resolved by Electron main and never trusted by the sidecar. */

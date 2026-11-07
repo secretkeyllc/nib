@@ -427,7 +427,13 @@
 .mode-chip.is-risky {
   color: var(--ds-warning);
   border-color: var(--ds-warning);
-  background: color-mix(in oklab, var(--ds-warning) 12%, transparent);
+  /* Same treatment as the credits popover's purchase pill: a clearly tinted
+     fill, not a barely-there wash. */
+  background: color-mix(in oklab, var(--ds-warning) 18%, transparent);
+}
+
+.mode-chip.is-risky:hover {
+  background: color-mix(in oklab, var(--ds-warning) 26%, transparent);
 }
 .icon-btn {
   display: inline-flex;

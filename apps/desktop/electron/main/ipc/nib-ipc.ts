@@ -380,6 +380,11 @@ export function registerNibIpc({
     // the user's default browser.
     const url = typeof rawUrl === "string" ? rawUrl : "";
     if (url !== SUBSCRIPTIONS_URL && url !== BALANCE_URL && url !== CONSOLE_URL) {
+      // A silent refusal here is what made two releases look "dead": log the
+      // shape so a contract mismatch is diagnosable from the app log.
+      logger.app("provider", "warn", "billing url refused", {
+        data: { type: typeof rawUrl, isArray: Array.isArray(rawUrl), url },
+      });
       return { ok: false };
     }
     await shell.openExternal(url);
