@@ -33,7 +33,7 @@ export function ComposerPermissionPicker({t, mode, composerPermissionMode,
             <TooltipButton
               ref={ref}
               type="button"
-              className={`icon-btn mode-chip ${permissionOpen ? "active" : ""}`}
+              className={`icon-btn mode-chip ${permissionOpen ? "active" : ""} ${composerPermissionMode === "auto" ? "is-risky" : ""}`}
               tooltip={
                 mode === "goal"
                   ? `${t("chat.permissionMode")} · ${t("goal.autoWarning")}`
