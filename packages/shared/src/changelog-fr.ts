@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.41",
+    date: "2026-11-07",
+    highlights: [
+      "Corrections suite a vos retours : le badge d'autorisation auto affiche sa couleur d'avertissement, l'entree de recharge ouvre la page de facturation, les comptes d'essai ont un bouton d'achat dans le popover de credits, et les parametres affichent le statut d'appairage en direct.",
+    ],
+  },
+
+{
     version: "0.22.40",
     date: "2026-11-07",
     highlights: [

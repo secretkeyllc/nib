@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.41",
+    date: "2026-11-07",
+    highlights: [
+      "修復本週回饋：全自動權限晶片正確顯示警示色，餘額儲值入口正常開啟計費頁，試用帳戶的額度彈窗內有購買方案按鈕，設定裡顯示即時配對狀態。",
+    ],
+  },
+
+{
     version: "0.22.40",
     date: "2026-11-07",
     highlights: [

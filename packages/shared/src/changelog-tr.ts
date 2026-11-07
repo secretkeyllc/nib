@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.41",
+    date: "2026-11-07",
+    highlights: [
+      "Bu haftaki geri bildirim duzeltmeleri: otomatik izin dugmesi uyarı rengini gosteriyor, bakiye yukleme girisi faturalandırma sayfasını acıyor, deneme hesapları kredi popoverında satin alma dugmesi aliyor, ve Ayarlar canli eslesme durumunu gosteriyor.",
+    ],
+  },
+
+{
     version: "0.22.40",
     date: "2026-11-07",
     highlights: [

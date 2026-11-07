@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.41",
+    date: "2026-11-07",
+    highlights: [
+      "Correções do feedback desta semana: o chip de permissão automática mostra sua cor de aviso, a entrada de recarga abre a página de cobrança, contas de teste ganham um botão de compra no popover de créditos, e Ajustes mostra o status de pareamento em tempo real.",
+    ],
+  },
+
+{
     version: "0.22.40",
     date: "2026-11-07",
     highlights: [

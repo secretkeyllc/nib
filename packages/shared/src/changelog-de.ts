@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.41",
+    date: "2026-11-07",
+    highlights: [
+      "Korrekturen zum Feedback dieser Woche: der Auto-Berechtigungs-Chip zeigt seine Warnfarbe, der Guthaben-Aufstocken-Eintrag oeffnet die Abrechnungsseite, Testkonten erhalten einen Kauf-Button im Guthaben-Popover, und die Einstellungen zeigen den Live-Pairing-Status.",
+    ],
+  },
+
+{
     version: "0.22.40",
     date: "2026-11-07",
     highlights: [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.41",
+    date: "2026-11-07",
+    highlights: [
+      "修复本周反馈：全自动权限芯片正确显示警示色，余额充值入口正常打开计费页，试用账户的额度弹窗内有购买套餐按钮，设置里显示实时配对状态。",
+    ],
+  },
+
+{
     version: "0.22.40",
     date: "2026-11-07",
     highlights: [
