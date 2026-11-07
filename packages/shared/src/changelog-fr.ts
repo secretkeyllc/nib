@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.42",
+    date: "2026-11-07",
+    highlights: [
+      "Corrections : le statut d'appairage reste sur la meme ligne que son libelle, le badge 全自动 ressort autant que le bouton d'achat, les liens solde et forfait rouvrent le navigateur, et les tours lances depuis le telephone restent silencieux sur le bureau.",
+    ],
+  },
+
+{
     version: "0.22.41",
     date: "2026-11-07",
     highlights: [

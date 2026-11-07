@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.42",
+    date: "2026-11-07",
+    highlights: [
+      "피드백 수정: 페어링 상태가 라벨과 같은 줄에 표시되고, 全自动 칩이 구매 버튼만큼 눈에 띄며, 잔액 및 플랜 링크가 다시 브라우저를 열고, 휴대폰에서 시작한 턴은 데스크톱에서 조용합니다.",
+    ],
+  },
+
+{
     version: "0.22.41",
     date: "2026-11-07",
     highlights: [

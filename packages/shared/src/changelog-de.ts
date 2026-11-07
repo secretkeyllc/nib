@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.42",
+    date: "2026-11-07",
+    highlights: [
+      "Feedback-Korrekturen: der Pairing-Status steht in derselben Zeile wie seine Beschriftung, der 全自动-Chip ist so deutlich wie die Kauf-Pille, die Guthaben- und Plan-Links oeffnen wieder den Browser, und vom Handy gesteuerte Turns bleiben am Desktop still.",
+    ],
+  },
+
+{
     version: "0.22.41",
     date: "2026-11-07",
     highlights: [

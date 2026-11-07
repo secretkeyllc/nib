@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.42",
+    date: "2026-11-07",
+    highlights: [
+      "回饋修復：配對狀態與標題同行顯示，全自動晶片與購買按鈕同樣醒目，餘額與方案連結恢復開啟瀏覽器，手機發起的回合在桌面端保持靜音。",
+    ],
+  },
+
+{
     version: "0.22.41",
     date: "2026-11-07",
     highlights: [

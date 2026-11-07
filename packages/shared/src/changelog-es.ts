@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.42",
+    date: "2026-11-07",
+    highlights: [
+      "Correcciones: el estado de emparejamiento queda en la misma linea que su etiqueta, el chip 全自动 destaca como el boton de compra, los enlaces de saldo y plan vuelven a abrir el navegador, y los turnos desde el telefono no suenan en el escritorio.",
+    ],
+  },
+
+{
     version: "0.22.41",
     date: "2026-11-07",
     highlights: [

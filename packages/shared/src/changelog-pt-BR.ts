@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.42",
+    date: "2026-11-07",
+    highlights: [
+      "Correcoes: o status de pareamento fica na mesma linha do rotulo, o chip 全自动 se destaca como o botao de compra, os links de saldo e plano voltam a abrir o navegador, e turnos iniciados no celular ficam silenciosos no desktop.",
+    ],
+  },
+
+{
     version: "0.22.41",
     date: "2026-11-07",
     highlights: [
