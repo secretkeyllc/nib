@@ -374,7 +374,7 @@ export function registerNibIpc({
     return { ok: true };
   });
 
-  registrar.handle(urlChannel, async (_event, rawUrl: unknown) => {
+  registrar.handle(urlChannel, async (rawUrl: unknown) => {
     // Only the billing pages on the console origin may be opened here. An
     // arbitrary-URL channel from the renderer would be an open redirect into
     // the user's default browser.

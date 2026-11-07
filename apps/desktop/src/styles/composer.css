@@ -422,11 +422,12 @@
 
 
 /* 全自动 (auto) runs tools without asking — the permission chip turns
-   warning-orange so the risky mode is visible at a glance. */
+   warning-orange so the risky mode is visible at a glance. --ds-warning is
+   the desktop's own warning token (--ember/--glow exist only on the site). */
 .mode-chip.is-risky {
-  color: var(--ember);
-  border-color: var(--ember);
-  background: var(--glow);
+  color: var(--ds-warning);
+  border-color: var(--ds-warning);
+  background: color-mix(in oklab, var(--ds-warning) 12%, transparent);
 }
 .icon-btn {
   display: inline-flex;
@@ -1523,6 +1524,23 @@
   font-size: var(--text-lg);
   font-weight: var(--font-weight-strong);
   line-height: var(--leading-none);
+}
+
+/* Trial accounts get the convert action beside the plan title. */
+.nib-credits-popover-buy {
+  margin-left: auto;
+  padding: 4px 10px;
+  border: 1px solid var(--ds-warning);
+  border-radius: var(--radius-full);
+  background: color-mix(in oklab, var(--ds-warning) 12%, transparent);
+  color: var(--ds-warning);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-strong);
+  white-space: nowrap;
+}
+
+.nib-credits-popover-buy:hover {
+  background: color-mix(in oklab, var(--ds-warning) 20%, transparent);
 }
 
 /* Paid / Extra view switch. Two equal tabs above the meters; the active one

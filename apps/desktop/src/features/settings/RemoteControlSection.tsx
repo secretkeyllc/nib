@@ -76,6 +76,7 @@ export function RemoteControlSection() {
     }
   }
 
+  const phase = state?.phase ?? "idle";
   const phaseLabel = () => {
     switch (state?.phase) {
       case "connecting":
@@ -93,7 +94,15 @@ export function RemoteControlSection() {
 
   return (
     <SettingsCard title={t("pairingTitle")}>
-      <SettingsRow title={t("pairingStatus")} description={phaseLabel()}>
+      <SettingsRow
+        title={t("pairingStatus")}
+        description={phaseLabel()}
+        detail={
+          <span className={`remote-live-status is-${phase}`}>
+            {phaseLabel() ?? t("pairingPhaseIdle")}
+          </span>
+        }
+      >
         <Button variant="secondary" disabled={busy} onClick={() => void toggle()}>
           {state?.active ? t("pairingStop") : t("pairingStart")}
         </Button>

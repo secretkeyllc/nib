@@ -50,6 +50,14 @@ function percentOf(used: number, limit: number): number {
 export function NibCreditsChip() {
   const { t } = useTranslation();
   const [ent, setEnt] = useState<NibEntitlement | null>(null);
+  /**
+   * Trial holders are prospects: beside the plan title sits the one action
+   * that converts them. Detected the same way the account popover detects it
+   * (the signup grant's group name, or no plan row at all).
+   */
+  const isTrial =
+    (ent?.signedIn ?? false) &&
+    (ent?.planName?.trim() ? /trial/i.test(ent.planName) : true);
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -327,6 +335,19 @@ export function NibCreditsChip() {
             ? (bonusAllowance?.groupName ?? ent.planName ?? "Extra")
             : (ent.planName ?? "Nib")}
         </strong>
+        {isTrial ? (
+          <button
+            type="button"
+            className="nib-credits-popover-buy"
+            onClick={() => {
+              void api
+                .openBillingUrl("https://nib.am/app/subscriptions")
+                .catch(() => undefined);
+            }}
+          >
+            {t("nib.accountPurchasePlan")}
+          </button>
+        ) : null}
         {resetLabel ? (
           <span className="nib-credits-popover-reset">
             {t("nib.creditsRenews", { date: resetLabel })}
