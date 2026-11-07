@@ -832,6 +832,7 @@ export const en = {
     accountSignIn: "Sign in to Nib",
     accountSignOut: "Sign out",
     accountManage: "Manage plan",
+    accountTopUp: "Top up balance",
     accountLanguage: "Language",
     accountTheme: "Appearance",
     accountThemeSystem: "System",

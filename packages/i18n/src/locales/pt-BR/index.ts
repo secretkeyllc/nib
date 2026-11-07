@@ -819,6 +819,7 @@ export const ptBR = {
     "accountSignIn": "Sign in to Nib",
     "accountSignOut": "Sign out",
     "accountManage": "Manage plan",
+    "accountTopUp": "Recarregar saldo",
     "accountLanguage": "Language",
     "accountTheme": "Appearance",
     "accountThemeSystem": "System",

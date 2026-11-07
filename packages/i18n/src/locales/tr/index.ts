@@ -829,6 +829,7 @@ export const tr = {
     "accountSignIn": "Sign in to Nib",
     "accountSignOut": "Sign out",
     "accountManage": "Manage plan",
+    "accountTopUp": "Bakiye yükleme",
     "accountLanguage": "Language",
     "accountTheme": "Appearance",
     "accountThemeSystem": "System",

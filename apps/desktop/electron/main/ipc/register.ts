@@ -339,6 +339,7 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
     logger,
     channel: IPC.invoke.nibEntitlement,
     consoleChannel: IPC.invoke.nibOpenConsole,
+    urlChannel: IPC.invoke.nibOpenUrl,
     signOutChannel: IPC.invoke.nibSignOut,
     announcementsChannel: IPC.invoke.nibAnnouncements,
     announcementReadChannel: IPC.invoke.nibAnnouncementRead,

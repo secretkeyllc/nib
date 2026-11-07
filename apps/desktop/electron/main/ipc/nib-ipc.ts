@@ -23,6 +23,10 @@ import type { IpcRegistrar } from "./types";
 const ENTITLEMENT_URL = "https://nib.am/api/v1/product/entitlement";
 const ANNOUNCEMENTS_URL = "https://nib.am/api/v1/announcements";
 const CONSOLE_URL = "https://nib.am/app";
+/** The billing surfaces the account menu links to. Kept on the same origin
+ *  as the console so the browser session (and 2FA) carries over. */
+const SUBSCRIPTIONS_URL = "https://nib.am/app/subscriptions";
+const BALANCE_URL = "https://nib.am/app/balance";
 const TIMEOUT_MS = 12_000;
 
 /** Reading an announcement goes through the same control-plane route. */
@@ -124,6 +128,8 @@ type Deps = {
   channel: string;
   /** Open the web console. */
   consoleChannel: string;
+  /** Open an allow-listed billing page (plans / balance). */
+  urlChannel: string;
   /** Sign out of the account on this machine. */
   signOutChannel: string;
   /** Admin-written announcements, shown in the notification center. */
@@ -281,6 +287,7 @@ export function registerNibIpc({
   logger,
   channel,
   consoleChannel,
+  urlChannel,
   signOutChannel,
   announcementsChannel,
   announcementReadChannel,
@@ -361,7 +368,21 @@ export function registerNibIpc({
   registrar.handle(consoleChannel, async () => {
     // The console is a browser surface: opening it externally keeps the app's
     // credential boundary intact and lets the user use their browser session.
-    await shell.openExternal(CONSOLE_URL);
+    // Landing directly on the subscriptions page: that is what "Manage plan"
+    // promises, and where a purchase happens.
+    await shell.openExternal(SUBSCRIPTIONS_URL);
+    return { ok: true };
+  });
+
+  registrar.handle(urlChannel, async (_event, rawUrl: unknown) => {
+    // Only the billing pages on the console origin may be opened here. An
+    // arbitrary-URL channel from the renderer would be an open redirect into
+    // the user's default browser.
+    const url = typeof rawUrl === "string" ? rawUrl : "";
+    if (url !== SUBSCRIPTIONS_URL && url !== BALANCE_URL && url !== CONSOLE_URL) {
+      return { ok: false };
+    }
+    await shell.openExternal(url);
     return { ok: true };
   });
 

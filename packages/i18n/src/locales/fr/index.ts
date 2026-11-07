@@ -820,6 +820,7 @@ export const fr = {
     "accountSignIn": "Sign in to Nib",
     "accountSignOut": "Sign out",
     "accountManage": "Manage plan",
+    "accountTopUp": "Recharger le solde",
     "accountLanguage": "Language",
     "accountTheme": "Appearance",
     "accountThemeSystem": "System",

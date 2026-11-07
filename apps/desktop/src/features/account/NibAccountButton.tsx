@@ -357,6 +357,21 @@ export function NibAccountButton() {
             <button
               type="button"
               className="nib-account-action"
+              onClick={() => {
+                setOpen(false);
+                void api
+                  .openBillingUrl("https://nib.am/app/balance")
+                  .catch(() => undefined);
+              }}
+            >
+              <span className="nib-account-action-label">
+                {t("nib.accountTopUp")}
+              </span>
+              <IconChevronRight size={13} aria-hidden />
+            </button>
+            <button
+              type="button"
+              className="nib-account-action"
               disabled={signingOut}
               onClick={() => void signOut()}
             >

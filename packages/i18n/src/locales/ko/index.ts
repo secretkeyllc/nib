@@ -829,6 +829,7 @@ export const ko = {
     "accountSignIn": "Sign in to Nib",
     "accountSignOut": "Sign out",
     "accountManage": "Manage plan",
+    "accountTopUp": "잔액 충전",
     "accountLanguage": "Language",
     "accountTheme": "Appearance",
     "accountThemeSystem": "System",

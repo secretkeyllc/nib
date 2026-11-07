@@ -825,6 +825,7 @@ export const zhTW = {
     "accountSignIn": "登入 Nib",
     "accountSignOut": "登出",
     "accountManage": "管理方案",
+    "accountTopUp": "餘額儲值",
     "accountLanguage": "語言",
     "accountTheme": "外觀",
     "accountThemeSystem": "跟隨系統",

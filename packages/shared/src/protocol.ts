@@ -307,6 +307,7 @@ export const IPC = {
      * credential models this product keeps apart.
      */
     nibOpenConsole: "pi-desktop/nib/open-console",
+    nibOpenUrl: "pi-desktop/nib/open-url",
     /**
      * Sign out of Nib locally: drop the gateway key from the provider row and
      * the control-plane JWT from the plugin's settings.

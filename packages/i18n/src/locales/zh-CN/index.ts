@@ -825,6 +825,7 @@ export const zhCN = {
     accountSignIn: "登录 Nib",
     accountSignOut: "退出登录",
     accountManage: "管理套餐",
+    accountTopUp: "余额充值",
     accountLanguage: "语言",
     accountTheme: "外观",
     accountThemeSystem: "跟随系统",
