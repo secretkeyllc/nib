@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.41",
+    date: "2026-11-07",
+    highlights: [
+      "이번 주 피드백 수정 사항: 자동 권한 칩에 경고 색상이 표시되고, 잔액 충전 항목이 결제 페이지를 열며, 체험 계정에 크레딧 팝오버 구매 버튼이 생기고, 설정에 실시간 페어링 상태가 표시됩니다.",
+    ],
+  },
+
+{
     version: "0.22.40",
     date: "2026-11-07",
     highlights: [

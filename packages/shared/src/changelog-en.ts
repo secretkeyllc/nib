@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.41",
+    date: "2026-11-07",
+    highlights: [
+      "Fixes from this week's feedback: the auto-permission chip shows its warning colour, the balance top-up entry opens the billing page, trial accounts get a purchase button in the credits popover, and Settings shows the live pairing status.",
+    ],
+  },
+
+{
     version: "0.22.40",
     date: "2026-11-07",
     highlights: [

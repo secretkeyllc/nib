@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.41",
+    date: "2026-11-07",
+    highlights: [
+      "Correcciones de los comentarios de esta semana: el chip de permiso automático muestra su color de aviso, la entrada de recarga de saldo abre la página de facturación, las cuentas de prueba tienen un botón de compra en el popover de créditos, y Ajustes muestra el estado de emparejamiento en vivo.",
+    ],
+  },
+
+{
     version: "0.22.40",
     date: "2026-11-07",
     highlights: [
