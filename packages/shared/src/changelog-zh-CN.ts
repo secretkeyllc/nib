@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
 {
+    version: "0.22.42",
+    date: "2026-11-07",
+    highlights: [
+      "反馈修复：配对状态与标题同行显示，全自动芯片与购买按钮同样醒目，余额与套餐链接恢复打开浏览器，手机发起的回合在桌面端保持静音。",
+    ],
+  },
+
+{
     version: "0.22.41",
     date: "2026-11-07",
     highlights: [

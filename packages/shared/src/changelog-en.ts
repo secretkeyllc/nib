@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.42",
+    date: "2026-11-07",
+    highlights: [
+      "Feedback fixes: the remote pairing status sits inline with its label, the 全自动 chip is as loud as the purchase pill, the balance and plan links open the browser again, and turns driven from your phone stay silent on the desktop.",
+    ],
+  },
+
+{
     version: "0.22.41",
     date: "2026-11-07",
     highlights: [

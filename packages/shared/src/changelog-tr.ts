@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.42",
+    date: "2026-11-07",
+    highlights: [
+      "Geri bildirim duzeltmeleri: eslesme durumu etiketiyle ayni satirda, 全自动 dugmesi satin alma dugmesi kadar belirgin, bakiye ve plan baglantilari tarayiciyi yeniden aciyor ve telefondan baslatilan turlar masaustunde sessiz kaliyor.",
+    ],
+  },
+
+{
     version: "0.22.41",
     date: "2026-11-07",
     highlights: [
