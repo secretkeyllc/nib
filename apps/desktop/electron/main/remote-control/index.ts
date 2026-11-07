@@ -22,6 +22,7 @@ import { randomUUID, randomBytes } from "node:crypto";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import WebSocket from "ws";
 import QRCode from "qrcode";
+import { markRemoteDrivenTurn } from "./remote-turn-flags";
 import { APP_VERSION, IPC, type RemoteControlState } from "@pi-desktop/shared";
 import type { AgentPromptRequest, AgentStopRequest, AskToolResolution } from "@pi-desktop/shared";
 
@@ -416,6 +417,9 @@ class RemoteControlSession {
         const sessionId = String(cmd.p.sessionId ?? "");
         const content = String(cmd.p.content ?? "");
         if (!sessionId || !content.trim()) throw new Error("sessionId and content required");
+        // The sender is watching the answer on the controller; a desktop
+        // banner per message is noise. The flag is consumed at turn end.
+        markRemoteDrivenTurn(sessionId);
         return this.invokeIpc(IPC.invoke.agentPrompt, [
           { sessionId, content } satisfies AgentPromptRequest,
         ]);

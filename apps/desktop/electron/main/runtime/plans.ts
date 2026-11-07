@@ -1,6 +1,7 @@
 import { ErrorCodes, IPC, type AgentEventEnvelope, type AppNotification, type PlanExecution, type PlanExecutionFinishStatus, type UiMessage } from "@pi-desktop/shared";
 import { executionFromResponse, executionListFromResponse, planExecutionFromUnknown } from "@pi-desktop/host-runtime";
 import type { RuntimeState } from "./context";
+import { consumeRemoteDrivenTurn } from "../remote-control/remote-turn-flags";
 import type {
   SessionCoordination,
   TurnEndedPayload,
@@ -189,9 +190,13 @@ function finishTurn(
   const runId = scheduledRunsBySession.get(id);
   if (runId) scheduledRunsBySession.delete(id);
   const wasPlanSubmission = planSubmissionTurnIds.has(finalizationKey);
+  // A turn the controller started is watched on the controller; the desktop
+  // banner would fire for every remote message (the window is unfocused by
+  // definition). The flag is consumed here so only that turn is silenced.
+  const remoteDriven = consumeRemoteDrivenTurn(id);
   const createNotification =
     options.createNotification ??
-    (!wasPlanSubmission && shouldCreateTaskNotification(id));
+    (!wasPlanSubmission && !remoteDriven && shouldCreateTaskNotification(id));
   const recoverInflight = options.recoverInflight === true;
 
   const runFinalization = async (): Promise<void> => {
