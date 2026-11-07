@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.40",
+    date: "2026-11-07",
+    highlights: [
+      "Daha sessiz uzaktan oturumlar: telefondan gonderilen mesajlar masaustunu rahatsiz etmiyor, QR acilimi menu dugmelerini kapatmiyor ve satin alma secenekleri hesap menusunde.",
+    ],
+  },
+
+{
     version: "0.22.39",
     date: "2026-11-06",
     highlights: [

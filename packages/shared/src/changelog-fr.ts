@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.40",
+    date: "2026-11-07",
+    highlights: [
+      "Sessions distantes plus silencieuses : les messages envoyes du telephone ne font plus sonner le bureau, le QR deploie ne masque plus les boutons du menu, et les achats sont accessibles depuis le menu du compte.",
+    ],
+  },
+
+{
     version: "0.22.39",
     date: "2026-11-06",
     highlights: [

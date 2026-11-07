@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.40",
+    date: "2026-11-07",
+    highlights: [
+      "Ruhigere Remote-Sitzungen: Vom Handy gesendete Nachrichten lasen den Desktop nicht mehr klingeln, der QR-Ausklapp verdeckt keine Menue-Schaltflaechen mehr, und Kaufoptionen sitzen direkt im Konto-Menue.",
+    ],
+  },
+
+{
     version: "0.22.39",
     date: "2026-11-06",
     highlights: [
