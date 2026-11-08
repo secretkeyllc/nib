@@ -616,7 +616,8 @@ export function createRemoteControl(deps: Deps): RemoteControlWithMaintenance {
   const state: RemoteControlInternalState = {
     session: null,
     phase: "idle",
-    autoStart: false,
+    // Default ON — see readAutoStart. The stored file can still turn it off.
+    autoStart: true,
   };
 
   const broadcast = () => {
@@ -741,11 +742,18 @@ export function createRemoteControl(deps: Deps): RemoteControlWithMaintenance {
     return getState();
   }
 
+  /**
+   * Remote control starts WITH the app by default: a phone link is meant to
+   * work whenever the desktop is running, and needing to re-enable pairing by
+   * hand after every restart is exactly the behaviour users compare against
+   * products that "just work". Turning it off is persisted as "0"; the file's
+   * absence means the default, not "off".
+   */
   async function readAutoStart(): Promise<boolean> {
     try {
-      return (await readFile(join(deps.dataDir(), "remote-autostart"), "utf8")).trim() === "1";
+      return (await readFile(join(deps.dataDir(), "remote-autostart"), "utf8")).trim() !== "0";
     } catch {
-      return false;
+      return true;
     }
   }
 

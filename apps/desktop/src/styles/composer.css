@@ -421,20 +421,6 @@
 }
 
 
-/* 全自动 (auto) runs tools without asking — the permission chip turns
-   warning-orange so the risky mode is visible at a glance. --ds-warning is
-   the desktop's own warning token (--ember/--glow exist only on the site). */
-.mode-chip.is-risky {
-  color: var(--ds-warning);
-  border-color: var(--ds-warning);
-  /* Same treatment as the credits popover's purchase pill: a clearly tinted
-     fill, not a barely-there wash. */
-  background: color-mix(in oklab, var(--ds-warning) 18%, transparent);
-}
-
-.mode-chip.is-risky:hover {
-  background: color-mix(in oklab, var(--ds-warning) 26%, transparent);
-}
 .icon-btn {
   display: inline-flex;
   height: 28px;
@@ -459,6 +445,22 @@
 .icon-btn.active {
   background: var(--ds-bg-active);
   color: var(--ds-text-primary);
+}
+
+/* 全自动 (auto) runs tools without asking — the permission chip turns
+   warning-orange so the risky mode is visible at a glance. --ds-warning is
+   the desktop's own warning token (--ember/--glow exist only on the site).
+   Placed AFTER .icon-btn/.icon-btn.active: those set `color` at equal
+   specificity and would otherwise restore the neutral text colour. */
+.icon-btn.mode-chip.is-risky,
+.icon-btn.mode-chip.is-risky:hover {
+  color: var(--ds-warning);
+  border-color: var(--ds-warning);
+  background: color-mix(in oklab, var(--ds-warning) 18%, transparent);
+}
+
+.icon-btn.mode-chip.is-risky:hover {
+  background: color-mix(in oklab, var(--ds-warning) 26%, transparent);
 }
 
 .send-btn {
