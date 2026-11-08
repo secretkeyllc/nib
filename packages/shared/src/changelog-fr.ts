@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
 {
+    version: "0.22.43",
+    date: "2026-11-08",
+    highlights: [
+      "Corrections issues des retours : le libellé du sélecteur de permissions 全自动 passe lui aussi en couleur d'avertissement, et le contrôle à distance démarre avec l'application au lieu de devoir être réactivé à chaque redémarrage.",
+    ],
+  },
+
+{
     version: "0.22.42",
     date: "2026-11-07",
     highlights: [

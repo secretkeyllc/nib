@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
 {
+    version: "0.22.43",
+    date: "2026-11-08",
+    highlights: [
+      "Feedback-Korrekturen: Die Beschriftung des 全自动-Berechtigungs-Chips erscheint jetzt ebenfalls in der Warnfarbe; die Fernsteuerung startet mit der App, statt nach jedem Neustart manuell aktiviert werden zu müssen.",
+    ],
+  },
+
+{
     version: "0.22.42",
     date: "2026-11-07",
     highlights: [

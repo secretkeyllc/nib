@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
 {
+    version: "0.22.43",
+    date: "2026-11-08",
+    highlights: [
+      "Correções de feedback: o texto do chip de permissão 全自动 agora também aparece na cor de aviso, e o controle remoto inicia com o aplicativo em vez de precisar ser ativado manualmente a cada reinício.",
+    ],
+  },
+
+{
     version: "0.22.42",
     date: "2026-11-07",
     highlights: [

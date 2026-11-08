@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
 {
+    version: "0.22.43",
+    date: "2026-11-08",
+    highlights: [
+      "피드백 수정: 권한 모드 全自动 칩의 글자도 경고 색상으로 표시되고, 원격 제어가 앱과 함께 자동으로 시작되어 재시작할 때마다 직접 켤 필요가 없습니다.",
+    ],
+  },
+
+{
     version: "0.22.42",
     date: "2026-11-07",
     highlights: [

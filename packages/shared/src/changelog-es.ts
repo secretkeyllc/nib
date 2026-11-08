@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
 {
+    version: "0.22.43",
+    date: "2026-11-08",
+    highlights: [
+      "Correcciones de comentarios: la etiqueta del chip de permisos 全自动 ahora también muestra el color de advertencia, y el control remoto arranca con la aplicación en vez de tener que activarse a mano en cada reinicio.",
+    ],
+  },
+
+{
     version: "0.22.42",
     date: "2026-11-07",
     highlights: [

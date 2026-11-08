@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
 {
+    version: "0.22.43",
+    date: "2026-11-08",
+    highlights: [
+      "回饋修正：權限模式選擇「全自動」時，文字也會變成橘紅色提示風險；遠端控制隨應用啟動自動開啟，不用每次重啟後手動再開。",
+    ],
+  },
+
+{
     version: "0.22.42",
     date: "2026-11-07",
     highlights: [
