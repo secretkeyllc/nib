@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
 {
+    version: "0.22.43",
+    date: "2026-11-08",
+    highlights: [
+      "Feedback fixes: the 全自动 permission chip now shows its warning colour in the label too, and remote control starts with the app instead of needing to be switched on after every restart.",
+    ],
+  },
+
+{
     version: "0.22.42",
     date: "2026-11-07",
     highlights: [

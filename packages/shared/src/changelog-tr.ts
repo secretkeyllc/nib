@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
 {
+    version: "0.22.43",
+    date: "2026-11-08",
+    highlights: [
+      "Geri bildirim düzeltmeleri: 全自动 izin çipinin yazısı da artık uyarı renginde; uzaktan denetim, her yeniden başlatmadan sonra elle açılmak yerine uygulamayla birlikte başlıyor.",
+    ],
+  },
+
+{
     version: "0.22.42",
     date: "2026-11-07",
     highlights: [
