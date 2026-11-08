@@ -272,6 +272,37 @@
   color: var(--ds-text-secondary) !important;
 }
 
+/* 全自动 (auto) runs tools without asking, so the permission chip's text is
+   warning-orange. This lives here rather than in composer.css because every
+   .mode-chip colour above is `!important` and this file loads after it, so a
+   declaration in composer.css loses no matter how specific.
+   Both theme prefixes are written out: `:root[data-theme="light"] .mode-chip`
+   above outranks a bare `.mode-chip.is-risky` at equal importance.
+   Only the ink and the fill change — the chip keeps its normal border. */
+.mode-chip.is-risky,
+:root[data-theme="light"] .mode-chip.is-risky,
+:root[data-theme="dark"] .mode-chip.is-risky {
+  color: var(--ds-warning) !important;
+  /* :hover sets a neutral --ds-bg-hover !important; the tinted fill has to
+     win over it or the chip would only look orange at rest. */
+  background: color-mix(in oklab, var(--ds-warning) 18%, transparent) !important;
+}
+
+.mode-chip.is-risky:hover,
+:root[data-theme="light"] .mode-chip.is-risky:hover,
+:root[data-theme="dark"] .mode-chip.is-risky:hover {
+  color: var(--ds-warning) !important;
+  background: color-mix(in oklab, var(--ds-warning) 26%, transparent) !important;
+}
+
+/* The label and caret are their own elements with their own ink. */
+.mode-chip.is-risky > span,
+.mode-chip.is-risky svg,
+:root[data-theme="light"] .mode-chip.is-risky > span,
+:root[data-theme="light"] .mode-chip.is-risky svg {
+  color: var(--ds-warning) !important;
+}
+
 /* Tone and truncation only. The label-driven chip sets its own padding with
    `!important`, so the inline padding that used to sit here only ever widened
    the icon-only controls in this row. */

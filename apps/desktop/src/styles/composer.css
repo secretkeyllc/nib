@@ -447,21 +447,9 @@
   color: var(--ds-text-primary);
 }
 
-/* 全自动 (auto) runs tools without asking — the permission chip turns
-   warning-orange so the risky mode is visible at a glance. --ds-warning is
-   the desktop's own warning token (--ember/--glow exist only on the site).
-   Placed AFTER .icon-btn/.icon-btn.active: those set `color` at equal
-   specificity and would otherwise restore the neutral text colour. */
-.icon-btn.mode-chip.is-risky,
-.icon-btn.mode-chip.is-risky:hover {
-  color: var(--ds-warning);
-  border-color: var(--ds-warning);
-  background: color-mix(in oklab, var(--ds-warning) 18%, transparent);
-}
-
-.icon-btn.mode-chip.is-risky:hover {
-  background: color-mix(in oklab, var(--ds-warning) 26%, transparent);
-}
+/* The 全自动 (auto) permission chip's warning tint lives in
+   theme-overrides.css: several .mode-chip rules there are `!important` and
+   that stylesheet loads after this one, so any declaration here would lose. */
 
 .send-btn {
   display: inline-flex;
