@@ -1,6 +1,15 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
+  {
+    version: "0.22.44",
+    date: "2026-11-10",
+    highlights: [
+      "Nib이 시작 및 새로고침 시 새 모델을 자동으로 동기화하며 선택한 모델과 사용자 지정 한도를 유지합니다.",
+      "Extra 배포와 정식 모델 이름을 포함하여 모델 라우팅 별칭과 공개된 컨텍스트 및 출력 한도를 수정했습니다.",
+    ],
+  },
+
 {
     version: "0.22.43",
     date: "2026-11-08",

@@ -1,6 +1,15 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.22.44",
+    date: "2026-11-10",
+    highlights: [
+      "Nib 在啟動與重新整理時自動同步新增模型，並保留你的模型選擇與自訂限制。",
+      "修正模型路由別名及公布的上下文與輸出限制，涵蓋 Extra 部署與標準模型名稱。",
+    ],
+  },
+
 {
     version: "0.22.43",
     date: "2026-11-08",

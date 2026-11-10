@@ -1,6 +1,15 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
+  {
+    version: "0.22.44",
+    date: "2026-11-10",
+    highlights: [
+      "Nib automatically syncs newly available models at startup and on refresh while preserving your selections and custom limits.",
+      "Corrected model routing aliases and published context/output limits, including Extra deployments and canonical model names.",
+    ],
+  },
+
 {
     version: "0.22.43",
     date: "2026-11-08",
