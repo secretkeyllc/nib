@@ -2,7 +2,7 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
   {
-    version: "0.22.44",
+    version: "0.22.45",
     date: "2026-11-10",
     highlights: [
       "O Nib sincroniza novos modelos automaticamente ao iniciar e atualizar, preservando suas seleções e limites personalizados.",

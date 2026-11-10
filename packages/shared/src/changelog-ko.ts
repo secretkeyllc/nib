@@ -2,7 +2,7 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
-    version: "0.22.44",
+    version: "0.22.45",
     date: "2026-11-10",
     highlights: [
       "Nib이 시작 및 새로고침 시 새 모델을 자동으로 동기화하며 선택한 모델과 사용자 지정 한도를 유지합니다.",
