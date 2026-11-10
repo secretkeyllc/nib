@@ -30,6 +30,9 @@ pub struct ProviderPublic {
     pub models: Vec<ModelBinding>,
     #[serde(default)]
     pub model_selection_configured: bool,
+    /// Credential-scoped Nib discovery history. Missing IDs remain seen after deselection.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model_discovery: Option<serde_json::Value>,
     /// Legacy default retained so older renderer/runtime clients can continue
     /// reading a provider while they migrate to `models`.
     pub default_model_id: Option<String>,

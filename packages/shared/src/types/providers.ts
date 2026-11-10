@@ -28,6 +28,8 @@ export type ProviderPublic = {
   models: ModelBinding[];
   /** Host-owned durable marker: the model selection has been saved or reconciled. */
   modelSelectionConfigured?: boolean;
+  /** Credential-scoped discovery history used by built-in live providers. */
+  modelDiscovery?: { credentialKey: string; ids: string[] };
   /** @deprecated Use `models[0]?.id`; retained for older runtime consumers. */
   defaultModelId?: string;
   apiStyle?: string;

@@ -62,6 +62,10 @@
   A; only B's models may be cached or saved. Repeat with a plugin runtime reload.
   Save the exact three manifest IDs explicitly and verify startup/live refresh
   retain them; contrast with an empty unmarked selection, which initializes all.
+  Baseline a legacy configured profile, then publish another ID: automatic sync
+  adds it once, beside its family, without changing existing binding order,
+  aliases, custom limits, defaults, or a previously deselected ID. Legacy omitted
+  IDs stay omitted on first sync because historical discovery provenance is absent.
 - **Expected:** First sign-in and upgraded-account reconciliation select every
   returned chat model and publish context/output metadata to Settings, Composer
   and runtime. Existing selected subsets, explicit overrides and empty
@@ -19225,3 +19229,15 @@ their separate platform acceptance.
   event/result agreement, batch rejection and delegate restoration.
 - **Status**: Automated offline; native UI clicking and live providers are
   outside this fixture's coverage.
+
+#### E2E-MODELS-canonical-routing-metadata
+
+- **Steps**: Discover `gemini-4-argon-extra`, `deepseek-v4.1-flash`, and
+  `claude-fable-5-2` through a fixture Nib login, read the provider IPC cache,
+  populate Composer choices, and construct runtime models.
+- **Expected**: Catalog friendly names and published context/output limits
+  resolve for all three IDs. Extra inherits its base metadata and retains the
+  suffixed wire ID. Exact canonical DeepSeek metadata is distinct from the
+  newer `-1017` provider aliases; provider records and user overrides win.
+- **Automation**: `apps/desktop/test/nib-model-metadata.test.mjs` and
+  `apps/desktop/test/models-dev-catalog.test.mjs`; no real account or paid API.

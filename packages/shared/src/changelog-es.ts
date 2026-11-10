@@ -1,6 +1,15 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
+  {
+    version: "0.22.44",
+    date: "2026-11-10",
+    highlights: [
+      "Nib sincroniza automáticamente los nuevos modelos al iniciar y actualizar, conservando tus selecciones y límites personalizados.",
+      "Se corrigieron los alias de enrutamiento y los límites publicados de contexto y salida, incluidos los despliegues Extra y los nombres canónicos.",
+    ],
+  },
+
 {
     version: "0.22.43",
     date: "2026-11-08",

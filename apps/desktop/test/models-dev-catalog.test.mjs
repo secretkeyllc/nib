@@ -107,6 +107,36 @@ async function loadFixtureCatalog(t, fixture = catalogFixture) {
   return catalog;
 }
 
+test("canonical records resolve exact relay generations while provider records and user overrides win", async (t) => {
+  const providers = { deepseek: { models: { "deepseek-flash": {
+    id: "deepseek-flash", canonical_model_id: "deepseek/deepseek-v4.1-flash-1017",
+    limit: { context: 1_048_576, output: 393_216 },
+  } } }, reseller: { api: "https://reseller.example/v1", models: { "deepseek-v4.1-flash": {
+    id: "deepseek-v4.1-flash", limit: { context: 256_000, output: 32_768 },
+  } } } };
+  let document = { providers, models: { "deepseek/deepseek-v4.1-flash": {
+    id: "deepseek/deepseek-v4.1-flash", name: "DeepSeek V4.1 Flash",
+    limit: { context: 1_000_000, output: 384_000 },
+  } } };
+  const catalog = await loadFixtureCatalog(t, document);
+  const relay = { vendorKey: "custom", baseUrl: "https://relay.example/v1", modelId: "deepseek-v4.1-flash" };
+  assert.equal(catalog.findModel(relay).displayName, "DeepSeek V4.1 Flash");
+  assert.equal(catalog.findModel(relay).limit.output, 384_000);
+  assert.equal(catalog.findModel({ ...relay, modelId: "deepseek/deepseek-v4.1-flash" }).limit.context, 1_000_000);
+  assert.equal(catalog.findModel({ ...relay, modelId: "deepseek-flash" }).limit.output, 393_216);
+  assert.equal(catalog.findModel({ ...relay, vendorKey: "reseller", baseUrl: "https://reseller.example/v1" }).limit.output, 32_768);
+  assert.equal(catalog.findModel({ ...relay, modelId: "deepseek-v4.2-flash" }), undefined);
+  catalog.configureAccount({ id: "account", models: [{ id: relay.modelId, thinkingLevels: [],
+    contextWindow: 42_000, contextWindowSource: "user", maxTokens: 4_096, maxTokensSource: "user" }] });
+  assert.equal(catalog.modelConfigFor({ ...relay, providerId: "account" }).contextWindow, 42_000);
+  const refreshed = new ModelsDevCatalog({ catalogPath: "missing-fixture", fetchImpl: async () => responseFor(document) });
+  assert.equal(await refreshed.refresh(), true);
+  assert.equal(refreshed.findModel(relay).limit.output, 384_000);
+  document = { providers, models: {} };
+  assert.equal(await refreshed.refresh(), true);
+  assert.notEqual(refreshed.findModel(relay)?.limit.output, 384_000, "refresh invalidates canonical lookup memo");
+});
+
 test("published metadata retains exact Pi transcript transport bindings through runtime launch", async (t) => {
   const pi = createModels({ modelsStore: new InMemoryModelsStore(),
     authContext: { env: async () => undefined, fileExists: async () => false } });

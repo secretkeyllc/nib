@@ -29,8 +29,9 @@ test("does not hide a mismatched requested version", () => {
   });
 });
 
-test("accepts a models.dev provider catalog with model records", () => {
+test("accepts flat and wrapped models.dev provider catalogs", () => {
   assert.equal(isModelsDevProviderCatalog({ provider: { models: { model: {} } } }), true);
+  assert.equal(isModelsDevProviderCatalog({ providers: { provider: { models: { model: {} } } } }), true);
 });
 
 test("rejects invalid or empty models.dev catalogs", () => {

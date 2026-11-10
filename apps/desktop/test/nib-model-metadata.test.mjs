@@ -20,6 +20,38 @@ const { composerModelsForProvider } = await import("../src/lib/composer-models.t
 const manifest = JSON.parse(await readFile(new URL("../resources/plugins/nib.provider/manifest.json", import.meta.url), "utf8"));
 const declaration = manifest.contributes.providers[0];
 const providerId = "plugin:nib.provider:nib";
+const correctedModels = [
+  ["gemini-4-argon-extra", "Gemini 4 Argon Extra", 1_048_576, 32_768],
+  ["deepseek-v4.1-flash", "DeepSeek V4.1 Flash", 1_000_000, 384_000],
+  ["claude-fable-5-2", "Claude Fable 5.2", 1_000_000, 128_000],
+];
+
+test("Nib discovery, picker and runtime preserve corrected catalog metadata and wire IDs", async () => {
+  const h = await fixture({ fetchModels: () => new Response(JSON.stringify({
+    data: correctedModels.map(([id]) => ({ id })),
+  })) });
+  await h.login();
+  const discovered = await h.handlers.get(IPC.invoke.providersListModels)({ providerId, source: "cache" });
+  const composer = composerModelsForProvider(h.runtime.enrichProvider(h.row), discovered.models);
+  const { buildProviderModel } = await import("../../../packages/agent-runtime/dist/provider-binding.js");
+  for (const [id, name, context, output] of correctedModels) {
+    const info = h.catalog.findModel({ modelId: id, vendorKey: "nib", baseUrl: declaration.baseUrl });
+    assert.equal(info.displayName, name, id);
+    const discoveredModel = discovered.models.find((model) => model.modelId === id);
+    assert.equal(discoveredModel.contextWindow, context, id);
+    assert.equal(discoveredModel.maxTokens, output, id);
+    assert.equal(composer.find((model) => model.modelId === id).contextWindow, context, id);
+    const binding = await h.oauth.bindingFor(providerId, id);
+    assert.equal(binding.modelConfig.contextWindow, context, id);
+    assert.equal(binding.modelConfig.maxTokens, output, id);
+    const wire = buildProviderModel({ ...binding, id: providerId, name: "Nib", modelId: id,
+      apiKey: "", authKind: "none", model: { id, api: "openai-completions", baseUrl: binding.baseUrl } });
+    assert.equal(wire.id, id, "runtime keeps the wire ID");
+    assert.equal(wire.contextWindow, context, id);
+    assert.equal(wire.maxTokens, output, id);
+  }
+});
+
 const served = ["claude-haiku-4-5-20251001", "claude-sonnet-5", "gpt-6-astra", "gpt-6.1-sol", "gemini-4-argon", "grok-4.7", "unpublished-fixture-model"];
 
 async function fixture({ models = structuredClone(declaration.models), fetchModels, signedIn = false, modelSelectionConfigured, loginToken = "fixture-gateway-token" } = {}) {
@@ -45,6 +77,7 @@ async function fixture({ models = structuredClone(declaration.models), fetchMode
     }
   } };
   const catalog = new ModelsDevCatalog({
+    fetchImpl: async () => new Response(null, { status: 503 }),
     catalogPath: fileURLToPath(new URL("../resources/models.dev/api.json", import.meta.url)),
   });
   await catalog.loadLocal();
@@ -102,6 +135,42 @@ async function fixture({ models = structuredClone(declaration.models), fetchMode
     },
   };
 }
+
+test("legacy configured Nib baselines Fable without reviving unchecked IDs or changing overrides", async () => {
+  const selected = [
+    { ...bindingForCustomModel("gpt-6-astra"), alias: "Astra", contextWindow: 42_000, contextWindowSource: "user" },
+    { ...bindingForCustomModel("claude-sonnet-5"), alias: "Claude", maxTokens: 4_096, maxTokensSource: "user" },
+  ];
+  const h = await fixture({ signedIn: true, models: selected, modelSelectionConfigured: true,
+    fetchModels: () => new Response(JSON.stringify({ data: [...served, "claude-fable-5-2"].map((id) => ({ id })) })),
+  });
+  await h.oauth.reconcilePluginModels(providerId);
+  assert.deepEqual(h.row.models.map((model) => model.id), ["gpt-6-astra", "claude-sonnet-5"]);
+  assert.equal(h.row.models[0].alias, "Astra");
+  assert.equal(h.row.models[0].contextWindow, 42_000);
+  assert.equal(h.row.models[1].alias, "Claude");
+  assert.equal(h.row.models[1].maxTokens, 4_096);
+  await h.oauth.reconcilePluginModels(providerId);
+  assert.deepEqual(h.row.models.map((model) => model.id), ["gpt-6-astra", "claude-sonnet-5"]);
+});
+
+test("automatic sync adds only unseen IDs and never re-enables a removed known ID", async () => {
+  let ids = ["gpt-6-astra", "claude-sonnet-5"];
+  const h = await fixture({ signedIn: true, modelSelectionConfigured: true,
+    models: ids.map(bindingForCustomModel),
+    fetchModels: () => new Response(JSON.stringify({ data: ids.map((id) => ({ id })) })),
+  });
+  await h.oauth.reconcilePluginModels(providerId);
+  h.edit([h.row.models[0]]);
+  ids = ["gpt-6-astra", "claude-sonnet-5", "gpt-6.1-sol"];
+  h.reload();
+  await h.oauth.reconcilePluginModels(providerId, true);
+  assert.deepEqual(h.row.models.map((model) => model.id), ["gpt-6-astra", "gpt-6.1-sol"]);
+  const snapshot = structuredClone(h.row.models);
+  await h.oauth.reconcilePluginModels(providerId, true);
+  assert.deepEqual(h.row.models, snapshot);
+  assert.equal(h.row.modelDiscovery.ids.includes("claude-sonnet-5"), true);
+});
 
 test("a fresh Nib login selects the gateway models with published per-model limits", async () => {
   const h = await fixture();
@@ -276,8 +345,7 @@ test("explicit three-model selection survives startup and live refresh", { timeo
   const h = await fixture({ signedIn: true, modelSelectionConfigured: true });
   await h.handlers.get(IPC.invoke.providersList)();
   await h.oauth.reconcilePluginModels(providerId);
-  assert.equal(h.requests.length, 0);
-  await h.handlers.get(IPC.invoke.providersListModels)({ providerId, source: "refresh" });
+  assert.equal(h.requests.length, 1);
   assert.deepEqual(h.row.models.map((model) => model.id), declaration.models.map((model) => model.id));
 });
 

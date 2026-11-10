@@ -108,7 +108,7 @@ Surfaces in scope:
 
 | Surface | Requirement |
 |---|---|
-| `apps/desktop/resources/models.dev/api.json` | Refreshed from https://models.dev/api.json before tagging; the release workflow packages this snapshot unchanged |
+| `apps/desktop/resources/models.dev/api.json` | Refreshed from https://models.dev/catalog.json before tagging; the release workflow packages this snapshot unchanged |
 | `packages/shared/src/changelog-en.ts` | Newest-first English entries (source of truth, ADR 0009) |
 | `packages/shared/src/changelog-zh-CN.ts`, `changelog-zh-TW.ts`, `changelog-tr.ts`, `changelog-de.ts`, `changelog-es.ts`, `changelog-fr.ts`, `changelog-ko.ts`, `changelog-pt-BR.ts` | Same version set and highlight counts as English; a newly shipped locale is also registered in `packages/shared/src/changelog.ts` |
 | `packages/shared/src/changelog.test.ts` | Version added at the top of the newest-first list |
@@ -122,7 +122,7 @@ Blocking steps:
 1. Refresh `apps/desktop/resources/models.dev/api.json` **before** tagging:
 
    ```bash
-   curl -fsSL https://models.dev/api.json -o apps/desktop/resources/models.dev/api.json
+   curl -fsSL https://models.dev/catalog.json -o apps/desktop/resources/models.dev/api.json
    ```
 
    The version-bump script does not fetch this catalog. The release preflight

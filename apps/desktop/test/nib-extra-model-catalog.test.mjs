@@ -84,7 +84,9 @@ test("a stored empty level seed adopts the catalog's levels on the next binding 
   const healed = pluginModelBinding("claude-sonnet-5-extra", config, staleSeed);
   assert.deepEqual(healed.thinkingLevels, [...extra.thinkingLevels], "the stale seed follows the catalog");
   assert.ok(healed.defaultThinkingLevel, "a default level is seeded");
-  assert.equal(healed.contextWindowSource, "catalog", "limits stay catalog-owned");
+  assert.equal(healed.contextWindowSource, "user", "legacy limits preserve their ownership");
+  assert.equal(healed.contextWindow, staleSeed.contextWindow, "healing levels preserves saved context limits");
+  assert.equal(healed.maxTokens, staleSeed.maxTokens, "healing levels preserves saved output limits");
   // A non-empty stored set is the user's answer and is never replaced.
   const chosen = pluginModelBinding("claude-sonnet-5-extra", config, {
     ...staleSeed,

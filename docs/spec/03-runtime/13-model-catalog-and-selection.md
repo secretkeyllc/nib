@@ -286,9 +286,38 @@ If user selects model tagged without tools while in Agent mode:
 
 ## 6. Refresh behavior
 
-The bundled models.dev snapshot is the startup baseline. Startup reads no
-remote catalog and uses no ambient credentials. `providers.refreshModelCatalog`
-refreshes models.dev explicitly; settings metadata lookups themselves are local.
+The bundled models.dev snapshot is the startup baseline. Signed-in built-in Nib
+accounts also trigger a nonblocking public catalog refresh, coalesced and bounded
+to one attempt per six hours per process. This metadata refresh sends no account
+credentials. `providers.refreshModelCatalog` still permits an explicit refresh;
+settings metadata lookups themselves remain local. The combined `catalog.json`
+format supplies provider records and independent canonical model records; legacy
+provider-only snapshots remain readable.
+
+Built-in Nib reconciles available IDs on provider startup/list, with a 15-second
+attempt bound and coalescing. The renderer requests another provider refresh at
+most once a minute on focus/online and every five minutes while signed in; timers
+and event listeners are cleaned up on unmount. Custom providers retain manual
+model selection. A credential-scoped `modelDiscovery` history lives in Host
+provider configuration. Subsequent unseen IDs are inserted beside their family,
+with deterministic numeric ID ordering for additions and existing binding order
+preserved. Existing bindings retain aliases, limits and advanced options; failed
+or empty lists never clear bindings. Removed IDs remain in history and cannot be
+automatically revived. Credential/runtime checks and the Host snapshot precondition
+reject stale writes.
+
+Legacy configured accounts have no complete historical seen-ID set: the first
+nonempty list establishes a conservative baseline without enabling omitted IDs.
+An already-live model omitted before upgrade requires one Fetch list/select action.
+Unconfigured manifest seeds still initialize the full live list. Defaults and
+existing sessions retain their saved choices.
+
+For an unanchored relay, an exact lab-prefixed canonical identity (or its bare
+family ID) supplies metadata when the owner's provider records do not resolve
+it. Provider deployment records and explicit user overrides remain authoritative;
+canonical records never collapse dated or semantic model variants. Nib's
+`<base>-extra` routing aliases inherit the complete base model lookup and append
+`Extra` to its published name, while retaining the served wire ID.
 
 For keyed endpoints, live discovery supplies IDs and models.dev enriches their
 metadata. A positive safe integer context/input or output limit reported on a live

@@ -1,6 +1,15 @@
 import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
+  {
+    version: "0.22.44",
+    date: "2026-11-10",
+    highlights: [
+      "Nib, başlangıçta ve yenilemede yeni modelleri otomatik eşitler; seçimlerinizi ve özel sınırlarınızı korur.",
+      "Extra dağıtımları ve standart model adları dahil olmak üzere model yönlendirme takma adları ile yayımlanan bağlam ve çıktı sınırları düzeltildi.",
+    ],
+  },
+
 {
     version: "0.22.43",
     date: "2026-11-08",
