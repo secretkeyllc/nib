@@ -523,6 +523,28 @@ export function useAppShellRuntime() {
 
   useEffect(() => {
     if (!ready) return;
+    let active = false;
+    let lastAttempt = 0;
+    const refresh = () => {
+      const state = useAppStore.getState();
+      if (active || Date.now() - lastAttempt < 60_000 ||
+          !state.providers.some((provider) => provider.id === "plugin:nib.provider:nib" && provider.hasOauth && provider.enabled)) return;
+      lastAttempt = Date.now();
+      active = true;
+      void state.refreshProviders().catch(() => undefined).finally(() => { active = false; });
+    };
+    const timer = window.setInterval(refresh, 5 * 60_000);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("online", refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("online", refresh);
+    };
+  }, [ready]);
+
+  useEffect(() => {
+    if (!ready) return;
     // Host-originated settings writes (plugin `app.setTheme`) must reach the
     // renderer store or the shell keeps painting the previous preference.
     return api.onSettingsChanged((patch) => {

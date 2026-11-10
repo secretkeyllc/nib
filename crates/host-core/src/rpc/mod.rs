@@ -2558,20 +2558,47 @@ async fn handle_request(
             // Reconciliation carries the exact public snapshot it discovered
             // against. Compare under the Host state lock, atomically with save.
             let expected = params.get("expectedProvider").cloned();
+            let discovery = params.get("modelDiscovery").cloned();
             let input: ProviderUpdateInput = serde_json::from_value(params)
                 .map_err(|e| rpc_err(1002, e.to_string(), "INVALID_PARAMS"))?;
             let st = state.lock().await;
-            if let Some(expected) = expected {
+            if let Some(expected) = expected.as_ref() {
                 let current = providers::get_provider(&st.db, &st.secrets, &input.id)
                     .map_err(provider_rpc_err)?;
                 if current.as_ref().map(|row| serde_json::to_value(row).ok())
-                    != Some(Some(expected))
+                    != Some(Some(expected.clone()))
                 {
                     return Ok(json!({ "provider": current, "reconciled": false }));
                 }
             }
             let provider =
                 providers::update_provider(&st.db, &st.secrets, input).map_err(provider_rpc_err)?;
+            if let (Some(discovery), Some(provider)) = (discovery, provider.as_ref()) {
+                if provider.id == "plugin:nib.provider:nib" && expected.is_some() {
+                    let raw: String = st
+                        .db
+                        .conn()
+                        .query_row(
+                            "SELECT config_json FROM providers WHERE id = ?1",
+                            [&provider.id],
+                            |row| row.get(0),
+                        )
+                        .map_err(|e| rpc_err(1000, e.to_string(), "INTERNAL"))?;
+                    let mut config: Value = serde_json::from_str(&raw)
+                        .map_err(|e| rpc_err(1000, e.to_string(), "INTERNAL"))?;
+                    config["modelDiscovery"] = discovery;
+                    st.db
+                        .conn()
+                        .execute(
+                            "UPDATE providers SET config_json = ?1 WHERE id = ?2",
+                            rusqlite::params![config.to_string(), provider.id],
+                        )
+                        .map_err(|e| rpc_err(1000, e.to_string(), "INTERNAL"))?;
+                    let current = providers::get_provider(&st.db, &st.secrets, &provider.id)
+                        .map_err(provider_rpc_err)?;
+                    return Ok(json!({ "provider": current }));
+                }
+            }
             Ok(json!({ "provider": provider }))
         }
         "providers.delete" => {

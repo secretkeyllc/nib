@@ -155,6 +155,7 @@ export type OAuthProviderRow = {
   enabled?: boolean;
   defaultModelId?: string;
   modelSelectionConfigured?: boolean;
+  modelDiscovery?: { credentialKey: string; ids: string[] };
 };
 
 export type PluginOAuthProvider = {
@@ -396,6 +397,21 @@ function normalizePluginCredential(raw: unknown): PluginProviderOAuthCredential 
   return result;
 }
 
+function insertDiscoveredModels(
+  selected: readonly OAuthModelOption[],
+  additions: readonly OAuthModelOption[],
+): OAuthModelOption[] {
+  const result = [...selected];
+  for (const option of additions) {
+    const family = option.modelId.toLowerCase().split(/[-/.]/)[0];
+    let index = result.length;
+    for (let i = result.length - 1; i >= 0; i -= 1) {
+      if (result[i].modelId.toLowerCase().split(/[-/.]/)[0] === family) { index = i + 1; break; }
+    }
+    result.splice(index, 0, option);
+  }
+  return result;
+}
 export class VendorOAuth {
   private readonly deps: VendorOAuthDeps;
   private readonly logins = new Map<string, LoginSession>();
@@ -1402,7 +1418,7 @@ export class VendorOAuth {
       // login seeded it before the catalog could answer for the id. Those ride
       // the reconciliation once; the refreshed binding then matches the stored
       // one on the next pass and the work stops.
-      if (!refresh && row.modelSelectionConfigured &&
+      if (row.id !== "plugin:nib.provider:nib" && !refresh && row.modelSelectionConfigured &&
           !(row.models ?? []).some((model) => model.thinkingLevels.length === 0)) return;
       const provider = this.deps.getPluginOAuthBridge?.()?.listOAuthProviders()
         .find((candidate) => candidate.providerId === providerId);
@@ -1438,14 +1454,37 @@ export class VendorOAuth {
       if (discovery?.models !== offered || !discovery.credentialKey || discovery.runtimeId !== session.runtimeId) return;
       if (session.cancelled) return;
       if (offered.length === 0) return; // Leave provenance unset so the next refresh retries.
+      const currentIds = selected.map((model) => model.id);
+      const durableCredentialKey = discovery.credentialKey.split(":").slice(1).join(":");
+      const previous = row.modelDiscovery;
+      // Before discovery history existed, an omitted ID may be an explicit opt-out.
+      // Baseline the first answer conservatively; only later unseen IDs auto-enable.
+      const priorIds = previous?.credentialKey === durableCredentialKey
+        ? previous.ids
+        : offered.map((model) => model.modelId);
+      const selectedIds = new Set(currentIds);
+      const priorSeen = new Set(priorIds);
+      const newIds = offered.map((model) => model.modelId).filter((id) => !priorSeen.has(id));
+      const addIds = row.id === "plugin:nib.provider:nib" ? newIds : [];
       const options = initializeAll
         ? offered
-        : selected.map((model) => ({
-            modelId: model.id,
-            baseUrl,
-            apiStyle: row.apiStyle ?? "chat_completions",
-          }));
-      if (options.length === 0) return;
+        : insertDiscoveredModels(
+            selected.map((model) => ({ modelId: model.id, baseUrl, apiStyle: row.apiStyle ?? "chat_completions" })),
+            offered.filter((model) => addIds.includes(model.modelId) && !selectedIds.has(model.modelId))
+              .sort((a, b) => a.modelId.localeCompare(b.modelId, "en", { numeric: true })),
+          );
+      if (options.length === 0) {
+        if (!row.modelSelectionConfigured || row.id !== "plugin:nib.provider:nib" || row.modelDiscovery) return;
+        const baseline = row.id === "plugin:nib.provider:nib" ? {
+          credentialKey: durableCredentialKey,
+          ids: [...new Set([...priorIds, ...currentIds])].sort(),
+        } : undefined;
+        await this.serialize(row.id, async () => {
+          if (!await this.pluginDiscoveryIsCurrent(row.id, discovery.credentialKey!, session.runtimeId)) return;
+          await this.deps.call("providers.update", { id: row.id, expectedProvider: row, modelDiscovery: baseline });
+        });
+        return;
+      }
       const models = await Promise.all(options.map(async (option) => {
         const config = await lookup({
           providerId: initializeAll ? undefined : row.id,
@@ -1464,15 +1503,21 @@ export class VendorOAuth {
           current.baseUrl !== row.baseUrl || current.apiStyle !== row.apiStyle ||
           currentProvider?.runtimeId !== session.runtimeId ||
           JSON.stringify(current.models) !== JSON.stringify(row.models)) return;
-      if (row.modelSelectionConfigured && JSON.stringify(models) === JSON.stringify(selected)) return;
+      const modelDiscovery = row.id === "plugin:nib.provider:nib" ? {
+        credentialKey: durableCredentialKey,
+        ids: [...new Set([...(previous?.ids ?? []), ...priorIds, ...offered.map((option) => option.modelId), ...currentIds])].sort(),
+      } : undefined;
+      if (row.modelSelectionConfigured && JSON.stringify(models) === JSON.stringify(selected) &&
+          JSON.stringify(modelDiscovery) === JSON.stringify(row.modelDiscovery)) return;
       await this.serialize(row.id, async () => {
         if (!await this.pluginDiscoveryIsCurrent(row.id, discovery.credentialKey!, session.runtimeId)) return;
         await this.deps.call("providers.update", {
           id: row.id,
           expectedProvider: row,
+          ...(modelDiscovery ? { modelDiscovery } : {}),
           models,
           defaultModelId: models.some((model) => model.id === current.defaultModelId)
-            ? current.defaultModelId : models[0].id,
+            ? current.defaultModelId : models[0]?.id,
         });
       });
     } catch {

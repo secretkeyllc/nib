@@ -76,6 +76,7 @@ export type ProviderIpcDependencies = {
     | "modelConfigFor"
     | "settingsMetadataFor"
     | "publishedModelFor"
+    | "refreshIfStale"
   >;
   vendorOAuth: VendorOAuth;
   logger: Pick<Logger, "app">;
@@ -108,14 +109,17 @@ export function registerProviderIpc({
   };
   handle(IPC.invoke.providersList, async () => {
     const providers = await listRuntimeProviders();
-    for (const provider of providers.filter((candidate) => candidate.hasOauth && candidate.ownerPluginId)) {
-      void vendorOAuth.reconcilePluginModels(provider.id).catch((error) => {
+    if (providers.some((provider) => provider.id === "plugin:nib.provider:nib" && provider.hasOauth)) {
+      void modelsDevCatalog.refreshIfStale();
+    }
+    await Promise.all(providers.filter((candidate) => candidate.hasOauth && candidate.ownerPluginId).map(async (provider) => {
+      await vendorOAuth.reconcilePluginModels(provider.id).catch((error) => {
         logger.app("provider", "warn", "plugin provider model reconciliation failed", {
           data: { providerId: provider.id, error: error instanceof Error ? error.message : String(error) },
         });
       });
-    }
-    return enrichProviderList({ providers });
+    }));
+    return enrichProviderList({ providers: await listRuntimeProviders() });
   });
   handle(IPC.invoke.providersReorder, async (input: ProviderReorderInput) => {
     if (!host) throw new Error("host unavailable");

@@ -38,6 +38,9 @@ pub(crate) fn provider_from_row(
                     .and_then(|v| v.as_bool())
             })
             .unwrap_or(false),
+        model_discovery: serde_json::from_str::<serde_json::Value>(&config_raw)
+            .ok()
+            .and_then(|config| config.get("modelDiscovery").cloned()),
         default_model_id: models
             .first()
             .map(|binding| binding.id.clone())

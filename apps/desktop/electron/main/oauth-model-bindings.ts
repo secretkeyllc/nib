@@ -64,7 +64,7 @@ export function pluginModelBinding(
    */
   const healed =
     selected && selected.thinkingLevels.length === 0 && levels.length > 0
-      ? undefined
+      ? { ...selected, thinkingLevels: seed.thinkingLevels, defaultThinkingLevel: seed.defaultThinkingLevel }
       : selected;
   return resolveBindingLimits(published, healed ?? seed).binding;
 }

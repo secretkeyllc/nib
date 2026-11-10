@@ -1514,6 +1514,16 @@ export class ModelsDevCatalog {
     return this.loadLocal();
   }
 
+  private lastAutomaticRefresh = Number.NEGATIVE_INFINITY;
+
+  /** Public metadata has its own bounded cache, independent from account IDs. */
+  async refreshIfStale(): Promise<boolean> {
+    await this.ensureLoaded();
+    if (this.now() - this.lastAutomaticRefresh < 6 * 60 * 60_000) return this.loaded;
+    this.lastAutomaticRefresh = this.now();
+    return this.refresh();
+  }
+
   /** Refresh the in-memory snapshot for the current process; never writes user data. */
   async refresh(): Promise<boolean> {
     if (this.loadPromise) return this.loadPromise;
