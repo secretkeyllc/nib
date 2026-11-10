@@ -13,11 +13,12 @@ export function resolveReleaseDocumentCheck(currentVersion, requestedVersion) {
 }
 
 export function isModelsDevProviderCatalog(value) {
+  const providers = value?.providers ?? value;
   return Boolean(
-    value &&
-      typeof value === "object" &&
-      !Array.isArray(value) &&
-      Object.values(value).some(
+    providers &&
+      typeof providers === "object" &&
+      !Array.isArray(providers) &&
+      Object.values(providers).some(
         (provider) => provider && typeof provider === "object" && provider.models,
       ),
   );
