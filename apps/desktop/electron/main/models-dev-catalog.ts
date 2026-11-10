@@ -35,7 +35,7 @@ import type {
 import { genericModelConfig, modelConfigWithBinding, transcriptConfigFromPi, type ModelConfig } from "@pi-desktop/agent-runtime";
 import { resolveBindingLimits } from "@pi-desktop/shared";
 
-export const MODELS_DEV_API_URL = "https://models.dev/api.json";
+export const MODELS_DEV_API_URL = "https://models.dev/catalog.json";
 export const MODELS_DEV_TIMEOUT_MS = 10_000;
 const LOOKUP_MEMO_LIMIT = 1_024;
 const DEFAULT_CONTEXT_WINDOW = 128_000;
@@ -518,8 +518,9 @@ function modelFromRaw(
 
 /** Parse the public models.dev document without network access. */
 export function parseModelsDevCatalog(body: unknown): ModelsDevProvider[] {
-  const root = asRecord(body);
-  if (!root) throw new Error("models.dev catalog must be an object");
+  const document = asRecord(body);
+  if (!document) throw new Error("models.dev catalog must be an object");
+  const root = asRecord(document.providers) ?? document;
   const providers: ModelsDevProvider[] = [];
   for (const [providerKey, value] of Object.entries(root)) {
     const provider = asRecord(value);
@@ -547,6 +548,21 @@ export function parseModelsDevCatalog(body: unknown): ModelsDevProvider[] {
     }
   }
   return providers;
+}
+
+/** Provider-independent records from models.dev's combined catalog. */
+function canonicalModelsFromDocument(body: unknown): Map<string, ModelsDevModel> {
+  const models = asRecord(asRecord(body)?.models);
+  const parsed = new Map<string, ModelsDevModel>();
+  for (const [id, value] of Object.entries(models ?? {})) {
+    const raw = asRecord(value);
+    const parts = normalizedModelId(id).split("/");
+    if (!raw || parts.length !== 2 || !parts[0] || !parts[1]) continue;
+    if (normalizedModelId(nonEmptyString(raw.id) ?? id) !== normalizedModelId(id)) continue;
+    const model = modelFromRaw(parts[0], { name: parts[0] }, id, raw);
+    if (model) parsed.set(normalizedModelId(id), model);
+  }
+  return parsed;
 }
 
 function normalizedProviderKey(value: string | undefined): string {
@@ -1403,6 +1419,7 @@ function borrowedModel(entries: readonly ModelsDevModel[]): ModelsDevModel | und
 
 export class ModelsDevCatalog {
   private providers = new Map<string, ModelsDevProvider>();
+  private canonicalModels = new Map<string, ModelsDevModel>();
   private lookupIndex: ModelsDevLookupIndex | undefined;
   /** Host → publishers, derived from the current provider map. */
   private hostIndex: Map<string, ModelsDevProvider[]> | undefined;
@@ -1468,8 +1485,10 @@ export class ModelsDevCatalog {
       try {
         const raw = JSON.parse(await readFile(this.catalogPath, "utf8")) as unknown;
         const parsed = parseModelsDevCatalog(raw);
+        const canonical = canonicalModelsFromDocument(raw);
         if (parsed.length === 0) throw new Error("models.dev snapshot contained no providers");
         this.providers = new Map(parsed.map((provider) => [provider.providerKey, provider]));
+        this.canonicalModels = canonical;
         // Replacing the provider map invalidates the derived lookup index.
         this.lookupIndex = undefined;
         this.hostIndex = undefined;
@@ -1509,9 +1528,12 @@ export class ModelsDevCatalog {
         if (!response.ok) {
           throw new Error(`models.dev catalog request failed (${response.status})`);
         }
-        const parsed = parseModelsDevCatalog(await response.json());
+        const raw: unknown = await response.json();
+        const parsed = parseModelsDevCatalog(raw);
+        const canonical = canonicalModelsFromDocument(raw);
         if (parsed.length === 0) throw new Error("models.dev catalog contained no usable providers");
         this.providers = new Map(parsed.map((provider) => [provider.providerKey, provider]));
+        this.canonicalModels = canonical;
         // Replacing the provider map invalidates the derived lookup index.
         this.lookupIndex = undefined;
         this.hostIndex = undefined;
@@ -1687,9 +1709,9 @@ export class ModelsDevCatalog {
     // weights behind a quota-isolated route, so its published record answers
     // for context window, capabilities and cost. Wire ids are matched exactly
     // everywhere else, so the served id itself is never rewritten here.
-    const extraFallback = result
+    const extraFallback = result || deploymentFallback
       ? undefined
-      : this.modelForExtraSuffix(input.modelId, preferredProvider);
+      : this.modelForExtraSuffix(input.modelId, preferredProvider, input);
     /* The row's own catalog provider stays authoritative. When an unanchored
        relay serves a known model family and the weight owner publishes a
        matching record, prefer that record over reseller consensus. An
@@ -1705,13 +1727,23 @@ export class ModelsDevCatalog {
       : undefined;
     const borrowed = ownerRecord === null
       ? undefined
-      : ownerRecord ?? result ?? deploymentFallback ?? extraFallback ??
+      : ownerRecord ?? (!preferredProvider ? this.canonicalModelFor(requested) : undefined) ??
+        result ?? deploymentFallback ?? extraFallback ??
         (preferredProvider ? this.borrowedAcrossProviders(input) : undefined);
     // Cache the result (a miss included) so a repeated miss is also O(1) and
     // cannot grow the candidate index with query-dependent keys.
     this.lookupMemo.set(memoKey, borrowed);
     if (this.lookupMemo.size > LOOKUP_MEMO_LIMIT) this.lookupMemo.clear();
     return borrowed;
+  }
+
+  /** Exact canonical identities describe the model, never a reseller deployment. */
+  private canonicalModelFor(requested: string): ModelsDevModel | undefined {
+    const owner = relayFamilyPublisher(leafOf(requested));
+    if (!owner) return undefined;
+    const canonicalId = `${owner}/${leafOf(requested)}`;
+    if (requested.includes("/") && requested !== canonicalId) return undefined;
+    return this.canonicalModels.get(canonicalId);
   }
 
   /** Resolve only a whitelisted deployment marker, preserving the served ID. */
@@ -1752,6 +1784,7 @@ export class ModelsDevCatalog {
   private modelForExtraSuffix(
     modelId: string,
     preferredProvider: ModelsDevProvider | undefined,
+    input: CatalogTarget,
   ): ModelsDevModel | undefined {
     const leaf = modelId.slice(modelId.lastIndexOf("/") + 1);
     const suffix = /[-_:]extra$/i;
@@ -1759,6 +1792,12 @@ export class ModelsDevCatalog {
     const lookupId = leaf.replace(suffix, "");
     if (!lookupId) return undefined;
 
+    // Nib defines Extra as a routing alias, so use the complete base lookup,
+    // including its publisher preference, rather than comparing Google/Vertex.
+    if (normalizedProviderKey(input.vendorKey) === "nib" || hostOfUrl(input.baseUrl) === "api.nib.am") {
+      const base = this.findModel({ ...input, modelId: modelId.replace(suffix, "") });
+      return base ? { ...base, displayName: `${base.displayName} Extra` } : undefined;
+    }
     const candidates = (this.lookupIndex?.candidates(normalizedModelId(lookupId)) ?? [])
       .filter(({ model }) => normalizedModelId(model.modelId) === normalizedModelId(lookupId));
     const base = (() => {

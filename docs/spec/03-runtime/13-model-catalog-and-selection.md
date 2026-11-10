@@ -289,6 +289,14 @@ If user selects model tagged without tools while in Agent mode:
 The bundled models.dev snapshot is the startup baseline. Startup reads no
 remote catalog and uses no ambient credentials. `providers.refreshModelCatalog`
 refreshes models.dev explicitly; settings metadata lookups themselves are local.
+The combined `catalog.json` format supplies provider records and independent
+canonical model records; legacy provider-only snapshots remain readable.
+For an unanchored relay, an exact lab-prefixed canonical identity (or its bare
+family ID) supplies metadata when the owner's provider records do not resolve
+it. Provider deployment records and explicit user overrides remain authoritative;
+canonical records never collapse dated or semantic model variants.
+Nib's `<base>-extra` routing aliases inherit the complete base model lookup and
+append `Extra` to its published name, while retaining the served wire ID.
 
 For keyed endpoints, live discovery supplies IDs and models.dev enriches their
 metadata. A positive safe integer context/input or output limit reported on a live

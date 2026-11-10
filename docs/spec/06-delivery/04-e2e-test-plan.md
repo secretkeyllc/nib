@@ -19225,3 +19225,15 @@ their separate platform acceptance.
   event/result agreement, batch rejection and delegate restoration.
 - **Status**: Automated offline; native UI clicking and live providers are
   outside this fixture's coverage.
+
+#### E2E-MODELS-canonical-routing-metadata
+
+- **Steps**: Discover `gemini-4-argon-extra`, `deepseek-v4.1-flash`, and
+  `claude-fable-5-2` through a fixture Nib login, read the provider IPC cache,
+  populate Composer choices, and construct runtime models.
+- **Expected**: Catalog friendly names and published context/output limits
+  resolve for all three IDs. Extra inherits its base metadata and retains the
+  suffixed wire ID. Exact canonical DeepSeek metadata is distinct from the
+  newer `-1017` provider aliases; provider records and user overrides win.
+- **Automation**: `apps/desktop/test/nib-model-metadata.test.mjs` and
+  `apps/desktop/test/models-dev-catalog.test.mjs`; no real account or paid API.
