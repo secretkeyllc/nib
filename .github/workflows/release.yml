@@ -205,11 +205,10 @@ jobs:
         run: |
           node --input-type=module - <<'NODE'
           import { readFile } from 'node:fs/promises';
+          import { isModelsDevProviderCatalog } from './scripts/release-version-check.mjs';
           const path = 'apps/desktop/resources/models.dev/api.json';
           const catalog = JSON.parse(await readFile(path, 'utf8'));
-          const valid = catalog && !Array.isArray(catalog) && typeof catalog === 'object' &&
-            Object.values(catalog).some((provider) => provider && typeof provider === 'object' && provider.models);
-          if (!valid) throw new Error(`${path} contains no provider model records`);
+          if (!isModelsDevProviderCatalog(catalog)) throw new Error(`${path} contains no provider model records`);
           console.log(`${path} is valid`);
           NODE
 

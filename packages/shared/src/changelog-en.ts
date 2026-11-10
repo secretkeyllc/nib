@@ -2,7 +2,7 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const enEntries: ChangelogEntry[] = [
   {
-    version: "0.22.44",
+    version: "0.22.45",
     date: "2026-11-10",
     highlights: [
       "Nib automatically syncs newly available models at startup and on refresh while preserving your selections and custom limits.",
