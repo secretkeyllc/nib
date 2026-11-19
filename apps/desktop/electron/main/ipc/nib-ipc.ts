@@ -54,7 +54,9 @@ type PluginSettings = {
  * endpoint returns a new pair; both halves must be persisted or the next
  * renewal replays the spent token.
  */
-async function renewSessionToken(
+/** Exported for the remote-control relay: its 4001 retry renews the token
+ * first so an app left idle for days can still re-authenticate. */
+export async function renewSessionToken(
   dataDir: string,
   logger: Logger,
 ): Promise<boolean> {

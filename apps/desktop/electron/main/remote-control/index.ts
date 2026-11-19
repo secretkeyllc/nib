@@ -86,6 +86,14 @@ type Deps = {
   logger: { app: (scope: string, level: "info" | "warn" | "error", message: string, data?: unknown) => void };
   /** The same sender the renderer events flow through. */
   sendToRenderer: (channel: string, payload: unknown) => void;
+  /**
+   * Exchange the stored refresh token for a fresh pair (nib-ipc's renewal).
+   * The relay's 4001 retry used to re-read the SAME stale token from disk:
+   * an app left idle past the 24h access-token expiry made that retry loop
+   * forever, because nothing else renews the token until the user touches
+   * the app again.
+   */
+  renewToken?: () => Promise<boolean>;
 };
 
 type RelayCommand = { id: string; c: string; p: Record<string, unknown> };
@@ -295,7 +303,25 @@ class RemoteControlSession {
       // again; the token refreshes underneath, so the next hello can succeed.
       if (code === 4001 || code === 4002) {
         this.onPhase("error", code === 4001 ? "AUTH_FAILED" : "PAIRING_UNAVAILABLE");
-        this.reconnectTimer = setTimeout(() => this.open(), REJECT_RETRY_MS);
+        const retry = () => {
+          this.reconnectTimer = setTimeout(() => this.open(), REJECT_RETRY_MS);
+        };
+        if (code !== 4001 || !this.deps.renewToken) {
+          retry();
+          return;
+        }
+        // Auth rejection: the token on disk is stale until something renews
+        // it. Renew first, THEN arm the retry — open() re-reads the token
+        // from disk, so ordering is what turns the next hello into a fresh
+        // one instead of a repeat of the rejection.
+        void this.deps.renewToken()
+          .catch(() => false)
+          .then((renewed) => {
+            this.deps.logger.app("remote-control", "info", renewed ? "session token renewed after auth rejection" : "session renewal after auth rejection failed; retrying anyway", {
+              sid: this.sid.slice(0, 8),
+            });
+            retry();
+          });
         return;
       }
       this.onPhase("connecting");

@@ -19,7 +19,7 @@ import { registerPluginIpc } from "./plugin-ipc";
 import { registerPluginUiIpc } from "./plugin-ui-ipc";
 import { registerJevIpc } from "./jev-ipc";
 import { registerProviderIpc } from "./provider-ipc";
-import { registerNibIpc, NIB_PROVIDER_ROW_ID } from "./nib-ipc";
+import { registerNibIpc, renewSessionToken, NIB_PROVIDER_ROW_ID } from "./nib-ipc";
 import { registerScheduledIpc } from "./scheduled-ipc";
 import { registerSessionIpc } from "./session-ipc";
 import { createRemoteControl, registerRemoteControlIpc, setRemoteExecutor } from "../remote-control/index";
@@ -572,6 +572,7 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
     dataDir: () => dataDir,
     logger,
     sendToRenderer,
+    renewToken: () => renewSessionToken(dataDir, logger),
   });
   registerRemoteControlIpc(registrar, remoteControl);
   void remoteControl.maybeAutoStart?.();
