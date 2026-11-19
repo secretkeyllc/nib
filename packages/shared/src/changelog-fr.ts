@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    version: "0.22.46",
+    date: "2026-11-19",
+    highlights: [
+      "Fiabilité du contrôle à distance : après un refus d'authentification, le bureau renouvelle son jeton de session avant de réessayer ; une machine laissée inactive pendant des jours se reconnecte donc toute seule au lieu de rester bloquée sur un jeton expiré.",
+    ],
+  },
+
+  {
     version: "0.22.45",
     date: "2026-11-10",
     highlights: [

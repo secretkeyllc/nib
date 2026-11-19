@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    version: "0.22.46",
+    date: "2026-11-19",
+    highlights: [
+      "원격 제어 안정성: 인증이 거부되면 데스크톱이 재시도 전에 세션 토큰을 갱신하여, 며칠 유휴 상태인 기기도 만료된 토큰에 막히지 않고 스스로 다시 연결됩니다.",
+    ],
+  },
+
+  {
     version: "0.22.45",
     date: "2026-11-10",
     highlights: [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhTWEntries: ChangelogEntry[] = [
   {
+    version: "0.22.46",
+    date: "2026-11-19",
+    highlights: [
+      "遠端控制穩定性修復：驗證被拒後，桌面端會先更新工作階段權杖再重試，閒置多日的機器也能自動恢復連線，不再卡在過期權杖上。",
+    ],
+  },
+
+  {
     version: "0.22.45",
     date: "2026-11-10",
     highlights: [

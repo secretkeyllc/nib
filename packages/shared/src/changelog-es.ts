@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    version: "0.22.46",
+    date: "2026-11-19",
+    highlights: [
+      "Fiabilidad del control remoto: tras un rechazo de autenticación, el escritorio renueva su token de sesión antes de reintentarlo, de modo que una máquina inactiva durante días se reconecta sola en lugar de quedarse atascada con un token caducado.",
+    ],
+  },
+
+  {
     version: "0.22.45",
     date: "2026-11-10",
     highlights: [

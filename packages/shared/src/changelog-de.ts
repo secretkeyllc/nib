@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    version: "0.22.46",
+    date: "2026-11-19",
+    highlights: [
+      "Remote-Control-Zuverlässigkeit: Nach einer abgelehnten Anmeldung erneuert der Desktop sein Sitzungstoken, bevor er es erneut versucht – ein tagelang ungenutzter Rechner verbindet sich so selbstständig wieder, statt an einem abgelaufenen Token hängen zu bleiben.",
+    ],
+  },
+
+  {
     version: "0.22.45",
     date: "2026-11-10",
     highlights: [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    version: "0.22.46",
+    date: "2026-11-19",
+    highlights: [
+      "Uzak kontrol güvenilirliği: kimlik doğrulama reddinden sonra masaüstü, yeniden denemeden önce oturum jetonunu yeniler; böylece günlerce boş kalan bir bilgisayar süresi dolmuş jetona takılmak yerine kendiliğinden yeniden bağlanır.",
+    ],
+  },
+
+  {
     version: "0.22.45",
     date: "2026-11-10",
     highlights: [

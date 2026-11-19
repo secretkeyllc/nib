@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const ptBREntries: ChangelogEntry[] = [
   {
+    version: "0.22.46",
+    date: "2026-11-19",
+    highlights: [
+      "Confiabilidade do controle remoto: após uma rejeição de autenticação, o desktop renova o token de sessão antes de tentar novamente, então uma máquina inativa por dias reconecta sozinha em vez de travar em um token expirado.",
+    ],
+  },
+
+  {
     version: "0.22.45",
     date: "2026-11-10",
     highlights: [

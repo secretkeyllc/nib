@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.22.46",
+    date: "2026-11-19",
+    highlights: [
+      "远程控制稳定性修复：认证被拒后，桌面端会先刷新会话令牌再重试，闲置多日的机器也能自动恢复连接，不再卡在过期令牌上。",
+    ],
+  },
+
+  {
     version: "0.22.45",
     date: "2026-11-10",
     highlights: [
